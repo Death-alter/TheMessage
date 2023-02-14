@@ -1,0 +1,10 @@
+{
+  "__version__": "1.0.4",
+  "general": {
+    "highQuality": true,
+    "designResolution": {
+      "width": 1280,
+      "height": 720
+    }
+  }
+}
