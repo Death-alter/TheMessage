@@ -5,10 +5,11 @@ const { ccclass, property } = _decorator;
 
 @ccclass("Game")
 export class Game extends Component {
-  start() {
+  onLoad() {
     ws.createConnection();
-    ws.send("heart_tos");
-    // ws.setHeartBeatFunction(() => {});
+    ws.setHeartBeatFunction(() => {
+      ws.send("heart_tos");
+    });
   }
 
   update(deltaTime: number) {}

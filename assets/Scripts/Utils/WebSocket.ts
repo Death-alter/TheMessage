@@ -1,12 +1,12 @@
 import config from "../config";
-import ProtoHelper from "./ProtoHelper";
+import ProtoHelper from "../Network/ProtoHelper";
 
 interface WebSocketOption {
   url: string;
 }
 
 interface WebSocketCallBack {
-  (protoName: string, data: { [index: string]: any }): void;
+  (data: { [index: string]: any | null }): void;
 }
 
 export class WS {
@@ -71,7 +71,7 @@ export class WS {
           }
           this.initList = [];
           for (const callback of this.eventList.connect) {
-            callback("connect", {});
+            callback({});
           }
           if (this.heartBeat) {
             this.heartBeatTimer = window.setInterval(this.heartBeat, WS.heartBeatInterval * 1000);
@@ -81,11 +81,12 @@ export class WS {
         };
 
         this.ws.onmessage = (event) => {
-          console.log(event);
           ProtoHelper.decode(event.data).then((res: any) => {
             console.log(res);
-            for (const callback of this.eventList[res.protoName]) {
-              callback(res.protoName, res.data);
+            if (this.eventList[res.protoName]) {
+              for (const callback of this.eventList[res.protoName]) {
+                callback(res.data);
+              }
             }
           });
         };
@@ -94,7 +95,7 @@ export class WS {
           window.clearInterval(this.heartBeatTimer);
           this.ws = null;
           for (const callback of this.eventList.disconnect) {
-            callback("disconnect", {});
+            callback({});
           }
           if (this.retryTime == 1) {
             console.log("网络连接已断开，正在尝试重新连接");
@@ -103,7 +104,7 @@ export class WS {
           if (this.autoReconnect) {
             this.createConnection().then(() => {
               for (const callback of this.eventList.reconnect) {
-                callback("reconnect", {});
+                callback({});
               }
             });
           }
@@ -111,7 +112,7 @@ export class WS {
 
         this.ws.onerror = (error) => {
           for (const callback of this.eventList.error) {
-            callback("error", {});
+            callback({});
           }
           this.reconnect();
           console.log(error);
@@ -152,6 +153,21 @@ export class WS {
       this.eventList[name] = [];
     }
     this.eventList[name].push(callback);
+  }
+
+  off(name: string, callback?: WebSocketCallBack) {
+    if (this.eventList[name]) {
+      if (callback) {
+        for (let i = 0; i < this.eventList[name].length; i++) {
+          if (this.eventList[name][i] === callback) {
+            this.eventList[name].splice(i, 1);
+            break;
+          }
+        }
+      } else {
+        delete this.eventList[name];
+      }
+    }
   }
 }
 
