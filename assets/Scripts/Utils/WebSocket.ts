@@ -73,7 +73,7 @@ export class WS {
           for (const callback of this.eventList.connect) {
             callback({});
           }
-          if (this.heartBeat) {
+          if (this.heartBeat !== null) {
             this.heartBeatTimer = window.setInterval(this.heartBeat, WS.heartBeatInterval * 1000);
           }
           console.log("ws已连接");
@@ -146,6 +146,12 @@ export class WS {
 
   setHeartBeatFunction(func: { (): void }) {
     this.heartBeat = func;
+    if (this.ws && this.state === this.ws.OPEN) {
+      if (this.heartBeatTimer) {
+        window.clearInterval(this.heartBeatTimer);
+      }
+      this.heartBeatTimer = window.setInterval(this.heartBeat, WS.heartBeatInterval * 1000);
+    }
   }
 
   on(name: string, callback: WebSocketCallBack) {

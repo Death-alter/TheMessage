@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EditBox } from "cc";
+import { _decorator, Component, Node, EditBox, director } from "cc";
 import ws from "../Utils/WebSocket";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
@@ -11,7 +11,7 @@ export class LoginButton extends Component {
   @property(EditBox)
   password: EditBox | null = null;
 
-  onLoad() {
+  onEnable() {
     //点击事件
     this.node.on(Node.EventType.TOUCH_END, (event) => {
       if (this.userName.string && this.password.string) {
@@ -23,15 +23,7 @@ export class LoginButton extends Component {
         });
       }
     });
-
-    //注册回调
-    ws.on("get_room_info_toc", (data) => {
-      console.log("get_room_info_toc", data);
-    });
   }
 
-  onDestroy() {
-    //移除回调
-    ws.off("get_room_info_toc");
-  }
+  onDisable() {}
 }
