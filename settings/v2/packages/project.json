@@ -6,5 +6,11 @@
       "width": 1280,
       "height": 720
     }
-  }
+  },
+  "layer": [
+    {
+      "name": "BACKGROUND",
+      "value": 524288
+    }
+  ]
 }

@@ -4,6 +4,6 @@ const { ccclass, property } = _decorator;
 @ccclass("Background")
 export class Background extends Component {
   start() {
-    // director.addPersistRootNode(this.node)
+    director.addPersistRootNode(this.node);
   }
 }

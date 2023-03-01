@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, EditBox, director } from "cc";
-import ws from "../Utils/WebSocket";
+import ws from "../../Utils/WebSocket";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
 
