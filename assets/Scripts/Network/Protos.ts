@@ -64,12 +64,20 @@ const Protos = {
       EventTarget.emit("get_room_info_toc", data);
     });
   },
-  join_room_toc() {},
-  leave_room_toc() {},
+  join_room_toc(data) {
+    EventTarget.emit("join_room_toc", data);
+  },
+  leave_room_toc(data) {
+    EventTarget.emit("leave_room_toc", data);
+  },
   wait_for_select_role_toc() {},
   auto_play_toc() {},
   select_role_toc() {},
-  init_toc() {},
+  init_toc(data) {
+    director.loadScene("game", (e) => {
+      EventTarget.emit("init_toc", data);
+    });
+  },
   notify_role_update_toc() {},
   add_card_toc() {},
   use_shi_tan_toc() {},

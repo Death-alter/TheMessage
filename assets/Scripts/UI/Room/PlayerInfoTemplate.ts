@@ -11,8 +11,11 @@ export class PlayerInfoTemplate extends Component {
 
   init(data?: PlayerInfo) {
     if (data) {
-      this.userName.string = data.userName;
-      this.winCounts.string = data.winCounts !== null ? "胜场：" + data?.winCounts.toString() : "";
+      data.userName && (this.userName.string = data.userName);
+      data.winCounts !== null && (this.winCounts.string = "胜场：" + data?.winCounts.toString());
+    } else {
+      this.userName.string = "";
+      this.winCounts.string = "";
     }
   }
 }

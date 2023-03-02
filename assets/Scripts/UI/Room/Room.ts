@@ -57,6 +57,18 @@ export class PlayerList extends Component {
       this.playerListNode.removeChild(this.playerListNode.children[data.position]);
       this.refreshPlayerListUI();
     });
+
+    //有人加入房间
+    EventTarget.on("join_room_toc", (data) => {
+      this.playerList[data.position] = { userName: data.name, winCounts: data.winCounts || 0 };
+      this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
+    });
+
+    //有人离开房间
+    EventTarget.on("leave_room_toc", (data) => {
+      this.playerList[data.position] = undefined;
+      this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init();
+    });
   }
 
   protected onDisable(): void {
@@ -64,6 +76,8 @@ export class PlayerList extends Component {
     EventTarget.off("get_room_info_toc");
     EventTarget.off("add_one_position_toc");
     EventTarget.off("remove_one_position_toc");
+    EventTarget.off("join_room_toc");
+    EventTarget.off("leave_room_toc");
   }
 
   private refreshPlayerListUI() {
