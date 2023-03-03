@@ -27,7 +27,6 @@ export class WS {
 
   public static readonly heartBeatInterval: number = config.heartBeatInterval; //单位：秒
   public static readonly retryLimit: number = config.maxRetryTimes; //最大重连次数
-  public static readonly timeOutSeconds: number = config.timeOutSeconds;
 
   constructor(option: WebSocketOption) {
     this.url = option.url;
