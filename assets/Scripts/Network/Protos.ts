@@ -1,5 +1,5 @@
 import EventTarget from "../Event/EventTarget";
-import { error_code } from "../../Protobuf/proto";
+import { error_code } from "../../Protobuf/proto.js";
 import { _decorator, Component, director } from "cc";
 
 const Protos = {
