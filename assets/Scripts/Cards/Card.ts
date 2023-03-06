@@ -1,18 +1,7 @@
 import { _decorator, Component, Node } from "cc";
 import { direction } from "../../Protobuf/proto";
+import { CardStatus, CardUseage } from "./types";
 const { ccclass, property } = _decorator;
-
-enum CardStatus {
-  FACE_DOWN = 0,
-  FACE_UP = 1,
-  IN_HAND = 2,
-}
-
-enum CardUseage {
-  FUNCTION_CARD = 0,
-  MESSAGE_CARD = 1,
-  HAND_CARD = 2,
-}
 
 @ccclass("GameManager")
 export class Card extends Component {
@@ -32,9 +21,6 @@ export class Card extends Component {
 
   //翻面
   flip() {
-    if (this.status === CardStatus.IN_HAND) {
-      return;
-    }
     if (this.status === CardStatus.FACE_UP) {
       this.status = CardStatus.FACE_DOWN;
     } else {

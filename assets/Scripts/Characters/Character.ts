@@ -1,22 +1,83 @@
-import { Skill } from "./Skill";
-
-export enum CharacterStatus {
-  FACE_DOWN = 0,
-  FACE_UP = 1,
-}
-
-export enum Sex {
-  MALE = 0,
-  FAMALE = 1,
-}
+import { Skill } from "../Skills/Skill";
+import { CharacterOptions, CharacterStatus, Sex } from "./types";
+import { CardUseage, CardStatus } from "../Cards/types";
+import { Card } from "../Cards/Card";
+import EventTarget from "../Event/EventTarget";
 
 export class Character {
-  private _id: string;
-  private _name: string;
-  private _spirit: string;
-  private _status: CharacterStatus;
-  private _sex: Sex;
-  private skills: Skill[];
+  protected _id: number;
+  protected _name: string;
+  protected _spirit: string;
+  protected _status: CharacterStatus;
+  protected _sex: Sex;
+  protected _skills: Skill[];
 
-  constructor() {}
+  public readonly messages: Card[] = [];
+
+  get status() {
+    return this._status;
+  }
+  set status(status: CharacterStatus) {
+    this._status = status;
+    EventTarget.emit("character_status_change", status);
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get spirit() {
+    return this._spirit;
+  }
+
+  get sex() {
+    return this._sex;
+  }
+
+  constructor(options: CharacterOptions) {
+    this._id = options.id;
+    this._name = options.name;
+    this._spirit = options.spirit;
+    this._status = options.status || CharacterStatus.FACE_UP;
+    this._sex = options.sex;
+    this._skills = options.skills;
+  }
+
+  //翻面
+  public flip(): void {
+    if (this.status === CharacterStatus.FACE_UP) {
+      this.status = CharacterStatus.FACE_DOWN;
+    } else {
+      this.status = CharacterStatus.FACE_UP;
+    }
+  }
+
+  //技能
+  public useSkill(index: number): void {
+    if (index >= this._skills.length) {
+      return;
+    }
+  }
+
+  //情报置入情报区
+  public addMessage(message: Card): void {
+    if (message.useage !== CardUseage.MESSAGE_CARD) message.useage = CardUseage.MESSAGE_CARD;
+    if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
+    this.messages.push(message);
+  }
+
+  //接收情报
+  public acceptMessage(message: Card): void {
+    this.addMessage(message);
+    EventTarget.emit("accept_message", this._id, message);
+  }
+
+  //从情报区移除情报
+  public removeMessage(index: number): Card {
+    return this.messages.splice(index, 1)[0];
+  }
 }
