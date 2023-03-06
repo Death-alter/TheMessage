@@ -3,6 +3,7 @@ import { CharacterOptions, CharacterStatus, Sex } from "./types";
 import { CardUseage, CardStatus } from "../Cards/types";
 import { Card } from "../Cards/Card";
 import EventTarget from "../Event/EventTarget";
+import { GameEvent } from "../Event/types";
 
 export class Character {
   protected _id: number;
@@ -19,7 +20,7 @@ export class Character {
   }
   set status(status: CharacterStatus) {
     this._status = status;
-    EventTarget.emit("character_status_change", status);
+    EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
   }
 
   get id() {
@@ -73,7 +74,7 @@ export class Character {
   //接收情报
   public acceptMessage(message: Card): void {
     this.addMessage(message);
-    EventTarget.emit("accept_message", this._id, message);
+    EventTarget.emit(GameEvent.ACCEPT_MESSAGE, this._id, message);
   }
 
   //从情报区移除情报

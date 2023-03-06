@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, EditBox, UITransform, director, screen } from "cc";
-import ws from "../../Utils/WebSocket";
+import EventTarget from "../../Event/EventTarget";
+import { NetworkEventToS } from "../../Event/types";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
 
@@ -21,7 +22,7 @@ export class LoginButtons extends Component {
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
       if (this.userName.string && this.password.string) {
-        ws.send("join_room_tos", {
+        EventTarget.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: 1,
           name: this.userName.string,
           password: md5.Md5.hashStr(this.password.string),

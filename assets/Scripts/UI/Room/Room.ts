@@ -1,5 +1,6 @@
 import { _decorator, Component, Prefab, Node, Label, UITransform, instantiate } from "cc";
 import EventTarget from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/types";
 import { PlayerInfoTemplate } from "./PlayerInfoTemplate";
 const { ccclass, property } = _decorator;
 
@@ -24,7 +25,7 @@ export class PlayerList extends Component {
 
   protected onEnable(): void {
     //收到房间信息
-    EventTarget.on("get_room_info_toc", (data) => {
+    EventTarget.on(ProcessEvent.CREATE_ROOM, (data) => {
       this.playerList = new Array(data.names.length);
       this.onlineCount = data.onlineCount;
       this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
@@ -44,7 +45,7 @@ export class PlayerList extends Component {
     });
 
     //收到添加空位
-    EventTarget.on("add_one_position_toc", () => {
+    EventTarget.on(ProcessEvent.ADD_ROOM_POSITION, () => {
       this.playerList[this.playerList.length] = undefined;
       const player = instantiate(this.playerInfoPrefab);
       this.playerListNode.addChild(player);
@@ -52,20 +53,20 @@ export class PlayerList extends Component {
     });
 
     //收到移除空位
-    EventTarget.on("remove_one_position_toc", (data) => {
+    EventTarget.on(ProcessEvent.REMOVE_ROOM_POSITION, (data) => {
       this.playerList.splice(data.position, 1);
       this.playerListNode.removeChild(this.playerListNode.children[data.position]);
       this.refreshPlayerListUI();
     });
 
     //有人加入房间
-    EventTarget.on("join_room_toc", (data) => {
+    EventTarget.on(ProcessEvent.JOIN_ROOM, (data) => {
       this.playerList[data.position] = { userName: data.name, winCounts: data.winCounts || 0 };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
     });
 
     //有人离开房间
-    EventTarget.on("leave_room_toc", (data) => {
+    EventTarget.on(ProcessEvent.LEAVE_ROOM, (data) => {
       this.playerList[data.position] = undefined;
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init();
     });
@@ -73,11 +74,11 @@ export class PlayerList extends Component {
 
   protected onDisable(): void {
     //移除事件监听
-    EventTarget.off("get_room_info_toc");
-    EventTarget.off("add_one_position_toc");
-    EventTarget.off("remove_one_position_toc");
-    EventTarget.off("join_room_toc");
-    EventTarget.off("leave_room_toc");
+    EventTarget.off(ProcessEvent.CREATE_ROOM);
+    EventTarget.off(ProcessEvent.ADD_ROOM_POSITION);
+    EventTarget.off(ProcessEvent.REMOVE_ROOM_POSITION);
+    EventTarget.off(ProcessEvent.JOIN_ROOM);
+    EventTarget.off(ProcessEvent.LEAVE_ROOM);
   }
 
   private refreshPlayerListUI() {

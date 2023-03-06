@@ -2,6 +2,7 @@ import { _decorator, Component, Node } from "cc";
 import { Character } from "../Characters/Character";
 import { phase, color, secret_task } from "../../Protobuf/proto";
 import EventTarget from "../Event/EventTarget";
+import { ProcessEvent, GameEvent } from "../Event/types";
 import { Card } from "../Cards/Card";
 const { ccclass, property } = _decorator;
 
@@ -24,7 +25,7 @@ export class GameManager extends Component {
   set gamePhase(phase: phase) {
     if (phase !== this._gamePhase) {
       this._gamePhase = phase;
-      EventTarget.emit("game_phase_change", phase);
+      EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, phase);
     }
   }
 
@@ -34,20 +35,20 @@ export class GameManager extends Component {
   set turnPlayer(playerId: number) {
     if (playerId !== this._turnPlayer) {
       this._turnPlayer = playerId;
-      EventTarget.emit("game_turn_change", playerId);
+      EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
     }
   }
 
   onEnable() {
     //收到初始化
-    EventTarget.on("init_toc", (data) => {
+    EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);
     });
   }
 
   onDisable() {
     //移除事件监听
-    EventTarget.off("init_toc");
+    EventTarget.off(ProcessEvent.INIT_GAME);
   }
 
   init(data) {}

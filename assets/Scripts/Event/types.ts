@@ -1,6 +1,5 @@
-//网络事件，ws收发数据使用
-export enum NetworkEvent {
-  //toc协议
+//toc协议，ws接收数据
+export enum NetworkEventToC {
   ERROR_CODE_TOC = "error_code_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
@@ -114,13 +113,31 @@ export enum NetworkEvent {
   SKILL_WAIT_FOR_DU_JI_B_TOC = "skill_wait_for_du_ji_b_toc",
   SKILL_DU_JI_B_TOC = "skill_du_ji_b_toc",
   SKILL_DU_JI_C_TOC = "skill_du_ji_c_toc",
-
-  //tos协议
 }
 
-//系统事件，用于程序控制
-export enum SystemEvent {
+//tos协议，ws发送数据
+export enum NetworkEventToS {
+  JOIN_ROOM_TOS = "join_room_tos",
+  ADD_ROBOT_TOS = "add_robot_tos",
+  REMOVE_ROBOT_TOS = "remove_robot_tos",
+  GET_ORDERS_TOS = "get_orders_tos",
+  ADD_ORDER_TOS = "add_order_toc",
+  ADD_ONE_POSITION_TOS = "add_one_position_tos",
+  REMOVE_ONE_POSITION_TOS = "remove_one_position_tos",
+}
+
+//程序事件，用于程序控制
+export enum ProcessEvent {
+  JOIN_ROOM = "join_room",
+  LEAVE_ROOM = "leave_room",
   ADD_ROOM_POSITION = "add_room_position",
+  REMOVE_ROOM_POSITION = "remove_room_position",
+  ADD_ROBOT = "add_robot",
+  REMOVE_ROBOT = "remove_robot",
+  GET_ORDERS = "get_orders",
+  ADD_ORDER = "add_order",
+  CREATE_ROOM = "create_room",
+  INIT_GAME = "init_game",
 }
 
 //游戏事件，触发扳机
@@ -129,4 +146,9 @@ export enum GameEvent {
   ACCEPT_RED_MESSAGE = "accept_red_message",
   ACCEPT_BLUE_MESSAGE = "accept_blue_message",
   ACCEPT_BLACK_MESSAGE = "accept_black_message",
+
+  CHARACTER_STATUS_CHANGE = "character_status_change",
+
+  GAME_PHASE_CHANGE = "game_phase_change",
+  GAME_TURN_CHANGE = "game_turn_change",
 }
