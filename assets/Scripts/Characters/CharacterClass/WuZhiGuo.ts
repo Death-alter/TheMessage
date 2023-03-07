@@ -1,6 +1,6 @@
-import { Character } from "./Character";
-import { Sex, CharacterStatus } from "./types";
-import { Skill } from "../Skills/Skill";
+import { Character } from "../Character";
+import { Sex, CharacterStatus } from "../types";
+import { Skill } from "../../Skills/Skill";
 
 export class WuZhiGuo extends Character {
   constructor() {

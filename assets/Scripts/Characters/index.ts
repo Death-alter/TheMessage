@@ -1,4 +1,4 @@
-import { WuZhiGuo } from "./WuZhiGuo";
+import { WuZhiGuo } from "./CharacterClass/WuZhiGuo";
 
 const CharactersArray = [null, WuZhiGuo];
 
