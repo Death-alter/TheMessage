@@ -1,6 +1,6 @@
 import { _decorator, Component, Node } from "cc";
 import { Character } from "../Characters/Character";
-import { phase, color, secret_task } from "../../Protobuf/proto";
+import { phase, color, secret_task } from "../../Protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/types";
 import { Card } from "../Cards/Card";

@@ -8,43 +8,46 @@ const Protos = {};
 
 //error
 Protos[NetworkEventToC.ERROR_CODE_TOC] = (data) => {
+  let error_message;
   switch (data.code) {
     case error_code.client_version_not_match:
-      console.log(`客户端版本号不匹配,服务器版本号为${data.int_params[0]}`);
+      error_message = `客户端版本号不匹配,服务器版本号为${data.int_params[0]}`;
       break;
     case error_code.no_more_room:
-      console.log("没有更多的房间了");
+      error_message = "没有更多的房间了";
       break;
     case error_code.record_not_exists:
-      console.log("录像不存在");
+      error_message = "录像不存在";
       break;
     case error_code.load_record_failed:
-      console.log("读取录像失败");
+      error_message = "读取录像失败";
       break;
     case error_code.record_version_not_match:
-      console.log(`录像的版本号不匹配,服务器版本号为${data.int_params[0]}`);
+      error_message = `录像的版本号不匹配,服务器版本号为${data.int_params[0]}`;
       break;
     case error_code.name_too_long:
-      console.log("玩家名字过长");
+      error_message = "玩家名字过长";
       break;
     case error_code.join_room_too_fast:
-      console.log("加入房间的请求太快");
+      error_message = "加入房间的请求太快";
       break;
     case error_code.robot_not_allowed:
-      console.log("禁止添加机器人");
+      error_message = "禁止添加机器人";
       break;
     case error_code.already_online:
-      console.log("你已经在线，不能重复登录");
+      error_message = "你已经在线，不能重复登录";
       break;
     case error_code.no_color_message_card:
-      console.log("场上没有这种颜色的情报");
+      error_message = "场上没有这种颜色的情报";
       break;
     case error_code.login_failed:
-      console.log("登录失败");
+      error_message = "登录失败";
       break;
     default:
-      console.log("未知错误");
+      error_message = "未知错误";
   }
+  console.log(error_message);
+  EventTarget.emit(ProcessEvent.NETWORK_ERROR, { code: data.code, msg: error_message });
 };
 
 //fengsheng

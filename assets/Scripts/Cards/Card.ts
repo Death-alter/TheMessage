@@ -1,4 +1,4 @@
-import { direction, card_type, phase } from "../../Protobuf/proto";
+import { direction, card_type, phase } from "../../Protobuf/proto.d";
 import { CardStatus, CardUseage, CardOption } from "./types";
 import EventTarget from "../Event/EventTarget";
 import { GameEvent } from "../Event/types";

@@ -1,6 +1,6 @@
 import { Card } from "../Card";
 import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto";
+import { card_type } from "../../../Protobuf/proto.d";
 
 export default class WuDao extends Card {
   constructor(option: CardClassDefaultOption) {

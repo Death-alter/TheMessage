@@ -1,6 +1,6 @@
 import { Card } from "../Card";
 import { ShiTanOption } from "../types";
-import { card_type, color } from "../../../Protobuf/proto";
+import { card_type, color } from "../../../Protobuf/proto.d";
 
 export default class ShiTan extends Card {
   private _drawCardColor: color[];
