@@ -72,7 +72,9 @@ Protos[NetworkEventToC.JOIN_ROOM_TOC] = (data) => {
 Protos[NetworkEventToC.LEAVE_ROOM_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.LEAVE_ROOM, data);
 };
-Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {};
+Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.SHOW_SELECT_ROLE_UI);
+};
 Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {};
 Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {};
 Protos[NetworkEventToC.INIT_TOC] = (data) => {

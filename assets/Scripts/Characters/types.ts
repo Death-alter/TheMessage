@@ -8,6 +8,7 @@ export enum CharacterStatus {
 export enum Sex {
   MALE = 0,
   FAMALE = 1,
+  UNKONWN = 2,
 }
 
 export interface CharacterOptions {

@@ -19,8 +19,10 @@ export class Character {
     return this._status;
   }
   set status(status: CharacterStatus) {
-    this._status = status;
-    EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
+    if (status !== this._status) {
+      this._status = status;
+      EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
+    }
   }
 
   get id() {

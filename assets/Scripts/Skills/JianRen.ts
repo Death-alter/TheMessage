@@ -1,6 +1,5 @@
 import { TriggeringSkill } from "./Skill";
 import { TriggeringSkillOption } from "./types";
-import { Character } from "../Characters/Character";
 
 export class JianRen extends TriggeringSkill {
   constructor(option: TriggeringSkillOption) {
@@ -10,7 +9,7 @@ export class JianRen extends TriggeringSkill {
     });
   }
 
-  onUse(): void {
+  onUse() {
     
   }
 }
