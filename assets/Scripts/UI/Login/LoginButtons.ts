@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EditBox, UITransform, director, screen } from "cc";
+import { _decorator, Component, Node, EditBox, resources, ImageAsset, Texture2D, SpriteFrame } from "cc";
 import EventTarget from "../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../Event/types";
 import md5 from "ts-md5";

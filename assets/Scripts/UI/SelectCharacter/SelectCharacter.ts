@@ -1,21 +1,31 @@
-import { _decorator, Component, Node, UITransform, RichText, tween } from "cc";
-import { IdentifyType, SecretTaskType } from "./type";
-import { wait_for_select_role_toc } from "../../Protobuf/proto";
+import { _decorator, Component, Node, UITransform, RichText, tween, ProgressBar, instantiate } from "cc";
+import { IdentifyType, SecretTaskType } from "../../Game/type";
+import { createCharacterById } from "../../Characters";
+import { Character } from "../../Characters/Character";
+import { CharacterType } from "../../Characters/types";
+import { wait_for_select_role_toc } from "../../../protobuf/proto";
+import { CharacterPanting } from "../Character/CharacterPanting";
+
 const { ccclass, property } = _decorator;
 
 @ccclass("SelectCharacter")
 export class SelectCharacter extends Component {
-  private _infoText: Node | null = null;
-  private _progress: Node | null = null;
-  private _bar: Node | null = null;
+  @property(RichText)
+  infoText: RichText | null = null;
 
-  start() {
-    this._infoText = this.node.getChildByName("InfoText");
-    this._progress = this.node.getChildByName("Progress");
-    this._bar = this._progress.getChildByName("Bar");
-  }
+  @property(ProgressBar)
+  progress: ProgressBar | null = null;
+
+  @property(Node)
+  charcaterPanting: Node | null = null;
+
+  @property(Node)
+  charcaterNodeList: Node | null = null;
+
+  private characterList: Character[] = [];
 
   init(data: wait_for_select_role_toc) {
+    //生成提示文字
     let text = "你的身份是：";
     switch (data.identity as unknown as IdentifyType) {
       case IdentifyType.RED:
@@ -48,11 +58,23 @@ export class SelectCharacter extends Component {
         break;
       default:
     }
-    this._infoText.getComponent(RichText).string = text;
-    const bar = this._bar.getComponent(UITransform);
-    bar.width = this._progress.getComponent(UITransform).width;
+    this.infoText.getComponent(RichText).string = text;
+
+    //生成角色
+    for (let i = 0; i < data.roles.length; i++) {
+      const character = createCharacterById(data.roles[i] as unknown as CharacterType);
+      this.characterList.push(character);
+      if (i === 0) {
+        this.charcaterPanting.getComponent(CharacterPanting).character = character;
+      } else {
+        const node = instantiate(this.charcaterPanting);
+        node.getComponent(CharacterPanting).character = character;
+        this.charcaterNodeList.addChild(node);
+      }
+    }
+
     this.show();
-    tween(bar).to(data.waitingSecond, { width: 0 }).start();
+    this.startCountDown(data.waitingSecond);
   }
 
   show() {
@@ -61,5 +83,13 @@ export class SelectCharacter extends Component {
 
   hide() {
     this.node.active = false;
+  }
+
+  //倒计时进度条动画
+  startCountDown(seconds) {
+    const bar = this.progress.node.getChildByName("Bar");
+    const barTransform = bar.getComponent(UITransform);
+    barTransform.width = this.progress.getComponent(UITransform).width;
+    tween(barTransform).to(seconds, { width: 0 }).start();
   }
 }

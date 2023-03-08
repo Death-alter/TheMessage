@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "82b57855-e1f0-4e63-84f9-3c9cac552884",
+  "uuid": "c49f841e-35ef-4349-a2f5-fcfcf8b3b4d2",
   "files": [
     ".jpg",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "82b57855-e1f0-4e63-84f9-3c9cac552884@6c48a",
+      "uuid": "c49f841e-35ef-4349-a2f5-fcfcf8b3b4d2@6c48a",
       "displayName": "PingHeng",
       "id": "6c48a",
       "name": "texture",
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "82b57855-e1f0-4e63-84f9-3c9cac552884",
+        "imageUuidOrDatabaseUri": "c49f841e-35ef-4349-a2f5-fcfcf8b3b4d2",
         "visible": true
       },
       "ver": "1.0.22",
@@ -37,6 +37,6 @@
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
     "type": "texture",
-    "redirect": "82b57855-e1f0-4e63-84f9-3c9cac552884@6c48a"
+    "redirect": "c49f841e-35ef-4349-a2f5-fcfcf8b3b4d2@6c48a"
   }
 }

@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "f7711047-0c30-4ad7-813f-2bd1c146722a",
+  "uuid": "d057b355-5f02-4c85-9836-48b370e8e2f8",
   "files": [
     ".jpg",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "f7711047-0c30-4ad7-813f-2bd1c146722a@6c48a",
+      "uuid": "d057b355-5f02-4c85-9836-48b370e8e2f8@6c48a",
       "displayName": "ChengQing",
       "id": "6c48a",
       "name": "texture",
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "f7711047-0c30-4ad7-813f-2bd1c146722a",
+        "imageUuidOrDatabaseUri": "d057b355-5f02-4c85-9836-48b370e8e2f8",
         "visible": true
       },
       "ver": "1.0.22",
@@ -37,6 +37,6 @@
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
     "type": "texture",
-    "redirect": "f7711047-0c30-4ad7-813f-2bd1c146722a@6c48a"
+    "redirect": "d057b355-5f02-4c85-9836-48b370e8e2f8@6c48a"
   }
 }

@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, director, RichText, tween, UITransform } from "cc";
-import { SelectCharacter } from "./SelectCharacter";
+import { SelectCharacter } from "../UI/SelectCharacter/SelectCharacter";
 import { Character } from "../Characters/Character";
 import { IdentifyType, SecretTaskType } from "./type";
-import { phase, color, secret_task } from "../../Protobuf/proto.d";
+import { phase, color, secret_task } from "../../protobuf/proto";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/types";
 import { Card } from "../Cards/Card";
@@ -16,6 +16,7 @@ export class GameManager extends Component {
   public CharacterList: Character[];
   public identity: IdentifyType;
   public secretTask: SecretTaskType | null = null;
+  public playerCount: number;
 
   private _gamePhase: phase;
   private _turnPlayer: number;
@@ -46,8 +47,8 @@ export class GameManager extends Component {
     EventTarget.on(ProcessEvent.START_SELECT_CHARACTER, (data) => {
       this.identity = data.identity;
       this.secretTask = data.secretTask;
-      console.log(this.selectCharacterWindow)
-      // this.selectCharacterWindow.init(data);
+      this.playerCount = data.playerCount;
+      this.selectCharacterWindow.getComponent(SelectCharacter).init(data);
     });
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {

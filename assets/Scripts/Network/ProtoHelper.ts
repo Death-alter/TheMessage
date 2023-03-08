@@ -1,4 +1,4 @@
-import proto from "../../Protobuf/proto.js";
+import proto from "../../protobuf/proto.js";
 
 class ProtoHelper {
   static encode(protoName: string, data: Object) {

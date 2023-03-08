@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "3ebc00c7-2c87-43ef-9805-c8fbd31bc903",
+  "uuid": "65a4a158-90b6-41b1-b963-214b3f6cc664",
   "files": [
     ".jpg",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "3ebc00c7-2c87-43ef-9805-c8fbd31bc903@6c48a",
+      "uuid": "65a4a158-90b6-41b1-b963-214b3f6cc664@6c48a",
       "displayName": "LiNingYuSP",
       "id": "6c48a",
       "name": "texture",
@@ -22,10 +22,102 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "3ebc00c7-2c87-43ef-9805-c8fbd31bc903",
-        "visible": true
+        "imageUuidOrDatabaseUri": "65a4a158-90b6-41b1-b963-214b3f6cc664",
+        "visible": false
       },
       "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "65a4a158-90b6-41b1-b963-214b3f6cc664@f9941",
+      "displayName": "LiNingYuSP",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 561,
+        "height": 470,
+        "rawWidth": 561,
+        "rawHeight": 470,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -280.5,
+            -235,
+            0,
+            280.5,
+            -235,
+            0,
+            -280.5,
+            235,
+            0,
+            280.5,
+            235,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            0,
+            470,
+            561,
+            470,
+            0,
+            0,
+            561,
+            0
+          ],
+          "nuv": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "minPos": [
+            -280.5,
+            -235,
+            0
+          ],
+          "maxPos": [
+            280.5,
+            235,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "65a4a158-90b6-41b1-b963-214b3f6cc664@6c48a",
+        "atlasUuid": ""
+      },
+      "ver": "1.0.11",
       "imported": true,
       "files": [
         ".json"
@@ -36,7 +128,7 @@
   "userData": {
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
-    "type": "texture",
-    "redirect": "3ebc00c7-2c87-43ef-9805-c8fbd31bc903@6c48a"
+    "type": "sprite-frame",
+    "redirect": "65a4a158-90b6-41b1-b963-214b3f6cc664@f9941"
   }
 }

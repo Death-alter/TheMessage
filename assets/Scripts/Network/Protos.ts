@@ -1,5 +1,5 @@
 import EventTarget from "../Event/EventTarget";
-import { error_code } from "../../Protobuf/proto.d";
+import { error_code } from "../../protobuf/proto.d";
 import { NetworkEventToC, ProcessEvent } from "../Event/types";
 import { _decorator, Component, director } from "cc";
 

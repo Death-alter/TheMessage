@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "d6eddd70-8876-4122-b3a7-21da456e1038",
+  "uuid": "6a3eaece-33a2-41c0-80e8-145092c923cd",
   "files": [
     ".jpg",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "d6eddd70-8876-4122-b3a7-21da456e1038@6c48a",
+      "uuid": "6a3eaece-33a2-41c0-80e8-145092c923cd@6c48a",
       "displayName": "DiaoBao",
       "id": "6c48a",
       "name": "texture",
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "d6eddd70-8876-4122-b3a7-21da456e1038",
+        "imageUuidOrDatabaseUri": "6a3eaece-33a2-41c0-80e8-145092c923cd",
         "visible": true
       },
       "ver": "1.0.22",
@@ -37,6 +37,6 @@
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
     "type": "texture",
-    "redirect": "d6eddd70-8876-4122-b3a7-21da456e1038@6c48a"
+    "redirect": "6a3eaece-33a2-41c0-80e8-145092c923cd@6c48a"
   }
 }

@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "ad6ce484-5af7-4417-9b59-befa1d184c5f",
+  "uuid": "43ab019d-6347-4ee5-8537-37cd4589c0f2",
   "files": [
     ".jpg",
     ".json"
@@ -10,7 +10,7 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "ad6ce484-5af7-4417-9b59-befa1d184c5f@6c48a",
+      "uuid": "43ab019d-6347-4ee5-8537-37cd4589c0f2@6c48a",
       "displayName": "WeiBi",
       "id": "6c48a",
       "name": "texture",
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "ad6ce484-5af7-4417-9b59-befa1d184c5f",
+        "imageUuidOrDatabaseUri": "43ab019d-6347-4ee5-8537-37cd4589c0f2",
         "visible": true
       },
       "ver": "1.0.22",
@@ -37,6 +37,6 @@
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
     "type": "texture",
-    "redirect": "ad6ce484-5af7-4417-9b59-befa1d184c5f@6c48a"
+    "redirect": "43ab019d-6347-4ee5-8537-37cd4589c0f2@6c48a"
   }
 }

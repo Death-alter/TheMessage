@@ -53,9 +53,9 @@
     },
     "autoReleaseAssets": true,
     "_globals": {
-      "__id__": 92
+      "__id__": 91
     },
-    "_id": "a228d91e-0f8c-4a9b-b3f5-d78813cdd188"
+    "_id": "05292012-b888-45e9-9253-68b45c394362"
   },
   {
     "__type__": "cc.Node",
@@ -408,7 +408,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "3361a5f1-aca2-4a06-ae16-1d62ed58c6a7@f9941",
+      "__uuid__": "cc5194bb-90a3-404f-997a-4d2ef90e8116@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -455,8 +455,8 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -596.0819999999993,
-      "y": 319.3330000000001,
+      "x": -620,
+      "y": 320,
       "z": 0
     },
     "_lrot": {
@@ -493,12 +493,12 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 50,
+      "width": 56,
       "height": 50
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0,
       "y": 0.5
     },
     "_id": "73tsQI/LhP2ZhBB4ExnCqf"
@@ -517,18 +517,18 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
+      "r": 111,
+      "g": 180,
       "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "45828f25-b50d-4c52-a591-e19491a62b8c@f9941",
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
     "_fillType": 0,
-    "_sizeMode": 0,
+    "_sizeMode": 1,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -552,7 +552,7 @@
     "__prefab": null,
     "clickEvents": [],
     "_interactable": true,
-    "_transition": 2,
+    "_transition": 0,
     "_normalColor": {
       "__type__": "cc.Color",
       "r": 214,
@@ -582,19 +582,19 @@
       "a": 255
     },
     "_normalSprite": {
-      "__uuid__": "45828f25-b50d-4c52-a591-e19491a62b8c@f9941",
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_hoverSprite": {
-      "__uuid__": "20835ba4-6145-4fbc-a58a-051ce700aa3e@f9941",
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_pressedSprite": {
-      "__uuid__": "544e49d6-3f05-4fa8-9a9e-091f98fc2ce8@f9941",
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_disabledSprite": {
-      "__uuid__": "951249e0-9f16-456d-8b85-a6ca954da16b@f9941",
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_duration": 0.1,
@@ -614,7 +614,7 @@
     "_enabled": true,
     "__prefab": null,
     "_clip": {
-      "__uuid__": "0051fb92-ad49-406a-9619-3ab3f32395b3",
+      "__uuid__": "7f20622c-ef04-4df0-a6be-c66296e9a0ed",
       "__expectedType__": "cc.AudioClip"
     },
     "_loop": true,
@@ -623,7 +623,7 @@
     "_id": "f2CxI5bUNCk7QdayMX1C/b"
   },
   {
-    "__type__": "d1bc1i4Xh1H56bUs7Ijh9fX",
+    "__type__": "9bd32pn1w1LE4bV00uaNEUr",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -631,8 +631,16 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "onSprite": {
+      "__uuid__": "831d2d58-aee4-4b87-b9c3-1f8e68c38d47@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
+    "offSprite": {
+      "__uuid__": "7fef7730-d578-4a8e-b943-13780552567f@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_audioSource": null,
-    "_id": "76AiBeC49GSb9dHvuwsumC"
+    "_id": "f4EzlTrOpJUJA7asgoPO/J"
   },
   {
     "__type__": "cc.Node",
@@ -1054,17 +1062,6 @@
     "_id": "6cDQzXsH5GkKAfpcNTUWS0"
   },
   {
-    "__type__": "15980pLaTBP44is3BqGvU5+",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 17
-    },
-    "_enabled": true,
-    "__prefab": null,
-    "_id": "35aRqrG4pKerCtg0CcT+C4"
-  },
-  {
     "__type__": "cc.UIOpacity",
     "_name": "",
     "_objFlags": 0,
@@ -1075,6 +1072,17 @@
     "__prefab": null,
     "_opacity": 255,
     "_id": "0eRW6WmWxEU6fkb+ZWEPsI"
+  },
+  {
+    "__type__": "1fc27mXPS9DzqVdLqBifFxR",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 17
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_id": "a5llQLuA5GMKj//TtX+K0g"
   },
   {
     "__type__": "cc.UITransform",
@@ -1142,7 +1150,7 @@
     "_id": "1bqm9GQTRPYKYcS++IMENO"
   },
   {
-    "__type__": "a5e20CaLKtJVqedw9f9F0D4",
+    "__type__": "1a95dy4KTNIDqPibauh96Cd",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -1150,7 +1158,7 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_id": "1bwVaxkIRKiIzS3hEc+HFT"
+    "_id": "f9rEhqYFRDpJWgHWLwGVMi"
   },
   {
     "__type__": "cc.Node",
@@ -1186,9 +1194,6 @@
       },
       {
         "__id__": 90
-      },
-      {
-        "__id__": 91
       }
     ],
     "_prefab": null,
@@ -2951,7 +2956,7 @@
     "_id": "b26wy8LsxNuK57VsAhx75g"
   },
   {
-    "__type__": "72452cI8eRFCJFu+reYiaC/",
+    "__type__": "186b8Zwc3RDnbV2dl6QoO33",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -2969,7 +2974,7 @@
       "__id__": 82
     },
     "replyListNode": null,
-    "_id": "acJgmE2+BFtIRiUQZRT04L"
+    "_id": "07zQkiPMNOOI4TnILCI0Iu"
   },
   {
     "__type__": "cc.Node",
@@ -3239,35 +3244,24 @@
     "_id": "c5V1EV8IpMtrIvY1OE9t2u"
   },
   {
-    "__type__": "c2f25BQ7sJDwIMgQ/Wgjq7B",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 35
-    },
-    "_enabled": true,
-    "__prefab": null,
-    "_id": "a8xtqsBXBLQI/FgwefLyR3"
-  },
-  {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 93
+      "__id__": 92
     },
     "shadows": {
-      "__id__": 94
+      "__id__": 93
     },
     "_skybox": {
-      "__id__": 95
+      "__id__": 94
     },
     "fog": {
-      "__id__": 96
+      "__id__": 95
     },
     "octree": {
-      "__id__": 97
+      "__id__": 96
     },
     "lightProbeInfo": {
-      "__id__": 98
+      "__id__": 97
     },
     "bakedWithStationaryMainLight": false
   },
