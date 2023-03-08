@@ -214,7 +214,8 @@ export enum ProcessEvent {
   ADD_ORDER = "add_order",
   CREATE_ROOM = "create_room",
   INIT_GAME = "init_game",
-  SHOW_SELECT_ROLE_UI = "show_select_role_ui",
+  START_SELECT_CHARACTER = "start_select_character",
+  CONFORM_SELECT_CHARACTER = "conform_select_character",
 }
 
 //游戏事件，触发扳机

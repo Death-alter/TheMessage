@@ -4,7 +4,8 @@
     "highQuality": true,
     "designResolution": {
       "width": 1280,
-      "height": 720
+      "height": 720,
+      "fitHeight": true
     }
   },
   "layer": [
@@ -12,5 +13,6 @@
       "name": "BACKGROUND",
       "value": 524288
     }
-  ]
+  ],
+  "custom_joint_texture_layouts": []
 }

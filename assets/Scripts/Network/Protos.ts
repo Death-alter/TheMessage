@@ -41,7 +41,7 @@ Protos[NetworkEventToC.ERROR_CODE_TOC] = (data) => {
       error_message = "场上没有这种颜色的情报";
       break;
     case error_code.login_failed:
-      error_message = "登录失败";
+      error_message = "密码错误";
       break;
     default:
       error_message = "未知错误";
@@ -76,14 +76,14 @@ Protos[NetworkEventToC.LEAVE_ROOM_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.LEAVE_ROOM, data);
 };
 Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {
-  EventTarget.emit(ProcessEvent.SHOW_SELECT_ROLE_UI);
+  director.loadScene("game", (e) => {
+    EventTarget.emit(ProcessEvent.START_SELECT_CHARACTER);
+  });
 };
 Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {};
 Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {};
 Protos[NetworkEventToC.INIT_TOC] = (data) => {
-  director.loadScene("game", (e) => {
-    EventTarget.emit(ProcessEvent.INIT_GAME, data);
-  });
+  EventTarget.emit(ProcessEvent.INIT_GAME, data);
 };
 Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {};
 Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {};
