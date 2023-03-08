@@ -77,7 +77,7 @@ Protos[NetworkEventToC.LEAVE_ROOM_TOC] = (data) => {
 };
 Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {
   director.loadScene("game", (e) => {
-    EventTarget.emit(ProcessEvent.START_SELECT_CHARACTER);
+    EventTarget.emit(ProcessEvent.START_SELECT_CHARACTER, data);
   });
 };
 Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {};

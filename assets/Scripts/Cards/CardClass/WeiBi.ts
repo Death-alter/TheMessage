@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class WeiBi extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "威逼",
-      type: card_type.Wei_Bi,
+      type: CardType.WEI_BI,
       spirit: "images/cards/WeiBi.jpg",
       direction: option.direction,
     });

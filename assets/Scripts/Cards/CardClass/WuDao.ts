@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class WuDao extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "误导",
-      type: card_type.Wu_Dao,
+      type: CardType.WU_DAO,
       spirit: "images/cards/WuDao.jpg",
       direction: option.direction,
     });

@@ -1,9 +1,8 @@
 import { Card } from "../Card";
-import { ShiTanOption } from "../types";
-import { card_type, color } from "../../../Protobuf/proto.d";
+import { ShiTanOption, CardType, CardColor } from "../types";
 
 export default class ShiTan extends Card {
-  private _drawCardColor: color[];
+  private _drawCardColor: CardColor[];
 
   get drawCardColor() {
     return this._drawCardColor;
@@ -13,7 +12,7 @@ export default class ShiTan extends Card {
     super({
       id: option.id,
       name: "试探",
-      type: card_type.Shi_Tan,
+      type: CardType.SHI_TAN,
       spirit: "images/cards/ShiTan.jpg",
       direction: option.direction,
     });

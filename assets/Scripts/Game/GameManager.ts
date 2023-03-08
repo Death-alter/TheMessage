@@ -1,5 +1,7 @@
-import { _decorator, Component, Node } from "cc";
+import { _decorator, Component, Node, director, RichText, tween, UITransform } from "cc";
+import { SelectCharacter } from "./SelectCharacter";
 import { Character } from "../Characters/Character";
+import { IdentifyType, SecretTaskType } from "./type";
 import { phase, color, secret_task } from "../../Protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/types";
@@ -9,11 +11,11 @@ const { ccclass, property } = _decorator;
 @ccclass("GameManager")
 export class GameManager extends Component {
   @property(Node)
-  public AudioPlayer: Node | null = null;
+  selectCharacterWindow: Node | null = null;
 
   public CharacterList: Character[];
-  public identity: color;
-  public secret_task: secret_task | null = null;
+  public identity: IdentifyType;
+  public secretTask: SecretTaskType | null = null;
 
   private _gamePhase: phase;
   private _turnPlayer: number;
@@ -40,6 +42,13 @@ export class GameManager extends Component {
   }
 
   onEnable() {
+    //开始选人
+    EventTarget.on(ProcessEvent.START_SELECT_CHARACTER, (data) => {
+      this.identity = data.identity;
+      this.secretTask = data.secretTask;
+      console.log(this.selectCharacterWindow)
+      // this.selectCharacterWindow.init(data);
+    });
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);

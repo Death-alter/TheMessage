@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class PingHeng extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "平衡",
-      type: card_type.Ping_Heng,
+      type: CardType.PING_HENG,
       spirit: "images/cards/PingHeng.jpg",
       direction: option.direction,
     });

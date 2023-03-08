@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class JieHuo extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "截获",
-      type: card_type.Jie_Huo,
+      type: CardType.JIE_HUO,
       spirit: "images/cards/JieHuo.jpg",
       direction: option.direction,
     });

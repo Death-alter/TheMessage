@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class FenYunBianHuan extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "风云变幻",
-      type: card_type.Feng_Yun_Bian_Huan,
+      type: CardType.FENG_YUN_BIAN_HUAN,
       spirit: "images/cards/FengYunBianHuan.jpg",
       direction: option.direction,
     });

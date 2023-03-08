@@ -1,13 +1,12 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption } from "../types";
-import { card_type } from "../../../Protobuf/proto.d";
+import { CardClassDefaultOption, CardType } from "../types";
 
 export default class PoYi extends Card {
   constructor(option: CardClassDefaultOption) {
     super({
       id: option.id,
       name: "破译",
-      type: card_type.Po_Yi,
+      type: CardType.PO_YI,
       spirit: "images/cards/PoYi.jpg",
       direction: option.direction,
     });
