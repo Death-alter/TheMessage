@@ -10,6 +10,6 @@
     "ts-md5": "^1.3.1"
   },
   "scripts": {
-    "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/Protobuf/proto.js ./assets/Network/*.proto && pbts --main --out ./assets/Protobuf/proto.d.ts ./assets/Protobuf/*.js"
+    "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js"
   }
 }
