@@ -32,7 +32,7 @@ Protos[NetworkEventToC.ERROR_CODE_TOC] = (data) => {
       error_message = "加入房间的请求太快";
       break;
     case error_code.robot_not_allowed:
-      error_message = "禁止添加机器人";
+      error_message = "五人局以上禁止添加机器人";
       break;
     case error_code.already_online:
       error_message = "你已经在线，不能重复登录";
@@ -83,13 +83,13 @@ Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {
   });
 };
 Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {};
-Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {};
+Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, data);
+};
 Protos[NetworkEventToC.INIT_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.INIT_GAME, data);
 };
-Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {
-
-};
+Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {};
 Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {};
 Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {};

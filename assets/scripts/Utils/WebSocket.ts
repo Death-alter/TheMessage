@@ -133,6 +133,7 @@ export class WS {
   }
 
   send(protoName: string, data: Object = {}) {
+    console.log({ protoName, data });
     const protoData = ProtoHelper.encode(protoName, data);
     if (this.connecting) {
       this.initList.push(() => {

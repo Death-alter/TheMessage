@@ -57,10 +57,11 @@ export class GameManager extends Component {
         waitingSecond: data.waitingSecond,
       });
     });
-    
+
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);
+      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
     });
   }
 

@@ -93,6 +93,6 @@ export class PlayerList extends Component {
   }
 
   private refreshPlayerListUI() {
-    this.playerListNode.getComponent(UITransform).height = 60 * this.playerList.length;
+    this.playerListNode.getComponent(UITransform).height = 70 * this.playerList.length;
   }
 }

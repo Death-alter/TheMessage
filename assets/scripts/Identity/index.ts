@@ -1,12 +1,12 @@
 import { Identity } from "./Identity";
-import { Agent } from "./IdentityClass/Agent ";
-import { Collector } from "./IdentityClass/collector";
+import { Agent } from "./IdentityClass/Agent";
+import { Collector } from "./IdentityClass/Collector";
 import { Killer } from "./IdentityClass/Killer";
 import { Lurker } from "./IdentityClass/Lurker";
-import { Mutator } from "./IdentityClass/mutator";
+import { Mutator } from "./IdentityClass/Mutator";
 import { MysteriousPerson } from "./IdentityClass/MysteriousPerson";
-import { Pioneer } from "./IdentityClass/pioneer";
-import { Stealer } from "./IdentityClass/stealer";
+import { Pioneer } from "./IdentityClass/Pioneer";
+import { Stealer } from "./IdentityClass/Stealer";
 import { NoIdentity } from "./IdentityClass/NoIdentity";
 
 import { SecretTaskType, IdentityType } from "./type";

@@ -1,10 +1,24 @@
-import { _decorator, Component, Node, UITransform, RichText, Button, ProgressBar, tween, instantiate } from "cc";
+import {
+  _decorator,
+  Component,
+  Node,
+  UITransform,
+  RichText,
+  Button,
+  ProgressBar,
+  tween,
+  instantiate,
+  Sprite,
+  color,
+} from "cc";
 import { createCharacterById } from "../../Characters";
 import { Character } from "../../Characters/Character";
 import { CharacterType } from "../../Characters/type";
 import { Identity } from "../../Identity/Identity";
 import { MysteriousPerson } from "../../Identity/IdentityClass/MysteriousPerson";
 import { CharacterPanting } from "../Character/CharacterPanting";
+import EventTarget from "../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../Event/type";
 
 const { ccclass, property } = _decorator;
 
@@ -23,7 +37,7 @@ export class SelectCharacter extends Component {
   progress: ProgressBar | null = null;
 
   @property(Node)
-  charcaterPanting: Node | null = null;
+  charcaterNode: Node | null = null;
 
   @property(Node)
   charcaterNodeList: Node | null = null;
@@ -31,16 +45,9 @@ export class SelectCharacter extends Component {
   @property(Button)
   confirmButton: Button | null = null;
 
+  private characterTypes: CharacterType[];
   private characterList: Character[] = [];
-  private selectedCharacter;
-
-  onLoad() {
-    for (let node of this.charcaterNodeList.children) {
-      node.on(Node.EventType.TOUCH_END, (event) => {});
-    }
-
-    this.confirmButton.node.on(Node.EventType.TOUCH_END, (event) => {});
-  }
+  private selectedCharacterIndex: number;
 
   init(data: InitOption) {
     //生成提示文字
@@ -52,27 +59,68 @@ export class SelectCharacter extends Component {
     this.infoText.getComponent(RichText).string = text;
 
     //生成角色
+    this.characterTypes = roles;
     for (let i = 0; i < roles.length; i++) {
       const character = createCharacterById(roles[i]);
       this.characterList.push(character);
       if (i === 0) {
-        this.charcaterPanting.getComponent(CharacterPanting).character = character;
+        this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterPanting).character = character;
       } else {
-        const node = instantiate(this.charcaterPanting);
-        node.getComponent(CharacterPanting).character = character;
+        const node = instantiate(this.charcaterNode);
+        node.getChildByName("CharacterPanting").getComponent(CharacterPanting).character = character;
         this.charcaterNodeList.addChild(node);
       }
     }
 
+    //给角色绑定点击事件
+    for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
+      const node = this.charcaterNodeList.children[i];
+      node.on(Node.EventType.TOUCH_END, (event) => {
+        if (i === this.selectedCharacterIndex) {
+          return;
+        } else {
+          this.selectedCharacterIndex = i;
+        }
+        //清除选择
+        for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
+          const sprite = this.charcaterNodeList.children[i].getChildByName("CharacterBorder").getComponent(Sprite);
+          sprite.color = color(0, 0, 0);
+        }
+        node.getChildByName("CharacterBorder").getComponent(Sprite).color = color(0, 255, 0);
+      });
+    }
+
+    //按钮绑定点击事件
+    this.confirmButton.node.on(Node.EventType.TOUCH_END, (event) => {
+      this.confirmCharacter();
+    });
+
+    //显示窗口并开始倒计时
     this.show();
-    this.playProgressAnimation(waitingSecond);
+    this.playProgressAnimation(waitingSecond).then(() => {
+      //倒计时结束自动选择当前选中人物
+      this.confirmCharacter();
+    });
   }
 
   show() {
     this.node.active = true;
+    EventTarget.on(ProcessEvent.CONFORM_SELECT_CHARACTER, (data) => {
+      let index = this.characterTypes.indexOf(data.role);
+      for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
+        const node = this.charcaterNodeList.children[i];
+        if (i !== index) {
+          this.charcaterNodeList.removeChild(node);
+          --i;
+          --index;
+        }
+      }
+      this.confirmButton.node.active = false;
+    });
   }
 
   hide() {
+    EventTarget.off(ProcessEvent.CONFORM_SELECT_CHARACTER);
     this.node.active = false;
   }
 
@@ -97,6 +145,13 @@ export class SelectCharacter extends Component {
       } catch (e) {
         reject(e);
       }
+    });
+  }
+
+  confirmCharacter() {
+    if (this.selectedCharacterIndex == undefined) return;
+    EventTarget.emit(NetworkEventToS.SELECT_ROLE_TOS, {
+      role: this.characterTypes[this.selectedCharacterIndex],
     });
   }
 }
