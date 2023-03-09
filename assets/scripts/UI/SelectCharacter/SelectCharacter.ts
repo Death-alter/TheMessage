@@ -1,12 +1,18 @@
-import { _decorator, Component, Node, UITransform, RichText, tween, ProgressBar, instantiate } from "cc";
-import { IdentifyType, SecretTaskType } from "../../Game/type";
+import { _decorator, Component, Node, UITransform, RichText, Button, ProgressBar, tween, instantiate } from "cc";
 import { createCharacterById } from "../../Characters";
 import { Character } from "../../Characters/Character";
-import { CharacterType } from "../../Characters/types";
-import { wait_for_select_role_toc } from "../../../protobuf/proto";
+import { CharacterType } from "../../Characters/type";
+import { Identity } from "../../Identity/Identity";
+import { MysteriousPerson } from "../../Identity/IdentityClass/MysteriousPerson";
 import { CharacterPanting } from "../Character/CharacterPanting";
 
 const { ccclass, property } = _decorator;
+
+interface InitOption {
+  identity: Identity;
+  roles: CharacterType[];
+  waitingSecond: number;
+}
 
 @ccclass("SelectCharacter")
 export class SelectCharacter extends Component {
@@ -22,47 +28,32 @@ export class SelectCharacter extends Component {
   @property(Node)
   charcaterNodeList: Node | null = null;
 
-  private characterList: Character[] = [];
+  @property(Button)
+  confirmButton: Button | null = null;
 
-  init(data: wait_for_select_role_toc) {
+  private characterList: Character[] = [];
+  private selectedCharacter;
+
+  onLoad() {
+    for (let node of this.charcaterNodeList.children) {
+      node.on(Node.EventType.TOUCH_END, (event) => {});
+    }
+
+    this.confirmButton.node.on(Node.EventType.TOUCH_END, (event) => {});
+  }
+
+  init(data: InitOption) {
     //生成提示文字
-    let text = "你的身份是：";
-    switch (data.identity as unknown as IdentifyType) {
-      case IdentifyType.RED:
-        text += "<color=#ff0000>潜伏战线</color>";
-        break;
-      case IdentifyType.BLUE:
-        text += "<color=#0000ff>特工机关</color>";
-        break;
-      case IdentifyType.GREEN:
-        switch (data.secretTask as unknown as SecretTaskType) {
-          case SecretTaskType.KILLER:
-            text += "<color=#00ff00>镇压者</color>\n机密任务：你的回合中，一名红色和蓝色情报合计不少于2张的人死亡";
-            break;
-          case SecretTaskType.STEALER:
-            text += "<color=#00ff00>簒夺者</color>\n机密任务：你的回合中，有人宣胜，则你代替他胜利";
-            break;
-          case SecretTaskType.COLLECTOR:
-            text += "<color=#00ff00>双重间谍</color>\n机密任务：你获得3张红色情报或者3张蓝色情报";
-            break;
-          case SecretTaskType.MUTATOR:
-            text +=
-              "<color=#00ff00>诱变者</color>\n机密任务：当一名角色收集了三张红色情报或三张蓝色情报后，若其没有宣告胜利，则你胜利";
-            break;
-          case SecretTaskType.PIONEER:
-            text += "<color=#00ff00>先行者</color>\n机密任务：你死亡时，已收集了至少一张红色情报或蓝色情报";
-            break;
-          default:
-            text += "<color=#00ff00>神秘人</color>";
-        }
-        break;
-      default:
+    const { identity, roles, waitingSecond } = data;
+    let text = `你的身份是：<color=${identity.color}>${identity.name}</color>`;
+    if (identity instanceof MysteriousPerson) {
+      text += `\n机密任务：${identity.secretTaskText}`;
     }
     this.infoText.getComponent(RichText).string = text;
 
     //生成角色
-    for (let i = 0; i < data.roles.length; i++) {
-      const character = createCharacterById(data.roles[i] as unknown as CharacterType);
+    for (let i = 0; i < roles.length; i++) {
+      const character = createCharacterById(roles[i]);
       this.characterList.push(character);
       if (i === 0) {
         this.charcaterPanting.getComponent(CharacterPanting).character = character;
@@ -74,7 +65,7 @@ export class SelectCharacter extends Component {
     }
 
     this.show();
-    this.startCountDown(data.waitingSecond);
+    this.playProgressAnimation(waitingSecond);
   }
 
   show() {
@@ -86,10 +77,26 @@ export class SelectCharacter extends Component {
   }
 
   //倒计时进度条动画
-  startCountDown(seconds) {
-    const bar = this.progress.node.getChildByName("Bar");
-    const barTransform = bar.getComponent(UITransform);
-    barTransform.width = this.progress.getComponent(UITransform).width;
-    tween(barTransform).to(seconds, { width: 0 }).start();
+  playProgressAnimation(seconds) {
+    return new Promise((reslove, reject) => {
+      try {
+        const bar = this.progress.node.getChildByName("Bar");
+        const barTransform = bar.getComponent(UITransform);
+        barTransform.width = this.progress.getComponent(UITransform).width;
+        tween(barTransform)
+          .to(
+            seconds,
+            { width: 0 },
+            {
+              onComplete: () => {
+                reslove(null);
+              },
+            }
+          )
+          .start();
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 }

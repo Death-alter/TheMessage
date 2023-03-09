@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, EditBox, resources, ImageAsset, Texture2D, SpriteFrame } from "cc";
 import EventTarget from "../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../Event/types";
+import { NetworkEventToS, ProcessEvent } from "../../Event/type";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
 

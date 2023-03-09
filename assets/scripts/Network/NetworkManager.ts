@@ -2,7 +2,7 @@ import { _decorator, Component, director } from "cc";
 import ws from "../Utils/WebSocket";
 import Protos from "../Network/Protos";
 import EventTarget from "../Event/EventTarget";
-import { ProcessEvent, NetworkEventToS } from "../Event/types";
+import { ProcessEvent, NetworkEventToS } from "../Event/type";
 
 const { ccclass, property } = _decorator;
 

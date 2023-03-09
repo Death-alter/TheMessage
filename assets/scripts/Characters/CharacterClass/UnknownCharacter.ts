@@ -1,5 +1,5 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../types";
+import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
 
 export class UnknownCharacter extends Character {

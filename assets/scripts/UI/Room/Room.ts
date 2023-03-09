@@ -1,6 +1,6 @@
 import { _decorator, Component, Prefab, Node, Label, UITransform, instantiate } from "cc";
 import EventTarget from "../../Event/EventTarget";
-import { ProcessEvent } from "../../Event/types";
+import { ProcessEvent } from "../../Event/type";
 import { PlayerInfoTemplate } from "./PlayerInfoTemplate";
 const { ccclass, property } = _decorator;
 
@@ -14,14 +14,15 @@ export class PlayerInfo {
 
 @ccclass("Room")
 export class PlayerList extends Component {
-  private playerList: PlayerInfo[] = [];
-  private onlineCount: number = 0;
   @property(Prefab)
   playerInfoPrefab: Prefab | null = null;
   @property(Node)
   playerListNode: Node | null = null;
   @property(Node)
   onlineCountNode: Node | null = null;
+
+  private playerList: PlayerInfo[] = [];
+  private onlineCount: number = 0;
 
   protected onEnable(): void {
     //收到房间信息
@@ -70,6 +71,15 @@ export class PlayerList extends Component {
       this.playerList[data.position] = undefined;
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init();
     });
+
+    //更新在线人数
+    EventTarget.on(ProcessEvent.UPDATE_ONLINE_COUNT, (data) => {
+      if (data.onlineCount !== this.onlineCount) {
+        this.onlineCount = data.onlineCount;
+        this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
+          "当前在线人数：" + this.onlineCount.toString();
+      }
+    });
   }
 
   protected onDisable(): void {
@@ -79,6 +89,7 @@ export class PlayerList extends Component {
     EventTarget.off(ProcessEvent.REMOVE_ROOM_POSITION);
     EventTarget.off(ProcessEvent.JOIN_ROOM);
     EventTarget.off(ProcessEvent.LEAVE_ROOM);
+    EventTarget.off(ProcessEvent.UPDATE_ONLINE_COUNT);
   }
 
   private refreshPlayerListUI() {

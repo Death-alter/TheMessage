@@ -1,9 +1,9 @@
 import { Skill } from "../Skills/Skill";
-import { CharacterOptions, CharacterStatus, Sex } from "./types";
-import { CardUseage, CardStatus } from "../Cards/types";
+import { CharacterOptions, CharacterStatus, Sex } from "./type";
+import { CardUseage, CardStatus } from "../Cards/type";
 import { Card } from "../Cards/Card";
 import EventTarget from "../Event/EventTarget";
-import { GameEvent } from "../Event/types";
+import { GameEvent } from "../Event/type";
 
 export class Character {
   protected _id: number;

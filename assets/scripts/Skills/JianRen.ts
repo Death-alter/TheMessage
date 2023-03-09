@@ -1,5 +1,5 @@
 import { TriggeringSkill } from "./Skill";
-import { TriggeringSkillOption } from "./types";
+import { TriggeringSkillOption } from "./type";
 
 export class JianRen extends TriggeringSkill {
   constructor(option: TriggeringSkillOption) {

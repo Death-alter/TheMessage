@@ -204,6 +204,7 @@ export enum NetworkEventToS {
 //程序事件，用于程序控制
 export enum ProcessEvent {
   NETWORK_ERROR = "network_error",
+  UPDATE_ONLINE_COUNT = "update_online_count",
   JOIN_ROOM = "join_room",
   LEAVE_ROOM = "leave_room",
   ADD_ROOM_POSITION = "add_room_position",

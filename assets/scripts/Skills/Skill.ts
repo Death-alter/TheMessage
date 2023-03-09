@@ -1,5 +1,5 @@
 import { Character } from "../Characters/Character";
-import { SkillType, SkillOption, TriggeringSkillOption } from "./types";
+import { SkillType, SkillOption, TriggeringSkillOption } from "./type";
 
 export class Skill {
   private _name: string;

@@ -1,6 +1,6 @@
-import { CardStatus, CardUseage, CardOption, CardDirection, CardType } from "./types";
+import { CardStatus, CardUseage, CardOption, CardDirection, CardType } from "./type";
 import EventTarget from "../Event/EventTarget";
-import { GameEvent } from "../Event/types";
+import { GameEvent } from "../Event/type";
 
 export class Card {
   protected _id: number;

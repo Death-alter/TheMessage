@@ -1,5 +1,5 @@
 import { EventTarget } from "cc";
-import { ProcessEvent, GameEvent, NetworkEventToS } from "./types";
+import { ProcessEvent, GameEvent, NetworkEventToS } from "./type";
 
 export class EventCenter<T = string, D = any> {
   private eventTarget: EventTarget;

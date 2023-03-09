@@ -1,6 +1,6 @@
 import { _decorator, Component, Node } from "cc";
 import EventTarget from "../../Event/EventTarget";
-import { NetworkEventToS } from "../../Event/types";
+import { NetworkEventToS } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("RoomButtons")

@@ -1,6 +1,6 @@
 import EventTarget from "../Event/EventTarget";
 import { error_code } from "../../protobuf/proto.d";
-import { NetworkEventToC, ProcessEvent } from "../Event/types";
+import { NetworkEventToC, ProcessEvent } from "../Event/type";
 import { _decorator, Component, director } from "cc";
 
 //toc
@@ -55,7 +55,9 @@ Protos[NetworkEventToC.PAUSE_RECORD_TOC] = (data) => {};
 Protos[NetworkEventToC.GET_RECORD_LIST_TOC] = (data) => {};
 Protos[NetworkEventToC.ADD_ORDER_TOC] = (data) => {};
 Protos[NetworkEventToC.GET_ORDERS_TOC] = (data) => {};
-Protos[NetworkEventToC.HEART_TOC] = (data) => {};
+Protos[NetworkEventToC.HEART_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.UPDATE_ONLINE_COUNT, data);
+};
 Protos[NetworkEventToC.ADD_ONE_POSITION_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.ADD_ROOM_POSITION, data);
 };
@@ -85,7 +87,9 @@ Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {};
 Protos[NetworkEventToC.INIT_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.INIT_GAME, data);
 };
-Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {};
+Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {
+
+};
 Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {};
 Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {};

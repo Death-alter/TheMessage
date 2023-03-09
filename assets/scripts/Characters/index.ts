@@ -1,16 +1,16 @@
 import { Character } from "./Character";
 import { UnknownCharacter } from "./CharacterClass/UnknownCharacter";
 import { WuZhiGuo } from "./CharacterClass/WuZhiGuo";
-import { CharacterType } from "./types";
+import { CharacterType } from "./type";
 
-const CharactersMap: { [index: number]: { new (): Character } } = {};
-CharactersMap[0] = UnknownCharacter;
-CharactersMap[1] = WuZhiGuo;
+const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
+charactersMap[0] = UnknownCharacter;
+charactersMap[1] = WuZhiGuo;
 
 export function createCharacterById(id: CharacterType): Character {
-  if (CharactersMap[id]) {
-    return new CharactersMap[id]();
+  if (charactersMap[id]) {
+    return new charactersMap[id]();
   } else {
-    return new CharactersMap[0]();
+    return new charactersMap[0]();
   }
 }

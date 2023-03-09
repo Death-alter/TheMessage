@@ -1,5 +1,5 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption, CardType } from "../types";
+import { CardClassDefaultOption, CardType } from "../type";
 
 export default class PoYi extends Card {
   constructor(option: CardClassDefaultOption) {
