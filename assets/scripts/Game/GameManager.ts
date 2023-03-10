@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, director, RichText, tween, UITransform } from "cc";
+import { _decorator, Component, Node, director, RichText, tween, UITransform, Prefab, instantiate } from "cc";
 import { SelectCharacter } from "../UI/SelectCharacter/SelectCharacter";
 import { Character } from "../Characters/Character";
 import { GamePhase } from "./type";
@@ -19,6 +19,14 @@ const { ccclass, property } = _decorator;
 export class GameManager extends Component {
   @property(Node)
   selectCharacterWindow: Node | null = null;
+  @property(Prefab)
+  characterPrefab: Prefab | null = null;
+  @property(Node)
+  leftPlayerNodeList: Node | null;
+  @property(Node)
+  topPlayerNodeList: Node | null;
+  @property(Node)
+  rightPlayerNodeList: Node | null;
 
   public identity: Identity;
   public playerCount: number;
@@ -89,6 +97,7 @@ export class GameManager extends Component {
     EventTarget.on(ProcessEvent.SYNC_DECK_NUM, (data: sync_deck_num_toc) => {
       this._deckCardCount = data.num;
       if (data.shuffled) {
+        //播放洗牌动画（如果做了的话）
       }
     });
   }
@@ -125,16 +134,24 @@ export class GameManager extends Component {
       );
     }
 
-    const obj = {
-      1: [0, 1, 0],
-      2: [0, 2, 0],
-      3: [1, 1, 1],
-      4: [1, 2, 1],
-      5: [1, 3, 1],
-      6: [2, 2, 2],
-      7: [2, 3, 2],
-      8: [2, 4, 2],
-    };
+    //创建其他人UI
+    const othersCount = data.playerCount - 1;
+    const sideLength = Math.floor(othersCount / 3);
+
+    for (let i = sideLength - 1; i >= 0; i--) {
+      const character = instantiate(this.characterPrefab);
+      this.rightPlayerNodeList.addChild(character);
+    }
+
+    for (let i = othersCount - sideLength - 1; i >= sideLength; i++) {
+      const character = instantiate(this.characterPrefab);
+      this.topPlayerNodeList.addChild(character);
+    }
+
+    for (let i = othersCount - sideLength; i < othersCount; i++) {
+      const character = instantiate(this.characterPrefab);
+      this.leftPlayerNodeList.addChild(character);
+    }
   }
 
   drawCards(player, num: number) {}
