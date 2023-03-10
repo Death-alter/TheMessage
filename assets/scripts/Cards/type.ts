@@ -4,7 +4,7 @@ export enum CardStatus {
 }
 
 export enum CardUsage {
-  UNKONWN = 0,
+  UNKNOWN = 0,
   FUNCTION_CARD = 1,
   MESSAGE_CARD = 2,
   HAND_CARD = 3,

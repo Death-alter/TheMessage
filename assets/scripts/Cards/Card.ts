@@ -56,7 +56,7 @@ export class Card {
     this._name = option.name;
     this._type = option.type;
     this._status = option.status || CardStatus.FACE_UP;
-    this._usage = option.usage || CardUsage.UNKONWN;
+    this._usage = option.usage || CardUsage.UNKNOWN;
     this._direction = option.direction;
   }
 
