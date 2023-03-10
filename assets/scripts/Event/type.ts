@@ -217,6 +217,8 @@ export enum ProcessEvent {
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
   CONFORM_SELECT_CHARACTER = "conform_select_character",
+  GET_PHASE_DATA = "get_phase_data",
+  SYNC_DECK_NUM = "sync_deck_num",
 }
 
 //游戏事件，触发扳机
@@ -226,7 +228,7 @@ export enum GameEvent {
   ACCEPT_BLUE_MESSAGE = "accept_blue_message",
   ACCEPT_BLACK_MESSAGE = "accept_black_message",
   CARD_STATUS_CHANGE = "card_status_change",
-  CARD_USEAGE_CHANGE = "card_useage_change",
+  CARD_USEAGE_CHANGE = "card_usage_change",
   CHARACTER_STATUS_CHANGE = "character_status_change",
   GAME_PHASE_CHANGE = "game_phase_change",
   GAME_TURN_CHANGE = "game_turn_change",

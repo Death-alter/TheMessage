@@ -7,7 +7,7 @@ export class WuZhiGuo extends Character {
     super({
       id: 1,
       name: "吴志国",
-      spirit: "images/characters/WuZhiGuo",
+      sprite: "images/characters/WuZhiGuo",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       skills: [] as Skill[],

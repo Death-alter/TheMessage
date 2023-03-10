@@ -7,7 +7,7 @@ export default class WeiBi extends Card {
       id: option.id,
       name: "威逼",
       type: CardType.WEI_BI,
-      spirit: "images/cards/WeiBi.jpg",
+      sprite: "images/cards/WeiBi.jpg",
       direction: option.direction,
     });
   }

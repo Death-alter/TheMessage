@@ -1,12 +1,17 @@
 import { _decorator, Component, Node, director, RichText, tween, UITransform } from "cc";
 import { SelectCharacter } from "../UI/SelectCharacter/SelectCharacter";
 import { Character } from "../Characters/Character";
-import { phase, color, secret_task, init_toc } from "../../protobuf/proto.d";
+import { GamePhase } from "./type";
+import { phase, wait_for_select_role_toc, init_toc, notify_phase_toc, sync_deck_num_toc } from "../../protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/type";
 import { Card } from "../Cards/Card";
 import { createIdentity } from "../Identity";
 import { Identity } from "../Identity/Identity";
+import { IdentityType, SecretTaskType } from "../Identity/type";
+import { CharacterType } from "../Characters/type";
+import Player from "./Player";
+import { createCharacterById } from "../Characters";
 
 const { ccclass, property } = _decorator;
 
@@ -15,12 +20,14 @@ export class GameManager extends Component {
   @property(Node)
   selectCharacterWindow: Node | null = null;
 
-  public CharacterList: Character[];
   public identity: Identity;
   public playerCount: number;
+  public selfPlayer: Player;
+  public playerIdList: number[];
+  public playerList: Player[];
 
-  private _gamePhase: phase;
-  private _turnPlayer: number;
+  private _gamePhase: GamePhase;
+  private _turnPlayerId: number;
   private _messageInTransmit: Card | null = null;
   private _deckCardCount: number;
   private _discardPile: Card[] = [];
@@ -29,31 +36,39 @@ export class GameManager extends Component {
   get gamePhase() {
     return this._gamePhase;
   }
-  set gamePhase(phase: phase) {
+  set gamePhase(phase: GamePhase) {
     if (phase !== this._gamePhase) {
       this._gamePhase = phase;
       EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, phase);
     }
   }
 
-  get turnPlayer() {
-    return this._turnPlayer;
+  get turnPlayerId() {
+    return this._turnPlayerId;
   }
-  set turnPlayer(playerId: number) {
-    if (playerId !== this._turnPlayer) {
-      this._turnPlayer = playerId;
+  set turnPlayerId(playerId: number) {
+    if (playerId !== this._turnPlayerId) {
+      if (this._turnPlayerId != null) {
+        this.playerList[this._turnPlayerId].isCurrentTurnPlayer = false;
+      }
+      this.playerList[playerId].isCurrentTurnPlayer = true;
+      this._turnPlayerId = playerId;
       EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
     }
   }
 
   onEnable() {
     //开始选人
-    EventTarget.on(ProcessEvent.START_SELECT_CHARACTER, (data) => {
-      this.identity = createIdentity(data.identity, data.secretTask);
+    EventTarget.on(ProcessEvent.START_SELECT_CHARACTER, (data: wait_for_select_role_toc) => {
+      this.identity = createIdentity(
+        (<unknown>data.identity) as IdentityType,
+        (<unknown>data.secretTask) as SecretTaskType
+      );
       this.playerCount = data.playerCount;
+      this.playerIdList = data.roles;
       this.selectCharacterWindow.getComponent(SelectCharacter).init({
         identity: this.identity,
-        roles: data.roles,
+        roles: (<unknown[]>data.roles) as CharacterType[],
         waitingSecond: data.waitingSecond,
       });
     });
@@ -63,16 +78,63 @@ export class GameManager extends Component {
       this.init(data);
       this.selectCharacterWindow.getComponent(SelectCharacter).hide();
     });
+
+    //收到phase数据
+    EventTarget.on(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
+      this.turnPlayerId = data.currentPlayerId;
+      this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
+    });
+
+    //卡组数量变化
+    EventTarget.on(ProcessEvent.SYNC_DECK_NUM, (data: sync_deck_num_toc) => {
+      this._deckCardCount = data.num;
+      if (data.shuffled) {
+      }
+    });
   }
 
   onDisable() {
     //移除事件监听
     EventTarget.off(ProcessEvent.START_SELECT_CHARACTER);
     EventTarget.off(ProcessEvent.INIT_GAME);
+    EventTarget.off(ProcessEvent.GET_PHASE_DATA);
+    EventTarget.off(ProcessEvent.SYNC_DECK_NUM);
   }
 
   init(data: init_toc) {
     this.playerCount = data.playerCount;
+    this.playerList = [];
+
+    //创建自己
+    this.selfPlayer = new Player({
+      name: data.names[0],
+      character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
+    });
+    this.identity = createIdentity(
+      (<unknown>data.identity) as IdentityType,
+      (<unknown>data.secretTask) as SecretTaskType
+    );
+
+    //创建其他人
+    for (let i = 1; i < data.playerCount; i++) {
+      this.playerList.push(
+        new Player({
+          name: data.names[i],
+          character: createCharacterById((<unknown>data.roles[i]) as CharacterType),
+        })
+      );
+    }
+
+    const obj = {
+      1: [0, 1, 0],
+      2: [0, 2, 0],
+      3: [1, 1, 1],
+      4: [1, 2, 1],
+      5: [1, 3, 1],
+      6: [2, 2, 2],
+      7: [2, 3, 2],
+      8: [2, 4, 2],
+    };
   }
 
   drawCards(player, num: number) {}

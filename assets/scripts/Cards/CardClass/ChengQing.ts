@@ -7,7 +7,7 @@ export default class CengQing extends Card {
       id: option.id,
       name: "澄清",
       type: CardType.CHENG_QING,
-      spirit: "images/cards/CengQing.jpg",
+      sprite: "images/cards/CengQing.jpg",
       direction: option.direction,
     });
   }

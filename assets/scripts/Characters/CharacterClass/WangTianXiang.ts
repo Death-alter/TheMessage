@@ -2,14 +2,14 @@ import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
 
-export class UnknownCharacter extends Character {
+export class WangTianXiang extends Character {
   constructor() {
     super({
-      id: 0,
-      name: "未知角色",
-      sprite: "images/characters/Unknown",
-      status: CharacterStatus.FACE_DOWN,
-      sex: Sex.UNKNOWN,
+      id: 10,
+      name: "王田香",
+      sprite: "images/characters/WangTianXiang",
+      status: CharacterStatus.FACE_UP,
+      sex: Sex.MALE,
       skills: [] as Skill[],
     });
   }

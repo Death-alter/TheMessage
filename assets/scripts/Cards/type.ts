@@ -3,7 +3,7 @@ export enum CardStatus {
   FACE_UP = 1,
 }
 
-export enum CardUseage {
+export enum CardUsage {
   UNKONWN = 0,
   FUNCTION_CARD = 1,
   MESSAGE_CARD = 2,
@@ -39,9 +39,9 @@ export interface CardOption {
   id: number;
   name: string;
   type: CardType;
-  spirit: string;
+  sprite: string;
   status?: CardStatus;
-  useage?: CardUseage;
+  usage?: CardUsage;
   direction: CardDirection;
 }
 

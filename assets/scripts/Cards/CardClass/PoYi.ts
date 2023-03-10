@@ -7,7 +7,7 @@ export default class PoYi extends Card {
       id: option.id,
       name: "破译",
       type: CardType.PO_YI,
-      spirit: "images/cards/PoYi.jpg",
+      sprite: "images/cards/PoYi.jpg",
       direction: option.direction,
     });
   }

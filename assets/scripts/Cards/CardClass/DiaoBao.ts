@@ -7,7 +7,7 @@ export default class DiaoBao extends Card {
       id: option.id,
       name: "调包",
       type: CardType.DIAO_BAO,
-      spirit: "images/cards/DiaoBao.jpg",
+      sprite: "images/cards/DiaoBao.jpg",
       direction: option.direction,
     });
   }

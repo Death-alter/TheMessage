@@ -7,7 +7,7 @@ export default class LiYou extends Card {
       id: option.id,
       name: "利诱",
       type: CardType.LI_YOU,
-      spirit: "images/cards/LiYou.jpg",
+      sprite: "images/cards/LiYou.jpg",
       direction: option.direction,
     });
   }

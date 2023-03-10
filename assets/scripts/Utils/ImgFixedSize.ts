@@ -3,7 +3,6 @@ const { ccclass, property } = _decorator;
 
 /**
  * 图片限制尺寸
- * @author chenkai 2021.6.24
  */
 @ccclass("ImgFixedSize")
 export default class ImgFixedSize extends Component {

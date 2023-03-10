@@ -16,7 +16,7 @@ export class CharacterPanting extends Component {
   }
 
   refresh() {
-    resources.load(this.character.spirit + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
+    resources.load(this.character.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
       if (!err && spriteFrame) {
         spriteFrame.addRef(); // 计数加1
         this.node.getChildByName("Mask").getChildByName("Image").getComponent(Sprite).spriteFrame = spriteFrame;

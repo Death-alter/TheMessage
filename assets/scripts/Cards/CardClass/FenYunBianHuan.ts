@@ -7,7 +7,7 @@ export default class FenYunBianHuan extends Card {
       id: option.id,
       name: "风云变幻",
       type: CardType.FENG_YUN_BIAN_HUAN,
-      spirit: "images/cards/FengYunBianHuan.jpg",
+      sprite: "images/cards/FengYunBianHuan.jpg",
       direction: option.direction,
     });
   }

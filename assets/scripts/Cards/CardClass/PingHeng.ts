@@ -7,7 +7,7 @@ export default class PingHeng extends Card {
       id: option.id,
       name: "平衡",
       type: CardType.PING_HENG,
-      spirit: "images/cards/PingHeng.jpg",
+      sprite: "images/cards/PingHeng.jpg",
       direction: option.direction,
     });
   }

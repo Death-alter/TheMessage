@@ -1,6 +1,6 @@
 import { Skill } from "../Skills/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
-import { CardUseage, CardStatus } from "../Cards/type";
+import { CardUsage, CardStatus } from "../Cards/type";
 import { Card } from "../Cards/Card";
 import EventTarget from "../Event/EventTarget";
 import { GameEvent } from "../Event/type";
@@ -8,7 +8,7 @@ import { GameEvent } from "../Event/type";
 export class Character {
   protected _id: number;
   protected _name: string;
-  protected _spirit: string;
+  protected _sprite: string;
   protected _status: CharacterStatus;
   protected _sex: Sex;
   protected _skills: Skill[];
@@ -33,8 +33,8 @@ export class Character {
     return this._name;
   }
 
-  get spirit() {
-    return this._spirit;
+  get sprite() {
+    return this._sprite;
   }
 
   get sex() {
@@ -44,7 +44,7 @@ export class Character {
   constructor(options: CharacterOptions) {
     this._id = options.id;
     this._name = options.name;
-    this._spirit = options.spirit;
+    this._sprite = options.sprite;
     this._status = options.status || CharacterStatus.FACE_UP;
     this._sex = options.sex;
     this._skills = options.skills;
@@ -68,7 +68,7 @@ export class Character {
 
   //情报置入情报区
   public addMessage(message: Card): void {
-    if (message.useage !== CardUseage.MESSAGE_CARD) message.useage = CardUseage.MESSAGE_CARD;
+    if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
     if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
     this.messages.push(message);
   }

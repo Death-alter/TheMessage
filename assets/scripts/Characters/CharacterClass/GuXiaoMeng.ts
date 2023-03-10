@@ -7,8 +7,8 @@ export class GuXiaoMeng extends Character {
     super({
       id: 28,
       name: "顾小梦",
-      spirit: "images/characters/GuXiaoMeng",
-      status: CharacterStatus.FACE_UP,
+      sprite: "images/characters/GuXiaoMeng",
+      status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       skills: [] as Skill[],
     });

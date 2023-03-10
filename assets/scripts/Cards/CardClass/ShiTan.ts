@@ -13,7 +13,7 @@ export default class ShiTan extends Card {
       id: option.id,
       name: "试探",
       type: CardType.SHI_TAN,
-      spirit: "images/cards/ShiTan.jpg",
+      sprite: "images/cards/ShiTan.jpg",
       direction: option.direction,
     });
     this._drawCardColor = option.drawCardColor;

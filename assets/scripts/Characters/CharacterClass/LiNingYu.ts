@@ -7,8 +7,8 @@ export class LiNingYu extends Character {
     super({
       id: 28,
       name: "李宁玉",
-      spirit: "images/characters/LiNingYu",
-      status: CharacterStatus.FACE_UP,
+      sprite: "images/characters/LiNingYu",
+      status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       skills: [] as Skill[],
     });

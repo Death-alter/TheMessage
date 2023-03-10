@@ -7,7 +7,7 @@ export default class WuDao extends Card {
       id: option.id,
       name: "误导",
       type: CardType.WU_DAO,
-      spirit: "images/cards/WuDao.jpg",
+      sprite: "images/cards/WuDao.jpg",
       direction: option.direction,
     });
   }

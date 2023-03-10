@@ -50,7 +50,7 @@ export enum Sex {
 export interface CharacterOptions {
   id: number;
   name: string;
-  spirit: string;
+  sprite: string;
   status?: CharacterStatus;
   sex: Sex;
   skills: Skill[];

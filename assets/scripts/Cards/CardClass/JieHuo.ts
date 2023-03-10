@@ -7,7 +7,7 @@ export default class JieHuo extends Card {
       id: option.id,
       name: "截获",
       type: CardType.JIE_HUO,
-      spirit: "images/cards/JieHuo.jpg",
+      sprite: "images/cards/JieHuo.jpg",
       direction: option.direction,
     });
   }

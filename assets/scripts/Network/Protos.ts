@@ -94,9 +94,14 @@ Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {};
 Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.EXECUTE_SHI_TAN_TOC] = (data) => {};
-Protos[NetworkEventToC.SYNC_DECK_NUM_TOC] = (data) => {};
+Protos[NetworkEventToC.SYNC_DECK_NUM_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.SYNC_DECK_NUM, data);
+};
 Protos[NetworkEventToC.DISCARD_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.NOTIFY_PHASE_TOC] = (data) => {};
+Protos[NetworkEventToC.NOTIFY_PHASE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.GET_PHASE_DATA, data);
+};
+
 Protos[NetworkEventToC.USE_LI_YOU_TOC] = (data) => {};
 Protos[NetworkEventToC.USE_PING_HENG_TOC] = (data) => {};
 Protos[NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC] = (data) => {};
