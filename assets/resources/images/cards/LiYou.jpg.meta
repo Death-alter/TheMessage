@@ -23,9 +23,101 @@
         "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "537338ec-21b7-40eb-b0b0-ae0b63039090",
-        "visible": true
+        "visible": false
       },
       "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "537338ec-21b7-40eb-b0b0-ae0b63039090@f9941",
+      "displayName": "LiYou",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimType": "auto",
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": 0,
+        "trimX": 0,
+        "trimY": 0,
+        "width": 714,
+        "height": 1010,
+        "rawWidth": 714,
+        "rawHeight": 1010,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -357,
+            -505,
+            0,
+            357,
+            -505,
+            0,
+            -357,
+            505,
+            0,
+            357,
+            505,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            0,
+            1010,
+            714,
+            1010,
+            0,
+            0,
+            714,
+            0
+          ],
+          "nuv": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "minPos": [
+            -357,
+            -505,
+            0
+          ],
+          "maxPos": [
+            357,
+            505,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "537338ec-21b7-40eb-b0b0-ae0b63039090@6c48a",
+        "atlasUuid": ""
+      },
+      "ver": "1.0.11",
       "imported": true,
       "files": [
         ".json"
@@ -36,7 +128,7 @@
   "userData": {
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": false,
-    "type": "texture",
-    "redirect": "537338ec-21b7-40eb-b0b0-ae0b63039090@6c48a"
+    "type": "sprite-frame",
+    "redirect": "537338ec-21b7-40eb-b0b0-ae0b63039090@f9941"
   }
 }

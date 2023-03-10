@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "Character",
+    "_name": "Player",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Character",
+    "_name": "Player",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -31,15 +31,18 @@
     "_components": [
       {
         "__id__": 110
+      },
+      {
+        "__id__": 112
       }
     ],
     "_prefab": {
-      "__id__": 112
+      "__id__": 114
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -412.132,
-      "y": 34.201,
+      "x": 0,
+      "y": 0,
       "z": 0
     },
     "_lrot": {
@@ -1926,7 +1929,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "No",
+    "_name": "SeatNumber",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -2021,7 +2024,7 @@
       "__type__": "cc.Color",
       "r": 255,
       "g": 255,
-      "b": 209,
+      "b": 255,
       "a": 255
     },
     "_string": "一",
@@ -2408,6 +2411,29 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "f9xo9nJDVCP4GOHQyTzKqv"
+  },
+  {
+    "__type__": "f448cEkLrBNBZ+NnZkZRfr9",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 113
+    },
+    "characterPanting": {
+      "__id__": 3
+    },
+    "progress": {
+      "__id__": 96
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "91xK5gFlZAf4Ms5Wz8WgZX"
   },
   {
     "__type__": "cc.PrefabInfo",

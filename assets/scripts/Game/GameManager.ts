@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, director, RichText, tween, UITransform, Prefab, instantiate } from "cc";
+import { _decorator, Component, Node, director, RichText, tween, UITransform, Prefab, instantiate, Layout } from "cc";
 import { SelectCharacter } from "../UI/SelectCharacter/SelectCharacter";
 import { Character } from "../Characters/Character";
 import { GamePhase } from "./type";
@@ -12,6 +12,8 @@ import { IdentityType, SecretTaskType } from "../Identity/type";
 import { CharacterType } from "../Characters/type";
 import Player from "./Player";
 import { createCharacterById } from "../Characters";
+import { CharacterPanting } from "../UI/Character/CharacterPanting";
+import { PlayerUI } from "../UI/Player/PlayerUI";
 
 const { ccclass, property } = _decorator;
 
@@ -19,8 +21,10 @@ const { ccclass, property } = _decorator;
 export class GameManager extends Component {
   @property(Node)
   selectCharacterWindow: Node | null = null;
+  @property(Node)
+  gameWindow: Node | null = null;
   @property(Prefab)
-  characterPrefab: Prefab | null = null;
+  playerPrefab: Prefab | null = null;
   @property(Node)
   leftPlayerNodeList: Node | null;
   @property(Node)
@@ -31,8 +35,8 @@ export class GameManager extends Component {
   public identity: Identity;
   public playerCount: number;
   public selfPlayer: Player;
-  public playerIdList: number[];
-  public playerList: Player[];
+  public playerCharacterIdList: number[];
+  public playerScriptList: PlayerUI[];
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -40,6 +44,7 @@ export class GameManager extends Component {
   private _deckCardCount: number;
   private _discardPile: Card[] = [];
   private _banishCards: Card[] = [];
+  private _seq: number;
 
   get gamePhase() {
     return this._gamePhase;
@@ -57,15 +62,17 @@ export class GameManager extends Component {
   set turnPlayerId(playerId: number) {
     if (playerId !== this._turnPlayerId) {
       if (this._turnPlayerId != null) {
-        this.playerList[this._turnPlayerId].isCurrentTurnPlayer = false;
+        this.playerScriptList[this._turnPlayerId].setTurnPlayer(false);
       }
-      this.playerList[playerId].isCurrentTurnPlayer = true;
+      this.playerScriptList[playerId].setTurnPlayer(true);
       this._turnPlayerId = playerId;
       EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
     }
   }
 
   onEnable() {
+    this.gameWindow.active = false;
+
     //开始选人
     EventTarget.on(ProcessEvent.START_SELECT_CHARACTER, (data: wait_for_select_role_toc) => {
       this.identity = createIdentity(
@@ -73,7 +80,7 @@ export class GameManager extends Component {
         (<unknown>data.secretTask) as SecretTaskType
       );
       this.playerCount = data.playerCount;
-      this.playerIdList = data.roles;
+      this.playerCharacterIdList = data.roles;
       this.selectCharacterWindow.getComponent(SelectCharacter).init({
         identity: this.identity,
         roles: (<unknown[]>data.roles) as CharacterType[],
@@ -84,13 +91,22 @@ export class GameManager extends Component {
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);
-      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
     });
 
     //收到phase数据
     EventTarget.on(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
+      EventTarget.emit(GameEvent.STOP_COUNT_DOWN);
       this.turnPlayerId = data.currentPlayerId;
       this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
+      this.playerScriptList[data.waitingPlayerId].startCoundDown(data.waitingSecond);
+      if (data.seq) this._seq = data.seq;
+    });
+
+    //设置座位号
+    EventTarget.once(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
+      this.setPlayerSeats(data.currentPlayerId);
+      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
+      this.gameWindow.active = true;
     });
 
     //卡组数量变化
@@ -112,13 +128,18 @@ export class GameManager extends Component {
 
   init(data: init_toc) {
     this.playerCount = data.playerCount;
-    this.playerList = [];
+    const playerList = [];
+    this.playerScriptList = [];
 
     //创建自己
     this.selfPlayer = new Player({
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
     });
+    playerList.push(this.selfPlayer);
+    const selfPlayerScript = this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI);
+    this.playerScriptList.push(selfPlayerScript);
+    selfPlayerScript.init(this.selfPlayer);
     this.identity = createIdentity(
       (<unknown>data.identity) as IdentityType,
       (<unknown>data.secretTask) as SecretTaskType
@@ -126,7 +147,7 @@ export class GameManager extends Component {
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
-      this.playerList.push(
+      playerList.push(
         new Player({
           name: data.names[i],
           character: createCharacterById((<unknown>data.roles[i]) as CharacterType),
@@ -138,19 +159,28 @@ export class GameManager extends Component {
     const othersCount = data.playerCount - 1;
     const sideLength = Math.floor(othersCount / 3);
 
-    for (let i = sideLength - 1; i >= 0; i--) {
-      const character = instantiate(this.characterPrefab);
-      this.rightPlayerNodeList.addChild(character);
+    for (let i = 0; i < sideLength; i++) {
+      const player = instantiate(this.playerPrefab);
+      const playerScript = player.getComponent(PlayerUI);
+      playerScript.init(playerList[i + 1]);
+      this.playerScriptList.push(playerScript);
+      this.rightPlayerNodeList.addChild(player);
     }
 
-    for (let i = othersCount - sideLength - 1; i >= sideLength; i++) {
-      const character = instantiate(this.characterPrefab);
-      this.topPlayerNodeList.addChild(character);
+    for (let i = sideLength; i < othersCount - sideLength; i++) {
+      const player = instantiate(this.playerPrefab);
+      const playerScript = player.getComponent(PlayerUI);
+      playerScript.init(playerList[i + 1]);
+      this.playerScriptList.push(playerScript);
+      this.topPlayerNodeList.addChild(player);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
-      const character = instantiate(this.characterPrefab);
-      this.leftPlayerNodeList.addChild(character);
+      const player = instantiate(this.playerPrefab);
+      const playerScript = player.getComponent(PlayerUI);
+      playerScript.init(playerList[i + 1]);
+      this.playerScriptList.push(playerScript);
+      this.leftPlayerNodeList.addChild(player);
     }
   }
 
@@ -161,4 +191,14 @@ export class GameManager extends Component {
   playCard(player, card) {}
 
   sendMessage(player, card) {}
+
+  setPlayerSeats(fistPlayerId: number) {
+    let i = fistPlayerId;
+    let j = 0;
+    do {
+      this.playerScriptList[i].getComponent(PlayerUI).setSeat(j);
+      i = (i + 1) % this.playerCount;
+      ++j;
+    } while (i !== fistPlayerId);
+  }
 }

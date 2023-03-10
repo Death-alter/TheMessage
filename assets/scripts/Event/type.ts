@@ -232,4 +232,5 @@ export enum GameEvent {
   CHARACTER_STATUS_CHANGE = "character_status_change",
   GAME_PHASE_CHANGE = "game_phase_change",
   GAME_TURN_CHANGE = "game_turn_change",
+  STOP_COUNT_DOWN = "stop_count_down",
 }

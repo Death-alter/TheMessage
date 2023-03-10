@@ -23,15 +23,19 @@ export default class Player {
     return this._identityList;
   }
 
-  get isCurrentTurnPlayer() {
+  get isTurnPlayer() {
     return this._isTurnPlayer;
   }
-  set isCurrentTurnPlayer(value) {
+  set isTurnPlayer(value) {
     this._isTurnPlayer = value;
   }
 
   get seatNumber() {
     return this._seatNumber;
+  }
+
+  set seatNumber(number) {
+    this._seatNumber = number;
   }
 
   constructor(option: PlayerOption) {

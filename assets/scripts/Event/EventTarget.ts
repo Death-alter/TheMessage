@@ -43,6 +43,16 @@ export class EventCenter<T = string, D = any> {
   public off(type: T, callback?, target?: any): void {
     this.eventTarget.off(type as string, callback, target);
   }
+
+  /**
+   * 监听事件一次
+   * @param type
+   * @param callback
+   * @param target
+   */
+  public once(type: T, callback, target?: any): void {
+    this.eventTarget.once(type as string, callback, target);
+  }
 }
 
 export default new EventCenter<ProcessEvent | GameEvent | NetworkEventToS, any>();
