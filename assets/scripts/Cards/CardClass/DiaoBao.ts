@@ -1,14 +1,18 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardType } from "../type";
 
-export default class DiaoBao extends Card {
-  constructor(option: CardClassDefaultOption) {
+export class DiaoBao extends Card {
+  constructor(option: CardDefaultOption) {
     super({
       id: option.id,
       name: "调包",
       type: CardType.DIAO_BAO,
-      sprite: "images/cards/DiaoBao.jpg",
+      sprite: "images/cards/DiaoBao",
       direction: option.direction,
+      color: option.color,
+      lockable: option.lockable,
+      status: option.status,
+      usage: option.usage,
     });
   }
 

@@ -1,3 +1,5 @@
+import { Card, UnknownCard } from "./Card";
+
 export enum CardStatus {
   FACE_DOWN = 0,
   FACE_UP = 1,
@@ -11,6 +13,7 @@ export enum CardUsage {
 }
 
 export enum CardType {
+  UNKNOWN = -1, //未知卡牌
   CHENG_QING = 0, // 澄清
   SHI_TAN = 1, // 试探
   WEI_BI = 2, // 威逼
@@ -42,16 +45,28 @@ export interface CardOption {
   sprite: string;
   status?: CardStatus;
   usage?: CardUsage;
+  color: CardColor[];
   direction: CardDirection;
+  lockable: boolean;
 }
 
-export interface CardClassDefaultOption {
+export interface CardDefaultOption {
   id: number;
   direction: CardDirection;
+  color: CardColor[];
+  lockable: boolean;
+  status?: CardStatus;
+  usage?: CardUsage;
 }
 
 export interface ShiTanOption {
   id: number;
   direction: CardDirection;
   drawCardColor: CardColor[];
+  color: CardColor[];
+  lockable: boolean;
+  status?: CardStatus;
+  usage?: CardUsage;
 }
+
+export type GameCard = Card | UnknownCard;

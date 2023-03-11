@@ -1,5 +1,5 @@
 import { _decorator, Component, Sprite, Label, resources, SpriteFrame } from "cc";
-import { Character } from "../../Characters/Character";
+import { Character } from "../../../Characters/Character";
 const { ccclass, property } = _decorator;
 
 @ccclass("CharacterPanting")

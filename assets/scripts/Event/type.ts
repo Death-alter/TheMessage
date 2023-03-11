@@ -219,6 +219,9 @@ export enum ProcessEvent {
   CONFORM_SELECT_CHARACTER = "conform_select_character",
   GET_PHASE_DATA = "get_phase_data",
   SYNC_DECK_NUM = "sync_deck_num",
+  ADD_CARDS = "add_cards",
+  GET_AUTO_PLAY_STATUS = "get_auto_play_status",
+  STOP_COUNT_DOWN = "stop_count_down",
 }
 
 //游戏事件，触发扳机
@@ -232,5 +235,4 @@ export enum GameEvent {
   CHARACTER_STATUS_CHANGE = "character_status_change",
   GAME_PHASE_CHANGE = "game_phase_change",
   GAME_TURN_CHANGE = "game_turn_change",
-  STOP_COUNT_DOWN = "stop_count_down",
 }

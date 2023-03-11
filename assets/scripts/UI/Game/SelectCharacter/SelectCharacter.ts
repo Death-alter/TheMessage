@@ -1,24 +1,13 @@
-import {
-  _decorator,
-  Component,
-  Node,
-  UITransform,
-  RichText,
-  Button,
-  ProgressBar,
-  tween,
-  instantiate,
-  Sprite,
-  color,
-} from "cc";
-import { createCharacterById } from "../../Characters";
-import { Character } from "../../Characters/Character";
-import { CharacterType } from "../../Characters/type";
-import { Identity } from "../../Identity/Identity";
-import { MysteriousPerson } from "../../Identity/IdentityClass/MysteriousPerson";
+import { _decorator, Component, Node, UITransform, RichText, Button, tween, instantiate, Sprite, color } from "cc";
+import { createCharacterById } from "../../../Characters";
+import { Character } from "../../../Characters/Character";
+import { CharacterType } from "../../../Characters/type";
+import { Identity } from "../../../Identity/Identity";
+import { MysteriousPerson } from "../../../Identity/IdentityClass/MysteriousPerson";
 import { CharacterPanting } from "../Character/CharacterPanting";
-import EventTarget from "../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../Event/type";
+import EventTarget from "../../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { ProgressControl } from "../../../Utils/ProgressControl";
 
 const { ccclass, property } = _decorator;
 
@@ -32,9 +21,6 @@ interface InitOption {
 export class SelectCharacter extends Component {
   @property(RichText)
   infoText: RichText | null = null;
-
-  @property(ProgressBar)
-  progress: ProgressBar | null = null;
 
   @property(Node)
   charcaterNode: Node | null = null;
@@ -97,10 +83,14 @@ export class SelectCharacter extends Component {
 
     //显示窗口并开始倒计时
     this.show();
-    this.playProgressAnimation(waitingSecond).then(() => {
-      //倒计时结束自动选择当前选中人物
-      this.confirmCharacter();
-    });
+
+    //倒计时结束自动选择当前选中人物
+    this.node
+      .getChildByName("Progress")
+      .getComponent(ProgressControl)
+      .startCoundDown(waitingSecond, () => {
+        this.confirmCharacter();
+      });
   }
 
   show() {
@@ -120,34 +110,12 @@ export class SelectCharacter extends Component {
   }
 
   hide() {
+    this.node.getChildByName("Progress").getComponent(ProgressControl).stopCountDown();
     EventTarget.off(ProcessEvent.CONFORM_SELECT_CHARACTER);
     this.node.active = false;
   }
 
   //倒计时进度条动画
-  playProgressAnimation(seconds) {
-    return new Promise((reslove, reject) => {
-      try {
-        const bar = this.progress.node.getChildByName("Bar");
-        const barTransform = bar.getComponent(UITransform);
-        barTransform.width = this.progress.getComponent(UITransform).width;
-        tween(barTransform)
-          .to(
-            seconds,
-            { width: 0 },
-            {
-              onComplete: () => {
-                reslove(null);
-              },
-            }
-          )
-          .start();
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-
   confirmCharacter() {
     if (this.selectedCharacterIndex == undefined) return;
     EventTarget.emit(NetworkEventToS.SELECT_ROLE_TOS, {

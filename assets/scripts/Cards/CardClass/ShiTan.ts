@@ -1,7 +1,7 @@
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardColor } from "../type";
 
-export default class ShiTan extends Card {
+export class ShiTan extends Card {
   private _drawCardColor: CardColor[];
 
   get drawCardColor() {
@@ -13,8 +13,12 @@ export default class ShiTan extends Card {
       id: option.id,
       name: "试探",
       type: CardType.SHI_TAN,
-      sprite: "images/cards/ShiTan.jpg",
+      sprite: "images/cards/ShiTan",
       direction: option.direction,
+      color: option.color,
+      lockable: option.lockable,
+      status: option.status,
+      usage: option.usage,
     });
     this._drawCardColor = option.drawCardColor;
   }

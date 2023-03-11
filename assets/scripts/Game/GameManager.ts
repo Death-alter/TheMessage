@@ -1,8 +1,13 @@
-import { _decorator, Component, Node, director, RichText, tween, UITransform, Prefab, instantiate, Layout } from "cc";
-import { SelectCharacter } from "../UI/SelectCharacter/SelectCharacter";
-import { Character } from "../Characters/Character";
+import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout } from "cc";
+import { SelectCharacter } from "../UI/Game/SelectCharacter/SelectCharacter";
 import { GamePhase } from "./type";
-import { phase, wait_for_select_role_toc, init_toc, notify_phase_toc, sync_deck_num_toc } from "../../protobuf/proto.d";
+import {
+  wait_for_select_role_toc,
+  init_toc,
+  notify_phase_toc,
+  sync_deck_num_toc,
+  add_card_toc,
+} from "../../protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/type";
 import { Card } from "../Cards/Card";
@@ -12,8 +17,12 @@ import { IdentityType, SecretTaskType } from "../Identity/type";
 import { CharacterType } from "../Characters/type";
 import Player from "./Player";
 import { createCharacterById } from "../Characters";
-import { CharacterPanting } from "../UI/Character/CharacterPanting";
-import { PlayerUI } from "../UI/Player/PlayerUI";
+import { PlayerUI } from "../UI/Game/Player/PlayerUI";
+import { createCard, createUnknownCard } from "../Cards";
+import { CardUI } from "../UI/Game/Card/CardUI";
+import { CardUsage } from "../Cards/type";
+import { HandCardUI } from "../UI/Game/HandCardUI";
+import { ProgressControl } from "../Utils/ProgressControl";
 
 const { ccclass, property } = _decorator;
 
@@ -25,12 +34,18 @@ export class GameManager extends Component {
   gameWindow: Node | null = null;
   @property(Prefab)
   playerPrefab: Prefab | null = null;
+  @property(Prefab)
+  cardPrefab: Prefab | null = null;
   @property(Node)
-  leftPlayerNodeList: Node | null;
+  leftPlayerNodeList: Node | null = null;
   @property(Node)
-  topPlayerNodeList: Node | null;
+  topPlayerNodeList: Node | null = null;
   @property(Node)
-  rightPlayerNodeList: Node | null;
+  rightPlayerNodeList: Node | null = null;
+  @property(Node)
+  deck: Node | null = null;
+  @property(Node)
+  handCardUI: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
@@ -70,6 +85,14 @@ export class GameManager extends Component {
     }
   }
 
+  get deckCardCount() {
+    return this._deckCardCount;
+  }
+  set deckCardCount(count) {
+    this._deckCardCount = count;
+    this.deck.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + count;
+  }
+
   onEnable() {
     this.gameWindow.active = false;
 
@@ -91,15 +114,7 @@ export class GameManager extends Component {
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);
-    });
-
-    //收到phase数据
-    EventTarget.on(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
-      EventTarget.emit(GameEvent.STOP_COUNT_DOWN);
-      this.turnPlayerId = data.currentPlayerId;
-      this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
-      this.playerScriptList[data.waitingPlayerId].startCoundDown(data.waitingSecond);
-      if (data.seq) this._seq = data.seq;
+      resources.preloadDir("images/cards");
     });
 
     //设置座位号
@@ -109,12 +124,32 @@ export class GameManager extends Component {
       this.gameWindow.active = true;
     });
 
+    //收到phase数据
+    EventTarget.on(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
+      EventTarget.emit(ProcessEvent.STOP_COUNT_DOWN);
+      this.turnPlayerId = data.currentPlayerId;
+      this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
+      if (data.waitingPlayerId === 0) {
+        const progressStript = this.gameWindow.getChildByPath("Tooltip/Progress").getComponent(ProgressControl);
+
+        progressStript.startCoundDown(data.waitingSecond);
+      } else {
+        this.playerScriptList[data.waitingPlayerId].startCoundDown(data.waitingSecond);
+      }
+      if (data.seq) this._seq = data.seq;
+    });
+
     //卡组数量变化
     EventTarget.on(ProcessEvent.SYNC_DECK_NUM, (data: sync_deck_num_toc) => {
-      this._deckCardCount = data.num;
+      this.deckCardCount = data.num;
       if (data.shuffled) {
         //播放洗牌动画（如果做了的话）
       }
+    });
+
+    //抽卡
+    EventTarget.on(ProcessEvent.ADD_CARDS, (data: add_card_toc) => {
+      this.drawCards(data);
     });
   }
 
@@ -144,6 +179,12 @@ export class GameManager extends Component {
       (<unknown>data.identity) as IdentityType,
       (<unknown>data.secretTask) as SecretTaskType
     );
+
+    //隐藏人物进度条
+    this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
+
+    //初始化手牌UI
+    this.handCardUI.getComponent(HandCardUI).init();
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
@@ -184,7 +225,29 @@ export class GameManager extends Component {
     }
   }
 
-  drawCards(player, num: number) {}
+  drawCards(data: add_card_toc) {
+    if (data.unknownCardCount) {
+      for (let i = 0; i < data.unknownCardCount; i++) {
+        this.playerScriptList[data.playerId].addCard(createUnknownCard());
+      }
+    } else {
+      for (let item of data.cards) {
+        const card = createCard({
+          id: item.cardId,
+          color: item.cardColor,
+          type: item.cardType,
+          direction: item.cardDir,
+          drawCardColor: item.whoDrawCard,
+          usage: CardUsage.HAND_CARD,
+          lockable: item.canLock,
+        });
+        this.playerScriptList[data.playerId].addCard(card);
+        if (data.playerId === 0) {
+          this.handCardUI.getComponent(HandCardUI).addCard(card);
+        }
+      }
+    }
+  }
 
   selectCard() {}
 

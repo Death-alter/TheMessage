@@ -1,4 +1,4 @@
-import { CardStatus, CardUsage, CardOption, CardDirection, CardType } from "./type";
+import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
 import EventTarget from "../Event/EventTarget";
 import { GameEvent } from "../Event/type";
 
@@ -10,6 +10,10 @@ export class Card {
   protected _status: CardStatus;
   protected _usage: CardUsage;
   protected _direction: CardDirection;
+  protected _color: CardColor[];
+  protected _lockable: boolean;
+
+  public readonly backSprite: string = "images/cards/CardBack";
 
   get id() {
     return this._id;
@@ -51,13 +55,24 @@ export class Card {
     return this._direction;
   }
 
+  get color() {
+    return this._color;
+  }
+
+  get lockable() {
+    return this._lockable;
+  }
+
   constructor(option: CardOption) {
     this._id = option.id;
     this._name = option.name;
+    this._sprite = option.sprite;
     this._type = option.type;
     this._status = option.status || CardStatus.FACE_UP;
     this._usage = option.usage || CardUsage.UNKNOWN;
     this._direction = option.direction;
+    this._color = option.color;
+    this._lockable = option.lockable;
   }
 
   //当做功能牌打出
@@ -78,4 +93,9 @@ export class Card {
       this.status = CardStatus.FACE_UP;
     }
   }
+}
+
+export class UnknownCard {
+  public readonly status: CardStatus = CardStatus.FACE_DOWN;
+  public readonly backSprite: string = "images/cards/CardBack";
 }

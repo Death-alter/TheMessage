@@ -1,14 +1,18 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardType } from "../type";
 
-export default class CengQing extends Card {
-  constructor(option: CardClassDefaultOption) {
+export class ChengQing extends Card {
+  constructor(option: CardDefaultOption) {
     super({
       id: option.id,
       name: "澄清",
       type: CardType.CHENG_QING,
-      sprite: "images/cards/CengQing.jpg",
+      sprite: "images/cards/ChengQing",
       direction: option.direction,
+      color: option.color,
+      lockable: option.lockable,
+      status: option.status,
+      usage: option.usage,
     });
   }
 

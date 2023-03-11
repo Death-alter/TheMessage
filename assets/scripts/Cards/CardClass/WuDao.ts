@@ -1,14 +1,18 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardType } from "../type";
 
-export default class WuDao extends Card {
-  constructor(option: CardClassDefaultOption) {
+export class WuDao extends Card {
+  constructor(option: CardDefaultOption) {
     super({
       id: option.id,
       name: "误导",
       type: CardType.WU_DAO,
-      sprite: "images/cards/WuDao.jpg",
+      sprite: "images/cards/WuDao",
       direction: option.direction,
+      color: option.color,
+      lockable: option.lockable,
+      status: option.status,
+      usage: option.usage,
     });
   }
 

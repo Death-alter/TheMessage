@@ -1,14 +1,18 @@
 import { Card } from "../Card";
-import { CardClassDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardType } from "../type";
 
-export default class LiYou extends Card {
-  constructor(option: CardClassDefaultOption) {
+export class LiYou extends Card {
+  constructor(option: CardDefaultOption) {
     super({
       id: option.id,
       name: "利诱",
       type: CardType.LI_YOU,
-      sprite: "images/cards/LiYou.jpg",
+      sprite: "images/cards/LiYou",
       direction: option.direction,
+      color: option.color,
+      lockable: option.lockable,
+      status: option.status,
+      usage: option.usage,
     });
   }
 

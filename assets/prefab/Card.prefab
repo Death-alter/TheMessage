@@ -43,10 +43,16 @@
       },
       {
         "__id__": 42
+      },
+      {
+        "__id__": 44
+      },
+      {
+        "__id__": 46
       }
     ],
     "_prefab": {
-      "__id__": 44
+      "__id__": 48
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -79,7 +85,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ChengQing",
+    "_name": "Panting",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -947,6 +953,51 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "90nRuwiTBMqYjKoJh2cS2W"
+  },
+  {
+    "__type__": "81cebIfdhtPRavz1u0Lm9j+",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 45
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "19HyuGtb1LgLRf3DDP/Qd9"
+  },
+  {
+    "__type__": "cc.Animation",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 47
+    },
+    "playOnLoad": false,
+    "_clips": [
+      {
+        "__uuid__": "7aae4865-2c03-4c5f-b456-2e42e0f7e21f",
+        "__expectedType__": "cc.AnimationClip"
+      }
+    ],
+    "_defaultClip": {
+      "__uuid__": "7aae4865-2c03-4c5f-b456-2e42e0f7e21f",
+      "__expectedType__": "cc.AnimationClip"
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "c3NySDBr9D97UHQG7EwxC5"
   },
   {
     "__type__": "cc.PrefabInfo",

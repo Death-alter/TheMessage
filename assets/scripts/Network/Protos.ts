@@ -82,7 +82,9 @@ Protos[NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC] = (data) => {
     EventTarget.emit(ProcessEvent.START_SELECT_CHARACTER, data);
   });
 };
-Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {};
+Protos[NetworkEventToC.AUTO_PLAY_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.GET_AUTO_PLAY_STATUS, data);
+};
 Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, data);
 };
@@ -90,7 +92,9 @@ Protos[NetworkEventToC.INIT_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.INIT_GAME, data);
 };
 Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {};
-Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {};
+Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.ADD_CARDS, data);
+};
 Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {};
 Protos[NetworkEventToC.EXECUTE_SHI_TAN_TOC] = (data) => {};

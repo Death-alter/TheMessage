@@ -13,7 +13,7 @@ export class Character {
   protected _sex: Sex;
   protected _skills: Skill[];
 
-  public readonly messages: Card[] = [];
+  public static readonly _backSprite = "images/characters/Unknown";
 
   get status() {
     return this._status;
@@ -64,23 +64,5 @@ export class Character {
     if (index >= this._skills.length) {
       return;
     }
-  }
-
-  //情报置入情报区
-  public addMessage(message: Card): void {
-    if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
-    if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
-    this.messages.push(message);
-  }
-
-  //接收情报
-  public acceptMessage(message: Card): void {
-    this.addMessage(message);
-    EventTarget.emit(GameEvent.ACCEPT_MESSAGE, this._id, message);
-  }
-
-  //从情报区移除情报
-  public removeMessage(index: number): Card {
-    return this.messages.splice(index, 1)[0];
   }
 }
