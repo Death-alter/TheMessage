@@ -91,7 +91,9 @@ Protos[NetworkEventToC.SELECT_ROLE_TOC] = (data) => {
 Protos[NetworkEventToC.INIT_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.INIT_GAME, data);
 };
-Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {};
+Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.UPDATE_CHARACTER, data);
+};
 Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.ADD_CARDS, data);
 };

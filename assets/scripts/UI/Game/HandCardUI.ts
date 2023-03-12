@@ -1,6 +1,8 @@
-import { _decorator, CCInteger, Component, instantiate, Prefab, UITransform, Vec3, Node } from "cc";
+import { _decorator, CCInteger, Component, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
 import { GameCard } from "../../Cards/type";
 import { CardUI } from "./Card/CardUI";
+import EventTarget from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardUI")
@@ -13,23 +15,41 @@ export class HandCardUI extends Component {
   private _cardList: GameCard[] = [];
   private _maxLength: number;
   private _childWith: number;
+  private _width: number;
 
   get cardList() {
     return this._cardList;
   }
 
-  onLoad() {
-    this.node.on(Node.EventType.SIZE_CHANGED, this.init, this);
+  onEnable() {
+    this.node.on(Node.EventType.SIZE_CHANGED, () => {
+      this.onResize();
+    });
+    EventTarget.on(ProcessEvent.SELECT_HAND_CARD, (node) => {
+      for (let item of this.node.children) {
+        if (item !== node) {
+          item.getComponent(CardUI).selected = false;
+        }
+      }
+    });
   }
 
-  init() {
+  onDisable() {
+    this.node.off(Node.EventType.SIZE_CHANGED);
+  }
+
+  onResize() {
+    this._width = this.node.getComponent(UITransform).width;
     if (this._cardList.length) {
       this._childWith = this.node.getComponentInChildren(UITransform).width;
     } else {
       this._childWith = instantiate(this.cardPrefab).getComponent(UITransform).width;
+      this._maxLength = Math.floor(this._width / (this._childWith + this.spacingX));
     }
-    const width = this.node.getComponent(UITransform).width;
-    this._maxLength = Math.floor(width / (this._childWith + this.spacingX));
+  }
+
+  init() {
+    this.onResize();
     this.refresh();
   }
 
@@ -37,27 +57,32 @@ export class HandCardUI extends Component {
     this.cardList.push(card);
     const CardNode = instantiate(this.cardPrefab);
     CardNode.getComponent(CardUI).init(card);
+    CardNode.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
     this.node.addChild(CardNode);
     this.refresh();
-    console.log(this.node);
   }
 
   refresh() {
-    const width = this.node.getComponent(UITransform).width;
+    const offset = this._childWith / 2 - this._width / 2;
 
     //超出宽度后开始堆叠
     if (this._cardList.length > this._maxLength) {
-      const stackLength =
-        (this._childWith * this._cardList.length + this.spacingX * (this._cardList.length - 1) - width) /
-        (this._cardList.length - 1);
       for (let i = 0; i < this._cardList.length; i++) {
-        const x = i * (this.spacingX + this._childWith) - width / 2 + this._childWith / 2 - i * stackLength;
-        this.node.children[i].position = new Vec3(x, 0, 0);
+        const x = offset - (2 * i * offset) / (this.cardList.length - 1);
+        if (x !== this.node.children[i].position.x) {
+          tween(this.node.children[i])
+            .to(0.5, { position: new Vec3(x, this.node.children[i].position.y, 0) })
+            .start();
+        }
       }
     } else {
       for (let i = 0; i < this._cardList.length; i++) {
-        const x = i * (this.spacingX + this._childWith) - width / 2 + this._childWith / 2;
-        this.node.children[i].position = new Vec3(x, 0, 0);
+        const x = i * (this.spacingX + this._childWith) + offset;
+        if (x !== this.node.children[i].position.x) {
+          tween(this.node.children[i])
+            .to(0.5, { position: new Vec3(x, this.node.children[i].position.y, 0) })
+            .start();
+        }
       }
     }
   }

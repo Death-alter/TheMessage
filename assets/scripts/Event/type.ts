@@ -222,6 +222,8 @@ export enum ProcessEvent {
   ADD_CARDS = "add_cards",
   GET_AUTO_PLAY_STATUS = "get_auto_play_status",
   STOP_COUNT_DOWN = "stop_count_down",
+  SELECT_HAND_CARD = "select_hand_card",
+  UPDATE_CHARACTER = "update_character"
 }
 
 //游戏事件，触发扳机

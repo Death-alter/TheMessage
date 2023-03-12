@@ -1,19 +1,16 @@
 import { Skill } from "../Skills/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
-import { CardUsage, CardStatus } from "../Cards/type";
-import { Card } from "../Cards/Card";
-import EventTarget from "../Event/EventTarget";
-import { GameEvent } from "../Event/type";
+import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
+import { DataClass } from "../type";
 
-export class Character {
+export class Character extends DataClass {
   protected _id: number;
   protected _name: string;
   protected _sprite: string;
   protected _status: CharacterStatus;
   protected _sex: Sex;
   protected _skills: Skill[];
-
-  public static readonly _backSprite = "images/characters/Unknown";
+  protected _UI: CharacterPanting;
 
   get status() {
     return this._status;
@@ -21,7 +18,14 @@ export class Character {
   set status(status: CharacterStatus) {
     if (status !== this._status) {
       this._status = status;
-      EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
+      if (this._UI) {
+        if (this.status === CharacterStatus.FACE_DOWN) {
+          this._UI.showCover();
+        } else {
+          this._UI.hideCover();
+        }
+      }
+      // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
     }
   }
 
@@ -41,11 +45,16 @@ export class Character {
     return this._sex;
   }
 
+  get UI() {
+    return this._UI;
+  }
+
   constructor(options: CharacterOptions) {
+    super();
     this._id = options.id;
     this._name = options.name;
     this._sprite = options.sprite;
-    this._status = options.status || CharacterStatus.FACE_UP;
+    this._status = options.status == null ? CharacterStatus.FACE_UP : options.status;
     this._sex = options.sex;
     this._skills = options.skills;
   }
@@ -64,5 +73,10 @@ export class Character {
     if (index >= this._skills.length) {
       return;
     }
+  }
+
+  bindUI(scrpit: CharacterPanting) {
+    this._UI = scrpit;
+    this._UI.character = this;
   }
 }

@@ -7,20 +7,20 @@ import {
   notify_phase_toc,
   sync_deck_num_toc,
   add_card_toc,
+  notify_role_update_toc,
 } from "../../protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/type";
-import { Card } from "../Cards/Card";
-import { createIdentity } from "../Identity";
-import { Identity } from "../Identity/Identity";
-import { IdentityType, SecretTaskType } from "../Identity/type";
-import { CharacterType } from "../Characters/type";
-import Player from "./Player";
-import { createCharacterById } from "../Characters";
+import { Card } from "../Data/Cards/Card";
+import { createIdentity } from "../Data/Identity";
+import { Identity } from "../Data/Identity/Identity";
+import { IdentityType, SecretTaskType } from "../Data/Identity/type";
+import { CharacterStatus, CharacterType } from "../Data/Characters/type";
+import Player from "../Data/Player/Player";
+import { createCharacterById } from "../Data/Characters";
 import { PlayerUI } from "../UI/Game/Player/PlayerUI";
-import { createCard, createUnknownCard } from "../Cards";
-import { CardUI } from "../UI/Game/Card/CardUI";
-import { CardUsage } from "../Cards/type";
+import { createCard, createUnknownCard } from "../Data/Cards";
+import { CardUsage } from "../Data/Cards/type";
 import { HandCardUI } from "../UI/Game/HandCardUI";
 import { ProgressControl } from "../Utils/ProgressControl";
 
@@ -51,7 +51,7 @@ export class GameManager extends Component {
   public playerCount: number;
   public selfPlayer: Player;
   public playerCharacterIdList: number[];
-  public playerScriptList: PlayerUI[];
+  public playerList: Player[];
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -76,11 +76,8 @@ export class GameManager extends Component {
   }
   set turnPlayerId(playerId: number) {
     if (playerId !== this._turnPlayerId) {
-      if (this._turnPlayerId != null) {
-        this.playerScriptList[this._turnPlayerId].setTurnPlayer(false);
-      }
-      this.playerScriptList[playerId].setTurnPlayer(true);
       this._turnPlayerId = playerId;
+      Player.turnPlayerId = playerId;
       EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
     }
   }
@@ -134,7 +131,7 @@ export class GameManager extends Component {
 
         progressStript.startCoundDown(data.waitingSecond);
       } else {
-        this.playerScriptList[data.waitingPlayerId].startCoundDown(data.waitingSecond);
+        this.playerList[data.waitingPlayerId].UI.startCoundDown(data.waitingSecond);
       }
       if (data.seq) this._seq = data.seq;
     });
@@ -151,6 +148,23 @@ export class GameManager extends Component {
     EventTarget.on(ProcessEvent.ADD_CARDS, (data: add_card_toc) => {
       this.drawCards(data);
     });
+
+    //收到角色更新
+    EventTarget.on(ProcessEvent.UPDATE_CHARACTER, (data: notify_role_update_toc) => {
+      console.log(data);
+      if (data.role) {
+        if (this.playerList[data.playerId].character.id === 0) {
+          const ui = this.playerList[data.playerId].character.UI;
+          console.log(this.playerList[data.playerId]);
+          const character = createCharacterById((<unknown>data.role) as CharacterType);
+          character.bindUI(ui);
+          this.playerList[data.playerId].character = character;
+        }
+        this.playerList[data.playerId].character.status = CharacterStatus.FACE_UP;
+      } else {
+        this.playerList[data.playerId].character.status = CharacterStatus.FACE_DOWN;
+      }
+    });
   }
 
   onDisable() {
@@ -159,22 +173,23 @@ export class GameManager extends Component {
     EventTarget.off(ProcessEvent.INIT_GAME);
     EventTarget.off(ProcessEvent.GET_PHASE_DATA);
     EventTarget.off(ProcessEvent.SYNC_DECK_NUM);
+    EventTarget.off(ProcessEvent.ADD_CARDS);
+    EventTarget.off(ProcessEvent.UPDATE_CHARACTER);
   }
 
   init(data: init_toc) {
     this.playerCount = data.playerCount;
-    const playerList = [];
-    this.playerScriptList = [];
+    this.playerList = [];
 
     //创建自己
     this.selfPlayer = new Player({
+      id: 0,
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
     });
-    playerList.push(this.selfPlayer);
     const selfPlayerScript = this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI);
-    this.playerScriptList.push(selfPlayerScript);
-    selfPlayerScript.init(this.selfPlayer);
+    this.selfPlayer.bindUI(selfPlayerScript);
+    this.playerList.push(this.selfPlayer);
     this.identity = createIdentity(
       (<unknown>data.identity) as IdentityType,
       (<unknown>data.secretTask) as SecretTaskType
@@ -188,8 +203,9 @@ export class GameManager extends Component {
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
-      playerList.push(
+      this.playerList.push(
         new Player({
+          id: i,
           name: data.names[i],
           character: createCharacterById((<unknown>data.roles[i]) as CharacterType),
         })
@@ -202,33 +218,31 @@ export class GameManager extends Component {
 
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
-      const playerScript = player.getComponent(PlayerUI);
-      playerScript.init(playerList[i + 1]);
-      this.playerScriptList.push(playerScript);
       this.rightPlayerNodeList.addChild(player);
+      const playerScript = player.getComponent(PlayerUI);
+      console.log(this.playerList[i + 1], playerScript);
+      this.playerList[i + 1].bindUI(playerScript);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
-      const playerScript = player.getComponent(PlayerUI);
-      playerScript.init(playerList[i + 1]);
-      this.playerScriptList.push(playerScript);
       this.topPlayerNodeList.addChild(player);
+      const playerScript = player.getComponent(PlayerUI);
+      this.playerList[i + 1].bindUI(playerScript);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
-      const playerScript = player.getComponent(PlayerUI);
-      playerScript.init(playerList[i + 1]);
-      this.playerScriptList.push(playerScript);
       this.leftPlayerNodeList.addChild(player);
+      const playerScript = player.getComponent(PlayerUI);
+      this.playerList[i + 1].bindUI(playerScript);
     }
   }
 
   drawCards(data: add_card_toc) {
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
-        this.playerScriptList[data.playerId].addCard(createUnknownCard());
+        this.playerList[data.playerId].UI.addCard(createUnknownCard());
       }
     } else {
       for (let item of data.cards) {
@@ -241,7 +255,7 @@ export class GameManager extends Component {
           usage: CardUsage.HAND_CARD,
           lockable: item.canLock,
         });
-        this.playerScriptList[data.playerId].addCard(card);
+        this.playerList[data.playerId].UI.addCard(card);
         if (data.playerId === 0) {
           this.handCardUI.getComponent(HandCardUI).addCard(card);
         }
@@ -259,7 +273,7 @@ export class GameManager extends Component {
     let i = fistPlayerId;
     let j = 0;
     do {
-      this.playerScriptList[i].getComponent(PlayerUI).setSeat(j);
+      this.playerList[i].UI.setSeat(j);
       i = (i + 1) % this.playerCount;
       ++j;
     } while (i !== fistPlayerId);

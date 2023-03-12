@@ -1,9 +1,9 @@
 import { _decorator, Component, Node, UITransform, RichText, Button, tween, instantiate, Sprite, color } from "cc";
-import { createCharacterById } from "../../../Characters";
-import { Character } from "../../../Characters/Character";
-import { CharacterType } from "../../../Characters/type";
-import { Identity } from "../../../Identity/Identity";
-import { MysteriousPerson } from "../../../Identity/IdentityClass/MysteriousPerson";
+import { createCharacterById } from "../../../Data/Characters";
+import { Character } from "../../../Data/Characters/Character";
+import { CharacterStatus, CharacterType } from "../../../Data/Characters/type";
+import { Identity } from "../../../Data/Identity/Identity";
+import { MysteriousPerson } from "../../../Data/Identity/IdentityClass/MysteriousPerson";
 import { CharacterPanting } from "../Character/CharacterPanting";
 import EventTarget from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
@@ -48,12 +48,13 @@ export class SelectCharacter extends Component {
     this.characterTypes = roles;
     for (let i = 0; i < roles.length; i++) {
       const character = createCharacterById(roles[i]);
+      character.status = CharacterStatus.FACE_UP;
       this.characterList.push(character);
       if (i === 0) {
-        this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterPanting).character = character;
+        character.bindUI(this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterPanting));
       } else {
         const node = instantiate(this.charcaterNode);
-        node.getChildByName("CharacterPanting").getComponent(CharacterPanting).character = character;
+        character.bindUI(node.getChildByName("CharacterPanting").getComponent(CharacterPanting));
         this.charcaterNodeList.addChild(node);
       }
     }

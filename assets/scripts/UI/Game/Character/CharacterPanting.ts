@@ -1,5 +1,6 @@
 import { _decorator, Component, Sprite, Label, resources, SpriteFrame } from "cc";
-import { Character } from "../../../Characters/Character";
+import { Character } from "../../../Data/Characters/Character";
+import { CharacterStatus } from "../../../Data/Characters/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("CharacterPanting")
@@ -12,21 +13,34 @@ export class CharacterPanting extends Component {
   set character(character) {
     this.releaseSprite();
     this._character = character;
-    this.refresh();
+    if (character.status === CharacterStatus.FACE_UP) {
+      this.hideCover();
+    } else {
+      this.showCover();
+    }
+    this.loadSprite();
   }
 
-  refresh() {
+  showCover() {
+    this.node.getChildByPath("Mask/Cover").active = true;
+  }
+
+  hideCover() {
+    this.node.getChildByPath("Mask/Cover").active = false;
+  }
+
+  loadSprite() {
     resources.load(this.character.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
       if (!err && spriteFrame) {
         spriteFrame.addRef(); // 计数加1
-        this.node.getChildByName("Mask").getChildByName("Image").getComponent(Sprite).spriteFrame = spriteFrame;
+        this.node.getChildByPath("Mask/Image").getComponent(Sprite).spriteFrame = spriteFrame;
       }
     });
     this.node.getChildByName("Name").getComponent(Label).string = this.character.name;
   }
 
   releaseSprite() {
-    const sprite = this.node.getChildByName("Mask").getChildByName("Image").getComponent(Sprite);
+    const sprite = this.node.getChildByPath("Mask/Image").getComponent(Sprite);
     if (sprite && sprite.spriteFrame) {
       sprite.spriteFrame.decRef();
       sprite.spriteFrame = null;

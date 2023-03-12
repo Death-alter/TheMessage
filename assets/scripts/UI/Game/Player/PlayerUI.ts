@@ -1,12 +1,11 @@
-import { _decorator, Component, Label, Node, UITransform, tween, Tween } from "cc";
-const { ccclass, property } = _decorator;
+import { _decorator, Component, Label, Node } from "cc";
 import { CharacterPanting } from "../Character/CharacterPanting";
-import { CardUsage, CardStatus, GameCard } from "../../../Cards/type";
-import { Card } from "../../../Cards/Card";
-import Player from "../../../Game/Player";
-import EventTarget from "../../../Event/EventTarget";
-import { GameEvent } from "../../../Event/type";
+import { CardUsage, CardStatus, GameCard } from "../../../Data/Cards/type";
+import { Card } from "../../../Data/Cards/Card";
+import Player from "../../../Data/Player/Player";
 import { ProgressControl } from "../../../Utils/ProgressControl";
+
+const { ccclass, property } = _decorator;
 
 @ccclass("PlayerUI")
 export class PlayerUI extends Component {
@@ -21,6 +20,15 @@ export class PlayerUI extends Component {
   private _messages: Card[] = [];
   private _handCards: GameCard[] = [];
 
+  get player() {
+    return this._player;
+  }
+  set player(player) {
+    this._player = player;
+    this.characterPanting.getComponent(CharacterPanting).character = player.character;
+    this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
+  }
+
   get messages() {
     return this._messages;
   }
@@ -29,10 +37,7 @@ export class PlayerUI extends Component {
     return this._handCards;
   }
 
-  init(player: Player) {
-    this._player = player;
-    this.characterPanting.getComponent(CharacterPanting).character = player.character;
-    this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
+  onLoad() {
     this.progress.active = false;
   }
 
@@ -51,9 +56,8 @@ export class PlayerUI extends Component {
     this.progress.getComponent(ProgressControl).stopCountDown();
   }
 
-  //设置当前回合玩家
-  setTurnPlayer(boolean) {
-    this._player.isTurnPlayer = boolean;
+  flipCharacter() {
+    this._player.character.flip();
   }
 
   //增加手牌

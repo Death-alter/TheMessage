@@ -1,6 +1,8 @@
-import { _decorator, Component, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color } from "cc";
-import { CardStatus, CardUsage, GameCard } from "../../../Cards/type";
-import { Card, UnknownCard } from "../../../Cards/Card";
+import { _decorator, Component, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat } from "cc";
+import { CardDirection, CardStatus, CardUsage, GameCard } from "../../../Data/Cards/type";
+import { Card, UnknownCard } from "../../../Data/Cards/Card";
+import EventTarget from "../../../Event/EventTarget";
+import { ProcessEvent } from "../../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardUI")
@@ -38,10 +40,11 @@ export class CardUI extends Component {
   onEnable() {
     this.node.on(Node.EventType.TOUCH_END, (event) => {
       if (this.card instanceof Card && this.card.usage === CardUsage.HAND_CARD) {
-        if (this._selected) {
-          this._selected = false;
+        if (this.selected) {
+          this.selected = false;
         } else {
-          this._selected = true;
+          this.selected = true;
+          EventTarget.emit(ProcessEvent.SELECT_HAND_CARD, this.node);
         }
       }
     });
@@ -53,8 +56,8 @@ export class CardUI extends Component {
     if (this._animationComponent && this._animationComponent.defaultClip) {
       const { defaultClip } = this._animationComponent;
       defaultClip.events.push({
-        frame: 0.33, // 第 0.5 秒时触发事件
-        func: "changeCardSprite", // 事件触发时调用的函数名称
+        frame: 0.33,
+        func: "changeCardSprite",
         params: [],
       });
     }
@@ -79,6 +82,16 @@ export class CardUI extends Component {
       } else {
         Color.fromHEX(colorNodeLeft.color, CardUI.colors[card.color[0]]);
         Color.fromHEX(colorNodeRight.color, CardUI.colors[card.color[1]]);
+      }
+      if (card.direction === CardDirection.LEFT) {
+        Quat.fromAngleZ(this.node.getChildByName("Arrow").rotation, 90);
+      } else if (card.direction === CardDirection.RIGHT) {
+        Quat.fromAngleZ(this.node.getChildByName("Arrow").rotation, -90);
+      }
+      if (card.lockable) {
+        this.node.getChildByName("Lock").active = true;
+      } else {
+        this.node.getChildByName("Lock").active = false;
       }
     }
   }

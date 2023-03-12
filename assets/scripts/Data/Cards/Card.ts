@@ -1,8 +1,11 @@
 import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
-import EventTarget from "../Event/EventTarget";
-import { GameEvent } from "../Event/type";
+import EventTarget from "../../Event/EventTarget";
+import { GameEvent } from "../../Event/type";
+import { DataClass } from "../type";
+import { CardUI } from "../../UI/Game/Card/CardUI";
+import { Script } from "cc";
 
-export class Card {
+export class Card extends DataClass {
   protected _id: number;
   protected _name: string;
   protected _type: CardType;
@@ -12,6 +15,7 @@ export class Card {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
+  protected _UI: CardUI;
 
   public readonly backSprite: string = "images/cards/CardBack";
 
@@ -64,6 +68,7 @@ export class Card {
   }
 
   constructor(option: CardOption) {
+    super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
@@ -93,6 +98,8 @@ export class Card {
       this.status = CardStatus.FACE_UP;
     }
   }
+
+  bindUI(script: CardUI) {}
 }
 
 export class UnknownCard {
