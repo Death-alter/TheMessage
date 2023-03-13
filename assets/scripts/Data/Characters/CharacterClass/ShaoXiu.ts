@@ -1,9 +1,10 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
+import { CharacterPanting } from "../../../UI/Game/Character/CharacterPanting";
 
 export class ShaoXiu extends Character {
-  constructor() {
+  constructor(UI?: CharacterPanting) {
     super({
       id: 18,
       name: "邵秀",
@@ -11,6 +12,7 @@ export class ShaoXiu extends Character {
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       skills: [] as Skill[],
+      UI: UI,
     });
   }
 }

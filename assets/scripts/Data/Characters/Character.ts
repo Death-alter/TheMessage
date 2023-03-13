@@ -49,18 +49,18 @@ export class Character extends DataClass {
     return this._UI;
   }
 
-  constructor(options: CharacterOptions) {
-    super();
-    this._id = options.id;
-    this._name = options.name;
-    this._sprite = options.sprite;
-    this._status = options.status == null ? CharacterStatus.FACE_UP : options.status;
-    this._sex = options.sex;
-    this._skills = options.skills;
+  constructor(option: CharacterOptions) {
+    super(option.UI);
+    this._id = option.id;
+    this._name = option.name;
+    this._sprite = option.sprite;
+    this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
+    this._sex = option.sex;
+    this._skills = option.skills;
   }
 
   //翻面
-  public flip(): void {
+  flip(){
     if (this.status === CharacterStatus.FACE_UP) {
       this.status = CharacterStatus.FACE_DOWN;
     } else {
@@ -69,14 +69,14 @@ export class Character extends DataClass {
   }
 
   //技能
-  public useSkill(index: number): void {
+ useSkill(index: number) {
     if (index >= this._skills.length) {
       return;
     }
   }
 
-  bindUI(scrpit: CharacterPanting) {
-    this._UI = scrpit;
+  bindUI(script: CharacterPanting) {
+    this._UI = script;
     this._UI.character = this;
   }
 }

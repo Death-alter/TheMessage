@@ -1,3 +1,4 @@
+import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
 import { Skill } from "../Skills/Skill";
 
 export enum CharacterType {
@@ -54,4 +55,5 @@ export interface CharacterOptions {
   status?: CharacterStatus;
   sex: Sex;
   skills: Skill[];
+  UI?: CharacterPanting;
 }

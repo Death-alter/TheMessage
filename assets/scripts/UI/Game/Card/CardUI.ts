@@ -17,7 +17,7 @@ export class CardUI extends Component {
     return this._card;
   }
 
-  private set card(card: GameCard) {
+  set card(card: GameCard) {
     this._card = card;
     this.refresh(card);
   }

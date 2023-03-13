@@ -1,9 +1,10 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
+import { CharacterPanting } from "../../../UI/Game/Character/CharacterPanting";
 
 export class LiXing extends Character {
-  constructor() {
+  constructor(UI?: CharacterPanting) {
     super({
       id: 11,
       name: "李醒",
@@ -11,6 +12,7 @@ export class LiXing extends Character {
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       skills: [] as Skill[],
+      UI: UI,
     });
   }
 }

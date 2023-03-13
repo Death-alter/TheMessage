@@ -111,6 +111,7 @@ export class GameManager extends Component {
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
       this.init(data);
+      //预加载卡图
       resources.preloadDir("images/cards");
     });
 
@@ -151,11 +152,9 @@ export class GameManager extends Component {
 
     //收到角色更新
     EventTarget.on(ProcessEvent.UPDATE_CHARACTER, (data: notify_role_update_toc) => {
-      console.log(data);
       if (data.role) {
         if (this.playerList[data.playerId].character.id === 0) {
           const ui = this.playerList[data.playerId].character.UI;
-          console.log(this.playerList[data.playerId]);
           const character = createCharacterById((<unknown>data.role) as CharacterType);
           character.bindUI(ui);
           this.playerList[data.playerId].character = character;
@@ -186,9 +185,8 @@ export class GameManager extends Component {
       id: 0,
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
+      UI: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI),
     });
-    const selfPlayerScript = this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI);
-    this.selfPlayer.bindUI(selfPlayerScript);
     this.playerList.push(this.selfPlayer);
     this.identity = createIdentity(
       (<unknown>data.identity) as IdentityType,
@@ -219,30 +217,26 @@ export class GameManager extends Component {
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      const playerScript = player.getComponent(PlayerUI);
-      console.log(this.playerList[i + 1], playerScript);
-      this.playerList[i + 1].bindUI(playerScript);
+      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      const playerScript = player.getComponent(PlayerUI);
-      this.playerList[i + 1].bindUI(playerScript);
+      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      const playerScript = player.getComponent(PlayerUI);
-      this.playerList[i + 1].bindUI(playerScript);
+      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
     }
   }
 
   drawCards(data: add_card_toc) {
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
-        this.playerList[data.playerId].UI.addCard(createUnknownCard());
+        this.playerList[data.playerId].addCard(createUnknownCard());
       }
     } else {
       for (let item of data.cards) {
@@ -255,7 +249,7 @@ export class GameManager extends Component {
           usage: CardUsage.HAND_CARD,
           lockable: item.canLock,
         });
-        this.playerList[data.playerId].UI.addCard(card);
+        this.playerList[data.playerId].addCard(card);
         if (data.playerId === 0) {
           this.handCardUI.getComponent(HandCardUI).addCard(card);
         }
@@ -273,7 +267,7 @@ export class GameManager extends Component {
     let i = fistPlayerId;
     let j = 0;
     do {
-      this.playerList[i].UI.setSeat(j);
+      this.playerList[i].seatNumber = j;
       i = (i + 1) % this.playerCount;
       ++j;
     } while (i !== fistPlayerId);

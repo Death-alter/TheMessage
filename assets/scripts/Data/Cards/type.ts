@@ -1,3 +1,4 @@
+import { CardUI } from "../../UI/Game/Card/CardUI";
 import { Card, UnknownCard } from "./Card";
 
 export enum CardStatus {
@@ -48,6 +49,7 @@ export interface CardOption {
   color: CardColor[];
   direction: CardDirection;
   lockable: boolean;
+  UI?: CardUI;
 }
 
 export interface CardDefaultOption {
@@ -57,6 +59,7 @@ export interface CardDefaultOption {
   lockable: boolean;
   status?: CardStatus;
   usage?: CardUsage;
+  UI?: CardUI;
 }
 
 export interface ShiTanOption {
@@ -67,6 +70,7 @@ export interface ShiTanOption {
   lockable: boolean;
   status?: CardStatus;
   usage?: CardUsage;
+  UI?: CardUI;
 }
 
 export type GameCard = Card | UnknownCard;

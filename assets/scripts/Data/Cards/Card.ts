@@ -3,7 +3,6 @@ import EventTarget from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
 import { DataClass } from "../type";
 import { CardUI } from "../../UI/Game/Card/CardUI";
-import { Script } from "cc";
 
 export class Card extends DataClass {
   protected _id: number;
@@ -68,7 +67,7 @@ export class Card extends DataClass {
   }
 
   constructor(option: CardOption) {
-    super();
+    super(option.UI);
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
@@ -99,10 +98,23 @@ export class Card extends DataClass {
     }
   }
 
-  bindUI(script: CardUI) {}
+  bindUI(script: CardUI) {
+    this._UI = script;
+    this._UI.card = this;
+  }
 }
 
-export class UnknownCard {
+export class UnknownCard extends DataClass {
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
+  protected _UI: CardUI;
+
+  constructor(UI?) {
+    super(UI);
+  }
+
+  bindUI(script: CardUI) {
+    this._UI = script;
+    this._UI.card = this;
+  }
 }
