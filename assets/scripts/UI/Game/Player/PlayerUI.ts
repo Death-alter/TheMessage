@@ -21,7 +21,8 @@ export class PlayerUI extends Component {
   get player() {
     return this._player;
   }
-  set player(player) {
+  set player(player: Player) {
+    if (!player || player === this._player) return;
     this._player = player;
     this.characterPanting.getComponent(CharacterPanting).character = player.character;
     this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;

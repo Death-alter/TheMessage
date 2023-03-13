@@ -4,14 +4,23 @@ import { DataContainer } from "../../../Data/DataContainer/DataContainer";
 const { ccclass, property } = _decorator;
 
 @ccclass("UIContainer")
-export class UIContainer<T extends Component> extends Component {
-  private _data: DataContainer<DataClass, T>;
+export abstract class UIContainer<T extends DataClass, U extends Component> extends Component {
+  private _data: DataContainer<T, U>;
 
   get data() {
     return this._data;
   }
 
   set data(data) {
+    if (!data || data === this.data) return;
     this._data = data;
   }
+
+  abstract init(): void;
+
+  abstract onDataAdded(data: T): void;
+
+  abstract onDataRemoved(data: T): void;
+
+  abstract onAllDataRemoved(): void;
 }

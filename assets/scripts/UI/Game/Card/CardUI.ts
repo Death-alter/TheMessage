@@ -7,6 +7,9 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardUI")
 export class CardUI extends Component {
+  @property(Node)
+  detailNode: Node | null = null;
+
   private _card: GameCard;
   private _animationComponent: Animation;
   private _selected: boolean = false;
@@ -18,6 +21,7 @@ export class CardUI extends Component {
   }
 
   set card(card: GameCard) {
+    if (!card || card === this._card) return;
     this._card = card;
     this.refresh(card);
   }
@@ -27,17 +31,16 @@ export class CardUI extends Component {
   }
 
   set selected(selected) {
-    if (this._selected !== selected) {
-      this._selected = selected;
-      if (selected) {
-        this.node.position = new Vec3(this.node.position.x, 20, 0);
-      } else {
-        this.node.position = new Vec3(this.node.position.x, 0, 0);
-      }
+    if (selected == null || this._selected === selected) return;
+    this._selected = selected;
+    if (selected) {
+      this.node.position = new Vec3(this.node.position.x, 20, 0);
+    } else {
+      this.node.position = new Vec3(this.node.position.x, 0, 0);
     }
   }
 
-  onLoad() {
+  start() {
     this._animationComponent = this.node.getComponent(Animation);
     if (this._animationComponent && this._animationComponent.defaultClip) {
       const { defaultClip } = this._animationComponent;
@@ -62,16 +65,18 @@ export class CardUI extends Component {
   refresh(card: GameCard) {
     const sprite = this.node.getChildByName("Panting").getComponent(Sprite);
     if (card instanceof UnknownCard) {
+      this.detailNode.active = false;
       resources.load(card.backSprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
     } else {
+      this.detailNode.active = true;
       const spriteUrl = card.status === CardStatus.FACE_DOWN ? card.backSprite : card.sprite;
       resources.load(spriteUrl + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
-      const colorNodeLeft = this.node.getChildByPath("Color/Left").getComponent(Sprite);
-      const colorNodeRight = this.node.getChildByPath("Color/Right").getComponent(Sprite);
+      const colorNodeLeft = this.detailNode.getChildByPath("Color/Left").getComponent(Sprite);
+      const colorNodeRight = this.detailNode.getChildByPath("Color/Right").getComponent(Sprite);
       if (card.color.length === 1) {
         Color.fromHEX(colorNodeLeft.color, CardUI.colors[card.color[0]]);
         Color.fromHEX(colorNodeRight.color, CardUI.colors[card.color[0]]);
@@ -80,14 +85,14 @@ export class CardUI extends Component {
         Color.fromHEX(colorNodeRight.color, CardUI.colors[card.color[1]]);
       }
       if (card.direction === CardDirection.LEFT) {
-        Quat.fromAngleZ(this.node.getChildByName("Arrow").rotation, 90);
+        Quat.fromAngleZ(this.detailNode.getChildByName("Arrow").rotation, 90);
       } else if (card.direction === CardDirection.RIGHT) {
-        Quat.fromAngleZ(this.node.getChildByName("Arrow").rotation, -90);
+        Quat.fromAngleZ(this.detailNode.getChildByName("Arrow").rotation, -90);
       }
       if (card.lockable) {
-        this.node.getChildByName("Lock").active = true;
+        this.detailNode.getChildByName("Lock").active = true;
       } else {
-        this.node.getChildByName("Lock").active = false;
+        this.detailNode.getChildByName("Lock").active = false;
       }
     }
   }

@@ -36,6 +36,7 @@ import {
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/type";
 import { Card } from "../Data/Cards/Card";
+import { GameCard } from "../Data/Cards/type";
 import { createIdentity } from "../Data/Identity";
 import { Identity } from "../Data/Identity/Identity";
 import { IdentityType, SecretTaskType } from "../Data/Identity/type";
@@ -47,8 +48,11 @@ import { createCard, createUnknownCard } from "../Data/Cards";
 import { CardUsage } from "../Data/Cards/type";
 import { HandCardUI } from "../UI/Game/UIContainer/HandCardUI";
 import { ProgressControl } from "../Utils/ProgressControl";
-import { DataContainer } from "../Data/DataContainer/DataContainer";
 import { CardUI } from "../UI/Game/Card/CardUI";
+import { HandCardList } from "../Data/DataContainer/HandCardList";
+import { CardGroup } from "../Data/DataContainer/CardGroup";
+import { CardGroupNode } from "../UI/Game/UIContainer/CardGroupNode";
+import { DataContainer } from "../Data/DataContainer/DataContainer";
 
 const { ccclass, property } = _decorator;
 
@@ -69,9 +73,13 @@ export class GameManager extends Component {
   @property(Node)
   rightPlayerNodeList: Node | null = null;
   @property(Node)
-  deck: Node | null = null;
+  deckText: Node | null = null;
+  @property(Node)
+  deckNode: Node | null = null;
   @property(Node)
   handCardUI: Node | null = null;
+  @property(Node)
+  cardGroupNode: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
@@ -86,35 +94,35 @@ export class GameManager extends Component {
   private _discardPile: Card[] = [];
   private _banishCards: Card[] = [];
   private _seq: number;
-  private handCardList: DataContainer<Card, CardUI>;
+  private _handCardList: DataContainer<Card, CardUI>;
+  private _tempCardList: DataContainer<GameCard, CardUI>;
 
   get gamePhase() {
     return this._gamePhase;
   }
   set gamePhase(phase: GamePhase) {
-    if (phase !== this._gamePhase) {
-      this._gamePhase = phase;
-      EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, phase);
-    }
+    if (phase == null || phase !== this._gamePhase) return;
+    this._gamePhase = phase;
+    EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, phase);
   }
 
   get turnPlayerId() {
     return this._turnPlayerId;
   }
   set turnPlayerId(playerId: number) {
-    if (playerId !== this._turnPlayerId) {
-      this._turnPlayerId = playerId;
-      Player.turnPlayerId = playerId;
-      EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
-    }
+    if (playerId == null || playerId !== this._turnPlayerId) return;
+    this._turnPlayerId = playerId;
+    Player.turnPlayerId = playerId;
+    EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
   }
 
   get deckCardCount() {
     return this._deckCardCount;
   }
   set deckCardCount(count) {
+    if (count == null || count === this._deckCardCount) return;
     this._deckCardCount = count;
-    this.deck.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + count;
+    this.deckText.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + count;
   }
 
   onEnable() {
@@ -287,7 +295,10 @@ export class GameManager extends Component {
     this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
 
     //初始化手牌UI
-    this.handCardList = new DataContainer<Card, CardUI>(this.handCardUI.getComponent(HandCardUI));
+    this._handCardList = new HandCardList(this.handCardUI.getComponent(HandCardUI));
+
+    //创建临时卡牌组
+    this._tempCardList = new CardGroup(this.cardGroupNode.getComponent(CardGroupNode));
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
@@ -326,7 +337,15 @@ export class GameManager extends Component {
   drawCards(data: add_card_toc) {
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
-        this.playerList[data.playerId].addCard(createUnknownCard());
+        const card = createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
+        this.playerList[data.playerId].addCard(card);
+        this._tempCardList.addData(card);
+        this._tempCardList.UI.move(
+          this.deckNode.worldPosition,
+          this.playerList[data.playerId].UI.node.worldPosition
+        ).then(() => {
+          this._tempCardList.removeAllData();
+        });
       }
     }
     if (data.cards && data.cards.length) {
@@ -343,7 +362,7 @@ export class GameManager extends Component {
         });
         this.playerList[data.playerId].addCard(card);
         if (data.playerId === 0) {
-          this.handCardList.addData(card as Card);
+          this._handCardList.addData(card as Card);
         }
       }
     }

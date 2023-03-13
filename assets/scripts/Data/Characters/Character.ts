@@ -15,17 +15,16 @@ export class Character extends DataClass {
     return this._status;
   }
   set status(status: CharacterStatus) {
-    if (status !== this._status) {
-      this._status = status;
-      if (this._UI) {
-        if (this.status === CharacterStatus.FACE_DOWN) {
-          this._UI.showCover();
-        } else {
-          this._UI.hideCover();
-        }
+    if (status == null || status === this._status) return;
+    this._status = status;
+    if (this._UI) {
+      if (this.status === CharacterStatus.FACE_DOWN) {
+        this._UI.showCover();
+      } else {
+        this._UI.hideCover();
       }
-      // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
     }
+    // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
   }
 
   get id() {
@@ -45,17 +44,20 @@ export class Character extends DataClass {
   }
 
   constructor(option: CharacterOptions) {
-    super(option.UI);
+    super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._sex = option.sex;
     this._skills = option.skills;
+    if (option.UI) {
+      this.bindUI(option.UI);
+    }
   }
 
   //翻面
-  flip(){
+  flip() {
     if (this.status === CharacterStatus.FACE_UP) {
       this.status = CharacterStatus.FACE_DOWN;
     } else {
@@ -64,14 +66,14 @@ export class Character extends DataClass {
   }
 
   //技能
- useSkill(index: number) {
+  useSkill(index: number) {
     if (index >= this._skills.length) {
       return;
     }
   }
 
-  bindUI(script: CharacterPanting) {
-    this._UI = script;
+  bindUI(UI: CharacterPanting) {
+    this._UI = UI;
     this._UI.character = this;
   }
 }

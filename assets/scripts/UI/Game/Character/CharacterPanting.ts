@@ -11,6 +11,7 @@ export class CharacterPanting extends Component {
     return this._character;
   }
   set character(character) {
+    if (!character || this._character === character) return;
     this.releaseSprite();
     this._character = character;
     if (character.status === CharacterStatus.FACE_UP) {

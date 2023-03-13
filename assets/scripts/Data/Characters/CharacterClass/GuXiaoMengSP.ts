@@ -9,7 +9,7 @@ export class GuXiaoMengSP extends Character {
       id: 1028,
       name: "SP顾小梦",
       sprite: "images/characters/GuXiaoMengSP",
-      status: CharacterStatus.FACE_DOWN,
+      status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       skills: [] as Skill[],
       UI: UI,

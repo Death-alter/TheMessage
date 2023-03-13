@@ -1,4 +1,4 @@
-import { _decorator, CCInteger, Component, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
+import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
 import { CardUI } from "../Card/CardUI";
 import EventTarget from "../../../Event/EventTarget";
 import { ProcessEvent } from "../../../Event/type";
@@ -7,7 +7,7 @@ import { Card } from "../../../Data/Cards/Card";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardUI")
-export class HandCardUI extends UIContainer<CardUI> {
+export class HandCardUI extends UIContainer<Card, CardUI> {
   @property(Prefab)
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
@@ -49,16 +49,16 @@ export class HandCardUI extends UIContainer<CardUI> {
     this.refresh();
   }
 
-  addCard(card: Card) {
-    card.UI.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
-    this.node.addChild(card.UI.node);
-    this.refresh();
+  onDataAdded(card: Card) {
+    card.UI.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
+    this.scheduleOnce(this.refresh, 0);
   }
 
-  removeCard(card: Card) {
-    card.UI.node.removeFromParent();
-    this.refresh();
+  onDataRemoved(card: Card) {
+    this.scheduleOnce(this.refresh, 0);
   }
+
+  onAllDataRemoved() {}
 
   refresh() {
     const offset = this._childWith / 2 - this._width / 2;

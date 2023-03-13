@@ -38,20 +38,18 @@ export class Card extends DataClass {
     return this._status;
   }
   set status(status) {
-    if (status !== this._status) {
-      this._status = status;
-      EventTarget.emit(GameEvent.CARD_STATUS_CHANGE, status);
-    }
+    if (status == null || status === this._status) return;
+    this._status = status;
+    EventTarget.emit(GameEvent.CARD_STATUS_CHANGE, status);
   }
 
   get usage() {
     return this._usage;
   }
   set usage(usage) {
-    if (usage !== this._usage) {
-      this._usage = usage;
-      EventTarget.emit(GameEvent.CARD_USEAGE_CHANGE, usage);
-    }
+    if (usage == null || usage === this._usage) return;
+    this._usage = usage;
+    EventTarget.emit(GameEvent.CARD_USEAGE_CHANGE, usage);
   }
 
   get direction() {
@@ -67,7 +65,7 @@ export class Card extends DataClass {
   }
 
   constructor(option: CardOption) {
-    super(option.UI);
+    super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
@@ -77,6 +75,9 @@ export class Card extends DataClass {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
+    if (option.UI) {
+      this.bindUI(option.UI);
+    }
   }
 
   //当做功能牌打出
@@ -98,8 +99,8 @@ export class Card extends DataClass {
     }
   }
 
-  bindUI(script: CardUI) {
-    this._UI = script;
+  bindUI(UI: CardUI) {
+    this._UI = UI;
     this._UI.card = this;
   }
 }
@@ -110,7 +111,10 @@ export class UnknownCard extends DataClass {
   protected _UI: CardUI;
 
   constructor(UI?) {
-    super(UI);
+    super();
+    if (UI) {
+      this.bindUI(UI);
+    }
   }
 
   bindUI(script: CardUI) {

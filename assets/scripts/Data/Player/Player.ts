@@ -31,7 +31,11 @@ export default class Player extends DataClass {
     return this._character;
   }
   set character(character: Character) {
+    if (!character || character === this._character) return;
     this._character = character;
+    if (this._UI) {
+      this.character.bindUI(this._UI.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterPanting));
+    }
   }
 
   get identityList() {
@@ -46,6 +50,7 @@ export default class Player extends DataClass {
     return this._seatNumber;
   }
   set seatNumber(number) {
+    if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
     this._UI.setSeat(number);
   }
@@ -59,11 +64,14 @@ export default class Player extends DataClass {
   }
 
   constructor(option: PlayerOption) {
-    super(option.UI);
+    super();
     this._id = option.id;
     this._name = option.name;
     this._character = option.character;
     if (option.identity != null) {
+    }
+    if (option.UI) {
+      this.bindUI(option.UI);
     }
   }
 
@@ -128,9 +136,8 @@ export default class Player extends DataClass {
     this._UI.refreshMessageCount();
   }
 
-  bindUI(script: PlayerUI) {
-    this._UI = script;
+  bindUI(UI: PlayerUI) {
+    this._UI = UI;
     this._UI.player = this;
-    this.character.bindUI(this._UI.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterPanting));
   }
 }
