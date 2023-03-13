@@ -3,7 +3,7 @@ import { Identity } from "../Identity/Identity";
 import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
 import { PlayerUI } from "../../UI/Game/Player/PlayerUI";
 import { PlayerOption } from "./type";
-import { DataClass } from "../type";
+import { DataClass } from "../DataClass";
 import { GameCard, CardUsage, CardStatus } from "../Cards/type";
 import { Card } from "../Cards/Card";
 
@@ -58,10 +58,6 @@ export default class Player extends DataClass {
     return this._messages;
   }
 
-  get UI() {
-    return this._UI;
-  }
-
   constructor(option: PlayerOption) {
     super(option.UI);
     this._id = option.id;
@@ -71,34 +67,24 @@ export default class Player extends DataClass {
     }
   }
 
-  //增加一张手牌
-  addCard(card: GameCard) {
-    this._handCards.push(card);
-    this._UI.refreshHandCardCount();
-  }
-
-  //增加多张手牌
-  addCards(cardList: GameCard[]) {
-    this._handCards = [...this._handCards, ...cardList];
-    this._UI.refreshHandCardCount();
-  }
-
-  //弃一张牌
-  discardCard(card: GameCard) {
-    for (let i = 0; i < this._handCards.length; i++) {
-      if (card === this._handCards[i]) {
-        this._handCards.splice(i, 1);
-        break;
-      }
+  //抽牌
+  addCard(cards: GameCard | GameCard[]) {
+    if (!(cards instanceof Array)) {
+      cards = [cards];
     }
+    this._handCards = [...this._handCards, ...cards];
     this._UI.refreshHandCardCount();
   }
 
-  //弃多张牌
-  discardCards(cardList: GameCard[]) {
-    for (let card of cardList) {
+  //弃牌
+  discardCard(cardIds: number | number[]) {
+    if (typeof cardIds === "number") {
+      cardIds = [cardIds];
+    }
+
+    for (let cardId of cardIds) {
       for (let i = 0; i < this._handCards.length; i++) {
-        if (card === this._handCards[i]) {
+        if (cardId === (<Card>this._handCards[i]).id) {
           this._handCards.splice(i, 1);
           break;
         }

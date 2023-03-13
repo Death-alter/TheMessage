@@ -1,8 +1,7 @@
 import { Skill } from "../Skills/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
 import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
-import { DataClass } from "../type";
-
+import { DataClass } from "../DataClass";
 export class Character extends DataClass {
   protected _id: number;
   protected _name: string;
@@ -43,10 +42,6 @@ export class Character extends DataClass {
 
   get sex() {
     return this._sex;
-  }
-
-  get UI() {
-    return this._UI;
   }
 
   constructor(option: CharacterOptions) {

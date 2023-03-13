@@ -1,7 +1,7 @@
 import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
 import EventTarget from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
-import { DataClass } from "../type";
+import { DataClass } from "../DataClass";
 import { CardUI } from "../../UI/Game/Card/CardUI";
 
 export class Card extends DataClass {

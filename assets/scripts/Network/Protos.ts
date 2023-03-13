@@ -97,39 +97,90 @@ Protos[NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC] = (data) => {
 Protos[NetworkEventToC.ADD_CARD_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.ADD_CARDS, data);
 };
-Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {};
-Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {};
-Protos[NetworkEventToC.EXECUTE_SHI_TAN_TOC] = (data) => {};
+Protos[NetworkEventToC.USE_SHI_TAN_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_SHI_TAN, data);
+};
+Protos[NetworkEventToC.SHOW_SHI_TAN_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.SHOW_SHI_TAN, data);
+};
+Protos[NetworkEventToC.EXECUTE_SHI_TAN_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.EXECUTE_SHI_TAN, data);
+};
 Protos[NetworkEventToC.SYNC_DECK_NUM_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.SYNC_DECK_NUM, data);
 };
-Protos[NetworkEventToC.DISCARD_CARD_TOC] = (data) => {};
+Protos[NetworkEventToC.DISCARD_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.DISCARD_CARDS, data);
+};
 Protos[NetworkEventToC.NOTIFY_PHASE_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.GET_PHASE_DATA, data);
 };
-
-Protos[NetworkEventToC.USE_LI_YOU_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_PING_HENG_TOC] = (data) => {};
-Protos[NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.WEI_BI_GIVE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_CHENG_QING_TOC] = (data) => {};
-Protos[NetworkEventToC.SEND_MESSAGE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.CHOOSE_RECEIVE_TOC] = (data) => {};
-Protos[NetworkEventToC.NOTIFY_DYING_TOC] = (data) => {};
-Protos[NetworkEventToC.NOTIFY_DIE_TOC] = (data) => {};
-Protos[NetworkEventToC.NOTIFY_WINNER_TOC] = (data) => {};
-Protos[NetworkEventToC.WAIT_FOR_CHENG_QING_TOC] = (data) => {};
-Protos[NetworkEventToC.WAIT_FOR_DIE_GIVE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.NOTIFY_DIE_GIVE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_PO_YI_TOC] = (data) => {};
-Protos[NetworkEventToC.PO_YI_SHOW_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_JIE_HUO_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_DIAO_BAO_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_WU_DAO_TOC] = (data) => {};
-Protos[NetworkEventToC.USE_FENG_YUN_BIAN_HUAN_TOC] = (data) => {};
-Protos[NetworkEventToC.WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC] = (data) => {};
-Protos[NetworkEventToC.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC] = (data) => {};
+Protos[NetworkEventToC.USE_LI_YOU_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_LI_YOU, data);
+};
+Protos[NetworkEventToC.USE_PING_HENG_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_PING_HENG, data);
+};
+Protos[NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WEI_BI_WAIT_FOR_GIVE_CARD, data);
+};
+Protos[NetworkEventToC.WEI_BI_GIVE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WEI_BI_GIVE_CARD, data);
+};
+Protos[NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WEI_BI_SHOW_HAND_CARD, data);
+};
+Protos[NetworkEventToC.USE_CHENG_QING_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_CHENG_QING, data);
+};
+Protos[NetworkEventToC.SEND_MESSAGE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.SEND_MESSAGE, data);
+};
+Protos[NetworkEventToC.CHOOSE_RECEIVE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.CHOOSE_RECEIVE, data);
+};
+Protos[NetworkEventToC.NOTIFY_DYING_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.PLAYER_DYING, data);
+};
+Protos[NetworkEventToC.NOTIFY_DIE_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.PLAYER_DIE, data);
+};
+Protos[NetworkEventToC.NOTIFY_WINNER_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.PLAYER_WIN, data);
+};
+Protos[NetworkEventToC.WAIT_FOR_CHENG_QING_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WAIT_FOR_CHENG_QING, data);
+};
+Protos[NetworkEventToC.WAIT_FOR_DIE_GIVE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WAIT_FOR_DIE_GIVE_CARD, data);
+};
+Protos[NetworkEventToC.NOTIFY_DIE_GIVE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.PLAYER_DIE_GIVE_CARD, data);
+};
+Protos[NetworkEventToC.USE_PO_YI_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_PO_YI, data);
+};
+Protos[NetworkEventToC.PO_YI_SHOW_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.PO_YI_SHOW_MESSAGE, data);
+};
+Protos[NetworkEventToC.USE_JIE_HUO_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_JIE_HUO, data);
+};
+Protos[NetworkEventToC.USE_DIAO_BAO_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_DIAO_BAO, data);
+};
+Protos[NetworkEventToC.USE_WU_DAO_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_WU_DAO, data);
+};
+Protos[NetworkEventToC.USE_FENG_YUN_BIAN_HUAN_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.USE_FENG_YUN_BIAN_HUAN, data);
+};
+Protos[NetworkEventToC.WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD, data);
+};
+Protos[NetworkEventToC.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC] = (data) => {
+  EventTarget.emit(ProcessEvent.FENG_YUN_BIAN_HUAN_CHOOSE_CARD, data);
+};
 
 //role
 

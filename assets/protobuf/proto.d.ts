@@ -3925,6 +3925,9 @@ export class notify_phase_toc implements Inotify_phase_toc {
     /** notify_phase_toc seq. */
     public seq: number;
 
+    /** notify_phase_toc senderId. */
+    public senderId: number;
+
     /**
      * Creates a new notify_phase_toc instance using the specified properties.
      * @param [properties] Properties to set
@@ -5301,6 +5304,9 @@ export class send_message_card_toc implements Isend_message_card_toc {
 
     /** send_message_card_toc cardDir. */
     public cardDir: direction;
+
+    /** send_message_card_toc senderId. */
+    public senderId: number;
 
     /**
      * Creates a new send_message_card_toc instance using the specified properties.
@@ -7936,6 +7942,387 @@ export class feng_yun_bian_huan_choose_card_toc implements Ifeng_yun_bian_huan_c
 
     /**
      * Gets the default type url for feng_yun_bian_huan_choose_card_toc
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Represents a record_file. */
+export class record_file implements Irecord_file {
+
+    /**
+     * Constructs a new record_file.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: Irecord_file);
+
+    /** record_file clientVersion. */
+    public clientVersion: number;
+
+    /** record_file lines. */
+    public lines: Irecorder_line[];
+
+    /**
+     * Creates a new record_file instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns record_file instance
+     */
+    public static create(properties?: Irecord_file): record_file;
+
+    /**
+     * Encodes the specified record_file message. Does not implicitly {@link record_file.verify|verify} messages.
+     * @param message record_file message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: Irecord_file, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified record_file message, length delimited. Does not implicitly {@link record_file.verify|verify} messages.
+     * @param message record_file message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: Irecord_file, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a record_file message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns record_file
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): record_file;
+
+    /**
+     * Decodes a record_file message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns record_file
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): record_file;
+
+    /**
+     * Verifies a record_file message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a record_file message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns record_file
+     */
+    public static fromObject(object: { [k: string]: any }): record_file;
+
+    /**
+     * Creates a plain object from a record_file message. Also converts values to other types if specified.
+     * @param message record_file
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: record_file, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this record_file to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for record_file
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Represents a recorder_line. */
+export class recorder_line implements Irecorder_line {
+
+    /**
+     * Constructs a new recorder_line.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: Irecorder_line);
+
+    /** recorder_line nanoTime. */
+    public nanoTime: (number|Long);
+
+    /** recorder_line protoName. */
+    public protoName: string;
+
+    /** recorder_line messageBuf. */
+    public messageBuf: Uint8Array;
+
+    /**
+     * Creates a new recorder_line instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns recorder_line instance
+     */
+    public static create(properties?: Irecorder_line): recorder_line;
+
+    /**
+     * Encodes the specified recorder_line message. Does not implicitly {@link recorder_line.verify|verify} messages.
+     * @param message recorder_line message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: Irecorder_line, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified recorder_line message, length delimited. Does not implicitly {@link recorder_line.verify|verify} messages.
+     * @param message recorder_line message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: Irecorder_line, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a recorder_line message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns recorder_line
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): recorder_line;
+
+    /**
+     * Decodes a recorder_line message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns recorder_line
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): recorder_line;
+
+    /**
+     * Verifies a recorder_line message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a recorder_line message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns recorder_line
+     */
+    public static fromObject(object: { [k: string]: any }): recorder_line;
+
+    /**
+     * Creates a plain object from a recorder_line message. Also converts values to other types if specified.
+     * @param message recorder_line
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: recorder_line, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this recorder_line to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for recorder_line
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Represents a player_order. */
+export class player_order implements Iplayer_order {
+
+    /**
+     * Constructs a new player_order.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: Iplayer_order);
+
+    /** player_order id. */
+    public id: number;
+
+    /** player_order device. */
+    public device: string;
+
+    /** player_order name. */
+    public name: string;
+
+    /** player_order time. */
+    public time: (number|Long);
+
+    /**
+     * Creates a new player_order instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns player_order instance
+     */
+    public static create(properties?: Iplayer_order): player_order;
+
+    /**
+     * Encodes the specified player_order message. Does not implicitly {@link player_order.verify|verify} messages.
+     * @param message player_order message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: Iplayer_order, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified player_order message, length delimited. Does not implicitly {@link player_order.verify|verify} messages.
+     * @param message player_order message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: Iplayer_order, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a player_order message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns player_order
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): player_order;
+
+    /**
+     * Decodes a player_order message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns player_order
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): player_order;
+
+    /**
+     * Verifies a player_order message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a player_order message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns player_order
+     */
+    public static fromObject(object: { [k: string]: any }): player_order;
+
+    /**
+     * Creates a plain object from a player_order message. Also converts values to other types if specified.
+     * @param message player_order
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: player_order, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this player_order to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for player_order
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Represents a player_orders. */
+export class player_orders implements Iplayer_orders {
+
+    /**
+     * Constructs a new player_orders.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: Iplayer_orders);
+
+    /** player_orders orders. */
+    public orders: { [k: string]: Iplayer_order };
+
+    /** player_orders orderId. */
+    public orderId: number;
+
+    /**
+     * Creates a new player_orders instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns player_orders instance
+     */
+    public static create(properties?: Iplayer_orders): player_orders;
+
+    /**
+     * Encodes the specified player_orders message. Does not implicitly {@link player_orders.verify|verify} messages.
+     * @param message player_orders message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: Iplayer_orders, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified player_orders message, length delimited. Does not implicitly {@link player_orders.verify|verify} messages.
+     * @param message player_orders message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: Iplayer_orders, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a player_orders message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns player_orders
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): player_orders;
+
+    /**
+     * Decodes a player_orders message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns player_orders
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): player_orders;
+
+    /**
+     * Verifies a player_orders message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a player_orders message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns player_orders
+     */
+    public static fromObject(object: { [k: string]: any }): player_orders;
+
+    /**
+     * Creates a plain object from a player_orders message. Also converts values to other types if specified.
+     * @param message player_orders
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: player_orders, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this player_orders to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for player_orders
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */

@@ -37,7 +37,16 @@ export class CardUI extends Component {
     }
   }
 
-  onEnable() {
+  onLoad() {
+    this._animationComponent = this.node.getComponent(Animation);
+    if (this._animationComponent && this._animationComponent.defaultClip) {
+      const { defaultClip } = this._animationComponent;
+      defaultClip.events.push({
+        frame: 0.33,
+        func: "changeCardSprite",
+        params: [],
+      });
+    }
     this.node.on(Node.EventType.TOUCH_END, (event) => {
       if (this.card instanceof Card && this.card.usage === CardUsage.HAND_CARD) {
         if (this.selected) {
@@ -48,19 +57,6 @@ export class CardUI extends Component {
         }
       }
     });
-  }
-
-  init(card: GameCard) {
-    this.card = card;
-    this._animationComponent = this.node.getComponent(Animation);
-    if (this._animationComponent && this._animationComponent.defaultClip) {
-      const { defaultClip } = this._animationComponent;
-      defaultClip.events.push({
-        frame: 0.33,
-        func: "changeCardSprite",
-        params: [],
-      });
-    }
   }
 
   refresh(card: GameCard) {
