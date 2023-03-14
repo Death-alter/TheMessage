@@ -11,7 +11,7 @@ interface ActionMapItem {
 
 @ccclass("ActionPlayer")
 export class ActionPlayer extends Component {
-  nodeMap: { [index: string]: ActionMapItem };
+  nodeMap: { [index: string]: ActionMapItem } = {};
 
   isPlayingAction(node: Node) {
     return this.nodeMap[node.uuid] && this.nodeMap[node.uuid].isPlaying;
@@ -82,10 +82,10 @@ export class ActionPlayer extends Component {
     easing?: TweenEasing | ((k: number) => number),
     immediately: boolean = true
   ) {
-    if (this.isPlayingAction(node)) return;
-    this.addNode(node);
-    node.setParent(this.node);
     return new Promise((reslove, reject) => {
+      if (this.isPlayingAction(node)) reject("正在播放动画");
+      this.addNode(node);
+      node.setParent(this.node);
       const t = this.createTween(node, "worldPosition", from, to, seconds, {
         easing,
         onComplete: () => {
@@ -121,7 +121,7 @@ export class ActionPlayer extends Component {
     easing?: TweenEasing | ((k: number) => number),
     immediately: boolean = true
   ) {
-    if (this.isPlayingAction(node)) return;
+    if (this.isPlayingAction(node)) new Promise(() => {});
     this.addNode(node);
     node.setParent(this.node);
     return new Promise((reslove, reject) => {

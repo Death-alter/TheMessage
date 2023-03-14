@@ -68,12 +68,14 @@ export class Card extends DataClass {
     return this._UI;
   }
   set UI(UI: CardUI | null) {
+    if (UI === this._UI) return;
     if (UI) {
       this._UI = UI;
-      this._UI.card = this;
+      if (this._UI.card !== this) this._UI.card = this;
     } else if (this._UI) {
-      this._UI.card = null;
+      const UI = this._UI;
       this._UI = null;
+      UI.card = null;
     }
   }
 
@@ -123,14 +125,15 @@ export class UnknownCard extends DataClass {
     return this._UI;
   }
   set UI(UI: CardUI | null) {
+    if (UI === this._UI) return;
+
     if (UI) {
       this._UI = UI;
-      this._UI.card = this;
-    } else {
-      if (this._UI) {
-        this._UI.card = null;
-        this._UI = null;
-      }
+      if (this._UI.card !== this) this._UI.card = this;
+    } else if (this._UI) {
+      const UI = this._UI;
+      this._UI = null;
+      UI.card = null;
     }
   }
 

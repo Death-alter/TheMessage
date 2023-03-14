@@ -1,4 +1,4 @@
-import { _decorator, tween, Node, Vec3 } from "cc";
+import { _decorator, tween, Node, Vec3, Tween } from "cc";
 import { UIContainer } from "./UIContainer";
 import { CardUI } from "../Card/CardUI";
 import { GameCard } from "../../../Data/Cards/type";
@@ -6,10 +6,10 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupNode")
 export class CardGroupNode extends UIContainer<GameCard, CardUI> {
-  private _onAnimation: boolean = false;
+  private _t: Tween<any> | null = null;
 
   get onAnimation() {
-    return this._onAnimation;
+    return this._t !== null;
   }
 
   init() {
@@ -22,26 +22,17 @@ export class CardGroupNode extends UIContainer<GameCard, CardUI> {
 
   onAllDataRemoved(): void {}
 
-  move(from: Vec3, to: Vec3) {
-    return new Promise((reslove, reject) => {
-      {
-        this._onAnimation = true;
-        this.node.active = true;
-        this.node.setWorldPosition(from);
-        tween(this.node)
-          .to(
-            0.6,
-            { worldPosition: to },
-            {
-              onComplete: () => {
-                this.node.active = false;
-                this._onAnimation = false;
-                reslove(null);
-              },
-            }
-          )
-          .start();
-      }
-    });
+  move(from: Vec3, to: Vec3, callback?) {
+    if (this.onAnimation) this._t.stop();
+    this.node.active = true;
+    this.node.setWorldPosition(from);
+    this._t = tween(this.node)
+      .to(0.6, { worldPosition: to })
+      .call(() => {
+        this._t = null;
+        this.node.active = false;
+        if (callback) callback();
+      })
+      .start();
   }
 }

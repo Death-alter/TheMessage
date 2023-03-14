@@ -50,11 +50,12 @@ export class HandCardUI extends UIContainer<Card, CardUI> {
   }
 
   onDataAdded(card: Card) {
+    if (!card.UI) return;
     card.UI.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
     this.scheduleOnce(this.refresh, 0);
   }
 
-  onDataRemoved(card: Card) {
+  onDataRemoved() {
     this.scheduleOnce(this.refresh, 0);
   }
 

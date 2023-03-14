@@ -24,11 +24,12 @@ export class CardUI extends Component {
     if (card === this._card) return;
     if (card) {
       this._card = card;
-      this._card.UI = this;
+      if (this._card.UI !== this) this._card.UI = this;
       this.refresh(card);
-    } else {
-      this._card.UI = null;
+    } else if (this._card) {
+      const card = this._card;
       this._card = null;
+      card.UI = null;
     }
   }
 

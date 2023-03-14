@@ -32,11 +32,12 @@ import {
   use_feng_yun_bian_huan_toc,
   wait_for_feng_yun_bian_huan_choose_card_toc,
   feng_yun_bian_huan_choose_card_toc,
+  card,
 } from "../../protobuf/proto.d";
 import EventTarget from "../Event/EventTarget";
 import { ProcessEvent, GameEvent } from "../Event/type";
-import { Card } from "../Data/Cards/Card";
-import { GameCard } from "../Data/Cards/type";
+import { Card, UnknownCard } from "../Data/Cards/Card";
+import { CardColor, CardDirection, CardStatus, CardType, GameCard } from "../Data/Cards/type";
 import { createIdentity } from "../Data/Identity";
 import { Identity } from "../Data/Identity/Identity";
 import { IdentityType, SecretTaskType } from "../Data/Identity/type";
@@ -53,6 +54,7 @@ import { HandCardList } from "../Data/DataContainer/HandCardList";
 import { CardGroup } from "../Data/DataContainer/CardGroup";
 import { CardGroupNode } from "../UI/Game/UIContainer/CardGroupNode";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
+import { ActionPlayer } from "./ActionPlayer";
 
 const { ccclass, property } = _decorator;
 
@@ -83,7 +85,7 @@ export class GameManager extends Component {
   @property(Node)
   cardGroupNode: Node | null = null;
   @property(Node)
-  actionNode: Node | null = null;
+  actionPlayerNode: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
@@ -99,7 +101,7 @@ export class GameManager extends Component {
   private _banishCards: Card[] = [];
   private _seq: number;
   private _handCardList: DataContainer<Card, CardUI>;
-  private _cardGroupPool: DataContainer<GameCard, CardUI>[];
+  private _cardGroupPool: DataContainer<GameCard, CardUI>[] = [];
 
   get gamePhase() {
     return this._gamePhase;
@@ -149,7 +151,10 @@ export class GameManager extends Component {
 
     //收到初始化
     EventTarget.on(ProcessEvent.INIT_GAME, (data) => {
+      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
+      this.gameWindow.active = true;
       this.init(data);
+
       //预加载卡图
       resources.preloadDir("images/cards");
     });
@@ -157,8 +162,6 @@ export class GameManager extends Component {
     //设置座位号
     EventTarget.once(ProcessEvent.GET_PHASE_DATA, (data: notify_phase_toc) => {
       this.setPlayerSeats(data.currentPlayerId);
-      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
-      this.gameWindow.active = true;
     });
 
     //收到phase数据
@@ -168,11 +171,28 @@ export class GameManager extends Component {
       this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
       if (data.waitingPlayerId === 0) {
         const progressStript = this.gameWindow.getChildByPath("Tooltip/Progress").getComponent(ProgressControl);
-
         progressStript.startCoundDown(data.waitingSecond);
       } else {
         this.playerList[data.waitingPlayerId].UI.startCoundDown(data.waitingSecond);
       }
+      if (data.messagePlayerId) {
+        this.sendMessage(this.playerList[data.waitingPlayerId], data.messageCard);
+      }
+      if (data.messageCard) {
+        if (this._messageInTransmit instanceof UnknownCard) {
+          const position = this._messageInTransmit.UI.node.worldPosition;
+          this._messageInTransmit.UI.node.removeFromParent();
+          const card = this.createMessage(data.messageCard) as Card;
+          card.status = CardStatus.FACE_DOWN;
+          this._messageInTransmit.UI.card = card;
+          this._messageInTransmit = card;
+          this._messageInTransmit.UI.node.setWorldPosition(position);
+          this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
+          this._messageInTransmit.flip();
+        } else {
+        }
+      }
+
       if (data.seq) this._seq = data.seq;
       //data.senderId
     });
@@ -211,11 +231,22 @@ export class GameManager extends Component {
 
     //有人传出情报
     EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {
-      if (data.playerId === 0) {
+      const player = this.playerList[data.senderId || data.playerId];
+      if (data.cardId) {
+        for (let item of player.handCards) {
+          if (item instanceof Card && item.id === data.cardId) {
+            this._messageInTransmit = item;
+            this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
+            tween(this._messageInTransmit.UI.node)
+              .to(0.8, {
+                worldPosition: player.UI.node.worldPosition,
+                scale: new Vec3(0.6, 0.6, 1),
+              })
+              .start();
+          }
+        }
       } else {
-        this._messageInTransmit = createUnknownCard();
-        this._messageInTransmit.UI = instantiate(this.cardPrefab).getComponent(CardUI);
-        this.actionNode.addChild(this._messageInTransmit.UI.node);
+        this.sendMessage(player);
       }
     });
 
@@ -367,65 +398,64 @@ export class GameManager extends Component {
       this.leftPlayerNodeList.addChild(player);
       this.playerList[i + 1].UI = player.getComponent(PlayerUI);
     }
+
+    this.rightPlayerNodeList.getComponent(Layout).updateLayout();
+    this.topPlayerNodeList.getComponent(Layout).updateLayout();
+    this.leftPlayerNodeList.getComponent(Layout).updateLayout();
   }
 
   initCardGroupPool() {
     //根据玩家数创建cardGroup
-    for (let i = 0; i < this.playerCount; i++) {
-      this._cardGroupPool.push(new CardGroup(this.cardGroupNode.getComponent(CardGroupNode)));
+    this._cardGroupPool.push(new CardGroup(this.cardGroupNode.getComponent(CardGroupNode)));
+    for (let i = 1; i < this.playerCount; i++) {
+      const group = new CardGroup(instantiate(this.cardGroupNode).getComponent(CardGroupNode));
+      group.UI.node.setParent(this.actionPlayerNode);
+      this._cardGroupPool.push(group);
     }
   }
 
   getCardGroup() {
     for (let i = 0; i < this._cardGroupPool.length; i++) {
       if (!(<CardGroupNode>this._cardGroupPool[i].UI).onAnimation) {
+        this._cardGroupPool[i].removeAllData();
         return this._cardGroupPool[i];
       }
     }
-    const cardGroup = new CardGroup(this.cardGroupNode.getComponent(CardGroupNode));
+    const cardGroup = new CardGroup(instantiate(this.cardGroupNode).getComponent(CardGroupNode));
     this._cardGroupPool.push(cardGroup);
     return cardGroup;
   }
 
   drawCards(data: add_card_toc) {
     const cardGroup = this.getCardGroup();
+    const player = this.playerList[data.playerId];
+
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
-        const card = createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
-        this.playerList[data.playerId].addCard(card);
+        const card = this.createHandCard();
+        card.UI.node.scale = new Vec3(0.6, 0.6, 1);
+        player.addCard(card);
         cardGroup.addData(card);
       }
     }
     if (data.cards && data.cards.length) {
       for (let item of data.cards) {
-        const card = createCard({
-          id: item.cardId,
-          color: item.cardColor,
-          type: item.cardType,
-          direction: item.cardDir,
-          drawCardColor: item.whoDrawCard,
-          usage: CardUsage.HAND_CARD,
-          lockable: item.canLock,
-          UI: instantiate(this.cardPrefab).getComponent(CardUI),
-        });
-        this.playerList[data.playerId].addCard(card);
+        const card = this.createHandCard(item);
+        card.UI.node.scale = new Vec3(0.6, 0.6, 1);
+        player.addCard(card);
         cardGroup.addData(card);
-        if (data.playerId === 0) {
-          this._handCardList.addData(card as Card);
-        }
       }
     }
 
     //抽卡动画
-    (<CardGroupNode>cardGroup.UI)
-      .move(this.deckNode.worldPosition, this.playerList[data.playerId].UI.node.worldPosition)
-      .then(() => {
-        //解绑UI并从cardGroup移除数据
-        cardGroup.list.forEach((item) => {
-          item.UI = null;
-        });
-        cardGroup.removeAllData();
-      });
+    (<CardGroupNode>cardGroup.UI).move(this.deckNode.worldPosition, player.UI.node.worldPosition, () => {
+      if (data.playerId === 0) {
+        for (let card of cardGroup.list) {
+          card.UI.node.scale = new Vec3(1, 1, 1);
+          this._handCardList.addData(card as Card);
+        }
+      }
+    });
   }
 
   discardCards(data: discard_card_toc) {
@@ -435,17 +465,16 @@ export class GameManager extends Component {
       const cards = player.discardCard(cardIdList);
       if (data.playerId === 0) {
         cards.forEach((card) => {
-          card.UI.node.setParent(this.actionNode);
+          card.UI.node.setParent(this.actionPlayerNode);
           tween(card.UI.node)
             .to(
-              0.8,
+              0.6,
               {
                 scale: new Vec3(0.6, 0.6, 1),
                 worldPosition: this.discardPileNode.worldPosition,
               },
               {
                 onComplete: () => {
-                  card.UI.node.removeFromParent();
                   card.UI = null;
                 },
               }
@@ -456,17 +485,14 @@ export class GameManager extends Component {
         const cardGroup = this.getCardGroup();
         cards.forEach((card) => {
           card.UI = instantiate(this.cardPrefab).getComponent(CardUI);
+          card.UI.node.scale = new Vec3(0.6, 0.6, 1);
           cardGroup.addData(card);
         });
-        (<CardGroupNode>cardGroup.UI)
-          .move(player.UI.node.worldPosition, this.discardPileNode.worldPosition)
-          .then(() => {
-            //解绑UI并从cardGroup移除数据
-            cardGroup.list.forEach((item) => {
-              item.UI = null;
-            });
-            cardGroup.removeAllData();
+        (<CardGroupNode>cardGroup.UI).move(player.UI.node.worldPosition, this.discardPileNode.worldPosition, () => {
+          cardGroup.list.forEach((item) => {
+            item.UI = null;
           });
+        });
       }
     }
   }
@@ -475,7 +501,32 @@ export class GameManager extends Component {
 
   playCard(player, card) {}
 
-  sendMessage(player, card) {}
+  sendMessage(player: Player, card?: card) {
+    const panting = player.UI.node.getChildByPath("Border/CharacterPanting");
+    if (!this._messageInTransmit) {
+      this._messageInTransmit = this.createMessage();
+      this._messageInTransmit.UI.node.active = true;
+      this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
+      this._messageInTransmit.UI.node.setWorldPosition(panting.worldPosition);
+      this._messageInTransmit.UI.node.scale = new Vec3(0.6, 0.6, 1);
+    } else if (card && this._messageInTransmit instanceof UnknownCard) {
+      console.log(1);
+      const oldMessage = this._messageInTransmit;
+      this._messageInTransmit = this.createMessage();
+      this._messageInTransmit.UI = oldMessage.UI;
+      tween(this._messageInTransmit.UI.node)
+        .to(0.8, {
+          worldPosition: panting.worldPosition,
+        })
+        .start();
+    } else {
+      tween(this._messageInTransmit.UI.node)
+        .to(0.8, {
+          worldPosition: panting.worldPosition,
+        })
+        .start();
+    }
+  }
 
   setPlayerSeats(fistPlayerId: number) {
     let i = fistPlayerId;
@@ -485,5 +536,39 @@ export class GameManager extends Component {
       i = (i + 1) % this.playerCount;
       ++j;
     } while (i !== fistPlayerId);
+  }
+
+  createHandCard(card?: card): GameCard {
+    if (card) {
+      return createCard({
+        id: card.cardId,
+        color: (<unknown>card.cardColor) as CardColor[],
+        type: (<unknown>card.cardType) as CardType,
+        direction: (<unknown>card.cardDir) as CardDirection,
+        drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
+        usage: CardUsage.HAND_CARD,
+        lockable: card.canLock,
+        UI: instantiate(this.cardPrefab).getComponent(CardUI),
+      });
+    } else {
+      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
+    }
+  }
+
+  createMessage(card?: card): GameCard {
+    if (card) {
+      return createCard({
+        id: card.cardId,
+        color: (<unknown>card.cardColor) as CardColor[],
+        type: (<unknown>card.cardType) as CardType,
+        direction: (<unknown>card.cardDir) as CardDirection,
+        drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
+        usage: CardUsage.MESSAGE_CARD,
+        lockable: card.canLock,
+        UI: instantiate(this.cardPrefab).getComponent(CardUI),
+      });
+    } else {
+      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
+    }
   }
 }

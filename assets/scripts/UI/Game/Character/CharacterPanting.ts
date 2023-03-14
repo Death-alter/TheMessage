@@ -11,20 +11,21 @@ export class CharacterPanting extends Component {
     return this._character;
   }
   set character(character) {
-    if (this._character === character) return;
+    if (character === this._character) return;
     if (character) {
       this.releaseSprite();
       this._character = character;
-      this._character.UI = this;
+      if (this._character.UI !== this) this._character.UI = this;
       if (character.status === CharacterStatus.FACE_UP) {
         this.hideCover();
       } else {
         this.showCover();
       }
       this.loadSprite();
-    } else {
-      this._character.UI = null;
+    } else if (this._character) {
+      const character = this._character;
       this._character = null;
+      character.UI = null;
     }
   }
 

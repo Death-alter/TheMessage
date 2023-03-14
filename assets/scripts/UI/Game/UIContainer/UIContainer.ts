@@ -12,13 +12,14 @@ export abstract class UIContainer<T extends DataClass, U extends Component> exte
   }
 
   set data(data) {
-    if (data === this.data) return;
+    if (data === this._data) return;
     if (data) {
       this._data = data;
-      this._data.UI = this;
-    } else {
-      this._data.UI = null;
+      if (this._data.UI !== this) this._data.UI = this;
+    } else if (this._data) {
+      const data = this._data;
       this._data = null;
+      data.UI = null;
     }
   }
 

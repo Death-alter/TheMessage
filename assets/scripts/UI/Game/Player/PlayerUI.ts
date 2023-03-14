@@ -25,12 +25,13 @@ export class PlayerUI extends Component {
     if (player === this._player) return;
     if (player) {
       this._player = player;
-      this._player.UI = this;
+      if (this._player.UI !== this) this._player.UI = this;
       this.characterPanting.getComponent(CharacterPanting).character = player.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
-    } else {
-      this._player.UI = null;
+    } else if (this._player) {
+      const player = this._player;
       this._player = null;
+      player.UI = null;
     }
   }
 

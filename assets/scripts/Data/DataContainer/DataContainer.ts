@@ -10,13 +10,15 @@ export class DataContainer<T extends DataClass, U extends Component> extends Dat
     return this._UI;
   }
   set UI(UI: UIContainer<T, U> | null) {
+    if (UI === this._UI) return;
     if (UI) {
       this._UI = UI;
-      this._UI.data = this;
+      if (this._UI.data !== this) this._UI.data = this;
       this._UI.init();
     } else if (this._UI) {
-      this._UI.data = null;
+      const UI = this._UI;
       this._UI = null;
+      UI.data = null;
     }
   }
 

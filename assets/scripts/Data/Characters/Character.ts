@@ -47,12 +47,14 @@ export class Character extends DataClass {
     return this._UI;
   }
   set UI(UI: CharacterPanting | null) {
+    if (UI === this._UI) return;
     if (UI) {
       this._UI = UI;
-      this._UI.character = this;
+      if (this._UI.character !== this) this._UI.character = this;
     } else if (this._UI) {
-      this._UI.character = null;
+      const UI = this._UI;
       this._UI = null;
+      UI.character = null;
     }
   }
 

@@ -24,12 +24,14 @@ export default class Player extends DataClass {
     return this._UI;
   }
   set UI(UI: PlayerUI | null) {
+    if (UI === this._UI) return;
     if (UI) {
       this._UI = UI;
-      this._UI.player = this;
+      if (this._UI.player !== this) this._UI.player = this;
     } else if (this._UI) {
-      this._UI.player = null;
+      const UI = this._UI;
       this._UI = null;
+      UI.player = null;
     }
   }
 
