@@ -12,8 +12,13 @@ export abstract class UIContainer<T extends DataClass, U extends Component> exte
   }
 
   set data(data) {
-    if (!data || data === this.data) return;
-    this._data = data;
+    if (data === this.data) return;
+    if (data) {
+      this._data = data;
+    } else {
+      this._data.UI = null;
+      this._data = null;
+    }
   }
 
   abstract init(): void;

@@ -22,10 +22,15 @@ export class PlayerUI extends Component {
     return this._player;
   }
   set player(player: Player) {
-    if (!player || player === this._player) return;
-    this._player = player;
-    this.characterPanting.getComponent(CharacterPanting).character = player.character;
-    this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
+    if (player === this._player) return;
+    if (player) {
+      this._player = player;
+      this.characterPanting.getComponent(CharacterPanting).character = player.character;
+      this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
+    } else {
+      this._player.UI = null;
+      this._player = null;
+    }
   }
 
   onLoad() {

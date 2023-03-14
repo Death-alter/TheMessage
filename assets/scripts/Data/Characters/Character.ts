@@ -43,6 +43,19 @@ export class Character extends DataClass {
     return this._sex;
   }
 
+  get UI() {
+    return this._UI;
+  }
+  set UI(UI: CharacterPanting | null) {
+    if (UI) {
+      this._UI = UI;
+      this._UI.character = this;
+    } else if (this._UI) {
+      this._UI.character = null;
+      this._UI = null;
+    }
+  }
+
   constructor(option: CharacterOptions) {
     super();
     this._id = option.id;
@@ -52,7 +65,7 @@ export class Character extends DataClass {
     this._sex = option.sex;
     this._skills = option.skills;
     if (option.UI) {
-      this.bindUI(option.UI);
+      this.UI = option.UI;
     }
   }
 
@@ -70,10 +83,5 @@ export class Character extends DataClass {
     if (index >= this._skills.length) {
       return;
     }
-  }
-
-  bindUI(UI: CharacterPanting) {
-    this._UI = UI;
-    this._UI.character = this;
   }
 }

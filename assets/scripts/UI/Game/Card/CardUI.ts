@@ -21,9 +21,14 @@ export class CardUI extends Component {
   }
 
   set card(card: GameCard) {
-    if (!card || card === this._card) return;
-    this._card = card;
-    this.refresh(card);
+    if (card === this._card) return;
+    if (card) {
+      this._card = card;
+      this.refresh(card);
+    } else {
+      this._card.UI = null;
+      this._card = null;
+    }
   }
 
   get selected() {

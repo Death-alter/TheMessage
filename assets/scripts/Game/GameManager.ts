@@ -77,6 +77,8 @@ export class GameManager extends Component {
   @property(Node)
   deckNode: Node | null = null;
   @property(Node)
+  discardPileNode: Node | null = null;
+  @property(Node)
   handCardUI: Node | null = null;
   @property(Node)
   cardGroupNode: Node | null = null;
@@ -95,7 +97,7 @@ export class GameManager extends Component {
   private _banishCards: Card[] = [];
   private _seq: number;
   private _handCardList: DataContainer<Card, CardUI>;
-  private _tempCardList: DataContainer<GameCard, CardUI>;
+  private _cardGroupPool: DataContainer<GameCard, CardUI>[];
 
   get gamePhase() {
     return this._gamePhase;
@@ -297,8 +299,8 @@ export class GameManager extends Component {
     //初始化手牌UI
     this._handCardList = new HandCardList(this.handCardUI.getComponent(HandCardUI));
 
-    //创建临时卡牌组
-    this._tempCardList = new CardGroup(this.cardGroupNode.getComponent(CardGroupNode));
+    //创建cardGroupPool
+    this.initCardGroupPool();
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
@@ -318,34 +320,47 @@ export class GameManager extends Component {
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
+      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
+      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      this.playerList[i + 1].bindUI(player.getComponent(PlayerUI));
+      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
     }
   }
 
+  initCardGroupPool() {
+    //根据玩家数创建cardGroup
+    for (let i = 0; i < this.playerCount; i++) {
+      this._cardGroupPool.push(new CardGroup(this.cardGroupNode.getComponent(CardGroupNode)));
+    }
+  }
+
+  getCardGroup() {
+    for (let i = 0; i < this._cardGroupPool.length; i++) {
+      if (!(<CardGroupNode>this._cardGroupPool[i].UI).onAnimation) {
+        return this._cardGroupPool[i];
+      }
+    }
+    const cardGroup = new CardGroup(this.cardGroupNode.getComponent(CardGroupNode));
+    this._cardGroupPool.push(cardGroup);
+    return cardGroup;
+  }
+
   drawCards(data: add_card_toc) {
+    const cardGroup = this.getCardGroup();
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
         const card = createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
         this.playerList[data.playerId].addCard(card);
-        this._tempCardList.addData(card);
-        this._tempCardList.UI.move(
-          this.deckNode.worldPosition,
-          this.playerList[data.playerId].UI.node.worldPosition
-        ).then(() => {
-          this._tempCardList.removeAllData();
-        });
+        cardGroup.addData(card);
       }
     }
     if (data.cards && data.cards.length) {
@@ -361,11 +376,23 @@ export class GameManager extends Component {
           UI: instantiate(this.cardPrefab).getComponent(CardUI),
         });
         this.playerList[data.playerId].addCard(card);
+        cardGroup.addData(card);
         if (data.playerId === 0) {
           this._handCardList.addData(card as Card);
         }
       }
     }
+
+    //抽卡动画
+    (<CardGroupNode>cardGroup.UI)
+      .move(this.deckNode.worldPosition, this.playerList[data.playerId].UI.node.worldPosition)
+      .then(() => {
+        //解绑UI并从cardGroup移除数据
+        cardGroup.list.forEach((item) => {
+          item.UI = null;
+        });
+        cardGroup.removeAllData();
+      });
   }
 
   discardCards(data: discard_card_toc) {

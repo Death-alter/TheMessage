@@ -2,11 +2,16 @@ import { _decorator, tween, Node, Vec3 } from "cc";
 import { UIContainer } from "./UIContainer";
 import { CardUI } from "../Card/CardUI";
 import { GameCard } from "../../../Data/Cards/type";
-import { PlayerUI } from "../Player/PlayerUI";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupNode")
 export class CardGroupNode extends UIContainer<GameCard, CardUI> {
+  private _onAnimation: boolean = false;
+
+  get onAnimation() {
+    return this._onAnimation;
+  }
+
   init() {
     this.node.active = false;
   }
@@ -20,6 +25,7 @@ export class CardGroupNode extends UIContainer<GameCard, CardUI> {
   move(from: Vec3, to: Vec3) {
     return new Promise((reslove, reject) => {
       {
+        this._onAnimation = true;
         this.node.active = true;
         this.node.setWorldPosition(from);
         tween(this.node)
@@ -29,6 +35,7 @@ export class CardGroupNode extends UIContainer<GameCard, CardUI> {
             {
               onComplete: () => {
                 this.node.active = false;
+                this._onAnimation = false;
                 reslove(null);
               },
             }

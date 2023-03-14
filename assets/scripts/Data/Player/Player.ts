@@ -19,6 +19,19 @@ export default class Player extends DataClass {
   private _messages: Card[] = [];
   protected _UI: PlayerUI;
 
+  get UI() {
+    return this._UI;
+  }
+  set UI(UI: PlayerUI | null) {
+    if (UI) {
+      this._UI = UI;
+      this._UI.player = this;
+    } else if (this._UI) {
+      this._UI.player = null;
+      this._UI = null;
+    }
+  }
+
   get id() {
     return this._id;
   }
@@ -34,7 +47,7 @@ export default class Player extends DataClass {
     if (!character || character === this._character) return;
     this._character = character;
     if (this._UI) {
-      this.character.bindUI(this._UI.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterPanting));
+      this.character.UI = this._UI.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterPanting);
     }
   }
 
@@ -71,7 +84,7 @@ export default class Player extends DataClass {
     if (option.identity != null) {
     }
     if (option.UI) {
-      this.bindUI(option.UI);
+      this.UI = option.UI;
     }
   }
 
@@ -134,10 +147,5 @@ export default class Player extends DataClass {
   removeAllMessage() {
     this._messages = [];
     this._UI.refreshMessageCount();
-  }
-
-  bindUI(UI: PlayerUI) {
-    this._UI = UI;
-    this._UI.player = this;
   }
 }

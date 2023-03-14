@@ -64,6 +64,19 @@ export class Card extends DataClass {
     return this._lockable;
   }
 
+  get UI(): CardUI {
+    return this._UI;
+  }
+  set UI(UI: CardUI | null) {
+    if (UI) {
+      this._UI = UI;
+      this._UI.card = this;
+    } else if (this._UI) {
+      this._UI.card = null;
+      this._UI = null;
+    }
+  }
+
   constructor(option: CardOption) {
     super();
     this._id = option.id;
@@ -76,7 +89,7 @@ export class Card extends DataClass {
     this._color = option.color;
     this._lockable = option.lockable;
     if (option.UI) {
-      this.bindUI(option.UI);
+      this.UI = option.UI;
     }
   }
 
@@ -98,11 +111,6 @@ export class Card extends DataClass {
       this.status = CardStatus.FACE_UP;
     }
   }
-
-  bindUI(UI: CardUI) {
-    this._UI = UI;
-    this._UI.card = this;
-  }
 }
 
 export class UnknownCard extends DataClass {
@@ -110,15 +118,25 @@ export class UnknownCard extends DataClass {
   public readonly backSprite: string = "images/cards/CardBack";
   protected _UI: CardUI;
 
-  constructor(UI?) {
-    super();
+  get UI(): CardUI {
+    return this._UI;
+  }
+  set UI(UI: CardUI | null) {
     if (UI) {
-      this.bindUI(UI);
+      this._UI = UI;
+      this._UI.card = this;
+    } else {
+      if (this._UI) {
+        this._UI.card = null;
+        this._UI = null;
+      }
     }
   }
 
-  bindUI(script: CardUI) {
-    this._UI = script;
-    this._UI.card = this;
+  constructor(UI?) {
+    super();
+    if (UI) {
+      this.UI = UI;
+    }
   }
 }

@@ -6,6 +6,20 @@ export class DataContainer<T extends DataClass, U extends Component> extends Dat
   protected _UI: UIContainer<T, U>;
   protected _list: T[] = [];
 
+  get UI() {
+    return this._UI;
+  }
+  set UI(UI: UIContainer<T, U> | null) {
+    if (UI) {
+      this._UI = UI;
+      this._UI.data = this;
+      this._UI.init();
+    } else if (this._UI) {
+      this._UI.data = null;
+      this._UI = null;
+    }
+  }
+
   get list() {
     return this._list;
   }
@@ -13,15 +27,15 @@ export class DataContainer<T extends DataClass, U extends Component> extends Dat
   constructor(UI?: UIContainer<T, U>) {
     super();
     if (UI) {
-      this.bindUI(UI);
+      this.UI = UI;
     }
   }
 
   addData(data: T) {
     this._list.push(data);
-    if (this._UI && data.UI) {
-      this._UI.node.addChild(data.UI.node);
-      this._UI.onDataAdded(data);
+    if (this.UI && data.UI) {
+      this.UI.node.addChild(data.UI.node);
+      this.UI.onDataAdded(data);
     }
   }
 
@@ -40,11 +54,5 @@ export class DataContainer<T extends DataClass, U extends Component> extends Dat
       this._UI.node.removeAllChildren();
       this._UI.onAllDataRemoved();
     }
-  }
-
-  bindUI(UI) {
-    this._UI = UI;
-    this._UI.data = this;
-    this._UI.init();
   }
 }
