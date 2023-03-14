@@ -17,6 +17,7 @@ export default class Player extends DataClass {
   private _seatNumber: number;
   private _handCards: GameCard[] = [];
   private _messages: Card[] = [];
+  private _alive: boolean = true;
   protected _UI: PlayerUI;
 
   get UI() {
@@ -76,6 +77,10 @@ export default class Player extends DataClass {
     return this._messages;
   }
 
+  get alive() {
+    return this._alive;
+  }
+
   constructor(option: PlayerOption) {
     super();
     this._id = option.id;
@@ -98,20 +103,21 @@ export default class Player extends DataClass {
   }
 
   //弃牌
-  discardCard(cardIds: number | number[]) {
+  discardCard(cardIds: number | number[]): GameCard[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }
-
+    const arr = [];
     for (let cardId of cardIds) {
       for (let i = 0; i < this._handCards.length; i++) {
         if (cardId === (<Card>this._handCards[i]).id) {
-          this._handCards.splice(i, 1);
+          arr.push(this._handCards.splice(i, 1)[0]);
           break;
         }
       }
     }
     this._UI.refreshHandCardCount();
+    return arr;
   }
 
   //丢弃所有手牌
@@ -147,5 +153,9 @@ export default class Player extends DataClass {
   removeAllMessage() {
     this._messages = [];
     this._UI.refreshMessageCount();
+  }
+
+  dead() {
+    this._alive = false;
   }
 }

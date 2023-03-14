@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout } from "cc";
+import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout, tween, Vec3 } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacter/SelectCharacter";
 import { GamePhase } from "./type";
 import {
@@ -82,6 +82,8 @@ export class GameManager extends Component {
   handCardUI: Node | null = null;
   @property(Node)
   cardGroupNode: Node | null = null;
+  @property(Node)
+  actionNode: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
@@ -91,7 +93,7 @@ export class GameManager extends Component {
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
-  private _messageInTransmit: Card | null = null;
+  private _messageInTransmit: GameCard | null = null;
   private _deckCardCount: number;
   private _discardPile: Card[] = [];
   private _banishCards: Card[] = [];
@@ -208,7 +210,14 @@ export class GameManager extends Component {
     });
 
     //有人传出情报
-    EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {});
+    EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {
+      if (data.playerId === 0) {
+      } else {
+        this._messageInTransmit = createUnknownCard();
+        this._messageInTransmit.UI = instantiate(this.cardPrefab).getComponent(CardUI);
+        this.actionNode.addChild(this._messageInTransmit.UI.node);
+      }
+    });
 
     //有人选择接收情报
     EventTarget.on(ProcessEvent.CHOOSE_RECEIVE, (data: choose_receive_toc) => {});
@@ -273,7 +282,31 @@ export class GameManager extends Component {
     EventTarget.off(ProcessEvent.GET_PHASE_DATA);
     EventTarget.off(ProcessEvent.SYNC_DECK_NUM);
     EventTarget.off(ProcessEvent.ADD_CARDS);
+    EventTarget.off(ProcessEvent.DISCARD_CARDS);
     EventTarget.off(ProcessEvent.UPDATE_CHARACTER);
+    EventTarget.off(ProcessEvent.SEND_MESSAGE);
+    EventTarget.off(ProcessEvent.CHOOSE_RECEIVE);
+    EventTarget.off(ProcessEvent.PLAYER_DYING);
+    EventTarget.off(ProcessEvent.WAIT_FOR_CHENG_QING);
+    EventTarget.off(ProcessEvent.PLAYER_DIE);
+    EventTarget.off(ProcessEvent.WAIT_FOR_DIE_GIVE_CARD);
+    EventTarget.off(ProcessEvent.PLAYER_WIN);
+    EventTarget.off(ProcessEvent.USE_SHI_TAN);
+    EventTarget.off(ProcessEvent.SHOW_SHI_TAN);
+    EventTarget.off(ProcessEvent.EXECUTE_SHI_TAN);
+    EventTarget.off(ProcessEvent.USE_PING_HENG);
+    EventTarget.off(ProcessEvent.WEI_BI_WAIT_FOR_GIVE_CARD);
+    EventTarget.off(ProcessEvent.WEI_BI_SHOW_HAND_CARD);
+    EventTarget.off(ProcessEvent.WEI_BI_GIVE_CARD);
+    EventTarget.off(ProcessEvent.USE_CHENG_QING);
+    EventTarget.off(ProcessEvent.USE_PO_YI);
+    EventTarget.off(ProcessEvent.PO_YI_SHOW_MESSAGE);
+    EventTarget.off(ProcessEvent.USE_JIE_HUO);
+    EventTarget.off(ProcessEvent.USE_DIAO_BAO);
+    EventTarget.off(ProcessEvent.USE_WU_DAO);
+    EventTarget.off(ProcessEvent.USE_FENG_YUN_BIAN_HUAN);
+    EventTarget.off(ProcessEvent.WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD);
+    EventTarget.off(ProcessEvent.FENG_YUN_BIAN_HUAN_CHOOSE_CARD);
   }
 
   init(data: init_toc) {
@@ -396,10 +429,45 @@ export class GameManager extends Component {
   }
 
   discardCards(data: discard_card_toc) {
-    if (data.playerId === 0) {
-      this.playerList[data.playerId].discardCard(data.cards);
-    } else {
-      this.playerList[data.playerId].discardCard(data.cards);
+    if (data.cards && data.cards.length) {
+      const player = this.playerList[data.playerId];
+      const cardIdList = data.cards.map((item) => item.id);
+      const cards = player.discardCard(cardIdList);
+      if (data.playerId === 0) {
+        cards.forEach((card) => {
+          card.UI.node.setParent(this.actionNode);
+          tween(card.UI.node)
+            .to(
+              0.8,
+              {
+                scale: new Vec3(0.6, 0.6, 1),
+                worldPosition: this.discardPileNode.worldPosition,
+              },
+              {
+                onComplete: () => {
+                  card.UI.node.removeFromParent();
+                  card.UI = null;
+                },
+              }
+            )
+            .start();
+        });
+      } else {
+        const cardGroup = this.getCardGroup();
+        cards.forEach((card) => {
+          card.UI = instantiate(this.cardPrefab).getComponent(CardUI);
+          cardGroup.addData(card);
+        });
+        (<CardGroupNode>cardGroup.UI)
+          .move(player.UI.node.worldPosition, this.discardPileNode.worldPosition)
+          .then(() => {
+            //解绑UI并从cardGroup移除数据
+            cardGroup.list.forEach((item) => {
+              item.UI = null;
+            });
+            cardGroup.removeAllData();
+          });
+      }
     }
   }
 

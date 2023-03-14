@@ -110,6 +110,7 @@ export class Card extends DataClass {
     } else {
       this.status = CardStatus.FACE_UP;
     }
+    this.UI.flip();
   }
 }
 

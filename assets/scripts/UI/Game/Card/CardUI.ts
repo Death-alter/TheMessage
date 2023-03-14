@@ -24,6 +24,7 @@ export class CardUI extends Component {
     if (card === this._card) return;
     if (card) {
       this._card = card;
+      this._card.UI = this;
       this.refresh(card);
     } else {
       this._card.UI = null;
@@ -102,16 +103,9 @@ export class CardUI extends Component {
     }
   }
 
-  flip(card?: Card) {
-    if (!this.card) return;
-    if (this.card instanceof UnknownCard) {
-      if (!card) {
-        return;
-      } else {
-        this.card = card;
-        card.flip();
-        this._animationComponent.play();
-      }
+  flip() {
+    if (!this.card || this.card instanceof UnknownCard) {
+      return;
     } else {
       this.card.flip();
       this._animationComponent.play();

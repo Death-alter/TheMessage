@@ -25,6 +25,7 @@ export class PlayerUI extends Component {
     if (player === this._player) return;
     if (player) {
       this._player = player;
+      this._player.UI = this;
       this.characterPanting.getComponent(CharacterPanting).character = player.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
     } else {
@@ -43,8 +44,8 @@ export class PlayerUI extends Component {
   }
 
   //倒计时
-  startCoundDown(secondes) {
-    this.progress.getComponent(ProgressControl).startCoundDown(secondes);
+  startCoundDown(seconds) {
+    this.progress.getComponent(ProgressControl).startCoundDown(seconds);
   }
 
   stopCountDown() {

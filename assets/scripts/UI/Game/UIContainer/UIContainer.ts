@@ -15,6 +15,7 @@ export abstract class UIContainer<T extends DataClass, U extends Component> exte
     if (data === this.data) return;
     if (data) {
       this._data = data;
+      this._data.UI = this;
     } else {
       this._data.UI = null;
       this._data = null;

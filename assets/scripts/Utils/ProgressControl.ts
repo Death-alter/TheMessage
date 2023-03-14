@@ -20,10 +20,10 @@ export class ProgressControl extends Component {
   }
 
   //倒计时
-  startCoundDown(secondes, callback?: Function) {
+  startCoundDown(seconds, callback?: Function) {
     this.stopCountDown();
     this.node.active = true;
-    this.playProgressAnimation(secondes).then(() => {
+    this.playProgressAnimation(seconds).then(() => {
       if (callback) callback();
     });
   }

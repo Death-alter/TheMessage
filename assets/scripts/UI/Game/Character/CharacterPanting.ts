@@ -15,6 +15,7 @@ export class CharacterPanting extends Component {
     if (character) {
       this.releaseSprite();
       this._character = character;
+      this._character.UI = this;
       if (character.status === CharacterStatus.FACE_UP) {
         this.hideCover();
       } else {
