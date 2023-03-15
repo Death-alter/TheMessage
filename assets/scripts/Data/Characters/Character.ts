@@ -46,16 +46,13 @@ export class Character extends DataBasic<CharacterObject> {
   }
 
   constructor(option: CharacterOptions) {
-    super();
+    super(option.gameObject);
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._sex = option.sex;
     this._skills = option.skills;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 
   //翻面

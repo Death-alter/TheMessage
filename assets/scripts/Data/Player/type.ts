@@ -1,4 +1,4 @@
-import { PlayerUI } from "../../GameObject/Player/PlayerObject";
+import { PlayerObject } from "../../GameObject/Player/PlayerObject";
 import { Character } from "../Characters/Character";
 import { Identity } from "../Identity/Identity";
 
@@ -7,5 +7,5 @@ export interface PlayerOption {
   name: string;
   character: Character;
   identity?: Identity;
-  gameObject?: PlayerUI;
+  gameObject?: PlayerObject;
 }

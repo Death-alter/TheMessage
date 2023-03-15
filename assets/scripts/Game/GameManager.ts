@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout, tween, Vec3 } from "cc";
-import { SelectCharacter } from "../gameObject/Game/SelectCharacter";
+import { SelectCharacter } from "../UI/Game/SelectCharacter";
 import { GamePhase } from "./type";
 import {
   wait_for_select_role_toc,
@@ -42,19 +42,20 @@ import { createIdentity } from "../Data/Identity";
 import { Identity } from "../Data/Identity/Identity";
 import { IdentityType, SecretTaskType } from "../Data/Identity/type";
 import { CharacterStatus, CharacterType } from "../Data/Characters/type";
-import Player from "../Data/Player/Player";
+import { Player } from "../Data/Player/Player";
 import { createCharacterById } from "../Data/Characters";
-import { PlayerUI } from "../GameObject/Player/PlayerObject";
+import { PlayerObject } from "../GameObject/Player/PlayerObject";
 import { createCard, createUnknownCard } from "../Data/Cards";
 import { CardUsage } from "../Data/Cards/type";
-import { HandCardUI } from "../GameObject/GameObjectContainer/HandCardContianer";
-import { ProgressControl } from "../Utils/ProgressControl";
-import { CardUI } from "../gameObject/Game/Card/CardUI";
+import { HandCardContianer } from "../GameObject/GameObjectContainer/HandCardContianer";
+import { ProgressControl } from "../UI/Game/ProgressControl";
+import { CardObject } from "../GameObject/Card/CardObject";
 import { HandCardList } from "../Data/DataContainer/HandCardList";
 import { CardGroup } from "../Data/DataContainer/CardGroup";
-import { CardGroupNode } from "../GameObject/GameObjectContainer/CardGroupNode";
+import { CardGroupObject } from "../GameObject/GameObjectContainer/CardGroupObject";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
-import { ActionPlayer } from "./ActionPlayer";
+import GamePools from "./GamePools";
+import { CardAction } from "./CardAction";
 
 const { ccclass, property } = _decorator;
 
@@ -85,13 +86,14 @@ export class GameManager extends Component {
   @property(Node)
   cardGroupNode: Node | null = null;
   @property(Node)
-  actionPlayerNode: Node | null = null;
+  cardActionNode: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
   public selfPlayer: Player;
   public playerCharacterIdList: number[];
   public playerList: Player[];
+  public cardAction: CardAction;
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -100,8 +102,7 @@ export class GameManager extends Component {
   private _discardPile: Card[] = [];
   private _banishCards: Card[] = [];
   private _seq: number;
-  private _handCardList: DataContainer<Card, CardUI>;
-  private _cardGroupPool: DataContainer<GameCard, CardUI>[] = [];
+  private _handCardList: DataContainer<Card, CardObject>;
 
   get gamePhase() {
     return this._gamePhase;
@@ -129,6 +130,15 @@ export class GameManager extends Component {
     if (count == null || count === this._deckCardCount) return;
     this._deckCardCount = count;
     this.deckText.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + count;
+  }
+
+  onLoad() {
+    //初始化GamePools
+    GamePools.init({
+      card: instantiate(this.cardPrefab).getComponent(CardObject),
+      cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
+    });
+    this.cardAction = this.cardActionNode.getComponent(CardAction);
   }
 
   onEnable() {
@@ -184,10 +194,10 @@ export class GameManager extends Component {
           this._messageInTransmit.gameObject.node.removeFromParent();
           const card = this.createMessage(data.messageCard) as Card;
           card.status = CardStatus.FACE_DOWN;
-          this._messageInTransmit.gameObject.card = card;
+          this._messageInTransmit.gameObject.data = card;
           this._messageInTransmit = card;
           this._messageInTransmit.gameObject.node.setWorldPosition(position);
-          this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
+          this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
           this._messageInTransmit.flip();
         } else {
         }
@@ -236,7 +246,7 @@ export class GameManager extends Component {
         for (let item of player.handCards) {
           if (item instanceof Card && item.id === data.cardId) {
             this._messageInTransmit = item;
-            this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
+            this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
             tween(this._messageInTransmit.gameObject.node)
               .to(0.8, {
                 worldPosition: player.gameObject.node.worldPosition,
@@ -349,7 +359,7 @@ export class GameManager extends Component {
       id: 0,
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
-      gameObject: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI),
+      gameObject: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerObject),
     });
     this.playerList.push(this.selfPlayer);
     this.identity = createIdentity(
@@ -361,10 +371,7 @@ export class GameManager extends Component {
     this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
 
     //初始化手牌UI
-    this._handCardList = new HandCardList(this.handCardUI.getComponent(HandCardUI));
-
-    //创建cardGroupPool
-    this.initCardGroupPool();
+    this._handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
 
     //创建其他人
     for (let i = 1; i < data.playerCount; i++) {
@@ -384,19 +391,19 @@ export class GameManager extends Component {
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
     }
 
     this.rightPlayerNodeList.getComponent(Layout).updateLayout();
@@ -404,96 +411,38 @@ export class GameManager extends Component {
     this.leftPlayerNodeList.getComponent(Layout).updateLayout();
   }
 
-  initCardGroupPool() {
-    //根据玩家数创建cardGroup
-    this._cardGroupPool.push(new CardGroup(this.cardGroupNode.getComponent(CardGroupNode)));
-    for (let i = 1; i < this.playerCount; i++) {
-      const group = new CardGroup(instantiate(this.cardGroupNode).getComponent(CardGroupNode));
-      group.gameObject.node.setParent(this.actionPlayerNode);
-      this._cardGroupPool.push(group);
-    }
-  }
-
-  getCardGroup() {
-    for (let i = 0; i < this._cardGroupPool.length; i++) {
-      if (!(<CardGroupNode>this._cardGroupPool[i].gameObject).onAnimation) {
-        this._cardGroupPool[i].removeAllData();
-        return this._cardGroupPool[i];
-      }
-    }
-    const cardGroup = new CardGroup(instantiate(this.cardGroupNode).getComponent(CardGroupNode));
-    this._cardGroupPool.push(cardGroup);
-    return cardGroup;
-  }
-
   drawCards(data: add_card_toc) {
-    const cardGroup = this.getCardGroup();
     const player = this.playerList[data.playerId];
+    const cardList: GameCard[] = [];
 
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
         const card = this.createHandCard();
         card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        player.addCard(card);
-        cardGroup.addData(card);
+        cardList.push(card);
       }
     }
     if (data.cards && data.cards.length) {
       for (let item of data.cards) {
         const card = this.createHandCard(item);
         card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        player.addCard(card);
-        cardGroup.addData(card);
+        cardList.push(card);
       }
     }
 
+    player.addHandCard(cardList);
     //抽卡动画
-    (<CardGroupNode>cardGroup.gameObject).move(this.deckNode.worldPosition, player.gameObject.node.worldPosition, () => {
-      if (data.playerId === 0) {
-        for (let card of cardGroup.list) {
-          card.gameObject.node.scale = new Vec3(1, 1, 1);
-          this._handCardList.addData(card as Card);
-        }
-      }
-    });
+    this.cardAction.drawCards(player, cardList);
   }
 
   discardCards(data: discard_card_toc) {
     if (data.cards && data.cards.length) {
       const player = this.playerList[data.playerId];
       const cardIdList = data.cards.map((item) => item.id);
-      const cards = player.discardCard(cardIdList);
-      if (data.playerId === 0) {
-        cards.forEach((card) => {
-          card.gameObject.node.setParent(this.actionPlayerNode);
-          tween(card.gameObject.node)
-            .to(
-              0.6,
-              {
-                scale: new Vec3(0.6, 0.6, 1),
-                worldPosition: this.discardPileNode.worldPosition,
-              },
-              {
-                onComplete: () => {
-                  card.gameObject = null;
-                },
-              }
-            )
-            .start();
-        });
-      } else {
-        const cardGroup = this.getCardGroup();
-        cards.forEach((card) => {
-          card.gameObject = instantiate(this.cardPrefab).getComponent(CardUI);
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-          cardGroup.addData(card);
-        });
-        (<CardGroupNode>cardGroup.gameObject).move(player.gameObject.node.worldPosition, this.discardPileNode.worldPosition, () => {
-          cardGroup.list.forEach((item) => {
-            item.gameObject = null;
-          });
-        });
-      }
+      const cardList = player.removeHandCard(cardIdList);
+
+      //弃牌动画
+      this.cardAction.discardCards(player, cardList);
     }
   }
 
@@ -506,14 +455,13 @@ export class GameManager extends Component {
     if (!this._messageInTransmit) {
       this._messageInTransmit = this.createMessage();
       this._messageInTransmit.gameObject.node.active = true;
-      this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
+      this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
       this._messageInTransmit.gameObject.node.setWorldPosition(panting.worldPosition);
       this._messageInTransmit.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     } else if (card && this._messageInTransmit instanceof UnknownCard) {
-      console.log(1);
       const oldMessage = this._messageInTransmit;
       this._messageInTransmit = this.createMessage();
-      this._messageInTransmit.gameObject = oldMessage.gameObject;
+      (<Card>this._messageInTransmit).gameObject = oldMessage.gameObject;
       tween(this._messageInTransmit.gameObject.node)
         .to(0.8, {
           worldPosition: panting.worldPosition,
@@ -548,10 +496,10 @@ export class GameManager extends Component {
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.HAND_CARD,
         lockable: card.canLock,
-        gameObject: instantiate(this.cardPrefab).getComponent(CardUI),
+        gameObject: instantiate(this.cardPrefab).getComponent(CardObject),
       });
     } else {
-      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
+      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardObject));
     }
   }
 
@@ -565,10 +513,10 @@ export class GameManager extends Component {
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.MESSAGE_CARD,
         lockable: card.canLock,
-        gameObject: instantiate(this.cardPrefab).getComponent(CardUI),
+        gameObject: instantiate(this.cardPrefab).getComponent(CardObject),
       });
     } else {
-      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
+      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardObject));
     }
   }
 }

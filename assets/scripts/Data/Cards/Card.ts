@@ -64,7 +64,7 @@ export class Card extends DataBasic<CardObject> {
   }
 
   constructor(option: CardOption) {
-    super();
+    super(option.gameObject);
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
@@ -74,9 +74,6 @@ export class Card extends DataBasic<CardObject> {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 
   //当做功能牌打出
@@ -104,10 +101,7 @@ export class UnknownCard extends DataBasic<CardObject> {
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
 
-  constructor(gameObject?) {
-    super();
-    if (gameObject) {
-      this.gameObject = gameObject;
-    }
+  constructor(gameObject?: CardObject) {
+    super(gameObject);
   }
 }

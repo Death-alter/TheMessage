@@ -3,6 +3,12 @@ import { GameObject } from "../GameObject/GameObject";
 export class DataBasic<T extends GameObject<any>> {
   protected _gameObject: T;
 
+  constructor(object?: T) {
+    if (object) {
+      this.gameObject = object;
+    }
+  }
+
   get gameObject(): T {
     return this._gameObject;
   }

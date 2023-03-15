@@ -7,7 +7,7 @@ import { DataBasic } from "../DataBasic";
 import { GameCard, CardUsage, CardStatus } from "../Cards/type";
 import { Card } from "../Cards/Card";
 
-export default class Player extends DataBasic<PlayerObject> {
+export class Player extends DataBasic<PlayerObject> {
   public static turnPlayerId: number;
 
   private _id: number;
@@ -34,7 +34,9 @@ export default class Player extends DataBasic<PlayerObject> {
     if (!character || character === this._character) return;
     this._character = character;
     if (this.gameObject) {
-      this.character.gameObject = this.gameObject.node.getChildByPath("Border/CharacterObject").getComponent(CharacterObject);
+      this.character.gameObject = this.gameObject.node
+        .getChildByPath("Border/CharacterObject")
+        .getComponent(CharacterObject);
     }
   }
 
@@ -68,19 +70,16 @@ export default class Player extends DataBasic<PlayerObject> {
   }
 
   constructor(option: PlayerOption) {
-    super();
+    super(option.gameObject);
     this._id = option.id;
     this._name = option.name;
     this._character = option.character;
     if (option.identity != null) {
     }
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 
   //抽牌
-  addCard(cards: GameCard | GameCard[]) {
+  addHandCard(cards: GameCard | GameCard[]) {
     if (!(cards instanceof Array)) {
       cards = [cards];
     }
@@ -89,7 +88,7 @@ export default class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  discardCard(cardIds: number | number[]): GameCard[] {
+  removeHandCard(cardIds: number | number[]): GameCard[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }
@@ -107,7 +106,7 @@ export default class Player extends DataBasic<PlayerObject> {
   }
 
   //丢弃所有手牌
-  disCardAllHandCards() {
+  removeAllHandCards() {
     this._handCards = [];
     this.gameObject.refreshHandCardCount();
   }

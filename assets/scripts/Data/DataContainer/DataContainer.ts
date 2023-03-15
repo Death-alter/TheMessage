@@ -12,10 +12,7 @@ export class DataContainer<T extends DataBasic<any>, U extends GameObject<any>> 
   }
 
   constructor(gameObject?: GameObjectContainer<U, T>) {
-    super();
-    if (gameObject) {
-      this.gameObject = gameObject;
-    }
+    super(gameObject);
   }
 
   addData(data: T) {
