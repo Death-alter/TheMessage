@@ -1,10 +1,10 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
-import { CharacterPanting } from "../../../UI/Game/Character/CharacterPanting";
+import { CharacterObject } from "../../../GameObject/Character/CharacterObject";
 
 export class LaoBie extends Character {
-  constructor(UI?: CharacterPanting) {
+  constructor(gameObject?: CharacterObject) {
     super({
       id: 26,
       name: "老鳖",
@@ -12,7 +12,7 @@ export class LaoBie extends Character {
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       skills: [] as Skill[],
-      UI: UI,
+      gameObject: gameObject,
     });
   }
 }

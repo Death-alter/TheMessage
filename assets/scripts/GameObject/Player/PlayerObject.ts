@@ -1,12 +1,13 @@
-import { _decorator, Component, Label, Node } from "cc";
-import { CharacterPanting } from "../Character/CharacterPanting";
-import Player from "../../../Data/Player/Player";
-import { ProgressControl } from "../../../Utils/ProgressControl";
+import { _decorator, Label, Node } from "cc";
+import { CharacterObject } from "../Character/CharacterObject";
+import Player from "../../Data/Player/Player";
+import { ProgressControl } from "../../UI/Game/ProgressControl";
+import { GameObject } from "../GameObject";
 
 const { ccclass, property } = _decorator;
 
-@ccclass("PlayerUI")
-export class PlayerUI extends Component {
+@ccclass("PlayerObject")
+export class PlayerObject extends GameObject<Player> {
   @property(Node)
   characterPanting: Node | null = null;
   @property(Node)
@@ -16,22 +17,21 @@ export class PlayerUI extends Component {
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 
-  private _player: Player;
+  set data(data: Player) {
+    if (data === this._data) return;
+    if (data) {
+      if (data.gameObject === this) {
+        data.gameObject.data = null;
+      }
+      if (this._data.gameObject !== this) this._data.gameObject = this;
+      this._data = data;
 
-  get player() {
-    return this._player;
-  }
-  set player(player: Player) {
-    if (player === this._player) return;
-    if (player) {
-      this._player = player;
-      if (this._player.UI !== this) this._player.UI = this;
-      this.characterPanting.getComponent(CharacterPanting).character = player.character;
-      this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = player.name;
-    } else if (this._player) {
-      const player = this._player;
-      this._player = null;
-      player.UI = null;
+      this.characterPanting.getComponent(CharacterObject).data = data.character;
+      this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
+    } else if (this._data) {
+      const data = this._data;
+      this._data = null;
+      data.gameObject = null;
     }
   }
 
@@ -41,7 +41,7 @@ export class PlayerUI extends Component {
 
   //设置座位文字
   setSeat(seatNumber: number) {
-    this.node.getChildByName("SeatNumber").getComponent(Label).string = PlayerUI.seatNumberText[seatNumber];
+    this.node.getChildByName("SeatNumber").getComponent(Label).string = PlayerObject.seatNumberText[seatNumber];
   }
 
   //倒计时
@@ -56,12 +56,12 @@ export class PlayerUI extends Component {
   //刷新手牌数量
   refreshHandCardCount() {
     this.messageCounts.getChildByPath("HandCard/Label").getComponent(Label).string =
-      this.player.handCards.length.toString();
+      this.data.handCards.length.toString();
   }
 
   refreshMessageCount() {
     const arr = [0, 0, 0];
-    for (let item of this.player.messages) {
+    for (let item of this.data.messages) {
       for (let color of item.color) {
         ++arr[color];
       }

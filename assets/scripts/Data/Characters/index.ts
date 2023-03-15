@@ -33,7 +33,7 @@ import { LaoBie } from "./CharacterClass/LaoBie";
 import { XiaoJiu } from "./CharacterClass/XiaoJiu";
 import { BaiKunShan } from "./CharacterClass/BaiKunShan";
 import { ShangYu } from "./CharacterClass/ShangYu";
-import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
+import { CharacterObject } from "../../GameObject/Character/CharacterObject";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -70,10 +70,10 @@ charactersMap[30] = ShangYu;
 charactersMap[1020] = GuXiaoMengSP;
 charactersMap[1028] = LiNingYuSP;
 
-export function createCharacterById(id: CharacterType, UI?: CharacterPanting): Character {
+export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {
   if (charactersMap[id]) {
-    return new charactersMap[id](UI);
+    return new charactersMap[id](gameObject);
   } else {
-    return new charactersMap[0](UI);
+    return new charactersMap[0](gameObject);
   }
 }

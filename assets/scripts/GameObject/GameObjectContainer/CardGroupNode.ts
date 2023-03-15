@@ -1,11 +1,11 @@
 import { _decorator, tween, Node, Vec3, Tween } from "cc";
-import { UIContainer } from "./UIContainer";
-import { CardUI } from "../Card/CardUI";
-import { GameCard } from "../../../Data/Cards/type";
+import { GameObjectContainer } from "./GameObjectContainer";
+import { CardObject } from "../Card/CardObject";
+import { GameCard } from "../../Data/Cards/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupNode")
-export class CardGroupNode extends UIContainer<GameCard, CardUI> {
+export class CardGroupNode extends GameObjectContainer<CardObject, GameCard> {
   private _t: Tween<any> | null = null;
 
   get onAnimation() {

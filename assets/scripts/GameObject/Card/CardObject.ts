@@ -1,37 +1,20 @@
-import { _decorator, Component, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat } from "cc";
-import { CardDirection, CardStatus, CardUsage, GameCard } from "../../../Data/Cards/type";
-import { Card, UnknownCard } from "../../../Data/Cards/Card";
-import EventTarget from "../../../Event/EventTarget";
-import { ProcessEvent } from "../../../Event/type";
+import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat } from "cc";
+import { CardDirection, CardStatus, CardUsage, GameCard } from "../../Data/Cards/type";
+import { Card, UnknownCard } from "../../Data/Cards/Card";
+import EventTarget from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/type";
+import { GameObject } from "../GameObject";
 const { ccclass, property } = _decorator;
 
-@ccclass("CardUI")
-export class CardUI extends Component {
+@ccclass("CardObject")
+export class CardObject extends GameObject<GameCard> {
   @property(Node)
   detailNode: Node | null = null;
 
-  private _card: GameCard;
   private _animationComponent: Animation;
   private _selected: boolean = false;
 
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
-
-  get card() {
-    return this._card;
-  }
-
-  set card(card: GameCard) {
-    if (card === this._card) return;
-    if (card) {
-      this._card = card;
-      if (this._card.UI !== this) this._card.UI = this;
-      this.refresh(card);
-    } else if (this._card) {
-      const card = this._card;
-      this._card = null;
-      card.UI = null;
-    }
-  }
 
   get selected() {
     return this._selected;
@@ -58,7 +41,7 @@ export class CardUI extends Component {
       });
     }
     this.node.on(Node.EventType.TOUCH_END, (event) => {
-      if (this.card instanceof Card && this.card.usage === CardUsage.HAND_CARD) {
+      if (this.data instanceof Card && this.data.usage === CardUsage.HAND_CARD) {
         if (this.selected) {
           this.selected = false;
         } else {
@@ -78,18 +61,18 @@ export class CardUI extends Component {
       });
     } else {
       this.detailNode.active = true;
-      const spriteUrl = card.status === CardStatus.FACE_DOWN ? card.backSprite : card.sprite;
+      const spriteUrl = card.status === CardStatus.FACE_DOWN ? Card.backSprite : card.sprite;
       resources.load(spriteUrl + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
       const colorNodeLeft = this.detailNode.getChildByPath("Color/Left").getComponent(Sprite);
       const colorNodeRight = this.detailNode.getChildByPath("Color/Right").getComponent(Sprite);
       if (card.color.length === 1) {
-        Color.fromHEX(colorNodeLeft.color, CardUI.colors[card.color[0]]);
-        Color.fromHEX(colorNodeRight.color, CardUI.colors[card.color[0]]);
+        Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
+        Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[0]]);
       } else {
-        Color.fromHEX(colorNodeLeft.color, CardUI.colors[card.color[0]]);
-        Color.fromHEX(colorNodeRight.color, CardUI.colors[card.color[1]]);
+        Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
+        Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[1]]);
       }
       if (card.direction === CardDirection.LEFT) {
         Quat.fromAngleZ(this.detailNode.getChildByName("Arrow").rotation, 90);
@@ -105,23 +88,23 @@ export class CardUI extends Component {
   }
 
   flip() {
-    if (!this.card || this.card instanceof UnknownCard) {
+    if (!this.data || this.data instanceof UnknownCard) {
       return;
     } else {
-      this.card.flip();
+      this.data.flip();
       this._animationComponent.play();
     }
   }
 
   changeCardSprite() {
-    if (this.card instanceof UnknownCard) return;
+    if (this.data instanceof UnknownCard) return;
     const sprite = this.node.getChildByName("Panting").getComponent(Sprite);
-    if (this.card.status === CardStatus.FACE_DOWN) {
-      resources.load(this.card.backSprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
+    if (this.data.status === CardStatus.FACE_DOWN) {
+      resources.load(Card.backSprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
     } else {
-      resources.load(this.card.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
+      resources.load(this.data.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
     }

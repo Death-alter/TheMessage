@@ -1,13 +1,13 @@
 import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
-import { CardUI } from "../Card/CardUI";
-import EventTarget from "../../../Event/EventTarget";
-import { ProcessEvent } from "../../../Event/type";
-import { UIContainer } from "./UIContainer";
-import { Card } from "../../../Data/Cards/Card";
+import { CardObject } from "../Card/CardObject";
+import EventTarget from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/type";
+import { GameObjectContainer } from "./GameObjectContainer";
+import { Card } from "../../Data/Cards/Card";
 const { ccclass, property } = _decorator;
 
-@ccclass("HandCardUI")
-export class HandCardUI extends UIContainer<Card, CardUI> {
+@ccclass("HandCardContianer")
+export class HandCardContianer extends GameObjectContainer<CardObject, Card> {
   @property(Prefab)
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
@@ -24,7 +24,7 @@ export class HandCardUI extends UIContainer<Card, CardUI> {
     EventTarget.on(ProcessEvent.SELECT_HAND_CARD, (node) => {
       for (let item of this.node.children) {
         if (item !== node) {
-          item.getComponent(CardUI).selected = false;
+          item.getComponent(CardObject).selected = false;
         }
       }
     });
@@ -50,8 +50,8 @@ export class HandCardUI extends UIContainer<Card, CardUI> {
   }
 
   onDataAdded(card: Card) {
-    if (!card.UI) return;
-    card.UI.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
+    if (!card.gameObject) return;
+    card.gameObject.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
     this.scheduleOnce(this.refresh, 0);
   }
 

@@ -1,6 +1,6 @@
 import { _decorator, Component, tween, Tween, UITransform } from "cc";
-import EventTarget from "../Event/EventTarget";
-import { ProcessEvent } from "../Event/type";
+import EventTarget from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("ProgressControl")

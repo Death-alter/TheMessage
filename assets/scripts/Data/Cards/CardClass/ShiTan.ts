@@ -19,7 +19,7 @@ export class ShiTan extends Card {
       lockable: option.lockable,
       status: option.status,
       usage: option.usage,
-      UI: option.UI,
+      gameObject: option.gameObject,
     });
     this._drawCardColor = option.drawCardColor;
   }

@@ -1,13 +1,13 @@
 import { _decorator, Component, Node, UITransform, RichText, Button, tween, instantiate, Sprite, color } from "cc";
-import { createCharacterById } from "../../../Data/Characters";
-import { Character } from "../../../Data/Characters/Character";
-import { CharacterStatus, CharacterType } from "../../../Data/Characters/type";
-import { Identity } from "../../../Data/Identity/Identity";
-import { MysteriousPerson } from "../../../Data/Identity/IdentityClass/MysteriousPerson";
-import { CharacterPanting } from "../Character/CharacterPanting";
-import EventTarget from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
-import { ProgressControl } from "../../../Utils/ProgressControl";
+import { createCharacterById } from "../../Data/Characters";
+import { Character } from "../../Data/Characters/Character";
+import { CharacterStatus, CharacterType } from "../../Data/Characters/type";
+import { Identity } from "../../Data/Identity/Identity";
+import { MysteriousPerson } from "../../Data/Identity/IdentityClass/MysteriousPerson";
+import { CharacterObject } from "../../GameObject/Character/CharacterObject";
+import EventTarget from "../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../Event/type";
+import { ProgressControl } from "./ProgressControl";
 
 const { ccclass, property } = _decorator;
 
@@ -51,10 +51,10 @@ export class SelectCharacter extends Component {
       character.status = CharacterStatus.FACE_UP;
       this.characterList.push(character);
       if (i === 0) {
-        character.UI = this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterPanting);
+        character.gameObject = this.charcaterNode.getChildByName("CharacterObject").getComponent(CharacterObject);
       } else {
         const node = instantiate(this.charcaterNode);
-        character.UI = node.getChildByName("CharacterPanting").getComponent(CharacterPanting);
+        character.gameObject = node.getChildByName("CharacterObject").getComponent(CharacterObject);
         this.charcaterNodeList.addChild(node);
       }
     }

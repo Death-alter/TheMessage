@@ -1,11 +1,10 @@
-import { CardUI } from "../../UI/Game/Card/CardUI";
+import { CardObject } from "../../GameObject/Card/CardObject";
 import { Card } from "../Cards/Card";
 import { DataContainer } from "./DataContainer";
-import { HandCardUI } from "../../UI/Game/UIContainer/HandCardUI";
+import { HandCardContianer } from "../../GameObject/GameObjectContainer/HandCardContianer";
 
-export class HandCardList extends DataContainer<Card, CardUI> {
-
-  constructor(UI?: HandCardUI) {
-    super(UI);
+export class HandCardList extends DataContainer<Card, CardObject> {
+  constructor(gameObject?: HandCardContianer) {
+    super(gameObject);
   }
 }

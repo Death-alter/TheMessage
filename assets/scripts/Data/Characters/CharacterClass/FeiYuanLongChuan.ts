@@ -1,10 +1,10 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { Skill } from "../../Skills/Skill";
-import { CharacterPanting } from "../../../UI/Game/Character/CharacterPanting";
+import { CharacterObject } from "../../../GameObject/Character/CharacterObject";
 
 export class FeiYuanLongChuan extends Character {
-  constructor(UI?: CharacterPanting) {
+  constructor(gameObject?: CharacterObject) {
     super({
       id: 7,
       name: "肥圆龙川",
@@ -12,7 +12,7 @@ export class FeiYuanLongChuan extends Character {
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       skills: [] as Skill[],
-      UI: UI,
+      gameObject: gameObject,
     });
   }
 }

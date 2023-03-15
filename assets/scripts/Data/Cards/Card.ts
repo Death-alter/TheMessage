@@ -1,10 +1,10 @@
 import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
 import EventTarget from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
-import { DataClass } from "../DataClass";
-import { CardUI } from "../../UI/Game/Card/CardUI";
+import { DataBasic } from "../DataBasic";
+import { CardObject } from "../../GameObject/Card/CardObject";
 
-export class Card extends DataClass {
+export class Card extends DataBasic<CardObject> {
   protected _id: number;
   protected _name: string;
   protected _type: CardType;
@@ -14,9 +14,8 @@ export class Card extends DataClass {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
-  protected _UI: CardUI;
 
-  public readonly backSprite: string = "images/cards/CardBack";
+  public static readonly backSprite: string = "images/cards/CardBack";
 
   get id() {
     return this._id;
@@ -64,21 +63,6 @@ export class Card extends DataClass {
     return this._lockable;
   }
 
-  get UI(): CardUI {
-    return this._UI;
-  }
-  set UI(UI: CardUI | null) {
-    if (UI === this._UI) return;
-    if (UI) {
-      this._UI = UI;
-      if (this._UI.card !== this) this._UI.card = this;
-    } else if (this._UI) {
-      const UI = this._UI;
-      this._UI = null;
-      UI.card = null;
-    }
-  }
-
   constructor(option: CardOption) {
     super();
     this._id = option.id;
@@ -90,8 +74,8 @@ export class Card extends DataClass {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
-    if (option.UI) {
-      this.UI = option.UI;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
     }
   }
 
@@ -112,35 +96,18 @@ export class Card extends DataClass {
     } else {
       this.status = CardStatus.FACE_UP;
     }
-    this.UI.flip();
+    this.gameObject.flip();
   }
 }
 
-export class UnknownCard extends DataClass {
+export class UnknownCard extends DataBasic<CardObject> {
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
-  protected _UI: CardUI;
 
-  get UI(): CardUI {
-    return this._UI;
-  }
-  set UI(UI: CardUI | null) {
-    if (UI === this._UI) return;
-
-    if (UI) {
-      this._UI = UI;
-      if (this._UI.card !== this) this._UI.card = this;
-    } else if (this._UI) {
-      const UI = this._UI;
-      this._UI = null;
-      UI.card = null;
-    }
-  }
-
-  constructor(UI?) {
+  constructor(gameObject?) {
     super();
-    if (UI) {
-      this.UI = UI;
+    if (gameObject) {
+      this.gameObject = gameObject;
     }
   }
 }

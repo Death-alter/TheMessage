@@ -1,60 +1,45 @@
-import { DataClass } from "../DataClass";
-import { UIContainer } from "../../UI/Game/UIContainer/UIContainer";
-import { Component } from "cc";
+import { DataBasic } from "../DataBasic";
+import { GameObjectContainer } from "../../GameObject/GameObjectContainer/GameObjectContainer";
+import { GameObject } from "../../GameObject/GameObject";
 
-export class DataContainer<T extends DataClass, U extends Component> extends DataClass {
-  protected _UI: UIContainer<T, U>;
+export class DataContainer<T extends DataBasic<any>, U extends GameObject<any>> extends DataBasic<
+  GameObjectContainer<U, T>
+> {
   protected _list: T[] = [];
-
-  get UI() {
-    return this._UI;
-  }
-  set UI(UI: UIContainer<T, U> | null) {
-    if (UI === this._UI) return;
-    if (UI) {
-      this._UI = UI;
-      if (this._UI.data !== this) this._UI.data = this;
-      this._UI.init();
-    } else if (this._UI) {
-      const UI = this._UI;
-      this._UI = null;
-      UI.data = null;
-    }
-  }
 
   get list() {
     return this._list;
   }
 
-  constructor(UI?: UIContainer<T, U>) {
+  constructor(gameObject?: GameObjectContainer<U, T>) {
     super();
-    if (UI) {
-      this.UI = UI;
+    if (gameObject) {
+      this.gameObject = gameObject;
     }
   }
 
   addData(data: T) {
     this._list.push(data);
-    if (this.UI && data.UI) {
-      this.UI.node.addChild(data.UI.node);
-      this.UI.onDataAdded(data);
+    if (this.gameObject && data.gameObject) {
+      this.gameObject.node.addChild(data.gameObject.node);
+      this.gameObject.onDataAdded(data);
     }
   }
 
   removeData(data: T) {
     const index = this._list.indexOf(data);
     this._list.splice(index, 1);
-    if (this._UI && data.UI.node) {
-      this._UI.node.removeChild(data.UI.node);
-      this._UI.onDataRemoved(data);
+    if (this.gameObject && data.gameObject.node) {
+      this.gameObject.node.removeChild(data.gameObject.node);
+      this.gameObject.onDataRemoved(data);
     }
   }
 
   removeAllData() {
     this._list = [];
-    if (this._UI) {
-      this._UI.node.removeAllChildren();
-      this._UI.onAllDataRemoved();
+    if (this.gameObject) {
+      this.gameObject.node.removeAllChildren();
+      this.gameObject.onAllDataRemoved();
     }
   }
 }

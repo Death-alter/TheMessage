@@ -11,7 +11,7 @@ import { JieHuo } from "./CardClass/JieHuo";
 import { DiaoBao } from "./CardClass/DiaoBao";
 import { WuDao } from "./CardClass/WuDao";
 import { FenYunBianHuan } from "./CardClass/FenYunBianHuan";
-import { CardUI } from "../../UI/Game/Card/CardUI";
+import { CardObject } from "../../GameObject/Card/CardObject";
 
 interface createCardOption {
   id: number;
@@ -22,7 +22,7 @@ interface createCardOption {
   lockable: boolean;
   status?: CardStatus;
   usage?: CardUsage;
-  UI?: CardUI;
+  gameObject?: CardObject;
 }
 
 const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption): GameCard } } = {};
@@ -42,10 +42,10 @@ export function createCard(option: createCardOption): GameCard {
   if (cardsMap[option.type]) {
     return new cardsMap[option.type](option);
   } else {
-    return new UnknownCard(option.UI);
+    return new UnknownCard(option.gameObject);
   }
 }
 
-export function createUnknownCard(UI?): UnknownCard {
-  return new UnknownCard(UI);
+export function createUnknownCard(gameObject?): UnknownCard {
+  return new UnknownCard(gameObject);
 }

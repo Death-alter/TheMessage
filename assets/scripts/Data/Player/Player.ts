@@ -1,13 +1,13 @@
 import { Character } from "../Characters/Character";
 import { Identity } from "../Identity/Identity";
-import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
-import { PlayerUI } from "../../UI/Game/Player/PlayerUI";
+import { CharacterObject } from "../../GameObject/Character/CharacterObject";
+import { PlayerObject } from "../../GameObject/Player/PlayerObject";
 import { PlayerOption } from "./type";
-import { DataClass } from "../DataClass";
+import { DataBasic } from "../DataBasic";
 import { GameCard, CardUsage, CardStatus } from "../Cards/type";
 import { Card } from "../Cards/Card";
 
-export default class Player extends DataClass {
+export default class Player extends DataBasic<PlayerObject> {
   public static turnPlayerId: number;
 
   private _id: number;
@@ -18,22 +18,6 @@ export default class Player extends DataClass {
   private _handCards: GameCard[] = [];
   private _messages: Card[] = [];
   private _alive: boolean = true;
-  protected _UI: PlayerUI;
-
-  get UI() {
-    return this._UI;
-  }
-  set UI(UI: PlayerUI | null) {
-    if (UI === this._UI) return;
-    if (UI) {
-      this._UI = UI;
-      if (this._UI.player !== this) this._UI.player = this;
-    } else if (this._UI) {
-      const UI = this._UI;
-      this._UI = null;
-      UI.player = null;
-    }
-  }
 
   get id() {
     return this._id;
@@ -49,8 +33,8 @@ export default class Player extends DataClass {
   set character(character: Character) {
     if (!character || character === this._character) return;
     this._character = character;
-    if (this._UI) {
-      this.character.UI = this._UI.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterPanting);
+    if (this.gameObject) {
+      this.character.gameObject = this.gameObject.node.getChildByPath("Border/CharacterObject").getComponent(CharacterObject);
     }
   }
 
@@ -68,7 +52,7 @@ export default class Player extends DataClass {
   set seatNumber(number) {
     if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
-    this._UI.setSeat(number);
+    this.gameObject.setSeat(number);
   }
 
   get handCards() {
@@ -90,8 +74,8 @@ export default class Player extends DataClass {
     this._character = option.character;
     if (option.identity != null) {
     }
-    if (option.UI) {
-      this.UI = option.UI;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
     }
   }
 
@@ -101,7 +85,7 @@ export default class Player extends DataClass {
       cards = [cards];
     }
     this._handCards = [...this._handCards, ...cards];
-    this._UI.refreshHandCardCount();
+    this.gameObject.refreshHandCardCount();
   }
 
   //弃牌
@@ -118,14 +102,14 @@ export default class Player extends DataClass {
         }
       }
     }
-    this._UI.refreshHandCardCount();
+    this.gameObject.refreshHandCardCount();
     return arr;
   }
 
   //丢弃所有手牌
   disCardAllHandCards() {
     this._handCards = [];
-    this._UI.refreshHandCardCount();
+    this.gameObject.refreshHandCardCount();
   }
 
   //角色翻面
@@ -138,7 +122,7 @@ export default class Player extends DataClass {
     if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
     if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
     this._messages.push(message);
-    this._UI.refreshMessageCount();
+    this.gameObject.refreshMessageCount();
   }
 
   //从情报区移除情报
@@ -148,13 +132,13 @@ export default class Player extends DataClass {
         this._messages.splice(i, 1);
       }
     }
-    this._UI.refreshMessageCount();
+    this.gameObject.refreshMessageCount();
   }
 
   //移除所有情报
   removeAllMessage() {
     this._messages = [];
-    this._UI.refreshMessageCount();
+    this.gameObject.refreshMessageCount();
   }
 
   dead() {

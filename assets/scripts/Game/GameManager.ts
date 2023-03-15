@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout, tween, Vec3 } from "cc";
-import { SelectCharacter } from "../UI/Game/SelectCharacter/SelectCharacter";
+import { SelectCharacter } from "../gameObject/Game/SelectCharacter";
 import { GamePhase } from "./type";
 import {
   wait_for_select_role_toc,
@@ -44,15 +44,15 @@ import { IdentityType, SecretTaskType } from "../Data/Identity/type";
 import { CharacterStatus, CharacterType } from "../Data/Characters/type";
 import Player from "../Data/Player/Player";
 import { createCharacterById } from "../Data/Characters";
-import { PlayerUI } from "../UI/Game/Player/PlayerUI";
+import { PlayerUI } from "../GameObject/Player/PlayerObject";
 import { createCard, createUnknownCard } from "../Data/Cards";
 import { CardUsage } from "../Data/Cards/type";
-import { HandCardUI } from "../UI/Game/UIContainer/HandCardUI";
+import { HandCardUI } from "../GameObject/GameObjectContainer/HandCardContianer";
 import { ProgressControl } from "../Utils/ProgressControl";
-import { CardUI } from "../UI/Game/Card/CardUI";
+import { CardUI } from "../gameObject/Game/Card/CardUI";
 import { HandCardList } from "../Data/DataContainer/HandCardList";
 import { CardGroup } from "../Data/DataContainer/CardGroup";
-import { CardGroupNode } from "../UI/Game/UIContainer/CardGroupNode";
+import { CardGroupNode } from "../GameObject/GameObjectContainer/CardGroupNode";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
 import { ActionPlayer } from "./ActionPlayer";
 
@@ -173,21 +173,21 @@ export class GameManager extends Component {
         const progressStript = this.gameWindow.getChildByPath("Tooltip/Progress").getComponent(ProgressControl);
         progressStript.startCoundDown(data.waitingSecond);
       } else {
-        this.playerList[data.waitingPlayerId].UI.startCoundDown(data.waitingSecond);
+        this.playerList[data.waitingPlayerId].gameObject.startCoundDown(data.waitingSecond);
       }
       if (data.messagePlayerId) {
         this.sendMessage(this.playerList[data.waitingPlayerId], data.messageCard);
       }
       if (data.messageCard) {
         if (this._messageInTransmit instanceof UnknownCard) {
-          const position = this._messageInTransmit.UI.node.worldPosition;
-          this._messageInTransmit.UI.node.removeFromParent();
+          const position = this._messageInTransmit.gameObject.node.worldPosition;
+          this._messageInTransmit.gameObject.node.removeFromParent();
           const card = this.createMessage(data.messageCard) as Card;
           card.status = CardStatus.FACE_DOWN;
-          this._messageInTransmit.UI.card = card;
+          this._messageInTransmit.gameObject.card = card;
           this._messageInTransmit = card;
-          this._messageInTransmit.UI.node.setWorldPosition(position);
-          this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
+          this._messageInTransmit.gameObject.node.setWorldPosition(position);
+          this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
           this._messageInTransmit.flip();
         } else {
         }
@@ -219,7 +219,7 @@ export class GameManager extends Component {
     EventTarget.on(ProcessEvent.UPDATE_CHARACTER, (data: notify_role_update_toc) => {
       if (data.role) {
         if (this.playerList[data.playerId].character.id === 0) {
-          const ui = this.playerList[data.playerId].character.UI;
+          const ui = this.playerList[data.playerId].character.gameObject;
           const character = createCharacterById((<unknown>data.role) as CharacterType, ui);
           this.playerList[data.playerId].character = character;
         }
@@ -236,10 +236,10 @@ export class GameManager extends Component {
         for (let item of player.handCards) {
           if (item instanceof Card && item.id === data.cardId) {
             this._messageInTransmit = item;
-            this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
-            tween(this._messageInTransmit.UI.node)
+            this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
+            tween(this._messageInTransmit.gameObject.node)
               .to(0.8, {
-                worldPosition: player.UI.node.worldPosition,
+                worldPosition: player.gameObject.node.worldPosition,
                 scale: new Vec3(0.6, 0.6, 1),
               })
               .start();
@@ -349,7 +349,7 @@ export class GameManager extends Component {
       id: 0,
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
-      UI: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI),
+      gameObject: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerUI),
     });
     this.playerList.push(this.selfPlayer);
     this.identity = createIdentity(
@@ -384,19 +384,19 @@ export class GameManager extends Component {
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      this.playerList[i + 1].UI = player.getComponent(PlayerUI);
+      this.playerList[i + 1].gameObject = player.getComponent(PlayerUI);
     }
 
     this.rightPlayerNodeList.getComponent(Layout).updateLayout();
@@ -409,14 +409,14 @@ export class GameManager extends Component {
     this._cardGroupPool.push(new CardGroup(this.cardGroupNode.getComponent(CardGroupNode)));
     for (let i = 1; i < this.playerCount; i++) {
       const group = new CardGroup(instantiate(this.cardGroupNode).getComponent(CardGroupNode));
-      group.UI.node.setParent(this.actionPlayerNode);
+      group.gameObject.node.setParent(this.actionPlayerNode);
       this._cardGroupPool.push(group);
     }
   }
 
   getCardGroup() {
     for (let i = 0; i < this._cardGroupPool.length; i++) {
-      if (!(<CardGroupNode>this._cardGroupPool[i].UI).onAnimation) {
+      if (!(<CardGroupNode>this._cardGroupPool[i].gameObject).onAnimation) {
         this._cardGroupPool[i].removeAllData();
         return this._cardGroupPool[i];
       }
@@ -433,7 +433,7 @@ export class GameManager extends Component {
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
         const card = this.createHandCard();
-        card.UI.node.scale = new Vec3(0.6, 0.6, 1);
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         player.addCard(card);
         cardGroup.addData(card);
       }
@@ -441,17 +441,17 @@ export class GameManager extends Component {
     if (data.cards && data.cards.length) {
       for (let item of data.cards) {
         const card = this.createHandCard(item);
-        card.UI.node.scale = new Vec3(0.6, 0.6, 1);
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         player.addCard(card);
         cardGroup.addData(card);
       }
     }
 
     //抽卡动画
-    (<CardGroupNode>cardGroup.UI).move(this.deckNode.worldPosition, player.UI.node.worldPosition, () => {
+    (<CardGroupNode>cardGroup.gameObject).move(this.deckNode.worldPosition, player.gameObject.node.worldPosition, () => {
       if (data.playerId === 0) {
         for (let card of cardGroup.list) {
-          card.UI.node.scale = new Vec3(1, 1, 1);
+          card.gameObject.node.scale = new Vec3(1, 1, 1);
           this._handCardList.addData(card as Card);
         }
       }
@@ -465,8 +465,8 @@ export class GameManager extends Component {
       const cards = player.discardCard(cardIdList);
       if (data.playerId === 0) {
         cards.forEach((card) => {
-          card.UI.node.setParent(this.actionPlayerNode);
-          tween(card.UI.node)
+          card.gameObject.node.setParent(this.actionPlayerNode);
+          tween(card.gameObject.node)
             .to(
               0.6,
               {
@@ -475,7 +475,7 @@ export class GameManager extends Component {
               },
               {
                 onComplete: () => {
-                  card.UI = null;
+                  card.gameObject = null;
                 },
               }
             )
@@ -484,13 +484,13 @@ export class GameManager extends Component {
       } else {
         const cardGroup = this.getCardGroup();
         cards.forEach((card) => {
-          card.UI = instantiate(this.cardPrefab).getComponent(CardUI);
-          card.UI.node.scale = new Vec3(0.6, 0.6, 1);
+          card.gameObject = instantiate(this.cardPrefab).getComponent(CardUI);
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           cardGroup.addData(card);
         });
-        (<CardGroupNode>cardGroup.UI).move(player.UI.node.worldPosition, this.discardPileNode.worldPosition, () => {
+        (<CardGroupNode>cardGroup.gameObject).move(player.gameObject.node.worldPosition, this.discardPileNode.worldPosition, () => {
           cardGroup.list.forEach((item) => {
-            item.UI = null;
+            item.gameObject = null;
           });
         });
       }
@@ -502,25 +502,25 @@ export class GameManager extends Component {
   playCard(player, card) {}
 
   sendMessage(player: Player, card?: card) {
-    const panting = player.UI.node.getChildByPath("Border/CharacterPanting");
+    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
     if (!this._messageInTransmit) {
       this._messageInTransmit = this.createMessage();
-      this._messageInTransmit.UI.node.active = true;
-      this._messageInTransmit.UI.node.setParent(this.actionPlayerNode);
-      this._messageInTransmit.UI.node.setWorldPosition(panting.worldPosition);
-      this._messageInTransmit.UI.node.scale = new Vec3(0.6, 0.6, 1);
+      this._messageInTransmit.gameObject.node.active = true;
+      this._messageInTransmit.gameObject.node.setParent(this.actionPlayerNode);
+      this._messageInTransmit.gameObject.node.setWorldPosition(panting.worldPosition);
+      this._messageInTransmit.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     } else if (card && this._messageInTransmit instanceof UnknownCard) {
       console.log(1);
       const oldMessage = this._messageInTransmit;
       this._messageInTransmit = this.createMessage();
-      this._messageInTransmit.UI = oldMessage.UI;
-      tween(this._messageInTransmit.UI.node)
+      this._messageInTransmit.gameObject = oldMessage.gameObject;
+      tween(this._messageInTransmit.gameObject.node)
         .to(0.8, {
           worldPosition: panting.worldPosition,
         })
         .start();
     } else {
-      tween(this._messageInTransmit.UI.node)
+      tween(this._messageInTransmit.gameObject.node)
         .to(0.8, {
           worldPosition: panting.worldPosition,
         })
@@ -548,7 +548,7 @@ export class GameManager extends Component {
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.HAND_CARD,
         lockable: card.canLock,
-        UI: instantiate(this.cardPrefab).getComponent(CardUI),
+        gameObject: instantiate(this.cardPrefab).getComponent(CardUI),
       });
     } else {
       return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));
@@ -565,7 +565,7 @@ export class GameManager extends Component {
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.MESSAGE_CARD,
         lockable: card.canLock,
-        UI: instantiate(this.cardPrefab).getComponent(CardUI),
+        gameObject: instantiate(this.cardPrefab).getComponent(CardUI),
       });
     } else {
       return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardUI));

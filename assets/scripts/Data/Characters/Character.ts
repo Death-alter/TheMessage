@@ -1,15 +1,17 @@
 import { Skill } from "../Skills/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
-import { CharacterPanting } from "../../UI/Game/Character/CharacterPanting";
-import { DataClass } from "../DataClass";
-export class Character extends DataClass {
+import { CharacterObject } from "../../GameObject/Character/CharacterObject";
+import { DataBasic } from "../DataBasic";
+
+export class Character extends DataBasic<CharacterObject> {
   protected _id: number;
   protected _name: string;
   protected _sprite: string;
   protected _status: CharacterStatus;
   protected _sex: Sex;
   protected _skills: Skill[];
-  protected _UI: CharacterPanting;
+
+  public static readonly backSprite: string = "images/characters/Unknown";
 
   get status() {
     return this._status;
@@ -17,11 +19,11 @@ export class Character extends DataClass {
   set status(status: CharacterStatus) {
     if (status == null || status === this._status) return;
     this._status = status;
-    if (this._UI) {
+    if (this.gameObject) {
       if (this.status === CharacterStatus.FACE_DOWN) {
-        this._UI.showCover();
+        this.gameObject.showCover();
       } else {
-        this._UI.hideCover();
+        this.gameObject.hideCover();
       }
     }
     // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
@@ -43,21 +45,6 @@ export class Character extends DataClass {
     return this._sex;
   }
 
-  get UI() {
-    return this._UI;
-  }
-  set UI(UI: CharacterPanting | null) {
-    if (UI === this._UI) return;
-    if (UI) {
-      this._UI = UI;
-      if (this._UI.character !== this) this._UI.character = this;
-    } else if (this._UI) {
-      const UI = this._UI;
-      this._UI = null;
-      UI.character = null;
-    }
-  }
-
   constructor(option: CharacterOptions) {
     super();
     this._id = option.id;
@@ -66,8 +53,8 @@ export class Character extends DataClass {
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._sex = option.sex;
     this._skills = option.skills;
-    if (option.UI) {
-      this.UI = option.UI;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
     }
   }
 
