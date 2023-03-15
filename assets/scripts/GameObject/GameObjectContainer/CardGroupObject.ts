@@ -6,9 +6,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupObject")
 export class CardGroupObject extends GameObjectContainer<CardObject, GameCard> {
-  init() {
-    this.node.active = false;
-  }
+  init() {}
 
   onDataAdded(data: GameCard): void {}
 

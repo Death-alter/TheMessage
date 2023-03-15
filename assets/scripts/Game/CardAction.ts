@@ -35,7 +35,6 @@ export class CardAction extends Component {
     }
     this.node.addChild(cardGroup.gameObject.node);
     cardGroup.gameObject.node.worldPosition = this.deckNode.worldPosition;
-    cardGroup.gameObject.node.active = true;
     tween(cardGroup.gameObject.node)
       .to(0.6, { worldPosition: player.gameObject.node.worldPosition })
       .call(() => {
@@ -78,7 +77,6 @@ export class CardAction extends Component {
         cardGroup.addData(card);
       });
       cardGroup.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
-      cardGroup.gameObject.node.active = true;
       tween(cardGroup.gameObject.node)
         .to(0.6, { worldPosition: this.discardPileNode.worldPosition })
         .call(() => {

@@ -51,7 +51,6 @@ import { HandCardContianer } from "../GameObject/GameObjectContainer/HandCardCon
 import { ProgressControl } from "../UI/Game/ProgressControl";
 import { CardObject } from "../GameObject/Card/CardObject";
 import { HandCardList } from "../Data/DataContainer/HandCardList";
-import { CardGroup } from "../Data/DataContainer/CardGroup";
 import { CardGroupObject } from "../GameObject/GameObjectContainer/CardGroupObject";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
 import GamePools from "./GamePools";
