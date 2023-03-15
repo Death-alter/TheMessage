@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Tween, Node, Vec3, TweenEasing, ITweenOption, game } from "cc";
+import { _decorator, Component, tween, Node, Vec3 } from "cc";
 import { Card } from "../Data/Cards/Card";
 import { Player } from "../Data/Player/Player";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
@@ -20,12 +20,12 @@ export class CardAction extends Component {
 
   //播放动画
   playAction(actionName: string) {
-    if (this[actionName] instanceof Function) {
+    if (this[actionName] && this[actionName] instanceof Function) {
       this[actionName]();
     }
   }
 
-  //抽卡动画
+  //抽牌动画
   drawCards(player: Player, cardList: GameCard[]) {
     const cardGroup = new DataContainer<GameCard, CardObject>();
     cardGroup.gameObject = GamePools.cardGroupPool.get();
@@ -89,7 +89,7 @@ export class CardAction extends Component {
     }
   }
 
-  //打出卡牌动画
+  //打出卡牌动画，播放声音
   useCard(user: Player, target: Player, card: Card) {}
 
   //传递情报动画
