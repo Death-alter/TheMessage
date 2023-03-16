@@ -1,4 +1,4 @@
-export enum GamePhase {
+export const enum GamePhase {
   DRAW_PHASE = 0, // 摸牌阶段
   MAIN_PHASE = 1, // 出牌阶段
   SEND_PHASE_START = 2, // 情报传递阶段开始时

@@ -4,8 +4,8 @@ import { CharacterObject } from "../../GameObject/Character/CharacterObject";
 import { PlayerObject } from "../../GameObject/Player/PlayerObject";
 import { PlayerOption } from "./type";
 import { DataBasic } from "../DataBasic";
-import { GameCard, CardUsage, CardStatus } from "../Cards/type";
-import { Card } from "../Cards/Card";
+import { GameCard, CardUsage, CardStatus, CardColor } from "../Cards/type";
+import { Card, UnknownCard } from "../Cards/Card";
 
 export class Player extends DataBasic<PlayerObject> {
   public static turnPlayerId: number;
@@ -57,12 +57,28 @@ export class Player extends DataBasic<PlayerObject> {
     this.gameObject.setSeat(number);
   }
 
-  get handCards() {
-    return this._handCards;
+  get handCardCount() {
+    return this._handCards.length;
   }
 
-  get messages() {
-    return this._messages;
+  get messageCounts() {
+    const data = { black: 0, red: 0, blue: 0 };
+    for (let message of this._messages) {
+      for (let color of message.color) {
+        switch (color) {
+          case CardColor.BLACK:
+            ++data.black;
+            break;
+          case CardColor.RED:
+            ++data.red;
+            break;
+          case CardColor.BLUE:
+            ++data.blue;
+            break;
+        }
+      }
+    }
+    return data;
   }
 
   get alive() {
@@ -88,17 +104,28 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  removeHandCard(cardIds: number | number[]): GameCard[] {
+  removeHandCard(cardIds: number | number[] | null, num?: number): GameCard[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }
     const arr = [];
-    for (let cardId of cardIds) {
-      for (let i = 0; i < this._handCards.length; i++) {
-        if (cardId === (<Card>this._handCards[i]).id) {
-          arr.push(this._handCards.splice(i, 1)[0]);
-          break;
+    if (cardIds !== null) {
+      for (let cardId of cardIds) {
+        for (let i = 0; i < this._handCards.length; i++) {
+          if (cardId === (<Card>this._handCards[i]).id) {
+            arr.push(this._handCards.splice(i, 1)[0]);
+            break;
+          }
         }
+      }
+    } else if (num) {
+      let i = 0;
+      while (num > 0) {
+        if (this._handCards[i] instanceof UnknownCard) {
+          arr.push(this._handCards.splice(i, 1)[0]);
+          --num;
+        }
+        ++i;
       }
     }
     this.gameObject.refreshHandCardCount();

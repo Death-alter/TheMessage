@@ -45,6 +45,10 @@ export class Character extends DataBasic<CharacterObject> {
     return this._sex;
   }
 
+  get skills() {
+    return this._skills;
+  }
+
   constructor(option: CharacterOptions) {
     super(option.gameObject);
     this._id = option.id;

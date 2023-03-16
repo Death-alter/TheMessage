@@ -1,19 +1,19 @@
 import { CardObject } from "../../GameObject/Card/CardObject";
 import { Card, UnknownCard } from "./Card";
 
-export enum CardStatus {
+export const enum CardStatus {
   FACE_DOWN = 0,
   FACE_UP = 1,
 }
 
-export enum CardUsage {
+export const enum CardUsage {
   UNKNOWN = 0,
   FUNCTION_CARD = 1,
   MESSAGE_CARD = 2,
   HAND_CARD = 3,
 }
 
-export enum CardType {
+export const enum CardType {
   UNKNOWN = -1, //未知卡牌
   CHENG_QING = 0, // 澄清
   SHI_TAN = 1, // 试探
@@ -27,13 +27,13 @@ export enum CardType {
   FENG_YUN_BIAN_HUAN = 9, // 风云变幻
 }
 
-export enum CardColor {
+export const enum CardColor {
   BLACK = 0,
   RED = 1,
   BLUE = 2,
 }
 
-export enum CardDirection {
+export const enum CardDirection {
   UP = 0,
   LEFT = 1,
   RIGHT = 2,

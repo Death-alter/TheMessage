@@ -55,6 +55,8 @@ import { CardGroupObject } from "../GameObject/GameObjectContainer/CardGroupObje
 import { DataContainer } from "../Data/DataContainer/DataContainer";
 import GamePools from "./GamePools";
 import { CardAction } from "./CardAction";
+import { SkillType } from "../Data/Skills/type";
+import { ActiveSkill } from "../Data/Skills/Skill";
 
 const { ccclass, property } = _decorator;
 
@@ -102,6 +104,7 @@ export class GameManager extends Component {
   private _banishCards: Card[] = [];
   private _seq: number;
   private _handCardList: DataContainer<Card, CardObject>;
+  private _toolTip: Label;
 
   get gamePhase() {
     return this._gamePhase;
@@ -109,7 +112,7 @@ export class GameManager extends Component {
   set gamePhase(phase: GamePhase) {
     if (phase == null || phase !== this._gamePhase) return;
     this._gamePhase = phase;
-    EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, phase);
+    EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, { phase, playerId: this.turnPlayerId });
   }
 
   get turnPlayerId() {
@@ -138,6 +141,7 @@ export class GameManager extends Component {
       cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
     });
     this.cardAction = this.cardActionNode.getComponent(CardAction);
+    this._toolTip = this.node.getChildByPath("GameUI/Tooltip/Label").getComponent(Label);
   }
 
   onEnable() {
@@ -185,21 +189,13 @@ export class GameManager extends Component {
         this.playerList[data.waitingPlayerId].gameObject.startCoundDown(data.waitingSecond);
       }
       if (data.messagePlayerId) {
-        this.sendMessage(this.playerList[data.waitingPlayerId], data.messageCard);
+        this.cardAction.transmitMessage(this.playerList[data.messagePlayerId]);
       }
-      if (data.messageCard) {
-        if (this._messageInTransmit instanceof UnknownCard) {
-          const position = this._messageInTransmit.gameObject.node.worldPosition;
-          this._messageInTransmit.gameObject.node.removeFromParent();
-          const card = this.createMessage(data.messageCard) as Card;
-          card.status = CardStatus.FACE_DOWN;
-          this._messageInTransmit.gameObject.data = card;
-          this._messageInTransmit = card;
-          this._messageInTransmit.gameObject.node.setWorldPosition(position);
-          this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
-          this._messageInTransmit.flip();
-        } else {
-        }
+      if (data.messageCard && this._messageInTransmit.id !== data.messageCard.cardId) {
+        const card = this.createMessage(data.messageCard) as Card;
+        card.gameObject = this._messageInTransmit.gameObject;
+        this._messageInTransmit = card;
+        this.cardAction.turnOverMessage();
       }
 
       if (data.seq) this._seq = data.seq;
@@ -241,22 +237,9 @@ export class GameManager extends Component {
     //有人传出情报
     EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {
       const player = this.playerList[data.senderId || data.playerId];
-      if (data.cardId) {
-        for (let item of player.handCards) {
-          if (item instanceof Card && item.id === data.cardId) {
-            this._messageInTransmit = item;
-            this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
-            tween(this._messageInTransmit.gameObject.node)
-              .to(0.8, {
-                worldPosition: player.gameObject.node.worldPosition,
-                scale: new Vec3(0.6, 0.6, 1),
-              })
-              .start();
-          }
-        }
-      } else {
-        this.sendMessage(player);
-      }
+      const card = player.removeHandCard(data.cardId, 1);
+      this._messageInTransmit = card[0];
+      this.cardAction.seedMessage(player, this._messageInTransmit);
     });
 
     //有人选择接收情报
@@ -366,6 +349,27 @@ export class GameManager extends Component {
       (<unknown>data.secretTask) as SecretTaskType
     );
 
+    //加载技能
+    for (let skill of this.selfPlayer.character.skills) {
+      if (skill instanceof ActiveSkill) {
+        //创建skillButton
+
+        EventTarget.on(GameEvent.GAME_PHASE_CHANGE, ({ phase, playerId }) => {
+          if ((<ActiveSkill>skill).enabled(playerId, phase)) {
+          } else {
+          }
+        });
+
+        // for (let event of skill.triggerEvent) {
+        //   EventTarget.on(event, () => {
+        //     //提示可以使用技能
+        //   });
+        // }
+      } else {
+        //被动技能
+      }
+    }
+
     //隐藏人物进度条
     this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
 
@@ -449,32 +453,6 @@ export class GameManager extends Component {
 
   playCard(player, card) {}
 
-  sendMessage(player: Player, card?: card) {
-    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
-    if (!this._messageInTransmit) {
-      this._messageInTransmit = this.createMessage();
-      this._messageInTransmit.gameObject.node.active = true;
-      this._messageInTransmit.gameObject.node.setParent(this.cardActionNode);
-      this._messageInTransmit.gameObject.node.setWorldPosition(panting.worldPosition);
-      this._messageInTransmit.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-    } else if (card && this._messageInTransmit instanceof UnknownCard) {
-      const oldMessage = this._messageInTransmit;
-      this._messageInTransmit = this.createMessage();
-      (<Card>this._messageInTransmit).gameObject = oldMessage.gameObject;
-      tween(this._messageInTransmit.gameObject.node)
-        .to(0.8, {
-          worldPosition: panting.worldPosition,
-        })
-        .start();
-    } else {
-      tween(this._messageInTransmit.gameObject.node)
-        .to(0.8, {
-          worldPosition: panting.worldPosition,
-        })
-        .start();
-    }
-  }
-
   setPlayerSeats(fistPlayerId: number) {
     let i = fistPlayerId;
     let j = 0;
@@ -511,6 +489,7 @@ export class GameManager extends Component {
         direction: (<unknown>card.cardDir) as CardDirection,
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.MESSAGE_CARD,
+        status: CardStatus.FACE_DOWN,
         lockable: card.canLock,
         gameObject: instantiate(this.cardPrefab).getComponent(CardObject),
       });

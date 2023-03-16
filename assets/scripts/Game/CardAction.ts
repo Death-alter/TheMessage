@@ -1,8 +1,8 @@
 import { _decorator, Component, tween, Node, Vec3 } from "cc";
-import { Card } from "../Data/Cards/Card";
+import { Card, UnknownCard } from "../Data/Cards/Card";
 import { Player } from "../Data/Player/Player";
 import { DataContainer } from "../Data/DataContainer/DataContainer";
-import { GameCard } from "../Data/Cards/type";
+import { CardStatus, GameCard } from "../Data/Cards/type";
 import { CardObject } from "../GameObject/Card/CardObject";
 import { HandCardContianer } from "../GameObject/GameObjectContainer/HandCardContianer";
 import GamePools from "./GamePools";
@@ -17,6 +17,8 @@ export class CardAction extends Component {
   discardPileNode: Node | null = null;
   @property(Node)
   handCardNode: Node | null = null;
+
+  private _messageInTransmit: GameCard | null = null;
 
   //播放动画
   playAction(actionName: string) {
@@ -92,8 +94,65 @@ export class CardAction extends Component {
   //打出卡牌动画，播放声音
   useCard(user: Player, target: Player, card: Card) {}
 
-  //传递情报动画
-  seedMessage() {}
+  //开始传递情报动画
+  seedMessage(player: Player, message: GameCard) {
+    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
+    message.gameObject.node.setParent(this.node);
+    this._messageInTransmit = message;
+    if (player.id === 0) {
+      tween(message.gameObject.node)
+        .to(0.8, {
+          worldPosition: panting.worldPosition,
+          scale: new Vec3(0.6, 0.6, 1),
+        })
+        .start();
+    } else {
+      message.gameObject.node.worldPosition = panting.worldPosition;
+      message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+    }
+  }
 
-  //
+  //传递情报动画
+  transmitMessage(player: Player) {
+    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
+    tween(this._messageInTransmit.gameObject.node)
+      .to(0.8, {
+        worldPosition: panting.worldPosition,
+        scale: new Vec3(0, 0, 1),
+      })
+      .start();
+  }
+
+  //翻开情报动画
+  turnOverMessage(message?: Card) {
+    if (this._messageInTransmit instanceof Card) {
+      return this._messageInTransmit.flip();
+    } else {
+      message.gameObject.node.worldPosition = this._messageInTransmit.gameObject.node.worldPosition;
+      this._messageInTransmit = message;
+      return message.flip();
+    }
+  }
+
+  //接收情报动画
+  async receiveMessage(player: Player) {
+    if (this._messageInTransmit instanceof UnknownCard) {
+      console.log(new Error("情报还未翻开"));
+      return;
+    }
+    const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
+    if (this._messageInTransmit.status === CardStatus.FACE_DOWN) {
+      await this.turnOverMessage(<Card>this._messageInTransmit);
+    }
+    tween(this._messageInTransmit.gameObject.node)
+      .to(0.5, {
+        worldPosition: messageContainer.worldPosition,
+        scale: new Vec3(0, 0, 1),
+      })
+      .call(() => {
+        GamePools.cardPool.put(this._messageInTransmit.gameObject);
+        this._messageInTransmit.gameObject = null;
+      })
+      .start();
+  }
 }

@@ -1,7 +1,7 @@
 import { CharacterObject } from "../../GameObject/Character/CharacterObject";
 import { Skill } from "../Skills/Skill";
 
-export enum CharacterType {
+export const enum CharacterType {
   UNKNOWN = 0, // 未知角色
   WU_ZHI_GUO = 1, // 吴志国
   CHENG_XIAO_DIE = 2, // 程小蝶
@@ -37,12 +37,12 @@ export enum CharacterType {
   SP_LI_NING_YU = 1028, // SP李宁玉
 }
 
-export enum CharacterStatus {
+export const enum CharacterStatus {
   FACE_DOWN = 0,
   FACE_UP = 1,
 }
 
-export enum Sex {
+export const enum Sex {
   MALE = 0,
   FAMALE = 1,
   UNKNOWN = 2,

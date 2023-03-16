@@ -93,11 +93,12 @@ export class Card extends DataBasic<CardObject> {
     } else {
       this.status = CardStatus.FACE_UP;
     }
-    this.gameObject.flip();
+    return this.gameObject.flip();
   }
 }
 
 export class UnknownCard extends DataBasic<CardObject> {
+  public readonly id: number = -1;
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
 

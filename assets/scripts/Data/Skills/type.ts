@@ -1,17 +1,22 @@
+import { GameEvent } from "../../Event/type";
 import { Character } from "../Characters/Character";
 
-export enum SkillType {
+export const enum SkillType {
   PASSIVE = 0,
   ACTIVE = 1,
   TRIGGERING = 2,
 }
 
 export interface SkillOption {
+  name: string;
   character: Character;
-  type: SkillType;
+  description: string;
+  type?: SkillType;
 }
 
 export interface TriggeringSkillOption {
+  name: string;
   character: Character;
-  triggerEvent: string;
+  description: string;
+  triggerEvent: GameEvent[];
 }

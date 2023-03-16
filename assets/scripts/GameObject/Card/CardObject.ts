@@ -91,8 +91,12 @@ export class CardObject extends GameObject<GameCard> {
     if (!this.data || this.data instanceof UnknownCard) {
       return;
     } else {
-      this.data.flip();
-      this._animationComponent.play();
+      return new Promise((reslove, reject) => {
+        this._animationComponent.once(Animation.EventType.FINISHED, () => {
+          reslove(null);
+        });
+        this._animationComponent.play();
+      });
     }
   }
 
