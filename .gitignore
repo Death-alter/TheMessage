@@ -16,7 +16,8 @@ node_modules/
 #//////////////////////////
 # Protobuf
 #//////////////////////////
-assets/Protobuf/*
+assets/protobuf/proto.d.ts
+assets/protobuf/proto.js
 
 #//////////////////////////
 # VSCode
