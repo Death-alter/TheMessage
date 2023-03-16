@@ -31,12 +31,14 @@ export class CardAction extends Component {
   drawCards(player: Player, cardList: GameCard[]) {
     const cardGroup = new DataContainer<GameCard, CardObject>();
     cardGroup.gameObject = GamePools.cardGroupPool.get();
+    cardGroup.removeAllData();
     for (let card of cardList) {
       (<Card>card).gameObject = GamePools.cardPool.get();
       cardGroup.addData(card);
     }
     this.node.addChild(cardGroup.gameObject.node);
     cardGroup.gameObject.node.worldPosition = this.deckNode.worldPosition;
+
     tween(cardGroup.gameObject.node)
       .to(0.6, { worldPosition: player.gameObject.node.worldPosition })
       .call(() => {
@@ -49,6 +51,7 @@ export class CardAction extends Component {
             card.gameObject = null;
           }
         }
+        cardGroup.removeAllData();
         GamePools.cardGroupPool.put(cardGroup.gameObject);
       })
       .start();
@@ -82,10 +85,12 @@ export class CardAction extends Component {
       tween(cardGroup.gameObject.node)
         .to(0.6, { worldPosition: this.discardPileNode.worldPosition })
         .call(() => {
+          console.log(cardGroup.list);
           for (let card of cardGroup.list) {
             GamePools.cardPool.put(card.gameObject);
             card.gameObject = null;
           }
+          cardGroup.removeAllData();
           GamePools.cardGroupPool.put(cardGroup.gameObject);
         });
     }
@@ -96,7 +101,10 @@ export class CardAction extends Component {
 
   //开始传递情报动画
   seedMessage(player: Player, message: GameCard) {
-    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
+    const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
+    if (message instanceof UnknownCard) {
+      message.gameObject = GamePools.cardPool.get();
+    }
     message.gameObject.node.setParent(this.node);
     this._messageInTransmit = message;
     if (player.id === 0) {
@@ -114,11 +122,10 @@ export class CardAction extends Component {
 
   //传递情报动画
   transmitMessage(player: Player) {
-    const panting = player.gameObject.node.getChildByPath("Border/CharacterObject");
+    const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
     tween(this._messageInTransmit.gameObject.node)
       .to(0.8, {
         worldPosition: panting.worldPosition,
-        scale: new Vec3(0, 0, 1),
       })
       .start();
   }
@@ -128,6 +135,8 @@ export class CardAction extends Component {
     if (this._messageInTransmit instanceof Card) {
       return this._messageInTransmit.flip();
     } else {
+      message.gameObject = this._messageInTransmit.gameObject;
+      message.gameObject.node.scale = this._messageInTransmit.gameObject.node.scale;
       message.gameObject.node.worldPosition = this._messageInTransmit.gameObject.node.worldPosition;
       this._messageInTransmit = message;
       return message.flip();

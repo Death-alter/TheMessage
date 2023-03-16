@@ -20,7 +20,7 @@ export class Character extends DataBasic<CharacterObject> {
     if (status == null || status === this._status) return;
     this._status = status;
     if (this.gameObject) {
-      if (this.status === CharacterStatus.FACE_DOWN) {
+      if (this._status === CharacterStatus.FACE_DOWN) {
         this.gameObject.showCover();
       } else {
         this.gameObject.hideCover();
@@ -50,13 +50,16 @@ export class Character extends DataBasic<CharacterObject> {
   }
 
   constructor(option: CharacterOptions) {
-    super(option.gameObject);
+    super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._sex = option.sex;
     this._skills = option.skills;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
+    }
   }
 
   //翻面

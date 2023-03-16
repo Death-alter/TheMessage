@@ -24,12 +24,13 @@ export class ObjectPool<T extends GameObject<any>> {
   }
 
   put(gameObject: T) {
-    this.pool.put(gameObject.node);
+    if (gameObject) {
+      this.pool.put(gameObject.node);
+    }
   }
 
   create() {
     const newObject = instantiate(this.template.node);
-    this.pool.put(newObject);
     return newObject.getComponent(GameObject) as T;
   }
 

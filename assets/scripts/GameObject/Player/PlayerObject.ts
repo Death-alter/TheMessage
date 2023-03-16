@@ -1,6 +1,6 @@
 import { _decorator, Label, Node } from "cc";
 import { CharacterObject } from "../Character/CharacterObject";
-import Player from "../../Data/Player/Player";
+import { Player } from "../../Data/Player/Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
 import { GameObject } from "../GameObject";
 
@@ -17,21 +17,15 @@ export class PlayerObject extends GameObject<Player> {
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 
-  set data(data: Player) {
-    if (data === this._data) return;
-    if (data) {
-      if (data.gameObject === this) {
-        data.gameObject.data = null;
-      }
-      if (this._data.gameObject !== this) this._data.gameObject = this;
-      this._data = data;
+  get data() {
+    return this._data;
+  }
 
+  set data(data: Player) {
+    super.data = data;
+    if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
-    } else if (this._data) {
-      const data = this._data;
-      this._data = null;
-      data.gameObject = null;
     }
   }
 
@@ -55,19 +49,14 @@ export class PlayerObject extends GameObject<Player> {
 
   //刷新手牌数量
   refreshHandCardCount() {
-    this.messageCounts.getChildByPath("HandCard/Label").getComponent(Label).string =
-      this.data.handCards.length.toString();
+    this.messageCounts.getChildByPath("HandCard/Label").getComponent(Label).string = this.data.handCardCount.toString();
   }
 
   refreshMessageCount() {
-    const arr = [0, 0, 0];
-    for (let item of this.data.messages) {
-      for (let color of item.color) {
-        ++arr[color];
-      }
-    }
-    this.messageCounts.getChildByPath("Black/Label").getComponent(Label).string = arr[0].toString();
-    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = arr[1].toString();
-    this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string = arr[2].toString();
+    this.messageCounts.getChildByPath("Black/Label").getComponent(Label).string =
+      this.data.messageCounts.black.toString();
+    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts.red.toString();
+    this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string =
+      this.data.messageCounts.blue.toString();
   }
 }

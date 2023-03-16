@@ -3,6 +3,7 @@ import EventTarget from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
 import { DataBasic } from "../DataBasic";
 import { CardObject } from "../../GameObject/Card/CardObject";
+import { Vec3 } from "cc";
 
 export class Card extends DataBasic<CardObject> {
   protected _id: number;
@@ -64,7 +65,7 @@ export class Card extends DataBasic<CardObject> {
   }
 
   constructor(option: CardOption) {
-    super(option.gameObject);
+    super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
@@ -74,6 +75,9 @@ export class Card extends DataBasic<CardObject> {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
+    }
   }
 
   //当做功能牌打出
@@ -98,11 +102,14 @@ export class Card extends DataBasic<CardObject> {
 }
 
 export class UnknownCard extends DataBasic<CardObject> {
-  public readonly id: number = -1;
+  public readonly id: number = 0;
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
 
   constructor(gameObject?: CardObject) {
-    super(gameObject);
+    super();
+    if (gameObject) {
+      this.gameObject = gameObject;
+    }
   }
 }

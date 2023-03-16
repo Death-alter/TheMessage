@@ -35,7 +35,7 @@ export class Player extends DataBasic<PlayerObject> {
     this._character = character;
     if (this.gameObject) {
       this.character.gameObject = this.gameObject.node
-        .getChildByPath("Border/CharacterObject")
+        .getChildByPath("Border/CharacterPanting")
         .getComponent(CharacterObject);
     }
   }
@@ -86,11 +86,14 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   constructor(option: PlayerOption) {
-    super(option.gameObject);
+    super();
     this._id = option.id;
     this._name = option.name;
-    this._character = option.character;
+    this.character = option.character;
     if (option.identity != null) {
+    }
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
     }
   }
 
@@ -104,12 +107,12 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  removeHandCard(cardIds: number | number[] | null, num?: number): GameCard[] {
+  removeHandCard(cardIds: number | number[] | null): GameCard[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }
     const arr = [];
-    if (cardIds !== null) {
+    if (cardIds) {
       for (let cardId of cardIds) {
         for (let i = 0; i < this._handCards.length; i++) {
           if (cardId === (<Card>this._handCards[i]).id) {
@@ -117,15 +120,6 @@ export class Player extends DataBasic<PlayerObject> {
             break;
           }
         }
-      }
-    } else if (num) {
-      let i = 0;
-      while (num > 0) {
-        if (this._handCards[i] instanceof UnknownCard) {
-          arr.push(this._handCards.splice(i, 1)[0]);
-          --num;
-        }
-        ++i;
       }
     }
     this.gameObject.refreshHandCardCount();

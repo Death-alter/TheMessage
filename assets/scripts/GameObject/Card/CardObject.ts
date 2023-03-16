@@ -16,6 +16,17 @@ export class CardObject extends GameObject<GameCard> {
 
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
 
+  get data() {
+    return this._data;
+  }
+
+  set data(data: GameCard) {
+    super.data = data;
+    if (data) {
+      this.refresh(data);
+    }
+  }
+
   get selected() {
     return this._selected;
   }
@@ -31,7 +42,7 @@ export class CardObject extends GameObject<GameCard> {
   }
 
   start() {
-    this._animationComponent = this.node.getComponent(Animation);
+    this._animationComponent = this.node.getChildByName("Inner").getComponent(Animation);
     if (this._animationComponent && this._animationComponent.defaultClip) {
       const { defaultClip } = this._animationComponent;
       defaultClip.events.push({
@@ -53,7 +64,7 @@ export class CardObject extends GameObject<GameCard> {
   }
 
   refresh(card: GameCard) {
-    const sprite = this.node.getChildByName("Panting").getComponent(Sprite);
+    const sprite = this.node.getChildByPath("Inner/Panting").getComponent(Sprite);
     if (card instanceof UnknownCard) {
       this.detailNode.active = false;
       resources.load(card.backSprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
@@ -102,7 +113,7 @@ export class CardObject extends GameObject<GameCard> {
 
   changeCardSprite() {
     if (this.data instanceof UnknownCard) return;
-    const sprite = this.node.getChildByName("Panting").getComponent(Sprite);
+    const sprite = this.node.getChildByPath("Inner/Panting").getComponent(Sprite);
     if (this.data.status === CardStatus.FACE_DOWN) {
       resources.load(Card.backSprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;

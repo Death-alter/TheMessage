@@ -167,6 +167,7 @@ export class GameManager extends Component {
       this.selectCharacterWindow.getComponent(SelectCharacter).hide();
       this.gameWindow.active = true;
       this.init(data);
+      this.handCardUI.getComponent(HandCardContianer).init();
 
       //预加载卡图
       resources.preloadDir("images/cards");
@@ -195,7 +196,7 @@ export class GameManager extends Component {
         const card = this.createMessage(data.messageCard) as Card;
         card.gameObject = this._messageInTransmit.gameObject;
         this._messageInTransmit = card;
-        this.cardAction.turnOverMessage();
+        this.cardAction.turnOverMessage(card);
       }
 
       if (data.seq) this._seq = data.seq;
@@ -237,7 +238,7 @@ export class GameManager extends Component {
     //有人传出情报
     EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {
       const player = this.playerList[data.senderId || data.playerId];
-      const card = player.removeHandCard(data.cardId, 1);
+      const card = player.removeHandCard(data.cardId);
       this._messageInTransmit = card[0];
       this.cardAction.seedMessage(player, this._messageInTransmit);
     });
@@ -337,11 +338,12 @@ export class GameManager extends Component {
     this.playerList = [];
 
     //创建自己
+    const selfNode = this.gameWindow.getChildByPath("Self/Player");
     this.selfPlayer = new Player({
       id: 0,
       name: data.names[0],
       character: createCharacterById((<unknown>data.roles[0]) as CharacterType),
-      gameObject: this.gameWindow.getChildByPath("Self/Player").getComponent(PlayerObject),
+      gameObject: selfNode.getComponent(PlayerObject),
     });
     this.playerList.push(this.selfPlayer);
     this.identity = createIdentity(
@@ -350,25 +352,25 @@ export class GameManager extends Component {
     );
 
     //加载技能
-    for (let skill of this.selfPlayer.character.skills) {
-      if (skill instanceof ActiveSkill) {
-        //创建skillButton
+    // for (let skill of this.selfPlayer.character.skills) {
+    //   if (skill instanceof ActiveSkill) {
+    //     //创建skillButton
 
-        EventTarget.on(GameEvent.GAME_PHASE_CHANGE, ({ phase, playerId }) => {
-          if ((<ActiveSkill>skill).enabled(playerId, phase)) {
-          } else {
-          }
-        });
+    //     EventTarget.on(GameEvent.GAME_PHASE_CHANGE, ({ phase, playerId }) => {
+    //       if ((<ActiveSkill>skill).enabled(playerId, phase)) {
+    //       } else {
+    //       }
+    //     });
 
-        // for (let event of skill.triggerEvent) {
-        //   EventTarget.on(event, () => {
-        //     //提示可以使用技能
-        //   });
-        // }
-      } else {
-        //被动技能
-      }
-    }
+    //     // for (let event of skill.triggerEvent) {
+    //     //   EventTarget.on(event, () => {
+    //     //     //提示可以使用技能
+    //     //   });
+    //     // }
+    //   } else {
+    //     //被动技能
+    //   }
+    // }
 
     //隐藏人物进度条
     this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
@@ -432,7 +434,6 @@ export class GameManager extends Component {
         cardList.push(card);
       }
     }
-
     player.addHandCard(cardList);
     //抽卡动画
     this.cardAction.drawCards(player, cardList);
@@ -473,10 +474,10 @@ export class GameManager extends Component {
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
         usage: CardUsage.HAND_CARD,
         lockable: card.canLock,
-        gameObject: instantiate(this.cardPrefab).getComponent(CardObject),
+        gameObject: GamePools.cardPool.get(),
       });
     } else {
-      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardObject));
+      return createUnknownCard(GamePools.cardPool.get());
     }
   }
 
@@ -491,10 +492,10 @@ export class GameManager extends Component {
         usage: CardUsage.MESSAGE_CARD,
         status: CardStatus.FACE_DOWN,
         lockable: card.canLock,
-        gameObject: instantiate(this.cardPrefab).getComponent(CardObject),
+        gameObject: GamePools.cardPool.get(),
       });
     } else {
-      return createUnknownCard(instantiate(this.cardPrefab).getComponent(CardObject));
+      return createUnknownCard(GamePools.cardPool.get());
     }
   }
 }

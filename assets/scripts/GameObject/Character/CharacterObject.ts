@@ -1,32 +1,27 @@
-import { _decorator, Component, Sprite, Label, resources, SpriteFrame } from "cc";
+import { _decorator, Sprite, Label, resources, SpriteFrame } from "cc";
 import { Character } from "../../Data/Characters/Character";
-import { CharacterStatus } from "../../Data/Characters/type";
 import { GameObject } from "../GameObject";
-const { ccclass, property } = _decorator;
+import { CharacterStatus } from "../../Data/Characters/type";
+const { ccclass } = _decorator;
 
 @ccclass("CharacterObject")
 export class CharacterObject extends GameObject<Character> {
   private sprite: Sprite = null;
 
+  get data() {
+    return this._data;
+  }
+
   set data(data: Character) {
-    if (data === this._data) return;
+    super.data = data;
     if (data) {
-      if (data.gameObject === this) {
-        data.gameObject.data = null;
+      if (data.status === CharacterStatus.FACE_DOWN) {
+        this.showCover();
+      } else {
+        this.hideCover();
       }
-      if (this._data.gameObject !== this) this._data.gameObject = this;
-      this._data = data;
       this.releaseSprite();
       this.loadSprite();
-      if (data.status === CharacterStatus.FACE_UP) {
-        this.hideCover();
-      } else {
-        this.showCover();
-      }
-    } else if (this._data) {
-      const data = this._data;
-      this._data = null;
-      data.gameObject = null;
     }
   }
 
@@ -43,13 +38,13 @@ export class CharacterObject extends GameObject<Character> {
   }
 
   loadSprite() {
-    resources.load(this.data.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
+    resources.load(this._data.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
       if (!err && spriteFrame) {
         spriteFrame.addRef(); // 计数加1
         this.sprite.spriteFrame = spriteFrame;
       }
     });
-    this.node.getChildByName("Name").getComponent(Label).string = this.data.name;
+    this.node.getChildByName("Name").getComponent(Label).string = this._data.name;
   }
 
   releaseSprite() {

@@ -51,10 +51,10 @@ export class SelectCharacter extends Component {
       character.status = CharacterStatus.FACE_UP;
       this.characterList.push(character);
       if (i === 0) {
-        character.gameObject = this.charcaterNode.getChildByName("CharacterObject").getComponent(CharacterObject);
+        character.gameObject = this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterObject);
       } else {
         const node = instantiate(this.charcaterNode);
-        character.gameObject = node.getChildByName("CharacterObject").getComponent(CharacterObject);
+        character.gameObject = node.getChildByName("CharacterPanting").getComponent(CharacterObject);
         this.charcaterNodeList.addChild(node);
       }
     }
