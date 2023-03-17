@@ -261,6 +261,9 @@ export const enum GameEvent {
   CARD_STATUS_CHANGE = "card_status_change",
   CARD_USEAGE_CHANGE = "card_usage_change",
   CHARACTER_STATUS_CHANGE = "character_status_change",
+  CHARACTER_DYING = "character_dying",
+  CHARACTER_DIE = "character_die",
   GAME_PHASE_CHANGE = "game_phase_change",
   GAME_TURN_CHANGE = "game_turn_change",
+  PLAYER_SEND_MESSAGE = "player_send_message",
 }
