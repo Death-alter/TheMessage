@@ -1,6 +1,6 @@
 import EventTarget from "../Event/EventTarget";
 import { error_code } from "../../protobuf/proto.d";
-import { NetworkEventToC, ProcessEvent } from "../Event/type";
+import { GameEvent, NetworkEventToC, ProcessEvent } from "../Event/type";
 import { _decorator, Component, director } from "cc";
 
 //toc
@@ -137,7 +137,7 @@ Protos[NetworkEventToC.SEND_MESSAGE_CARD_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.SEND_MESSAGE, data);
 };
 Protos[NetworkEventToC.CHOOSE_RECEIVE_TOC] = (data) => {
-  EventTarget.emit(ProcessEvent.CHOOSE_RECEIVE, data);
+  EventTarget.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, data);
 };
 Protos[NetworkEventToC.NOTIFY_DYING_TOC] = (data) => {
   EventTarget.emit(ProcessEvent.PLAYER_DYING, data);

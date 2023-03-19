@@ -126,7 +126,6 @@ export class GameManager extends Component {
   set turnPlayerId(playerId: number) {
     if (playerId == null || playerId === this._turnPlayerId) return;
     this._turnPlayerId = playerId;
-    Player.turnPlayerId = playerId;
     EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
   }
 

@@ -1,6 +1,6 @@
 import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
 import EventTarget from "../../Event/EventTarget";
-import { GameEvent } from "../../Event/type";
+import { GameEvent, NetworkEventToS, ProcessEvent } from "../../Event/type";
 import { DataBasic } from "../DataBasic";
 import { CardObject } from "../../Game/Card/CardObject";
 
@@ -14,6 +14,7 @@ export class Card extends DataBasic<CardObject> {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
+  protected _handler: { [value in GameEvent | NetworkEventToS | ProcessEvent]: (...args: any[]) => void };
 
   public static readonly backSprite: string = "images/cards/CardBack";
 
@@ -40,7 +41,6 @@ export class Card extends DataBasic<CardObject> {
     if (status == null || status === this._status) return;
     this._status = status;
     this._gameObject.refresh(this);
-    EventTarget.emit(GameEvent.CARD_STATUS_CHANGE, status);
   }
 
   get usage() {
@@ -49,7 +49,6 @@ export class Card extends DataBasic<CardObject> {
   set usage(usage) {
     if (usage == null || usage === this._usage) return;
     this._usage = usage;
-    EventTarget.emit(GameEvent.CARD_USEAGE_CHANGE, usage);
   }
 
   get direction() {

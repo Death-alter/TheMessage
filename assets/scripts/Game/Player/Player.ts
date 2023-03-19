@@ -6,14 +6,15 @@ import { PlayerOption } from "./type";
 import { DataBasic } from "../DataBasic";
 import { GameCard, CardUsage, CardStatus, CardColor } from "../Card/type";
 import { Card, UnknownCard } from "../Card/Card";
+import { Agent } from "../Identity/IdentityClass/Agent";
+import { Lurker } from "../Identity/IdentityClass/Lurker";
+import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 
 export class Player extends DataBasic<PlayerObject> {
-  public static turnPlayerId: number;
-
   private _id: number;
   private _name: string;
   private _character: Character;
-  private _identityList: Identity[] = [];
+  private _identityList: Identity[] = [new Agent(), new Lurker(), new MysteriousPerson()];
   private _seatNumber: number;
   private _handCards: GameCard[] = [];
   private _messages: Card[] = [];
@@ -42,10 +43,6 @@ export class Player extends DataBasic<PlayerObject> {
 
   get identityList() {
     return this._identityList;
-  }
-
-  get isTurnPlayer(): boolean {
-    return this._id === Player.turnPlayerId;
   }
 
   get seatNumber() {
@@ -159,6 +156,21 @@ export class Player extends DataBasic<PlayerObject> {
   removeAllMessage() {
     this._messages = [];
     this.gameObject.refreshMessageCount();
+  }
+
+  //确认玩家是某个身份
+  confirmIdentity(identity: Identity) {
+    this._identityList = [identity];
+  }
+
+  //排除玩家是某个身份
+  ruleOutIdentity(identity) {
+    for (let i = 0; i < this._identityList.length; i++) {
+      if (this._identityList[i].type === identity.type) {
+        this._identityList.splice(i, 1);
+        break;
+      }
+    }
   }
 
   dead() {

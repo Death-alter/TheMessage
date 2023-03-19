@@ -1,5 +1,5 @@
 import { EventTarget } from "cc";
-import { ProcessEvent, GameEvent, NetworkEventToS } from "./type";
+import { ProcessEvent, GameEvent, NetworkEventToS, NetworkEventToC } from "./type";
 
 export class EventCenter<T = string, D = any> {
   private eventTarget: EventTarget;
@@ -56,3 +56,6 @@ export class EventCenter<T = string, D = any> {
 }
 
 export default new EventCenter<ProcessEvent | GameEvent | NetworkEventToS, any>();
+export const GameEventCenter = new EventCenter<GameEvent, any>();
+export const ProcessEventCenter = new EventCenter<ProcessEvent, any>();
+export const NetworkEventCenter = new EventCenter<NetworkEventToS | NetworkEventToC, any>();

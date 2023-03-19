@@ -14,13 +14,13 @@ export class MysteriousPerson extends Identity {
     return this._secretTaskText;
   }
 
-  constructor(option: MysteriousPersonOption) {
+  constructor(option?: MysteriousPersonOption) {
     super({
       type: IdentityType.GREEN,
       name: option.name || "神秘人",
       color: "#07C160",
     });
-    this._secretTask = option.secretTask;
-    this._secretTaskText = option.secretTaskText;
+    this._secretTask = option?.secretTask;
+    this._secretTaskText = option?.secretTaskText;
   }
 }
