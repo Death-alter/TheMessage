@@ -6,17 +6,13 @@ const { ccclass, property } = _decorator;
 @ccclass("ProgressControl")
 export class ProgressControl extends Component {
   private _progressAnimation: Tween<UITransform> | null = null;
-  private onStopCountDown: () => void;
 
   onEnable() {
-    this.onStopCountDown = () => {
-      this.stopCountDown();
-    };
-    EventTarget.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown);
+    EventTarget.on(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
   }
 
   onDisable() {
-    EventTarget.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown);
+    EventTarget.off(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown);
   }
 
   //倒计时

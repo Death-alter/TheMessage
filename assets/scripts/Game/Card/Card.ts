@@ -39,6 +39,7 @@ export class Card extends DataBasic<CardObject> {
   set status(status) {
     if (status == null || status === this._status) return;
     this._status = status;
+    this._gameObject.refresh(this);
     EventTarget.emit(GameEvent.CARD_STATUS_CHANGE, status);
   }
 
@@ -91,10 +92,10 @@ export class Card extends DataBasic<CardObject> {
 
   //翻面
   flip() {
-    if (this.status === CardStatus.FACE_UP) {
-      this.status = CardStatus.FACE_DOWN;
+    if (this._status === CardStatus.FACE_UP) {
+      this._status = CardStatus.FACE_DOWN;
     } else {
-      this.status = CardStatus.FACE_UP;
+      this._status = CardStatus.FACE_UP;
     }
     return this.gameObject.flip();
   }

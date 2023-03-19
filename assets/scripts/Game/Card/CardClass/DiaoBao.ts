@@ -1,5 +1,7 @@
 import { Card } from "../Card";
 import { CardDefaultOption, CardType } from "../type";
+import EventTarget from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 
 export class DiaoBao extends Card {
   constructor(option: CardDefaultOption) {
@@ -19,5 +21,6 @@ export class DiaoBao extends Card {
 
   onPlay() {
     super.onPlay();
+    EventTarget.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
   }
 }

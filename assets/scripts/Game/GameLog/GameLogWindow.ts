@@ -5,9 +5,10 @@ import { GameLogTextObject } from "./GameLogTextObject";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogWindow")
-export class GameLogWindow extends GameObjectContainer<GameLogTextObject, GameLog> {
+export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
   init() {}
   onDataAdded(data: GameLog): void {}
   onDataRemoved(data: GameLog): void {}
   onAllDataRemoved(): void {}
 }
+

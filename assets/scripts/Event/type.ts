@@ -1,5 +1,5 @@
 //toc协议，ws接收数据
-export const enum NetworkEventToC {
+export enum NetworkEventToC {
   ERROR_CODE_TOC = "error_code_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
@@ -116,7 +116,7 @@ export const enum NetworkEventToC {
 }
 
 //tos协议，ws发送数据
-export const enum NetworkEventToS {
+export enum NetworkEventToS {
   PAUSE_RECORD_TOS = "pause_record_tos",
   GET_RECORD_LIST_TOS = "get_record_list_tos",
   ADD_ORDER_TOS = "add_order_tos",
@@ -202,7 +202,7 @@ export const enum NetworkEventToS {
 }
 
 //程序事件，用于程序控制
-export const enum ProcessEvent {
+export enum ProcessEvent {
   NETWORK_ERROR = "network_error",
   UPDATE_ONLINE_COUNT = "update_online_count",
   JOIN_ROOM = "join_room",
@@ -253,7 +253,7 @@ export const enum ProcessEvent {
 }
 
 //游戏事件，触发扳机
-export const enum GameEvent {
+export enum GameEvent {
   ACCEPT_MESSAGE = "accept_message",
   ACCEPT_RED_MESSAGE = "accept_red_message",
   ACCEPT_BLUE_MESSAGE = "accept_blue_message",

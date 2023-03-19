@@ -1,3 +1,5 @@
+import EventTarget from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardColor } from "../type";
 
@@ -24,7 +26,13 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  onPlay() {
+  onPlay({ playerId, seq }: { playerId: number; seq: number }) {
     super.onPlay();
+    EventTarget.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
+      cardId: this.id,
+      playerId,
+      seq,
+    });
   }
+
 }

@@ -29,11 +29,12 @@ export class CardAction extends Component {
 
   //抽牌动画
   drawCards(player: Player, cardList: GameCard[]) {
-    const cardGroup = new DataContainer<GameCard, CardObject>();
+    const cardGroup = new DataContainer<GameCard>();
     cardGroup.gameObject = GamePools.cardGroupPool.get();
-    cardGroup.removeAllData();
     for (let card of cardList) {
-      (<Card>card).gameObject = GamePools.cardPool.get();
+      if (!card.gameObject) {
+        (<Card>card).gameObject = GamePools.cardPool.get();
+      }
       cardGroup.addData(card);
     }
     this.node.addChild(cardGroup.gameObject.node);
@@ -74,10 +75,12 @@ export class CardAction extends Component {
           .start();
       });
     } else {
-      const cardGroup = new DataContainer<GameCard, CardObject>();
+      const cardGroup = new DataContainer<GameCard>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
       cardList.forEach((card) => {
-        (<Card>card).gameObject = GamePools.cardPool.get();
+        if (!card.gameObject) {
+          (<Card>card).gameObject = GamePools.cardPool.get();
+        }
         card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         cardGroup.addData(card);
       });
@@ -85,7 +88,6 @@ export class CardAction extends Component {
       tween(cardGroup.gameObject.node)
         .to(0.6, { worldPosition: this.discardPileNode.worldPosition })
         .call(() => {
-          console.log(cardGroup.list);
           for (let card of cardGroup.list) {
             GamePools.cardPool.put(card.gameObject);
             card.gameObject = null;
@@ -100,13 +102,16 @@ export class CardAction extends Component {
   useCard(user: Player, target: Player, card: Card) {}
 
   //开始传递情报动画
-  seedMessage(player: Player, message: GameCard) {
+  async seedMessage(player: Player, message: GameCard) {
     const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
-    if (message instanceof UnknownCard) {
+    if (message instanceof UnknownCard && !message.gameObject) {
       message.gameObject = GamePools.cardPool.get();
     }
     message.gameObject.node.setParent(this.node);
     this._messageInTransmit = message;
+    if (this._messageInTransmit.status === CardStatus.FACE_UP) {
+      await this.turnOverMessage(<Card>this._messageInTransmit);
+    }
     if (player.id === 0) {
       tween(message.gameObject.node)
         .to(0.8, {
@@ -132,30 +137,40 @@ export class CardAction extends Component {
 
   //翻开情报动画
   turnOverMessage(message?: Card) {
+    console.log(message)
     if (this._messageInTransmit instanceof Card) {
       return this._messageInTransmit.flip();
     } else {
       message.gameObject = this._messageInTransmit.gameObject;
-      message.gameObject.node.scale = this._messageInTransmit.gameObject.node.scale;
-      message.gameObject.node.worldPosition = this._messageInTransmit.gameObject.node.worldPosition;
       this._messageInTransmit = message;
+      this._messageInTransmit.status = CardStatus.FACE_DOWN;
       return message.flip();
     }
   }
 
-  chooseReceiveMessage(player: Player) {
-
+  chooseReceiveMessage() {
+    tween(this._messageInTransmit.gameObject.node)
+      .to(0.33, {
+        scale: new Vec3(1, 1, 1),
+      })
+      .to(0.33, {
+        scale: new Vec3(0.6, 0.6, 1),
+      })
+      .start();
   }
 
   //接收情报动画
-  async receiveMessage(player: Player) {
-    if (this._messageInTransmit instanceof UnknownCard) {
-      console.log(new Error("情报还未翻开"));
-      return;
+  async receiveMessage(player: Player, card: Card) {
+    if (this._messageInTransmit.id !== card.id) {
+      card.gameObject = this._messageInTransmit.gameObject;
+      this._messageInTransmit = card;
     }
     const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
+    console.log(this._messageInTransmit);
     if (this._messageInTransmit.status === CardStatus.FACE_DOWN) {
+      const time = new Date().getTime();
       await this.turnOverMessage(<Card>this._messageInTransmit);
+      console.log(time - new Date().getTime());
     }
     tween(this._messageInTransmit.gameObject.node)
       .to(0.5, {

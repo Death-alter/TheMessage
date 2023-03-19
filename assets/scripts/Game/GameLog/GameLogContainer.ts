@@ -5,7 +5,7 @@ import { GameLogMessageObject } from "./GameLogMessageObject";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
-export class GameLogContainer extends GameObjectContainer<GameLogMessageObject, GameLog> {
+export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> {
   init() {}
   onDataAdded(data: GameLog): void {}
   onDataRemoved(data: GameLog): void {}

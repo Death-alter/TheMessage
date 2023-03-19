@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, UITransform, RichText, Button, tween, instantiate, Sprite, color } from "cc";
-import { createCharacterById } from "../../Data/Characters";
-import { Character } from "../../Data/Characters/Character";
-import { CharacterStatus, CharacterType } from "../../Data/Characters/type";
-import { Identity } from "../../Data/Identity/Identity";
+import { createCharacterById } from "../../Game/Character";
+import { Character } from "../../Game/Character/Character";
+import { CharacterStatus, CharacterType } from "../../Game/Character/type";
+import { Identity } from "../../Game/Identity/Identity";
 import { MysteriousPerson } from "../../Game/Identity/IdentityClass/MysteriousPerson";
 import { CharacterObject } from "../../Game/Character/CharacterObject";
 import EventTarget from "../../Event/EventTarget";

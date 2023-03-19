@@ -2,12 +2,12 @@
   "ver": "2.0.3",
   "importer": "animation-clip",
   "imported": true,
-  "uuid": "7aae4865-2c03-4c5f-b456-2e42e0f7e21f",
+  "uuid": "d061624f-eb6c-4401-8b89-88d4dc8e7d7b",
   "files": [
     ".cconb"
   ],
   "subMetas": {},
   "userData": {
-    "name": "CardFlip"
+    "name": "Breath"
   }
 }

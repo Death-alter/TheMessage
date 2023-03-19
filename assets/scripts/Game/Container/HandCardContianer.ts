@@ -7,7 +7,7 @@ import { Card } from "../Card/Card";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardContianer")
-export class HandCardContianer extends GameObjectContainer<CardObject, Card> {
+export class HandCardContianer extends GameObjectContainer<CardObject> {
   @property(Prefab)
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
@@ -16,17 +16,11 @@ export class HandCardContianer extends GameObjectContainer<CardObject, Card> {
   private _maxLength: number;
   private _childWith: number;
   private _width: number;
+  private _selectedCard: Card;
 
   onEnable() {
     this.node.on(Node.EventType.SIZE_CHANGED, () => {
       this.onResize();
-    });
-    EventTarget.on(ProcessEvent.SELECT_HAND_CARD, (node) => {
-      for (let item of this.node.children) {
-        if (item !== node) {
-          item.getComponent(CardObject).selected = false;
-        }
-      }
     });
   }
 
@@ -52,10 +46,24 @@ export class HandCardContianer extends GameObjectContainer<CardObject, Card> {
   onDataAdded(card: Card) {
     if (!card.gameObject) return;
     card.gameObject.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
+    card.gameObject.node.on(
+      Node.EventType.TOUCH_END,
+      (event) => {
+        if (this._selectedCard === card) {
+          this._selectedCard = null;
+        } else {
+          this._selectedCard = card;
+        }
+        this.scheduleOnce(this.refresh, 0);
+        EventTarget.emit(ProcessEvent.SELECT_HAND_CARD, card);
+      },
+      this
+    );
     this.scheduleOnce(this.refresh, 0);
   }
 
-  onDataRemoved() {
+  onDataRemoved(card: Card) {
+    card.gameObject.node.off(Node.EventType.TOUCH_END);
     this.scheduleOnce(this.refresh, 0);
   }
 
@@ -63,24 +71,35 @@ export class HandCardContianer extends GameObjectContainer<CardObject, Card> {
 
   refresh() {
     const offset = this._childWith / 2 - this._width / 2;
-    console.log(this._childWith, this._width);
 
     //超出宽度后开始堆叠
     if (this.data.list.length > this._maxLength) {
       for (let i = 0; i < this.data.list.length; i++) {
+        const node = this.data.list[i].gameObject.node;
         const x = offset - (2 * i * offset) / (this.data.list.length - 1);
-        if (x !== this.node.children[i].position.x) {
-          tween(this.node.children[i])
-            .to(0.5, { position: new Vec3(x, this.node.children[i].position.y, 0) })
+        if (this.data.list[i] === this._selectedCard) {
+          node.setPosition(new Vec3(node.position.x, 20, 0));
+        } else {
+          node.setPosition(new Vec3(node.position.x, 0, 0));
+        }
+        if (x !== node.position.x) {
+          tween(node)
+            .to(0.5, { position: new Vec3(x, node.position.y, 0) })
             .start();
         }
       }
     } else {
       for (let i = 0; i < this.data.list.length; i++) {
+        const node = this.data.list[i].gameObject.node;
         const x = offset + i * (this.spacingX + this._childWith);
-        if (x !== this.node.children[i].position.x) {
-          tween(this.node.children[i])
-            .to(0.5, { position: new Vec3(x, this.node.children[i].position.y, 0) })
+        if (this.data.list[i] === this._selectedCard) {
+          node.setPosition(new Vec3(node.position.x, 20, 0));
+        } else {
+          node.setPosition(new Vec3(node.position.x, 0, 0));
+        }
+        if (x !== node.position.x) {
+          tween(node)
+            .to(0.5, { position: new Vec3(x, node.position.y, 0) })
             .start();
         }
       }

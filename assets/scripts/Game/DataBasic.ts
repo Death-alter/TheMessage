@@ -8,7 +8,7 @@ export class DataBasic<T extends GameObject<any>> {
   }
 
   set gameObject(object: T | null) {
-    if (object === this._gameObject) return;
+    if (object == this._gameObject) return;
     if (object) {
       if (this._gameObject) {
         this._gameObject.data = null;

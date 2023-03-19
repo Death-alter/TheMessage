@@ -58,6 +58,8 @@ import GamePools from "./GamePools";
 import { CardAction } from "./CardAction";
 import { SkillType } from "../Game/Skill/type";
 import { ActiveSkill } from "../Game/Skill/Skill";
+import { Tooltip } from "./Tooltip";
+import { TooltipText } from "./TooltipText";
 
 const { ccclass, property } = _decorator;
 
@@ -89,6 +91,8 @@ export class GameManager extends Component {
   cardGroupNode: Node | null = null;
   @property(Node)
   cardActionNode: Node | null = null;
+  @property(Node)
+  toolTipNode: Node | null = null;
 
   public identity: Identity;
   public playerCount: number;
@@ -96,6 +100,7 @@ export class GameManager extends Component {
   public playerCharacterIdList: number[];
   public playerList: Player[];
   public cardAction: CardAction;
+  public toolTip: Tooltip;
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -104,14 +109,13 @@ export class GameManager extends Component {
   private _discardPile: Card[] = [];
   private _banishCards: Card[] = [];
   private _seq: number;
-  private _handCardList: DataContainer<Card, CardObject>;
-  private _toolTip: Label;
+  private _handCardList: HandCardList;
 
   get gamePhase() {
     return this._gamePhase;
   }
   set gamePhase(phase: GamePhase) {
-    if (phase == null || phase !== this._gamePhase) return;
+    if (phase == null || phase === this._gamePhase) return;
     this._gamePhase = phase;
     EventTarget.emit(GameEvent.GAME_PHASE_CHANGE, { phase, playerId: this.turnPlayerId });
   }
@@ -120,7 +124,7 @@ export class GameManager extends Component {
     return this._turnPlayerId;
   }
   set turnPlayerId(playerId: number) {
-    if (playerId == null || playerId !== this._turnPlayerId) return;
+    if (playerId == null || playerId === this._turnPlayerId) return;
     this._turnPlayerId = playerId;
     Player.turnPlayerId = playerId;
     EventTarget.emit(GameEvent.GAME_TURN_CHANGE, playerId);
@@ -142,7 +146,7 @@ export class GameManager extends Component {
       cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
     });
     this.cardAction = this.cardActionNode.getComponent(CardAction);
-    this._toolTip = this.node.getChildByPath("GameUI/Tooltip/Label").getComponent(Label);
+    this.toolTip = this.toolTipNode.getComponent(Tooltip);
   }
 
   onEnable() {
@@ -184,20 +188,17 @@ export class GameManager extends Component {
       EventTarget.emit(ProcessEvent.STOP_COUNT_DOWN);
       this.turnPlayerId = data.currentPlayerId;
       this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
-      if (data.waitingPlayerId === 0) {
-        const progressStript = this.gameWindow.getChildByPath("Tooltip/Progress").getComponent(ProgressControl);
-        progressStript.startCoundDown(data.waitingSecond);
-      } else {
-        this.playerList[data.waitingPlayerId].gameObject.startCoundDown(data.waitingSecond);
-      }
+      this.countDown(data.waitingPlayerId, data.waitingSecond);
       if (data.messagePlayerId) {
         this.cardAction.transmitMessage(this.playerList[data.messagePlayerId]);
       }
       if (data.messageCard && this._messageInTransmit.id !== data.messageCard.cardId) {
+        // const card = this.createMessage(data.messageCard) as Card;
+        // this.cardAction.turnOverMessage(card);
+      }
+      if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
         const card = this.createMessage(data.messageCard) as Card;
-        card.gameObject = this._messageInTransmit.gameObject;
-        this._messageInTransmit = card;
-        this.cardAction.turnOverMessage(card);
+        this.cardAction.receiveMessage(this.playerList[data.messagePlayerId], card);
       }
 
       if (data.seq) this._seq = data.seq;
@@ -238,20 +239,27 @@ export class GameManager extends Component {
 
     //有人传出情报
     EventTarget.on(ProcessEvent.SEND_MESSAGE, (data: send_message_card_toc) => {
-      const player = this.playerList[data.senderId || data.playerId];
-      const card = player.removeHandCard(data.cardId);
-      this._messageInTransmit = card[0];
+      const player = this.playerList[data.senderId];
+      const card = player.removeHandCard(data.cardId)[0];
+      if (player.id === 0) {
+        this._handCardList.removeData(card);
+      }
+      this._messageInTransmit = card;
       this.cardAction.seedMessage(player, this._messageInTransmit);
     });
 
     //有人选择接收情报
     EventTarget.on(ProcessEvent.CHOOSE_RECEIVE, (data: choose_receive_toc) => {
       const player = this.playerList[data.playerId];
-      this.cardAction.chooseReceiveMessage(player);
+      this.cardAction.chooseReceiveMessage();
     });
 
     //濒死求澄清
-    EventTarget.on(ProcessEvent.WAIT_FOR_CHENG_QING, (data: wait_for_cheng_qing_toc) => {});
+    EventTarget.on(ProcessEvent.WAIT_FOR_CHENG_QING, (data: wait_for_cheng_qing_toc) => {
+      this.countDown(data.waitingPlayerId, data.waitingSecond);
+      this.toolTip.setText("");
+      this._seq = data.seq;
+    });
 
     //玩家濒死
     EventTarget.on(ProcessEvent.PLAYER_DYING, (data: notify_dying_toc) => {});
@@ -260,12 +268,13 @@ export class GameManager extends Component {
     EventTarget.on(ProcessEvent.PLAYER_DIE, (data: notify_die_toc) => {});
 
     //等待死亡给牌
-    EventTarget.on(ProcessEvent.WAIT_FOR_DIE_GIVE_CARD, (data: wait_for_die_give_card_toc) => {});
+    EventTarget.on(ProcessEvent.WAIT_FOR_DIE_GIVE_CARD, (data: wait_for_die_give_card_toc) => {
+      this._seq = data.seq;
+    });
 
     //死亡给牌
     EventTarget.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, (data: notify_die_give_card_toc) => {
-      if(data.targetPlayerId != null){
-        
+      if (data.targetPlayerId != null) {
       }
     });
 
@@ -379,9 +388,6 @@ export class GameManager extends Component {
         //被动技能
       }
     }
-
-    //隐藏人物进度条
-    this.gameWindow.getChildByPath("Tooltip/Progress").active = false;
 
     //初始化手牌UI
     this._handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
@@ -504,6 +510,14 @@ export class GameManager extends Component {
       });
     } else {
       return createUnknownCard(GamePools.cardPool.get());
+    }
+  }
+
+  countDown(playerId: number, waitingSecond: number) {
+    if (playerId === 0) {
+      this.toolTipNode.getComponent(Tooltip).startCoundDown(waitingSecond);
+    } else {
+      this.playerList[playerId].gameObject.startCoundDown(waitingSecond);
     }
   }
 }

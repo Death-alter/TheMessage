@@ -11,7 +11,7 @@ export class GameObject<T extends DataBasic<any>> extends Component {
   }
 
   set data(data: T | null) {
-    if (data === this._data) return;
+    if (data == this._data) return;
     if (data) {
       if (this._data) {
         this._data.gameObject = null;
