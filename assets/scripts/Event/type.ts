@@ -218,7 +218,6 @@ export enum ProcessEvent {
   ADD_ROBOT = "add_robot",
   REMOVE_ROBOT = "remove_robot",
   CREATE_ROOM = "create_room",
-
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
   CONFORM_SELECT_CHARACTER = "conform_select_character",
@@ -231,15 +230,6 @@ export enum ProcessEvent {
   STOP_COUNT_DOWN = "stop_count_down",
   SELECT_HAND_CARD = "select_hand_card",
   UPDATE_CHARACTER_STATUS = "update_character_status",
-  USE_SHI_TAN = "use_shitan",
-  SHOW_SHI_TAN = "show_shi_tan",
-  EXECUTE_SHI_TAN = "execute_shi_tan",
-  USE_LI_YOU = "use_li_you",
-  USE_PING_HENG = "use_ping_heng",
-  WEI_BI_WAIT_FOR_GIVE_CARD = "wei_bi_wait_for_give_card",
-  WEI_BI_GIVE_CARD = "wei_bi_give_card",
-  WEI_BI_SHOW_HAND_CARD = "wei_bi_show_hand_card",
-  USE_CHENG_QING = "use_cheng_qing",
   SEND_MESSAGE = "send_message",
   CHOOSE_RECEIVE = "choose_receive",
   PLAYER_DYING = "player_dying",
@@ -248,17 +238,7 @@ export enum ProcessEvent {
   PLAYER_WIN = "player_win",
   CARD_HANDLE_FINISH = "card_handle_finish",
   CARD_IN_PROCESS = "card_in_process",
-  WAIT_FOR_CHENG_QING = "wait_for_cheng_qing",
-  WAIT_FOR_DIE_GIVE_CARD = "wait_for_die_give_card",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
-  USE_PO_YI = "use_po_yi",
-  PO_YI_SHOW_MESSAGE = "po_yi_show_message",
-  USE_JIE_HUO = "use_jie_huo",
-  USE_DIAO_BAO = "use_diao_bao",
-  USE_WU_DAO = "use_wu_dao",
-  USE_FENG_YUN_BIAN_HUAN = "use_feng_yun_bian_huan",
-  WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD = "wait_for_feng_yun_bian_huan_choose_card",
-  FENG_YUN_BIAN_HUAN_CHOOSE_CARD = "feng_yun_bian_huan_choose_card",
 }
 
 //游戏事件
@@ -301,3 +281,4 @@ export enum GameEvent {
 }
 
 export enum SpecialGameEvent {}
+

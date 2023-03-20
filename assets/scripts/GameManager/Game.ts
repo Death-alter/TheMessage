@@ -121,17 +121,17 @@ export class Game extends Component {
   }
 
   //初始化游戏
-  init(data: init_toc) {
+  init(data) {
     this.playerCount = data.playerCount;
     this.playerList = new Array(data.playerCount);
 
     //创建所有角色
-    for (let i = 0; i < data.playerCount; i++) {
+    for (let item of data.players) {
       this.playerList.push(
         new Player({
-          id: i,
-          name: data.names[i],
-          character: createCharacterById((<unknown>data.roles[i]) as CharacterType),
+          id: item.id,
+          name: item.name,
+          character: createCharacterById(item.characterId),
         })
       );
     }

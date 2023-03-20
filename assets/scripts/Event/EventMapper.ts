@@ -108,7 +108,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, (data: get_record_list_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_RECORD_LIST, { records: data.records });
     });
-    NetworkEventCenter.on(NetworkEventToC.ADD_ORDER_TOC, (data: add_order_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.ADD_ORDER_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ORDER_SUCCESS);
     });
     NetworkEventCenter.on(NetworkEventToC.GET_ORDERS_TOC, (data: get_orders_toc) => {
@@ -117,13 +117,13 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.HEART_TOC, (data: heart_toc) => {
       ProcessEventCenter.emit(ProcessEvent.UPDATE_ONLINE_COUNT, { onlineCount: data.onlineCount });
     });
-    NetworkEventCenter.on(NetworkEventToC.ADD_ONE_POSITION_TOC, (data: add_one_position_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.ADD_ONE_POSITION_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ROOM_POSITION);
     });
     NetworkEventCenter.on(NetworkEventToC.REMOVE_ONE_POSITION_TOC, (data: remove_one_position_toc) => {
       ProcessEventCenter.emit(ProcessEvent.REMOVE_ROOM_POSITION, { position: data.position });
     });
-    NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, (data: display_record_end_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.DISPLAY_RECORD_END);
     });
     NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: save_record_success_toc) => {
@@ -134,6 +134,7 @@ export class EventMapper {
         const players = [];
         for (let i = 0; i < data.names.length; i++) {
           players.push({
+            id: i,
             name: data.names[i],
             winCount: data.winCounts[i],
           });
@@ -179,6 +180,7 @@ export class EventMapper {
       const players = [];
       for (let i = 0; i < data.names.length; i++) {
         players.push({
+          id: i,
           name: data.names[i],
           characterId: data.roles[i],
         });
