@@ -1,10 +1,10 @@
 import { _decorator, Component, director } from "cc";
 import ws from "../Utils/WebSocket";
-import Protos from "../Network/Protos";
-import EventTarget from "../Event/EventTarget";
-import { ProcessEvent, NetworkEventToS } from "../Event/type";
+import { EventMapper } from "../Event/EventMapper";
+import { NetworkEventCenter } from "../Event/EventTarget";
+import { NetworkEventToS, NetworkEventToC } from "../Event/type";
 
-const { ccclass, property } = _decorator;
+const { ccclass } = _decorator;
 
 @ccclass("NetworkManager")
 export class NetworkManager extends Component {
@@ -16,14 +16,18 @@ export class NetworkManager extends Component {
       ws.send("heart_tos");
     });
 
-    for (let protoName in Protos) {
-      ws.on(protoName, Protos[protoName]);
+    for (let eventName in NetworkEventToC) {
+      ws.on(NetworkEventToC[eventName], (data) => {
+        NetworkEventCenter.emit(NetworkEventToC[eventName], data);
+      });
     }
 
     for (let eventName in NetworkEventToS) {
-      EventTarget.on(NetworkEventToS[eventName], (data) => {
+      NetworkEventCenter.on(NetworkEventToS[eventName], (data) => {
         ws.send(NetworkEventToS[eventName], data);
       });
     }
+
+    EventMapper.init();
   }
 }

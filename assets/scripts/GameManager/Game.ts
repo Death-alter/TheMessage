@@ -12,7 +12,10 @@ import {
   discard_card_toc,
   notify_role_update_toc,
   send_message_card_toc,
-  choose_receive_toc,
+  wait_for_cheng_qing_toc,
+  notify_die_give_card_toc,
+  notify_winner_toc,
+  use_po_yi_toc,
 } from "../../protobuf/proto";
 import { createCharacterById } from "../Game/Character";
 import { CharacterStatus, CharacterType } from "../Game/Character/type";
@@ -21,6 +24,8 @@ import { IdentityType, SecretTaskType } from "../Game/Identity/type";
 import { GamePhase } from "./type";
 import { CardColor, CardDirection, CardStatus, CardType, CardUsage, GameCard } from "../Game/Card/type";
 import { createCard, createUnknownCard } from "../Game/Card";
+import { PlayerStatus } from "../Game/Player/type";
+import { Card } from "../Game/Card/Card";
 
 const { ccclass, property } = _decorator;
 
@@ -79,8 +84,20 @@ export class Game extends Component {
     ProcessEventCenter.on(ProcessEvent.DISCARD_CARDS, this.discardCards, this);
     ProcessEventCenter.on(ProcessEvent.UPDATE_CHARACTER, this.updateCharacter, this);
     ProcessEventCenter.on(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
+    ProcessEventCenter.on(ProcessEvent.WAIT_FOR_CHENG_QING, this.playerDying, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
 
-
+    ProcessEventCenter.on(
+      ProcessEvent.USE_PO_YI,
+      (data: use_po_yi_toc) => {
+        this.onCardUse({
+          userId: data.playerId,
+          cardId: data.card.CardId,
+        });
+      },
+      this
+    );
 
     // GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, (data) => {});
     // GameEventCenter.on(GameEvent.GAME_TURN_START, (data) => {});
@@ -208,6 +225,41 @@ export class Game extends Component {
     GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, { player });
   }
 
+  //濒死求澄清
+  playerDying(data: wait_for_cheng_qing_toc) {
+    this.playerList[data.diePlayerId].status = PlayerStatus.DYING;
+  }
+
+  //死亡给牌
+  playerDieGiveCard(data: notify_die_give_card_toc) {
+    const player = this.playerList[data.playerId];
+    const targetPlayer = this.playerList[data.targetPlayerId];
+    let cards = [];
+    if (data.unknownCardCount) {
+      for (let i = 0; i < data.unknownCardCount; i++) {
+        cards.push(0);
+      }
+    } else {
+      cards = data.card.map((item) => item.id);
+    }
+
+    const cardList = player.removeHandCard(cards);
+    targetPlayer.addHandCard(cardList);
+    GameEventCenter.emit(GameEvent.PLAYER_DIE_GIVE_CARD, { player, targetPlayer, cardList });
+    GameEventCenter.emit(GameEvent.PLAYER_GET_CARDS_FROM_OTHERS, { player: targetPlayer, from: player, cardList });
+  }
+
+  onCardUse(data) {
+    GameEventCenter.emit(GameEvent.PLAYER_PALY_CARD, data);
+  }
+
+  //游戏结束
+  gameOver(data: notify_winner_toc) {
+    GameEventCenter.emit(GameEvent.GAME_OVER, {
+      declarePlayer: data.declarePlayerIds.map((id) => this.playerList[id]),
+      winners: data.winnerIds.map((id) => this.playerList[id]),
+    });
+  }
 
   createHandCard(card?: card): GameCard {
     if (card) {

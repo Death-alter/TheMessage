@@ -2,7 +2,7 @@ import { Character } from "../Character/Character";
 import { Identity } from "../Identity/Identity";
 import { CharacterObject } from "../Character/CharacterObject";
 import { PlayerObject } from "./PlayerObject";
-import { PlayerOption } from "./type";
+import { PlayerOption, PlayerStatus } from "./type";
 import { DataBasic } from "../DataBasic";
 import { GameCard, CardUsage, CardStatus, CardColor } from "../Card/type";
 import { Card, UnknownCard } from "../Card/Card";
@@ -18,7 +18,7 @@ export class Player extends DataBasic<PlayerObject> {
   private _seatNumber: number;
   private _handCards: GameCard[] = [];
   private _messages: Card[] = [];
-  private _alive: boolean = true;
+  private _status: PlayerStatus = PlayerStatus.ALIVE;
 
   get id() {
     return this._id;
@@ -78,8 +78,12 @@ export class Player extends DataBasic<PlayerObject> {
     return data;
   }
 
-  get alive() {
-    return this._alive;
+  get status() {
+    return this._status;
+  }
+
+  set status(status: PlayerStatus) {
+    this._status = status;
   }
 
   constructor(option: PlayerOption) {
@@ -112,7 +116,7 @@ export class Player extends DataBasic<PlayerObject> {
     if (cardIds) {
       for (let cardId of cardIds) {
         for (let i = 0; i < this._handCards.length; i++) {
-          if (cardId === (<Card>this._handCards[i]).id) {
+          if (cardId === (this._handCards[i]).id) {
             arr.push(this._handCards.splice(i, 1)[0]);
             break;
           }
@@ -171,9 +175,5 @@ export class Player extends DataBasic<PlayerObject> {
         break;
       }
     }
-  }
-
-  dead() {
-    this._alive = false;
   }
 }

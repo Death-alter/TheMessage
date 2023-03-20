@@ -9,3 +9,9 @@ export interface PlayerOption {
   identity?: Identity;
   gameObject?: PlayerObject;
 }
+
+export enum PlayerStatus {
+  DEAD = 0,
+  DYING = 1,
+  ALIVE = 2,
+}

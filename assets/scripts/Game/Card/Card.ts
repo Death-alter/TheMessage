@@ -1,6 +1,4 @@
 import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
-import EventTarget from "../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, ProcessEvent } from "../../Event/type";
 import { DataBasic } from "../DataBasic";
 import { CardObject } from "../../Game/Card/CardObject";
 
@@ -14,7 +12,6 @@ export class Card extends DataBasic<CardObject> {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
-  protected _handler: { [value in GameEvent | NetworkEventToS | ProcessEvent]: (...args: any[]) => void };
 
   public static readonly backSprite: string = "images/cards/CardBack";
 

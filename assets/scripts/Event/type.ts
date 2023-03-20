@@ -204,6 +204,12 @@ export enum NetworkEventToS {
 //程序事件，用于程序控制
 export enum ProcessEvent {
   NETWORK_ERROR = "network_error",
+  RECORD_STATUS_CHANGE = "record_status_change",
+  GET_RECORD_LIST = "get_record_list",
+  DISPLAY_RECORD_END = "display_record_end",
+  SAVE_RECORD_SUCCESS = "save_record_success",
+  GET_ORDERS = "get_orders",
+  ADD_ORDER_SUCCESS = "add_order_success",
   UPDATE_ONLINE_COUNT = "update_online_count",
   JOIN_ROOM = "join_room",
   LEAVE_ROOM = "leave_room",
@@ -211,20 +217,20 @@ export enum ProcessEvent {
   REMOVE_ROOM_POSITION = "remove_room_position",
   ADD_ROBOT = "add_robot",
   REMOVE_ROBOT = "remove_robot",
-  GET_ORDERS = "get_orders",
-  ADD_ORDER = "add_order",
   CREATE_ROOM = "create_room",
+
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
   CONFORM_SELECT_CHARACTER = "conform_select_character",
   GET_PHASE_DATA = "get_phase_data",
   SYNC_DECK_NUM = "sync_deck_num",
-  ADD_CARDS = "add_cards",
+  DRAW_CARDS = "draw_cards",
   DISCARD_CARDS = "discard_cards",
   GET_AUTO_PLAY_STATUS = "get_auto_play_status",
+  START_COUNT_DOWN = "start_count_down",
   STOP_COUNT_DOWN = "stop_count_down",
   SELECT_HAND_CARD = "select_hand_card",
-  UPDATE_CHARACTER = "update_character",
+  UPDATE_CHARACTER_STATUS = "update_character_status",
   USE_SHI_TAN = "use_shitan",
   SHOW_SHI_TAN = "show_shi_tan",
   EXECUTE_SHI_TAN = "execute_shi_tan",
@@ -237,8 +243,11 @@ export enum ProcessEvent {
   SEND_MESSAGE = "send_message",
   CHOOSE_RECEIVE = "choose_receive",
   PLAYER_DYING = "player_dying",
+  PLAYER_BEFORE_DEATH = "player_before_death",
   PLAYER_DIE = "player_die",
   PLAYER_WIN = "player_win",
+  CARD_HANDLE_FINISH = "card_handle_finish",
+  CARD_IN_PROCESS = "card_in_process",
   WAIT_FOR_CHENG_QING = "wait_for_cheng_qing",
   WAIT_FOR_DIE_GIVE_CARD = "wait_for_die_give_card",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
@@ -252,7 +261,7 @@ export enum ProcessEvent {
   FENG_YUN_BIAN_HUAN_CHOOSE_CARD = "feng_yun_bian_huan_choose_card",
 }
 
-//游戏事件，触发扳机
+//游戏事件
 export enum GameEvent {
   GAME_START = "game_start",
   GAME_TURN_CHANGE = "game_turn_change",
@@ -278,14 +287,16 @@ export enum GameEvent {
   PLAYER_RECEIVE_RED_MESSAGE = "receive_red_message",
   PLAYER_RECEIVE_BLUE_MESSAGE = "receive_blue_message",
   PLAYER_RECEIVE_BLACK_MESSAGE = "receive_black_message",
+  PLAYER_DYING = "player_dying",
+  PLAYER_DIE = "player_die",
+  PLAYER_DIE_GIVE_CARD = "player_die_give_card",
+  PLAYER_USE_SKILL = "player_use_skill",
+  PLAYER_GET_CARDS_FROM_OTHERS = "player_get_cards_from_others",
   MESSAGE_TRANSMISSION = "message_transmission",
   MESSAGE_STATUS_CHANGE = "message_status_change",
   MESSAGE_REPLACED = "message_replaced",
   MESSAGE_PLACED_INTO_MESSAGE_ZONE = "message_placed_into_message_zone",
   CHARACTER_STATUS_CHANGE = "character_status_change",
-  CHARACTER_DYING = "character_dying",
-  CHARACTER_DIE = "character_die",
-  CHARACTER_USE_SKILL = "character_use_skill",
   GAME_OVER = "game_over",
 }
 

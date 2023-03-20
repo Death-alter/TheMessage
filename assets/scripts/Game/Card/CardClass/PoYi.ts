@@ -1,3 +1,5 @@
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { Card } from "../Card";
 import { CardDefaultOption, CardType } from "../type";
 
@@ -17,7 +19,11 @@ export class PoYi extends Card {
     });
   }
 
-  onPlay() {
+  onPlay(seq: number) {
     super.onPlay();
+    NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+      cardId: this.id,
+      seq,
+    });
   }
 }
