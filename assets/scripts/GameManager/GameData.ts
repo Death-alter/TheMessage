@@ -1,4 +1,4 @@
-import { _decorator, Component } from "cc";
+import { _decorator } from "cc";
 import { GameEvent, ProcessEvent } from "../Event/type";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { Player } from "../Game/Player/Player";
@@ -15,10 +15,7 @@ import * as ProcessEventType from "../Event/ProcessEventType";
 import { Card, UnknownCard } from "../Game/Card/Card";
 import { card } from "../../protobuf/proto";
 
-const { ccclass, property } = _decorator;
-
-@ccclass("Game")
-export class Game extends Component {
+export class GameData {
   public selfPlayer: Player;
   public identity: Identity;
   public playerCount: number;
@@ -65,7 +62,7 @@ export class Game extends Component {
     }
   }
 
-  onEnable() {
+  registerEvents() {
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
     ProcessEventCenter.on(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
     ProcessEventCenter.on(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
@@ -81,9 +78,20 @@ export class Game extends Component {
     ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
   }
 
-  onDisable() {
+  unregisterEvents() {
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init);
     ProcessEventCenter.off(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData);
+    ProcessEventCenter.off(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber);
+    ProcessEventCenter.off(ProcessEvent.DRAW_CARDS, this.drawCards);
+    ProcessEventCenter.off(ProcessEvent.DISCARD_CARDS, this.discardCards);
+    ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter);
+    ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DYING, this.playerDying);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
+    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
+    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
+    ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
   }
 
   //初始化游戏
@@ -126,6 +134,10 @@ export class Game extends Component {
       if (data.messageInTransmit && data.messageInTransmit.cardId !== this.messageInTransmit.id) {
         this.messageInTransmit = this.createMessage(data.messageInTransmit);
       }
+      GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
+        message: this.messageInTransmit,
+        messagePlayer: this.playerList[data.messagePlayerId],
+      });
     }
   }
 
@@ -178,7 +190,7 @@ export class Game extends Component {
       this.playerList[data.playerId].character.status = CharacterStatus.FACE_DOWN;
     }
     GameEventCenter.emit(GameEvent.CHARACTER_STATUS_CHANGE, {
-      playerId: data.playerId,
+      player: this.playerList[data.playerId],
       status: this.playerList[data.playerId].character.status,
     });
   }
@@ -247,7 +259,9 @@ export class Game extends Component {
     this.cardOnPlay[handlerName]();
   }
 
-  cardHandleFinish() {}
+  cardHandleFinish() {
+    this.cardOnPlay = null;
+  }
 
   createHandCard(card?: card): GameCard {
     if (card) {
