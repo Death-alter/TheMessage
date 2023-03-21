@@ -1,6 +1,8 @@
 import { card } from "../../protobuf/proto";
+import { CardDirection, CardType, GameCard } from "../Game/Card/type";
 import { CharacterType } from "../Game/Character/type";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
+import { GamePhase } from "../GameManager/type";
 
 export interface NetworkError {
   code?: number;
@@ -96,4 +98,73 @@ export interface SyncDeckNum {
 export interface DiscardCards {
   playerId: number;
   cards: card[];
+}
+
+export interface GetPhaseData {
+  currentPlayerId: number;
+  currentPhase: GamePhase;
+  messagePlayerId: number;
+  messageDirection: CardDirection;
+  messageInTransmit: card;
+  senderId: number;
+}
+
+export interface StartCountDown {
+  playerId: number;
+  second: number;
+  seq: number;
+}
+
+export interface SendMessage {
+  cardId: CardType;
+  senderId: number;
+  targetPlayerId: number;
+  lockPlayerIds: number[];
+  direction: CardDirection;
+}
+
+export interface ChooseReceive {
+  playerId: number;
+}
+
+export interface PlayingDying {
+  playerId: number;
+}
+
+export interface PlayerBeforeDeath {
+  playerId: number;
+  loseGame: boolean;
+}
+
+export interface PlayerDie {
+  playerId: number;
+}
+
+export interface PlayerWin {
+  players: {
+    playerId: number;
+    identity: IdentityType;
+    secretTask: SecretTaskType;
+    isWinner: boolean;
+    isDeclarer: boolean;
+  }[];
+}
+
+export interface PlayerDieGiveCard {
+  playerId: number;
+  targetPlayerId: number;
+  cards: card[];
+  unknownCardCount: number;
+}
+
+export interface CardPlayed {
+  userId: number;
+  cardId?: CardType;
+  card?: card;
+  targetPlayerId?: number;
+}
+
+export interface CardInProcess {
+  handler?: string;
+  [index: string]: any;
 }

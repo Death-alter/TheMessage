@@ -102,6 +102,8 @@ export class UnknownCard extends DataBasic<CardObject> {
   public readonly status: CardStatus = CardStatus.FACE_DOWN;
   public readonly backSprite: string = "images/cards/CardBack";
 
+  public usage: CardUsage;
+
   constructor(gameObject?: CardObject) {
     super();
     if (gameObject) {

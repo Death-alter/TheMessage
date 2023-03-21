@@ -236,8 +236,9 @@ export enum ProcessEvent {
   PLAYER_BEFORE_DEATH = "player_before_death",
   PLAYER_DIE = "player_die",
   PLAYER_WIN = "player_win",
-  CARD_HANDLE_FINISH = "card_handle_finish",
+  CARD_PLAYED = "card_played",
   CARD_IN_PROCESS = "card_in_process",
+  CARD_HANDLE_FINISH = "card_handle_finish",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
 }
 
@@ -281,4 +282,3 @@ export enum GameEvent {
 }
 
 export enum SpecialGameEvent {}
-
