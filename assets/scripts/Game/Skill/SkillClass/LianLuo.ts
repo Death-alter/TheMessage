@@ -1,5 +1,5 @@
 import { PassiveSkill } from "../Skill";
-import { Character } from "../../Characters/Character";
+import { Character } from "../../Character/Character";
 
 export class LianLuo extends PassiveSkill {
   constructor(character: Character) {

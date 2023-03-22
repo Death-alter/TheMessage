@@ -244,7 +244,10 @@ export enum ProcessEvent {
 
 //游戏事件
 export enum GameEvent {
+  GAME_INIT = "game_init",
   GAME_START = "game_start",
+  DECK_CARD_NUMBER_CHANGE = "deck_card_number_change",
+  DECK_SHUFFLED = "deck_shuffled",
   GAME_TURN_CHANGE = "game_turn_change",
   GAME_TURN_START = "game_turn_start",
   GAME_TURN_END = "game_turn_end",
@@ -269,6 +272,7 @@ export enum GameEvent {
   PLAYER_RECEIVE_BLUE_MESSAGE = "receive_blue_message",
   PLAYER_RECEIVE_BLACK_MESSAGE = "receive_black_message",
   PLAYER_DYING = "player_dying",
+  PLAYER_BEFORE_DEATH = "player_before_death",
   PLAYER_DIE = "player_die",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
   PLAYER_USE_SKILL = "player_use_skill",

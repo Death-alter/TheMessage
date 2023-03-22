@@ -3,6 +3,7 @@ import { CharacterObject } from "../Character/CharacterObject";
 import { Player } from "./Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
 import { GameObject } from "../GameObject";
+import { PlayerStatus } from "./type";
 
 const { ccclass, property } = _decorator;
 
@@ -16,6 +17,7 @@ export class PlayerObject extends GameObject<Player> {
   messageCounts: Node | null = null;
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  private _selectable = true;
 
   get data() {
     return this._data;
@@ -27,6 +29,10 @@ export class PlayerObject extends GameObject<Player> {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
     }
+  }
+
+  get selectable() {
+    return this._selectable;
   }
 
   onLoad() {
@@ -58,5 +64,18 @@ export class PlayerObject extends GameObject<Player> {
     this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts.red.toString();
     this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string =
       this.data.messageCounts.blue.toString();
+  }
+
+  refreshStatus() {
+    switch (this.data.status) {
+      case PlayerStatus.DEAD:
+        this._selectable = false;
+        break;
+      case PlayerStatus.DYING:
+        break;
+      case PlayerStatus.ALIVE:
+        this._selectable = true;
+        break;
+    }
   }
 }

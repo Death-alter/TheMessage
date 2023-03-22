@@ -51,7 +51,7 @@ export class Player extends DataBasic<PlayerObject> {
   set seatNumber(number) {
     if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
-    this.gameObject.setSeat(number);
+    this.gameObject?.setSeat(number);
   }
 
   get handCardCount() {
@@ -83,7 +83,11 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   set status(status: PlayerStatus) {
+    if (!status || status === this._status) return;
     this._status = status;
+    if (this.gameObject) {
+      this.gameObject.refreshStatus();
+    }
   }
 
   constructor(option: PlayerOption) {
@@ -108,18 +112,16 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  removeHandCard(cardIds: number | number[] | null): GameCard[] {
+  removeHandCard(cardIds: number | number[]): GameCard[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }
     const arr = [];
-    if (cardIds) {
-      for (let cardId of cardIds) {
-        for (let i = 0; i < this._handCards.length; i++) {
-          if (cardId === (this._handCards[i]).id) {
-            arr.push(this._handCards.splice(i, 1)[0]);
-            break;
-          }
+    for (let cardId of cardIds) {
+      for (let i = 0; i < this._handCards.length; i++) {
+        if (cardId === this._handCards[i].id) {
+          arr.push(this._handCards.splice(i, 1)[0]);
+          break;
         }
       }
     }
@@ -129,8 +131,10 @@ export class Player extends DataBasic<PlayerObject> {
 
   //丢弃所有手牌
   removeAllHandCards() {
+    const arr = this._handCards;
     this._handCards = [];
     this.gameObject.refreshHandCardCount();
+    return arr;
   }
 
   //角色翻面
@@ -139,27 +143,43 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //情报置入情报区
-  addMessage(message: Card) {
-    if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
-    if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
-    this._messages.push(message);
+  addMessage(messages: Card | Card[]) {
+    if (!(messages instanceof Array)) {
+      messages = [messages];
+    }
+    messages.forEach((message) => {
+      if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
+      if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
+    });
+
+    this._messages = [...this._messages, ...messages];
     this.gameObject.refreshMessageCount();
   }
 
   //从情报区移除情报
-  removeMessage(message: Card) {
-    for (let i = 0; i < this._messages.length; i++) {
-      if (message === this._messages[i]) {
-        this._messages.splice(i, 1);
+  removeMessage(messageIds: number | number[]): Card[] {
+    if (typeof messageIds === "number") {
+      messageIds = [messageIds];
+    }
+    const arr = [];
+    for (let messageId of messageIds) {
+      for (let i = 0; i < this._messages.length; i++) {
+        if (messageId === this._messages[i].id) {
+          arr.push(this._messages.splice(i, 1)[0]);
+          break;
+        }
       }
     }
     this.gameObject.refreshMessageCount();
+    return arr;
   }
 
   //移除所有情报
   removeAllMessage() {
+    const arr = this._messages;
     this._messages = [];
     this.gameObject.refreshMessageCount();
+    return arr;
   }
 
   //确认玩家是某个身份

@@ -24,6 +24,8 @@ export class GameData {
   public messageDirection: CardDirection;
   public deckCardCount: number;
   public cardOnPlay: GameCard;
+  public discardPile: Card[] = [];
+  public banishCards: Card[] = [];
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -65,13 +67,33 @@ export class GameData {
   registerEvents() {
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
     ProcessEventCenter.on(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
+    ProcessEventCenter.once(
+      ProcessEvent.GET_PHASE_DATA,
+      (data: ProcessEventType.GetPhaseData) => {
+        //设置座位号
+        let i = data.currentPlayerId;
+        let j = 0;
+        do {
+          this.playerList[i].seatNumber = j;
+          i = (i + 1) % this.playerCount;
+          ++j;
+        } while (i !== data.currentPlayerId);
+        GameEventCenter.emit(GameEvent.GAME_START, {
+          firstPlayerId: data.currentPlayerId,
+        });
+      },
+      this
+    );
     ProcessEventCenter.on(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
     ProcessEventCenter.on(ProcessEvent.DRAW_CARDS, this.drawCards, this);
     ProcessEventCenter.on(ProcessEvent.DISCARD_CARDS, this.discardCards, this);
     ProcessEventCenter.on(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
     ProcessEventCenter.on(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
+    ProcessEventCenter.on(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DYING, this.playerDying, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
     ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
     ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
@@ -86,8 +108,11 @@ export class GameData {
     ProcessEventCenter.off(ProcessEvent.DISCARD_CARDS, this.discardCards);
     ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter);
     ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage);
+    ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DYING, this.playerDying);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie);
     ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
     ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
     ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
@@ -118,7 +143,7 @@ export class GameData {
     );
     this.selfPlayer.confirmIdentity(this.identity);
 
-    GameEventCenter.emit(GameEvent.GAME_START, { playerList: this.playerList });
+    GameEventCenter.emit(GameEvent.GAME_INIT, { playerList: this.playerList });
   }
 
   //回合改变
@@ -144,8 +169,9 @@ export class GameData {
   //卡组数量变化
   syncDeckNumber(data: ProcessEventType.SyncDeckNum) {
     this.deckCardCount = data.number;
+    GameEventCenter.emit(GameEvent.DECK_CARD_NUMBER_CHANGE, { number: data.number });
     if (data.shuffled) {
-      //播放洗牌动画（如果做了的话）
+      GameEventCenter.emit(GameEvent.DECK_SHUFFLED);
     }
   }
 
@@ -167,7 +193,7 @@ export class GameData {
       }
     }
     player.addHandCard(cardList);
-    GameEventCenter.emit(GameEvent.PLAYER_DRAW_CARD, { cards: cardList });
+    GameEventCenter.emit(GameEvent.PLAYER_DRAW_CARD, { player, cardList });
   }
 
   //弃牌
@@ -175,7 +201,7 @@ export class GameData {
     const player = this.playerList[data.playerId];
     const cardIdList = data.cards.map((item) => item.cardId);
     const cardList = player.removeHandCard(cardIdList);
-    GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { cards: cardList });
+    GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
 
   //角色翻面
@@ -203,35 +229,74 @@ export class GameData {
     GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, { player });
   }
 
+  //有人选择接收情报
+  playerChooseReceiveMessage(data: ProcessEventType.ChooseReceive) {
+    GameEventCenter.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, { player: this.playerList[data.playerId] });
+  }
+
   //濒死求澄清
-  playerDying(data: ProcessEventType.PlayingDying) {
-    this.playerList[data.playerId].status = PlayerStatus.DYING;
+  playerDying(data: ProcessEventType.PlayerDying) {
+    const player = this.playerList[data.playerId];
+    player.status = PlayerStatus.DYING;
+    GameEventCenter.emit(GameEvent.PLAYER_DYING, { player });
+  }
+
+  //玩家死亡前
+  playerBeforeDeath(data: ProcessEventType.PlayerBeforeDeath) {
+    const player = this.playerList[data.playerId];
+    player.status = PlayerStatus.DEAD;
+    GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
+  }
+
+  playerDie(data: ProcessEventType.PlayerDie) {
+    const player = this.playerList[data.playerId];
+    const handCards = player.removeAllHandCards();
+    const messages = player.removeAllMessage();
+    GameEventCenter.emit(GameEvent.PLAYER_DIE, { player, handCards, messages });
   }
 
   //死亡给牌
   playerDieGiveCard(data: ProcessEventType.PlayerDieGiveCard) {
-    const player = this.playerList[data.playerId];
-    const targetPlayer = this.playerList[data.targetPlayerId];
-    let cards = [];
-    if (data.unknownCardCount) {
-      for (let i = 0; i < data.unknownCardCount; i++) {
-        cards.push(0);
+    if (data.cards.length || data.unknownCardCount !== 0) {
+      const player = this.playerList[data.playerId];
+      const targetPlayer = this.playerList[data.targetPlayerId];
+      let cards = [];
+      if (data.unknownCardCount) {
+        for (let i = 0; i < data.unknownCardCount; i++) {
+          cards.push(0);
+        }
+      } else {
+        cards = data.cards.map((item) => item.cardId);
       }
-    } else {
-      cards = data.cards.map((item) => item.cardId);
-    }
 
-    const cardList = player.removeHandCard(cards);
-    targetPlayer.addHandCard(cardList);
-    GameEventCenter.emit(GameEvent.PLAYER_DIE_GIVE_CARD, { player, targetPlayer, cardList });
-    GameEventCenter.emit(GameEvent.PLAYER_GET_CARDS_FROM_OTHERS, { player: targetPlayer, from: player, cardList });
+      const cardList = player.removeHandCard(cards);
+      targetPlayer.addHandCard(cardList);
+      GameEventCenter.emit(GameEvent.PLAYER_DIE_GIVE_CARD, { player, targetPlayer, cardList });
+      GameEventCenter.emit(GameEvent.PLAYER_GET_CARDS_FROM_OTHERS, {
+        player: targetPlayer,
+        fromPlayer: player,
+        cardList,
+      });
+    }
   }
 
   //游戏结束
   gameOver(data: ProcessEventType.PlayerWin) {
-    GameEventCenter.emit(GameEvent.GAME_OVER, data);
+    GameEventCenter.emit(
+      GameEvent.GAME_OVER,
+      data.players.map((item) => {
+        return {
+          player: this.playerList[item.playerId],
+          identity: item.identity,
+          secretTask: item.secretTask,
+          isWinner: item.isWinner,
+          isDeclarer: item.isDeclarer,
+        };
+      })
+    );
   }
 
+  //打出卡牌
   cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: GameCard;
     if (data.userId === 0) {
@@ -248,9 +313,10 @@ export class GameData {
     }
     if (card instanceof Card) card.onPlay();
     this.cardOnPlay = card;
-    GameEventCenter.emit(GameEvent.PLAYER_PALY_CARD, card);
+    GameEventCenter.emit(GameEvent.PLAYER_PALY_CARD, { player: this.playerList[data.userId], card });
   }
 
+  //卡牌效果处理
   cardInProcess(data: ProcessEventType.CardInProcess) {
     if (!this.cardOnPlay || this.cardOnPlay instanceof UnknownCard) {
       return;
@@ -259,6 +325,7 @@ export class GameData {
     this.cardOnPlay[handlerName]();
   }
 
+  //卡牌处理完毕
   cardHandleFinish() {
     this.cardOnPlay = null;
   }

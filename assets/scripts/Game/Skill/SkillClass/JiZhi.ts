@@ -1,6 +1,6 @@
 import { GameEvent } from "../../../Event/type";
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Characters/Character";
+import { Character } from "../../Character/Character";
 import { Player } from "../../Player/Player";
 import { GamePhase } from "../../../GameManager/type";
 
@@ -12,7 +12,7 @@ export class JiZhi extends ActiveSkill {
       description: "一名角色濒死时，或争夺阶段，你可以翻开此角色牌，然后摸四张牌。",
       condition: [
         {
-          event: GameEvent.CHARACTER_DYING,
+          event: GameEvent.PLAYER_DYING,
           enabled() {
             return true;
           },

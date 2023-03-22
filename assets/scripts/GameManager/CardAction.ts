@@ -101,6 +101,8 @@ export class CardAction extends Component {
   //打出卡牌动画，播放声音
   useCard(user: Player, target: Player, card: Card) {}
 
+  giveCards(form: Player, to: Player, cards: GameCard[]) {}
+
   //开始传递情报动画
   async seedMessage(player: Player, message: GameCard) {
     const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
@@ -137,7 +139,7 @@ export class CardAction extends Component {
 
   //翻开情报动画
   turnOverMessage(message?: Card) {
-    console.log(message)
+    console.log(message);
     if (this._messageInTransmit instanceof Card) {
       return this._messageInTransmit.flip();
     } else {

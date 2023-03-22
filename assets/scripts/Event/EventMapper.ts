@@ -2,7 +2,6 @@ import { NetworkEventCenter, ProcessEventCenter } from "./EventTarget";
 import * as protobufType from "../../protobuf/proto.d";
 import { NetworkEventToC, ProcessEvent } from "./type";
 import { _decorator, director } from "cc";
-import { CardType } from "../Game/Card/type";
 
 //把网络协议映射为程序事件
 

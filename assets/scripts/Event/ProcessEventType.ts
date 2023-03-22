@@ -127,7 +127,7 @@ export interface ChooseReceive {
   playerId: number;
 }
 
-export interface PlayingDying {
+export interface PlayerDying {
   playerId: number;
 }
 
