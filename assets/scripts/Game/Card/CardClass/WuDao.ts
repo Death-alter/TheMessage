@@ -1,5 +1,6 @@
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class WuDao extends Card {
   constructor(option: CardDefaultOption) {
@@ -17,7 +18,16 @@ export class WuDao extends Card {
     });
   }
 
+  onConfirmPlay() {
+    
+  }
+
+
   onPlay() {
     super.onPlay();
+  }
+
+  onEffect(gameData: GameData, { targetPlayer }: CardOnEffectParams) {
+    gameData.messagePlayerId = targetPlayer.id;
   }
 }

@@ -2,6 +2,7 @@ import { NetworkEventCenter, ProcessEventCenter } from "./EventTarget";
 import * as protobufType from "../../protobuf/proto.d";
 import { NetworkEventToC, ProcessEvent } from "./type";
 import { _decorator, director } from "cc";
+import { CardType } from "../Game/Card/type";
 
 //把网络协议映射为程序事件
 
@@ -256,14 +257,16 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         userId: data.playerId,
         cardId: data.cardId,
+        cardType: CardType.SHI_TAN,
         targetPlayerId: data.targetPlayerId,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.SHOW_SHI_TAN_TOC, (data: protobufType.show_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        handler: "showShiTan",
+        handler: "onShow",
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
+        card: data.card,
       });
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
@@ -274,7 +277,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.EXECUTE_SHI_TAN_TOC, (data: protobufType.execute_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         userId: data.playerId,
-        isDrawCard: data.isDrawCard,
+        flag: data.isDrawCard,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
@@ -283,12 +286,13 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_LI_YOU_TOC, (data: protobufType.use_li_you_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.liYouCard,
+        cardType: CardType.LI_YOU,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        message: data.messageCard,
-        joinIntoHand: data.joinIntoHand,
+        targetCard: data.messageCard,
+        flag: data.joinIntoHand,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
@@ -297,6 +301,11 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_PING_HENG_TOC, (data: protobufType.use_ping_heng_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.pingHengCard,
+        cardType: CardType.PING_HENG,
+        userId: data.playerId,
+        targetPlayerId: data.targetPlayerId,
+      });
+      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
@@ -307,10 +316,12 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_CHENG_QING_TOC, (data: protobufType.use_cheng_qing_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
+        cardType: CardType.CHENG_QING,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+        targetPlayerId: data.targetPlayerId,
         targetCardId: data.targetCardId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
@@ -320,10 +331,11 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_PO_YI_TOC, (data: protobufType.use_po_yi_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
+        cardType: CardType.PO_YI,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        message: data.messageCard,
+        card: data.messageCard,
       });
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
@@ -334,13 +346,13 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.PO_YI_SHOW_TOC, (data: protobufType.po_yi_show_toc) => {
       const eventData: any = {
         userId: data.playerId,
-        show: data.show,
+        flag: data.show,
       };
       if (data.show) {
-        eventData.message = data.messageCard;
+        eventData.card = data.messageCard;
       }
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        step: 2,
+        handler: "onShow",
         ...eventData,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
@@ -350,6 +362,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_JIE_HUO_TOC, (data: protobufType.use_jie_huo_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
+        cardType: CardType.JIE_HUO,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
@@ -359,11 +372,12 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_DIAO_BAO_TOC, (data: protobufType.use_diao_bao_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         cardId: data.cardId,
+        cardType: CardType.DIAO_BAO,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        setp: 1,
-        oldMessageId: data.oldMessageCard,
+        cardId: data.cardId,
+        targetCardId: data.oldMessageCard,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
@@ -372,10 +386,10 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.USE_WU_DAO_TOC, (data: protobufType.use_wu_dao_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
+        cardType: CardType.WU_DAO,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        setp: 1,
         playerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
@@ -387,6 +401,7 @@ export class EventMapper {
       (data: protobufType.wei_bi_wait_for_give_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
+          cardType: CardType.WEI_BI,
           userId: data.playerId,
           targetPlayerId: data.targetPlayerId,
         });
@@ -399,8 +414,8 @@ export class EventMapper {
     );
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_GIVE_CARD_TOC, (data: protobufType.wei_bi_give_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        step: 1,
-        card: data.card,
+        handler: "onGiveCard",
+        cardId: data.card,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
@@ -408,7 +423,7 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: protobufType.wei_bi_show_hand_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        step: 1,
+        handler: "onShowHandCard",
         card: data.card,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
@@ -424,10 +439,11 @@ export class EventMapper {
       (data: protobufType.use_feng_yun_bian_huan_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
+          cardType: CardType.FENG_YUN_BIAN_HUAN,
           userId: data.playerId,
         });
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-          step: 1,
+          step: "onShowCards",
           cards: data.showCards,
         });
       }
@@ -446,7 +462,7 @@ export class EventMapper {
       NetworkEventToC.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC,
       (data: protobufType.feng_yun_bian_huan_choose_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-          step: 2,
+          handler: "onChooseCard",
           playerId: data.playerId,
           cardId: data.cardId,
           asMessageCard: data.asMessageCard,

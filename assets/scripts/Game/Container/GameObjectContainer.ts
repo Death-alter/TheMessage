@@ -1,6 +1,6 @@
 import { _decorator } from "cc";
-import { DataBasic } from "../DataBasic";
-import { GameObject } from "../GameObject";
+import { DataBasic } from "../../DataBasic";
+import { GameObject } from "../../GameObject";
 import { DataContainer } from "./DataContainer";
 const { ccclass } = _decorator;
 

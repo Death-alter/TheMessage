@@ -1,7 +1,8 @@
 import { Card } from "../Card";
-import { CardDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import EventTarget from "../../../Event/EventTarget";
 import { NetworkEventToS } from "../../../Event/type";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 
 export class DiaoBao extends Card {
   constructor(option: CardDefaultOption) {
@@ -19,8 +20,17 @@ export class DiaoBao extends Card {
     });
   }
 
+  onConfirmPlay() {
+    
+  }
+
+
   onPlay() {
     super.onPlay();
     EventTarget.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
+  }
+
+  onEffect(gameData: GameData, { cardId, targetCardId }: CardOnEffectParams): void {
+
   }
 }

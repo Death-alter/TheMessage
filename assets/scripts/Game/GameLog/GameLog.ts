@@ -1,4 +1,4 @@
-import { DataBasic } from "../DataBasic";
+import { DataBasic } from "../../DataBasic";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { GameLogTextObject } from "./GameLogTextObject";
 import { Player } from "../Player/Player";

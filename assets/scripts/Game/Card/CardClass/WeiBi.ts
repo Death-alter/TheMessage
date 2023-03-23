@@ -1,5 +1,6 @@
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class WeiBi extends Card {
   constructor(option: CardDefaultOption) {
@@ -17,7 +18,25 @@ export class WeiBi extends Card {
     });
   }
 
+  onConfirmPlay() {
+    
+  }
+
+
   onPlay() {
     super.onPlay();
   }
+
+  onEffect(gameData: GameData, params: CardOnEffectParams) {}
+
+  onGiveCard(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
+    let removedCard = targetPlayer.removeHandCard(card.id)[0];
+    if (!removedCard) {
+      removedCard = targetPlayer.removeHandCard(0)[0];
+    }
+
+    user.addHandCard(removedCard);
+  }
+
+  onShowHandCard(gameData: GameData, params: CardOnEffectParams) {}
 }

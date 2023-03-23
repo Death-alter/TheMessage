@@ -1,7 +1,8 @@
 import EventTarget from "../../../Event/EventTarget";
 import { NetworkEventToS } from "../../../Event/type";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { ShiTanOption, CardType, CardColor } from "../type";
+import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus } from "../type";
 
 export class ShiTan extends Card {
   private _drawCardColor: CardColor[];
@@ -26,6 +27,10 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
+  onConfirmPlay(): void {
+    
+  }
+
   onPlay({ playerId, seq }: { playerId: number; seq: number }) {
     super.onPlay();
     EventTarget.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
@@ -35,4 +40,16 @@ export class ShiTan extends Card {
     });
   }
 
+  onEffect(gameData: GameData, params: CardOnEffectParams) {}
+
+  onShow(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
+    card = <Card>card;
+    //自己是被试探的目标时展示那张试探牌
+    if (targetPlayer.id === 0) {
+      card.gameObject = gameData.cardOnPlay.gameObject;
+      card.status = CardStatus.FACE_DOWN;
+      gameData.cardOnPlay = card;
+      card.flip();
+    }
+  }
 }

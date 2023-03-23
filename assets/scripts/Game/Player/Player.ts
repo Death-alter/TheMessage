@@ -3,7 +3,7 @@ import { Identity } from "../Identity/Identity";
 import { CharacterObject } from "../Character/CharacterObject";
 import { PlayerObject } from "./PlayerObject";
 import { PlayerOption, PlayerStatus } from "./type";
-import { DataBasic } from "../DataBasic";
+import { DataBasic } from "../../DataBasic";
 import { GameCard, CardUsage, CardStatus, CardColor } from "../Card/type";
 import { Card, UnknownCard } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";

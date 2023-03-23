@@ -1,8 +1,9 @@
-import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor } from "./type";
-import { DataBasic } from "../DataBasic";
-import { CardObject } from "../../Game/Card/CardObject";
+import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
+import { DataBasic } from "../../DataBasic";
+import { CardObject } from "./CardObject";
+import { GameData } from "../../UI/Game/GameWindow/GameData";
 
-export class Card extends DataBasic<CardObject> {
+export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
   protected _name: string;
   protected _type: CardType;
@@ -85,6 +86,10 @@ export class Card extends DataBasic<CardObject> {
   onSend(...args: any[]): void {
     this.usage = CardUsage.MESSAGE_CARD;
   }
+
+  abstract onConfirmPlay(gameData: GameData): void;
+
+  abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
 
   //翻面
   flip() {

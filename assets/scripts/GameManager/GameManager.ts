@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label, resources, Layout, tween, Vec3, Game } from "cc";
-import { SelectCharacter } from "../UI/Game/SelectCharacter";
+import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
 import { GamePhase } from "./type";
 import {
   wait_for_select_role_toc,
@@ -60,7 +60,7 @@ import { SkillType } from "../Game/Skill/type";
 import { ActiveSkill } from "../Game/Skill/Skill";
 import { Tooltip } from "./Tooltip";
 import { TooltipText } from "./TooltipText";
-import { GameData } from "./GameData";
+import { GameData } from "../UI/Game/GameWindow/GameData";
 import { GameEventCenter } from "../Event/EventTarget";
 import * as GameEventType from "../Event/GameEventType";
 import * as ProcessEventType from "../Event/ProcessEventType";

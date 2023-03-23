@@ -1,4 +1,5 @@
 import { CardObject } from "../../Game/Card/CardObject";
+import { Player } from "../Player/Player";
 import { Card, UnknownCard } from "./Card";
 
 export const enum CardStatus {
@@ -46,9 +47,9 @@ export interface CardOption {
   sprite: string;
   status?: CardStatus;
   usage?: CardUsage;
-  color: CardColor[];
-  direction: CardDirection;
-  lockable: boolean;
+  color?: CardColor[];
+  direction?: CardDirection;
+  lockable?: boolean;
   gameObject?: CardObject;
 }
 
@@ -71,6 +72,17 @@ export interface ShiTanOption {
   status?: CardStatus;
   usage?: CardUsage;
   gameObject?: CardObject;
+}
+
+export interface CardOnEffectParams {
+  user?: Player;
+  targetPlayer?: Player;
+  cardId?: number;
+  card?: GameCard;
+  targetCardId?: number;
+  targetCard?: GameCard;
+  cardList?: GameCard[];
+  flag?: boolean;
 }
 
 export type GameCard = Card | UnknownCard;

@@ -1,5 +1,6 @@
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class FenYunBianHuan extends Card {
   constructor(option: CardDefaultOption) {
@@ -17,7 +18,18 @@ export class FenYunBianHuan extends Card {
     });
   }
 
+  onConfirmPlay() {
+    
+  }
+
+
   onPlay() {
     super.onPlay();
   }
+
+  onEffect(gameData: GameData, params: CardOnEffectParams): void {}
+
+  onShowCards(gameData: GameData, params: CardOnEffectParams) {}
+
+  onChooseCard(gameData: GameData, params: CardOnEffectParams) {}
 }

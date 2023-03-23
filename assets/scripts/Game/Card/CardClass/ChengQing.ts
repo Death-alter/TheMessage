@@ -1,5 +1,6 @@
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class ChengQing extends Card {
   constructor(option: CardDefaultOption) {
@@ -17,8 +18,11 @@ export class ChengQing extends Card {
     });
   }
 
-  onPlay() {
-    super.onPlay();
-    
+  onConfirmPlay(gameData: GameData) {
+
+  }
+
+  onEffect(gameData: GameData, { targetPlayer, targetCardId }: CardOnEffectParams) {
+    targetPlayer.removeMessage(targetCardId);
   }
 }

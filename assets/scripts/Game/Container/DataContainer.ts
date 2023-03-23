@@ -1,6 +1,6 @@
-import { DataBasic } from "../DataBasic";
+import { DataBasic } from "../../DataBasic";
 import { GameObjectContainer } from "./GameObjectContainer";
-import { GameObject } from "../GameObject";
+import { GameObject } from "../../GameObject";
 
 //T:DataBasic
 

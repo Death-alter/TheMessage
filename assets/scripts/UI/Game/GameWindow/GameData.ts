@@ -1,21 +1,31 @@
 import { _decorator } from "cc";
-import { GameEvent, ProcessEvent } from "../Event/type";
-import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { Player } from "../Game/Player/Player";
-import { Identity } from "../Game/Identity/Identity";
-import { createCharacterById } from "../Game/Character";
-import { CharacterStatus, CharacterType } from "../Game/Character/type";
-import { createIdentity } from "../Game/Identity";
-import { IdentityType, SecretTaskType } from "../Game/Identity/type";
-import { GamePhase } from "./type";
-import { CardColor, CardDirection, CardStatus, CardType, CardUsage, GameCard } from "../Game/Card/type";
-import { createCard, createUnknownCard } from "../Game/Card";
-import { PlayerStatus } from "../Game/Player/type";
-import * as ProcessEventType from "../Event/ProcessEventType";
-import { Card, UnknownCard } from "../Game/Card/Card";
-import { card } from "../../protobuf/proto";
+import { GameEvent, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { Player } from "../../../Game/Player/Player";
+import { Identity } from "../../../Game/Identity/Identity";
+import { createCharacterById } from "../../../Game/Character";
+import { CharacterStatus, CharacterType } from "../../../Game/Character/type";
+import { createIdentity } from "../../../Game/Identity";
+import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
+import { GamePhase } from "../../../GameManager/type";
+import {
+  CardColor,
+  CardDirection,
+  CardOnEffectParams,
+  CardStatus,
+  CardType,
+  CardUsage,
+  GameCard,
+} from "../../../Game/Card/type";
+import { createCard, createUnknownCard } from "../../../Game/Card";
+import { PlayerStatus } from "../../../Game/Player/type";
+import * as ProcessEventType from "../../../Event/ProcessEventType";
+import { Card, UnknownCard } from "../../../Game/Card/Card";
+import { card } from "../../../../protobuf/proto";
+import { DataBasic } from "../../../DataBasic";
+import { GameUI } from "./GameUI";
 
-export class GameData {
+export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
   public identity: Identity;
   public playerCount: number;
@@ -25,7 +35,7 @@ export class GameData {
   public deckCardCount: number;
   public cardOnPlay: GameCard;
   public discardPile: Card[] = [];
-  public banishCards: Card[] = [];
+  public banishedCards: Card[] = [];
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -34,7 +44,7 @@ export class GameData {
   get gamePhase() {
     return this._gamePhase;
   }
-  set gamePhase(phase: GamePhase) {
+  private set gamePhase(phase: GamePhase) {
     if (phase == null || phase === this._gamePhase) return;
     this._gamePhase = phase;
     GameEventCenter.emit(GameEvent.GAME_PHASE_CHANGE, { phase, turnPlayer: this.playerList[this.turnPlayerId] });
@@ -43,7 +53,7 @@ export class GameData {
   get turnPlayerId() {
     return this._turnPlayerId;
   }
-  set turnPlayerId(playerId: number) {
+  private set turnPlayerId(playerId: number) {
     if (playerId == null || playerId === this._turnPlayerId) return;
     this._turnPlayerId = playerId;
     GameEventCenter.emit(GameEvent.GAME_TURN_CHANGE, { turnPlayer: this.playerList[playerId] });
@@ -52,6 +62,7 @@ export class GameData {
   get messagePlayerId() {
     return this._messagePlayerId;
   }
+
   set messagePlayerId(playerId: number) {
     if (playerId == null || playerId === this._messagePlayerId) return;
     const oldId = this._messagePlayerId;
@@ -120,7 +131,7 @@ export class GameData {
   }
 
   //初始化游戏
-  init(data) {
+  private init(data) {
     this.playerCount = data.playerCount;
     this.playerList = new Array(data.playerCount);
 
@@ -147,14 +158,14 @@ export class GameData {
   }
 
   //回合改变
-  onGetPhaseData(data: ProcessEventType.GetPhaseData) {
+  private onGetPhaseData(data: ProcessEventType.GetPhaseData) {
     //修改回合信息
     this.turnPlayerId = data.currentPlayerId;
-    this.gamePhase = (<unknown>data.currentPhase) as GamePhase;
+    this.gamePhase = data.currentPhase;
 
     //如果有传递的情报
     if (data.messagePlayerId) {
-      this._messagePlayerId = data.messagePlayerId;
+      this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<unknown>data.messageDirection) as CardDirection;
       if (data.messageInTransmit && data.messageInTransmit.cardId !== this.messageInTransmit.id) {
         this.messageInTransmit = this.createMessage(data.messageInTransmit);
@@ -167,7 +178,7 @@ export class GameData {
   }
 
   //卡组数量变化
-  syncDeckNumber(data: ProcessEventType.SyncDeckNum) {
+  private syncDeckNumber(data: ProcessEventType.SyncDeckNum) {
     this.deckCardCount = data.number;
     GameEventCenter.emit(GameEvent.DECK_CARD_NUMBER_CHANGE, { number: data.number });
     if (data.shuffled) {
@@ -176,7 +187,7 @@ export class GameData {
   }
 
   //抽牌
-  drawCards(data: ProcessEventType.DrawCards) {
+  private drawCards(data: ProcessEventType.DrawCards) {
     const player = this.playerList[data.playerId];
     const cardList: GameCard[] = [];
 
@@ -197,7 +208,7 @@ export class GameData {
   }
 
   //弃牌
-  discardCards(data: ProcessEventType.DiscardCards) {
+  private discardCards(data: ProcessEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
     const cardIdList = data.cards.map((item) => item.cardId);
     const cardList = player.removeHandCard(cardIdList);
@@ -205,7 +216,7 @@ export class GameData {
   }
 
   //角色翻面
-  updateCharacter(data: ProcessEventType.UpdateCharacterStatus) {
+  private updateCharacter(data: ProcessEventType.UpdateCharacterStatus) {
     if (data.characterId) {
       if (this.playerList[data.playerId].character.id === 0) {
         const character = createCharacterById(data.characterId);
@@ -222,7 +233,7 @@ export class GameData {
   }
 
   //有人传出情报
-  playerSendMessage(data: ProcessEventType.SendMessage) {
+  private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const card = player.removeHandCard(data.cardId)[0];
     this.messageInTransmit = card;
@@ -230,25 +241,25 @@ export class GameData {
   }
 
   //有人选择接收情报
-  playerChooseReceiveMessage(data: ProcessEventType.ChooseReceive) {
+  private playerChooseReceiveMessage(data: ProcessEventType.ChooseReceive) {
     GameEventCenter.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, { player: this.playerList[data.playerId] });
   }
 
   //濒死求澄清
-  playerDying(data: ProcessEventType.PlayerDying) {
+  private playerDying(data: ProcessEventType.PlayerDying) {
     const player = this.playerList[data.playerId];
     player.status = PlayerStatus.DYING;
     GameEventCenter.emit(GameEvent.PLAYER_DYING, { player });
   }
 
   //玩家死亡前
-  playerBeforeDeath(data: ProcessEventType.PlayerBeforeDeath) {
+  private playerBeforeDeath(data: ProcessEventType.PlayerBeforeDeath) {
     const player = this.playerList[data.playerId];
     player.status = PlayerStatus.DEAD;
     GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
   }
 
-  playerDie(data: ProcessEventType.PlayerDie) {
+  private playerDie(data: ProcessEventType.PlayerDie) {
     const player = this.playerList[data.playerId];
     const handCards = player.removeAllHandCards();
     const messages = player.removeAllMessage();
@@ -256,7 +267,7 @@ export class GameData {
   }
 
   //死亡给牌
-  playerDieGiveCard(data: ProcessEventType.PlayerDieGiveCard) {
+  private playerDieGiveCard(data: ProcessEventType.PlayerDieGiveCard) {
     if (data.cards.length || data.unknownCardCount !== 0) {
       const player = this.playerList[data.playerId];
       const targetPlayer = this.playerList[data.targetPlayerId];
@@ -281,7 +292,7 @@ export class GameData {
   }
 
   //游戏结束
-  gameOver(data: ProcessEventType.PlayerWin) {
+  private gameOver(data: ProcessEventType.PlayerWin) {
     GameEventCenter.emit(
       GameEvent.GAME_OVER,
       data.players.map((item) => {
@@ -297,7 +308,7 @@ export class GameData {
   }
 
   //打出卡牌
-  cardPlayed(data: ProcessEventType.CardPlayed) {
+  private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: GameCard;
     if (data.userId === 0) {
       if (data.card) {
@@ -308,29 +319,49 @@ export class GameData {
     } else {
       card = this.playerList[data.userId].removeHandCard(0)[0];
       if (data.card) {
-        card = this.createHandCard(data.card);
+        card = this.createFunctionCard(data.card);
       }
     }
     if (card instanceof Card) card.onPlay();
     this.cardOnPlay = card;
-    GameEventCenter.emit(GameEvent.PLAYER_PALY_CARD, { player: this.playerList[data.userId], card });
+    GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, { player: this.playerList[data.userId], card });
   }
 
   //卡牌效果处理
-  cardInProcess(data: ProcessEventType.CardInProcess) {
-    if (!this.cardOnPlay || this.cardOnPlay instanceof UnknownCard) {
+  private cardInProcess(data: ProcessEventType.CardInProcess) {
+    if (!this.cardOnPlay) {
       return;
     }
+    if (this.cardOnPlay instanceof UnknownCard) {
+      if (data.card) {
+        this.cardOnPlay = this.createFunctionCard(data.card);
+      } else {
+        return;
+      }
+    }
+
     const handlerName = data.handler || "onEffect";
-    this.cardOnPlay[handlerName]();
+    const params: CardOnEffectParams = {};
+
+    if (data.userId) params.user = this.playerList[data.userId];
+    if (data.targetPlayerId) params.targetPlayer = this.playerList[data.targetPlayerId];
+    if (data.card) params.card = this.createFunctionCard(data.card);
+    if (data.targetCard) params.card = this.createCard(data.targetCard);
+    if (data.cardId) params.cardId = data.cardId;
+    if (data.targetCardId) params.targetCardId = data.targetCardId;
+    if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card));
+    if (data.flag) params.flag = data.flag;
+
+    this.cardOnPlay[handlerName](this, params);
   }
 
   //卡牌处理完毕
-  cardHandleFinish() {
+  private cardHandleFinish() {
     this.cardOnPlay = null;
+    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD);
   }
 
-  createHandCard(card?: card): GameCard {
+  private createCard(card?: card, usage?: CardUsage): GameCard {
     if (card) {
       return createCard({
         id: card.cardId,
@@ -338,7 +369,7 @@ export class GameData {
         type: (<unknown>card.cardType) as CardType,
         direction: (<unknown>card.cardDir) as CardDirection,
         drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
-        usage: CardUsage.HAND_CARD,
+        usage: usage || CardUsage.UNKNOWN,
         lockable: card.canLock,
       });
     } else {
@@ -346,20 +377,15 @@ export class GameData {
     }
   }
 
-  createMessage(card?: card): GameCard {
-    if (card) {
-      return createCard({
-        id: card.cardId,
-        color: (<unknown>card.cardColor) as CardColor[],
-        type: (<unknown>card.cardType) as CardType,
-        direction: (<unknown>card.cardDir) as CardDirection,
-        drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
-        usage: CardUsage.MESSAGE_CARD,
-        status: CardStatus.FACE_DOWN,
-        lockable: card.canLock,
-      });
-    } else {
-      return createUnknownCard();
-    }
+  private createFunctionCard(card?: card): GameCard {
+    return this.createCard(card, CardUsage.FUNCTION_CARD);
+  }
+
+  private createHandCard(card?: card): GameCard {
+    return this.createCard(card, CardUsage.HAND_CARD);
+  }
+
+  private createMessage(card?: card): GameCard {
+    return this.createCard(card, CardUsage.MESSAGE_CARD);
   }
 }

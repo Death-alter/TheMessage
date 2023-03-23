@@ -1,21 +1,23 @@
 import { _decorator, Component, Node, Prefab, instantiate, Layout, Label } from "cc";
-import { GameEventCenter, ProcessEventCenter } from "../../Event/EventTarget";
-import { GameEvent, ProcessEvent } from "../../Event/type";
-import { CardObject } from "../../Game/Card/CardObject";
-import { CardGroupObject } from "../../Game/Container/CardGroupObject";
-import { HandCardContianer } from "../../Game/Container/HandCardContianer";
-import { CardAction } from "../../GameManager/CardAction";
-import GamePools from "../../GameManager/GamePools";
-import { Tooltip } from "../../GameManager/Tooltip";
-import * as GameEventType from "../../Event/GameEventType";
-import * as ProcessEventType from "../../Event/ProcessEventType";
-import { HandCardList } from "../../Game/Container/HandCardList";
-import { PlayerObject } from "../../Game/Player/PlayerObject";
+import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, ProcessEvent } from "../../../Event/type";
+import { CardObject } from "../../../Game/Card/CardObject";
+import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
+import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
+import { CardAction } from "../../../GameManager/CardAction";
+import GamePools from "../../../GameManager/GamePools";
+import { Tooltip } from "../../../GameManager/Tooltip";
+import * as GameEventType from "../../../Event/GameEventType";
+import * as ProcessEventType from "../../../Event/ProcessEventType";
+import { HandCardList } from "../../../Game/Container/HandCardList";
+import { PlayerObject } from "../../../Game/Player/PlayerObject";
+import { GameObject } from "../../../GameObject";
+import { GameData } from "./GameData";
 
 const { ccclass, property } = _decorator;
 
 @ccclass("GameUI")
-export class GameUI extends Component {
+export class GameUI extends GameObject<GameData> {
   @property(Prefab)
   playerPrefab: Prefab | null = null;
   @property(Prefab)

@@ -1,7 +1,7 @@
 import { _decorator, Sprite, Label, resources, SpriteFrame } from "cc";
 import { Character } from "../Character/Character";
-import { GameObject } from "../GameObject";
-import { CharacterStatus } from "..//Character/type";
+import { GameObject } from "../../GameObject";
+import { CharacterStatus } from "../Character/type";
 const { ccclass } = _decorator;
 
 @ccclass("CharacterObject")

@@ -159,12 +159,20 @@ export interface PlayerDieGiveCard {
 
 export interface CardPlayed {
   userId: number;
-  cardId?: CardType;
+  cardType: CardType;
+  cardId?: number;
   card?: card;
   targetPlayerId?: number;
 }
 
 export interface CardInProcess {
   handler?: string;
-  [index: string]: any;
+  userId?: CharacterType;
+  targetPlayerId?: CharacterType;
+  cardId?: number;
+  card?: card;
+  targetCardId?: number;
+  targetCard?: card;
+  cards?: card[];
+  flag?: boolean;
 }

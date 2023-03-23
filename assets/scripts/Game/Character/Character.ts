@@ -1,7 +1,7 @@
 import { Skill } from "../Skill/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
-import { CharacterObject } from "../../Game/Character/CharacterObject";
-import { DataBasic } from "../DataBasic";
+import { CharacterObject } from "./CharacterObject";
+import { DataBasic } from "../../DataBasic";
 
 export class Character extends DataBasic<CharacterObject> {
   protected _id: number;

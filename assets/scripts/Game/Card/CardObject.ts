@@ -1,7 +1,7 @@
 import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat, tween } from "cc";
 import { CardDirection, CardStatus, GameCard } from "./type";
 import { UnknownCard } from "./Card";
-import { GameObject } from "../GameObject";
+import { GameObject } from "../../GameObject";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")

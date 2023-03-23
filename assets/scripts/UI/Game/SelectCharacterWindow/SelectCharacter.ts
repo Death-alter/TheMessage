@@ -1,13 +1,13 @@
-import { _decorator, Component, Node, UITransform, RichText, Button, tween, instantiate, Sprite, color } from "cc";
-import { createCharacterById } from "../../Game/Character";
-import { Character } from "../../Game/Character/Character";
-import { CharacterStatus, CharacterType } from "../../Game/Character/type";
-import { Identity } from "../../Game/Identity/Identity";
-import { MysteriousPerson } from "../../Game/Identity/IdentityClass/MysteriousPerson";
-import { CharacterObject } from "../../Game/Character/CharacterObject";
-import EventTarget from "../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../Event/type";
-import { ProgressControl } from "./ProgressControl";
+import { _decorator, Component, Node, RichText, Button, instantiate, Sprite, color } from "cc";
+import { createCharacterById } from "../../../Game/Character";
+import { Character } from "../../../Game/Character/Character";
+import { CharacterStatus, CharacterType } from "../../../Game/Character/type";
+import { Identity } from "../../../Game/Identity/Identity";
+import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
+import { CharacterObject } from "../../../Game/Character/CharacterObject";
+import EventTarget from "../../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { ProgressControl } from "../ProgressControl";
 
 const { ccclass, property } = _decorator;
 

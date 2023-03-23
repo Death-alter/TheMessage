@@ -2,7 +2,7 @@ import { _decorator, Label, Node } from "cc";
 import { CharacterObject } from "../Character/CharacterObject";
 import { Player } from "./Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
-import { GameObject } from "../GameObject";
+import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
 
 const { ccclass, property } = _decorator;
