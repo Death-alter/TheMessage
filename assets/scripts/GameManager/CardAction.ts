@@ -6,16 +6,11 @@ import { CardStatus, GameCard } from "../Game/Card/type";
 import { CardObject } from "../Game/Card/CardObject";
 import { HandCardContianer } from "../Game/Container/HandCardContianer";
 import GamePools from "./GamePools";
-import { GameObject } from "../GameObject";
+import { GameEventCenter } from "../Event/EventTarget";
+import { GameEvent } from "../Event/type";
+import * as GameEventType from "../Event/GameEventType";
 
 const { ccclass, property } = _decorator;
-
-interface MoveObjectParams {
-  object: GameObject<any>;
-  from?: Vec3;
-  to: Vec3;
-  duration?: number;
-}
 
 @ccclass("CardAction")
 export class CardAction extends Component {
@@ -28,22 +23,19 @@ export class CardAction extends Component {
 
   private _messageInTransmit: GameCard | null = null;
 
-  moveObject({ object, from, to, duration }: MoveObjectParams) {
-    return new Promise((resolve, reject) => {
-      if (from) {
-        object.node.worldPosition = from;
-      }
-      tween(object.node)
-        .to(duration || 0.6, { worldPosition: to })
-        .call(() => {
-          resolve(null);
-        })
-        .start();
-    });
+  onEnable() {
+    GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
+    GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
+  }
+
+  onDisable() {
+    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
+    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
   }
 
   //抽牌动画
-  drawCards(player: Player, cardList: GameCard[]) {
+  drawCards(data: GameEventType.PlayerDrawCard) {
+    const { player, cardList } = data;
     return new Promise((resolve, reject) => {
       const cardGroup = new DataContainer<GameCard>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
@@ -56,12 +48,9 @@ export class CardAction extends Component {
       this.node.addChild(cardGroup.gameObject.node);
       cardGroup.gameObject.node.worldPosition = this.deckNode.worldPosition;
 
-      return this.moveObject({
-        object: cardGroup.gameObject,
-        from: this.deckNode.worldPosition,
-        to: player.gameObject.node.worldPosition,
-      }).then(() => {
-        return new Promise((resolve, reject) => {
+      tween(cardGroup.gameObject.node)
+        .to(0.6, { worldPosition: player.gameObject.node.worldPosition })
+        .call(() => {
           for (let card of cardGroup.list) {
             if (player.id === 0) {
               card.gameObject.node.scale = new Vec3(1, 1, 1);
@@ -74,14 +63,14 @@ export class CardAction extends Component {
           cardGroup.removeAllData();
           GamePools.cardGroupPool.put(cardGroup.gameObject);
           resolve(null);
-        });
-      });
+        })
+        .start();
     });
   }
 
   //弃牌动画
-
-  discardCards(player: Player, cardList: GameCard[]) {
+  discardCards(data: GameEventType.PlayerDiscardCard) {
+    const { player, cardList } = data;
     return new Promise((resolve, reject) => {
       if (player.id === 0) {
         cardList.forEach((card) => {
