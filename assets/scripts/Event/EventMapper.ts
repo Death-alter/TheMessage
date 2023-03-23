@@ -415,7 +415,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_GIVE_CARD_TOC, (data: protobufType.wei_bi_give_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onGiveCard",
-        cardId: data.card,
+        card: data.card,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });

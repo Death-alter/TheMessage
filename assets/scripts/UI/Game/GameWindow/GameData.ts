@@ -69,8 +69,8 @@ export class GameData extends DataBasic<GameUI> {
     this._messagePlayerId = playerId;
     if (oldId) {
       GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
-        from: this.playerList[oldId],
-        to: this.playerList[playerId],
+        message: this.messageInTransmit,
+        messagePlayer: this.playerList[playerId],
       });
     }
   }
@@ -172,10 +172,6 @@ export class GameData extends DataBasic<GameUI> {
       if (data.messageInTransmit && data.messageInTransmit.cardId !== this.messageInTransmit.id) {
         this.messageInTransmit = this.createMessage(data.messageInTransmit);
       }
-      GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
-        message: this.messageInTransmit,
-        messagePlayer: this.playerList[data.messagePlayerId],
-      });
     }
   }
 

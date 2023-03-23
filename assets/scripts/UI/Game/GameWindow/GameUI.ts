@@ -169,11 +169,12 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
-    this.deckText.getChildByName("Label").getComponent(Label).string = data.number.toString();
+    this.deckText.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + data.number.toString();
   }
 
   onMessageTransmission(data: GameEventType.MessageTransmission) {
     const { message, messagePlayer } = data;
+    console.log(data);
     this.cardAction.seedMessage(messagePlayer, message);
   }
 

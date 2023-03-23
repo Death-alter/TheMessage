@@ -36,32 +36,38 @@ export class GameManager extends Component {
     this.gameWindow.active = false;
 
     //开始选人
-    ProcessEventCenter.on(ProcessEvent.START_SELECT_CHARACTER, (data: ProcessEventType.StartSelectCharacter) => {
-      this.identity = createIdentity(
-        (<unknown>data.identity) as IdentityType,
-        (<unknown>data.secretTask) as SecretTaskType
-      );
-      this.playerCharacterIdList = data.characterIdList;
-      this.selectCharacterWindow.getComponent(SelectCharacter).init({
-        identity: this.identity,
-        roles: (<unknown[]>data.characterIdList) as CharacterType[],
-        waitingSecond: data.waitingSecond,
-      });
-    });
+    ProcessEventCenter.on(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter, this);
 
     //游戏初始化
-    ProcessEventCenter.on(ProcessEvent.INIT_GAME, (data: ProcessEventType.InitGame) => {
-      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
-      this.gameWindow.active = true;
-      //预加载卡图
-      resources.preloadDir("images/cards");
-    });
+    ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.initGame, this);
 
     this.gameData.registerEvents();
   }
 
   onDisable() {
     //移除事件监听
+    ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter);
+    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame);
     this.gameData.unregisterEvents();
+  }
+
+  startSelectCharacter(data: ProcessEventType.StartSelectCharacter) {
+    this.identity = createIdentity(
+      (<unknown>data.identity) as IdentityType,
+      (<unknown>data.secretTask) as SecretTaskType
+    );
+    this.playerCharacterIdList = data.characterIdList;
+    this.selectCharacterWindow.getComponent(SelectCharacter).init({
+      identity: this.identity,
+      roles: (<unknown[]>data.characterIdList) as CharacterType[],
+      waitingSecond: data.waitingSecond,
+    });
+  }
+
+  initGame(data: ProcessEventType.InitGame) {
+    this.selectCharacterWindow.getComponent(SelectCharacter).hide();
+    this.gameWindow.active = true;
+    //预加载卡图
+    resources.preloadDir("images/cards");
   }
 }
