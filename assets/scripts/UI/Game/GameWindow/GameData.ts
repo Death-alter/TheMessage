@@ -133,7 +133,7 @@ export class GameData extends DataBasic<GameUI> {
   //初始化游戏
   private init(data) {
     this.playerCount = data.playerCount;
-    this.playerList = new Array(data.playerCount);
+    this.playerList = [];
 
     //创建所有角色
     for (let item of data.players) {
@@ -145,6 +145,8 @@ export class GameData extends DataBasic<GameUI> {
         })
       );
     }
+
+    console.log(this.playerList);
 
     //自己的角色设置身份
     this.selfPlayer = this.playerList[0];

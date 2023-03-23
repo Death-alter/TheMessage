@@ -1,6 +1,6 @@
 import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
 import { CardObject } from "../Card/CardObject";
-import EventTarget from "../../Event/EventTarget";
+import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
 import { GameObjectContainer } from "./GameObjectContainer";
 import { Card } from "../Card/Card";
@@ -55,7 +55,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
           this._selectedCard = card;
         }
         this.scheduleOnce(this.refresh, 0);
-        EventTarget.emit(ProcessEvent.SELECT_HAND_CARD, card);
+        ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
       },
       this
     );

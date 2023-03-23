@@ -38,7 +38,7 @@ export interface CreateRoom {
     id: number;
     name: string;
     winCount: number;
-  };
+  }[];
 }
 
 export interface JoinRoom {

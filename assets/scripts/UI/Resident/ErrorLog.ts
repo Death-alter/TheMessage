@@ -1,5 +1,5 @@
 import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween } from "cc";
-import EventTarget from "../../Event/EventTarget";
+import {ProcessEventCenter} from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
@@ -15,7 +15,7 @@ export class ErrorLog extends Component {
     this._mask = this.node.getChildByName("Mask");
     this._opacityTarget = this.getComponent(UIOpacity);
 
-    EventTarget.on(ProcessEvent.NETWORK_ERROR, (data) => {
+    ProcessEventCenter.on(ProcessEvent.NETWORK_ERROR, (data) => {
       const labelComp = this._label.getComponent(Label);
       labelComp.string = data.msg;
       const width = data.msg.length * labelComp.fontSize + 20;

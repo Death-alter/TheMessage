@@ -1,4 +1,4 @@
-import EventTarget from "../../../Event/EventTarget";
+import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
@@ -27,13 +27,11 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  onConfirmPlay(): void {
-    
-  }
+  onConfirmPlay(): void {}
 
   onPlay({ playerId, seq }: { playerId: number; seq: number }) {
     super.onPlay();
-    EventTarget.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
+    NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
       cardId: this.id,
       playerId,
       seq,

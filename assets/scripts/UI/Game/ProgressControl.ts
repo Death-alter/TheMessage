@@ -1,5 +1,5 @@
 import { _decorator, Component, tween, Tween, UITransform } from "cc";
-import EventTarget from "../../Event/EventTarget";
+import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
@@ -8,11 +8,11 @@ export class ProgressControl extends Component {
   private _progressAnimation: Tween<UITransform> | null = null;
 
   onEnable() {
-    EventTarget.on(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
   }
 
   onDisable() {
-    EventTarget.off(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown);
   }
 
   //倒计时

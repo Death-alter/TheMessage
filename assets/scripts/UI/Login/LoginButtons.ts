@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, EditBox, resources, ImageAsset, Texture2D, SpriteFrame } from "cc";
-import EventTarget from "../../Event/EventTarget";
+import { ProcessEventCenter, NetworkEventCenter } from "../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../Event/type";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
@@ -22,14 +22,14 @@ export class LoginButtons extends Component {
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
       if (this.userName.string) {
-        EventTarget.emit(NetworkEventToS.JOIN_ROOM_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: 1,
           name: this.userName.string,
           password: md5.Md5.hashStr(this.password.string),
           device: md5.Md5.hashStr(this.userName.string),
         });
       } else {
-        EventTarget.emit(ProcessEvent.NETWORK_ERROR, { msg: "请输入用户名" });
+        ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: "请输入用户名" });
       }
     });
 
