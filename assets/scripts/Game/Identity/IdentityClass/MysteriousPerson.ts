@@ -17,7 +17,7 @@ export class MysteriousPerson extends Identity {
   constructor(option?: MysteriousPersonOption) {
     super({
       type: IdentityType.GREEN,
-      name: option.name || "神秘人",
+      name: (option && option.name) || "神秘人",
       color: "#07C160",
     });
     this._secretTask = option?.secretTask;

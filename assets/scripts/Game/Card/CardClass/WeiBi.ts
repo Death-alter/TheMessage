@@ -18,10 +18,7 @@ export class WeiBi extends Card {
     });
   }
 
-  onConfirmPlay() {
-    
-  }
-
+  onConfirmPlay() {}
 
   onPlay() {
     super.onPlay();
@@ -30,11 +27,15 @@ export class WeiBi extends Card {
   onEffect(gameData: GameData, params: CardOnEffectParams) {}
 
   onGiveCard(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
-    let removedCard = targetPlayer.removeHandCard(card.id)[0];
+    console.log(card);
+    let removedCard;
+    if (card) {
+      removedCard = targetPlayer.removeHandCard(card.id)[0];
+    }
     if (!removedCard) {
       removedCard = targetPlayer.removeHandCard(0)[0];
     }
-
+    console.log(removedCard);
     user.addHandCard(removedCard);
   }
 

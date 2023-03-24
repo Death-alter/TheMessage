@@ -5,7 +5,7 @@ import { CharacterStatus, CharacterType } from "../../../Game/Character/type";
 import { Identity } from "../../../Game/Identity/Identity";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
-import EventTarget from "../../../Event/EventTarget";
+import { ProcessEventCenter ,NetworkEventCenter} from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { ProgressControl } from "../ProgressControl";
 
@@ -96,7 +96,7 @@ export class SelectCharacter extends Component {
 
   show() {
     this.node.active = true;
-    EventTarget.on(ProcessEvent.CONFORM_SELECT_CHARACTER, (data) => {
+    ProcessEventCenter.on(ProcessEvent.CONFORM_SELECT_CHARACTER, (data) => {
       let index = this.characterTypes.indexOf(data.role);
       for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
         const node = this.charcaterNodeList.children[i];
@@ -112,14 +112,14 @@ export class SelectCharacter extends Component {
 
   hide() {
     this.node.getChildByName("Progress").getComponent(ProgressControl).stopCountDown();
-    EventTarget.off(ProcessEvent.CONFORM_SELECT_CHARACTER);
+    ProcessEventCenter.off(ProcessEvent.CONFORM_SELECT_CHARACTER);
     this.node.active = false;
   }
 
   //倒计时进度条动画
   confirmCharacter() {
     if (this.selectedCharacterIndex == undefined) return;
-    EventTarget.emit(NetworkEventToS.SELECT_ROLE_TOS, {
+    NetworkEventCenter.emit(NetworkEventToS.SELECT_ROLE_TOS, {
       role: this.characterTypes[this.selectedCharacterIndex],
     });
   }

@@ -1,9 +1,10 @@
 import { _decorator, Component, Node, Label } from "cc";
 import { ProgressControl } from "../UI/Game/ProgressControl";
 import { TooltipText } from "./TooltipText";
-import EventTarget from "../Event/EventTarget";
+import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";
 import { GamePhase } from "./type";
+import { GamePhaseChange } from "../Event/GameEventType";
 const { ccclass, property } = _decorator;
 
 @ccclass("Tooltip")
@@ -22,9 +23,9 @@ export class Tooltip extends Component {
     this.hideText();
     this.hideButtons();
 
-    EventTarget.on(GameEvent.GAME_PHASE_CHANGE, ({ phase, playerId }) => {
-      console.log(playerId, phase);
-      if (playerId === 0) {
+    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, (data: GamePhaseChange) => {
+      const { turnPlayer, phase } = data;
+      if (turnPlayer.id === 0) {
         switch (phase) {
           case GamePhase.DRAW_PHASE:
             this.setText(TooltipText.SELF_DRAW_PHASE);
@@ -45,12 +46,12 @@ export class Tooltip extends Component {
       }
     });
 
-    EventTarget.on(ProcessEvent.STOP_COUNT_DOWN, this.hideText, this);
+    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hideText, this);
   }
 
   onDisable() {
-    EventTarget.off(GameEvent.GAME_PHASE_CHANGE);
-    EventTarget.off(ProcessEvent.STOP_COUNT_DOWN, this.hideText);
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hideText);
   }
 
   startCoundDown(second: number, callback?: Function) {

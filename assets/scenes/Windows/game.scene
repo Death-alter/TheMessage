@@ -21,7 +21,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 187
+      "__id__": 188
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -52,7 +52,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 188
+      "__id__": 189
     },
     "_id": "77dd27f2-60b7-4c34-ad0a-bbd0f6c32866"
   },
@@ -74,17 +74,14 @@
         "__id__": 51
       },
       {
-        "__id__": 159
+        "__id__": 160
       },
       {
-        "__id__": 162
+        "__id__": 163
       }
     ],
     "_active": true,
     "_components": [
-      {
-        "__id__": 183
-      },
       {
         "__id__": 184
       },
@@ -93,6 +90,9 @@
       },
       {
         "__id__": 186
+      },
+      {
+        "__id__": 187
       }
     ],
     "_prefab": null,
@@ -182,7 +182,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 455.2517985611511,
+    "_orthoHeight": 454.67625899280574,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -1706,6 +1706,9 @@
     "_components": [
       {
         "__id__": 158
+      },
+      {
+        "__id__": 159
       }
     ],
     "_prefab": null,
@@ -3736,8 +3739,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 100
+      "width": 200,
+      "height": 50
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5170,6 +5173,55 @@
     "_id": "69zeurR8pPxoID3mhJBKjR"
   },
   {
+    "__type__": "b36feF/mVNKpaM5g0A6JdsF",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 51
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "playerPrefab": {
+      "__uuid__": "ef4e6a3e-caad-4a75-9f93-f0c0731b5e6c",
+      "__expectedType__": "cc.Prefab"
+    },
+    "cardPrefab": {
+      "__uuid__": "35c85557-006b-43d4-ae91-35cde675d163",
+      "__expectedType__": "cc.Prefab"
+    },
+    "leftPlayerNodeList": {
+      "__id__": 103
+    },
+    "topPlayerNodeList": {
+      "__id__": 106
+    },
+    "rightPlayerNodeList": {
+      "__id__": 109
+    },
+    "deckText": {
+      "__id__": 112
+    },
+    "deckNode": {
+      "__id__": 150
+    },
+    "discardPileNode": {
+      "__id__": 152
+    },
+    "handCardUI": {
+      "__id__": 53
+    },
+    "cardGroupNode": {
+      "__id__": 154
+    },
+    "cardActionNode": {
+      "__id__": 160
+    },
+    "toolTipNode": {
+      "__id__": 117
+    },
+    "_id": "e4chQvCgxBR4m6n56ztnAy"
+  },
+  {
     "__type__": "cc.Node",
     "_name": "ActionPlayer",
     "_objFlags": 0,
@@ -5180,10 +5232,10 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 160
+        "__id__": 161
       },
       {
-        "__id__": 161
+        "__id__": 162
       }
     ],
     "_prefab": null,
@@ -5221,7 +5273,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 159
+      "__id__": 160
     },
     "_enabled": true,
     "__prefab": null,
@@ -5242,7 +5294,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 159
+      "__id__": 160
     },
     "_enabled": true,
     "__prefab": null,
@@ -5266,19 +5318,19 @@
     },
     "_children": [
       {
-        "__id__": 163
+        "__id__": 164
       },
       {
-        "__id__": 173
+        "__id__": 174
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
-        "__id__": 181
+        "__id__": 182
       },
       {
-        "__id__": 182
+        "__id__": 183
       }
     ],
     "_prefab": null,
@@ -5316,23 +5368,23 @@
     "_name": "Cards",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 162
+      "__id__": 163
     },
     "_children": [
       {
-        "__id__": 164
+        "__id__": 165
       },
       {
-        "__id__": 167
+        "__id__": 168
       },
       {
-        "__id__": 170
+        "__id__": 171
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 172
+        "__id__": 173
       }
     ],
     "_prefab": null,
@@ -5370,16 +5422,16 @@
     "_name": "Background",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 163
+      "__id__": 164
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 165
+        "__id__": 166
       },
       {
-        "__id__": 166
+        "__id__": 167
       }
     ],
     "_prefab": null,
@@ -5417,7 +5469,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 164
+      "__id__": 165
     },
     "_enabled": true,
     "__prefab": null,
@@ -5438,7 +5490,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 164
+      "__id__": 165
     },
     "_enabled": true,
     "__prefab": null,
@@ -5476,16 +5528,16 @@
     "_name": "CardContainer",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 163
+      "__id__": 164
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 168
+        "__id__": 169
       },
       {
-        "__id__": 169
+        "__id__": 170
       }
     ],
     "_prefab": null,
@@ -5523,7 +5575,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 167
+      "__id__": 168
     },
     "_enabled": true,
     "__prefab": null,
@@ -5544,7 +5596,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 167
+      "__id__": 168
     },
     "_enabled": true,
     "__prefab": null,
@@ -5560,13 +5612,13 @@
     "_name": "Buttons",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 163
+      "__id__": 164
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 171
+        "__id__": 172
       }
     ],
     "_prefab": null,
@@ -5604,7 +5656,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 170
+      "__id__": 171
     },
     "_enabled": true,
     "__prefab": null,
@@ -5625,7 +5677,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 163
+      "__id__": 164
     },
     "_enabled": true,
     "__prefab": null,
@@ -5646,20 +5698,20 @@
     "_name": "Title",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 162
+      "__id__": 163
     },
     "_children": [
       {
-        "__id__": 174
+        "__id__": 175
       },
       {
-        "__id__": 177
+        "__id__": 178
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 180
+        "__id__": 181
       }
     ],
     "_prefab": null,
@@ -5697,16 +5749,16 @@
     "_name": "Background",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 173
+      "__id__": 174
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 175
+        "__id__": 176
       },
       {
-        "__id__": 176
+        "__id__": 177
       }
     ],
     "_prefab": null,
@@ -5744,7 +5796,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 174
+      "__id__": 175
     },
     "_enabled": true,
     "__prefab": null,
@@ -5765,7 +5817,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 174
+      "__id__": 175
     },
     "_enabled": true,
     "__prefab": null,
@@ -5803,16 +5855,16 @@
     "_name": "Label",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 173
+      "__id__": 174
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 178
+        "__id__": 179
       },
       {
-        "__id__": 179
+        "__id__": 180
       }
     ],
     "_prefab": null,
@@ -5850,7 +5902,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 177
+      "__id__": 178
     },
     "_enabled": true,
     "__prefab": null,
@@ -5871,7 +5923,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 177
+      "__id__": 178
     },
     "_enabled": true,
     "__prefab": null,
@@ -5909,7 +5961,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 173
+      "__id__": 174
     },
     "_enabled": true,
     "__prefab": null,
@@ -5930,7 +5982,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 162
+      "__id__": 163
     },
     "_enabled": true,
     "__prefab": null,
@@ -5951,7 +6003,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 162
+      "__id__": 163
     },
     "_enabled": true,
     "__prefab": null,
@@ -6037,44 +6089,6 @@
     "gameWindow": {
       "__id__": 51
     },
-    "playerPrefab": {
-      "__uuid__": "ef4e6a3e-caad-4a75-9f93-f0c0731b5e6c",
-      "__expectedType__": "cc.Prefab"
-    },
-    "cardPrefab": {
-      "__uuid__": "35c85557-006b-43d4-ae91-35cde675d163",
-      "__expectedType__": "cc.Prefab"
-    },
-    "leftPlayerNodeList": {
-      "__id__": 103
-    },
-    "topPlayerNodeList": {
-      "__id__": 106
-    },
-    "rightPlayerNodeList": {
-      "__id__": 109
-    },
-    "deckText": {
-      "__id__": 112
-    },
-    "deckNode": {
-      "__id__": 150
-    },
-    "discardPileNode": {
-      "__id__": 152
-    },
-    "handCardUI": {
-      "__id__": 53
-    },
-    "cardGroupNode": {
-      "__id__": 154
-    },
-    "cardActionNode": {
-      "__id__": 159
-    },
-    "toolTipNode": {
-      "__id__": 117
-    },
     "_id": "2dOOUI3KxNb4U37j/HmKgC"
   },
   {
@@ -6096,22 +6110,22 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 189
-    },
-    "shadows": {
       "__id__": 190
     },
-    "_skybox": {
+    "shadows": {
       "__id__": 191
     },
-    "fog": {
+    "_skybox": {
       "__id__": 192
     },
-    "octree": {
+    "fog": {
       "__id__": 193
     },
-    "lightProbeInfo": {
+    "octree": {
       "__id__": 194
+    },
+    "lightProbeInfo": {
+      "__id__": 195
     },
     "bakedWithStationaryMainLight": false
   },

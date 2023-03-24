@@ -42,6 +42,7 @@ export class CardAction extends Component {
       for (let card of cardList) {
         if (!card.gameObject) {
           (<Card>card).gameObject = GamePools.cardPool.get();
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         }
         cardGroup.addData(card);
       }
@@ -119,6 +120,7 @@ export class CardAction extends Component {
 
   //开始传递情报动画
   async seedMessage(player: Player, message: GameCard) {
+    console.log(player);
     const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
     if (message instanceof UnknownCard && !message.gameObject) {
       message.gameObject = GamePools.cardPool.get();
