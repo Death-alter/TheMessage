@@ -11,6 +11,9 @@ import { CardAction } from "./CardAction";
 import { Tooltip } from "./Tooltip";
 import { GameData } from "../UI/Game/GameWindow/GameData";
 import * as ProcessEventType from "../Event/ProcessEventType";
+import { DataContainer } from "../Game/Container/DataContainer";
+import { GameLog } from "../Game/GameLog/GameLog";
+import { GameLogList } from "../Game/GameLog/GameLogList";
 
 const { ccclass, property } = _decorator;
 
@@ -27,9 +30,11 @@ export class GameManager extends Component {
   public cardAction: CardAction;
   public toolTip: Tooltip;
   public gameData: GameData;
+  public gameLog: GameLogList;
 
   onLoad() {
     this.gameData = new GameData();
+    this.gameLog = new GameLogList();
   }
 
   onEnable() {
@@ -42,6 +47,7 @@ export class GameManager extends Component {
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.initGame, this);
 
     this.gameData.registerEvents();
+    this.gameLog.registerEvents();
   }
 
   onDisable() {
@@ -49,6 +55,7 @@ export class GameManager extends Component {
     ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame);
     this.gameData.unregisterEvents();
+    this.gameLog.unregisterEvents();
   }
 
   startSelectCharacter(data: ProcessEventType.StartSelectCharacter) {
