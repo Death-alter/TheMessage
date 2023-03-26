@@ -158,7 +158,6 @@ export class CardAction extends Component {
   //传递情报动画
   transmitMessage({ messagePlayer, message }: GameEventType.MessageTransmission) {
     const panting = messagePlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
-    console.log(message);
     tween(message.gameObject.node)
       .to(0.8, {
         worldPosition: panting.worldPosition,
@@ -168,7 +167,6 @@ export class CardAction extends Component {
 
   //翻开情报动画
   turnOverMessage(message?: Card) {
-    console.log(message);
     if (this._messageInTransmit instanceof Card) {
       return this._messageInTransmit.flip();
     } else {
@@ -179,6 +177,7 @@ export class CardAction extends Component {
     }
   }
 
+  //选择接收情报
   chooseReceiveMessage({ player, message }: GameEventType.PlayerChooseReceiveMessage) {
     tween(message.gameObject.node)
       .to(0.33, {
