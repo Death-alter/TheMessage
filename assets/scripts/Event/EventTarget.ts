@@ -23,6 +23,7 @@ export class EventCenter<T = string, D = any> {
    * @param args[]
    */
   public emit(type: T, arg0?: D, arg1?: D, arg2?: D, arg3?: D, arg4?: D) {
+    console.log(type);
     this.eventTarget.emit(type as string, arg0, arg1, arg2, arg3, arg4);
   }
 

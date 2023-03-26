@@ -46,8 +46,42 @@ export class GameData extends DataBasic<GameUI> {
   }
   private set gamePhase(phase: GamePhase) {
     if (phase == null || phase === this._gamePhase) return;
+    switch (this._gamePhase) {
+      case GamePhase.DRAW_PHASE:
+        GameEventCenter.emit(GameEvent.DRAW_PHASE_END);
+        break;
+      case GamePhase.MAIN_PHASE:
+        GameEventCenter.emit(GameEvent.MAIN_PHASE_END);
+        break;
+      case GamePhase.SEND_PHASE:
+        GameEventCenter.emit(GameEvent.SEND_PHASE_END);
+        break;
+      case GamePhase.FIGHT_PHASE:
+        GameEventCenter.emit(GameEvent.FIGHT_PHASE_END);
+        break;
+      case GamePhase.RECEIVE_PHASE:
+        GameEventCenter.emit(GameEvent.RECEIVE_PHASE_END);
+        break;
+    }
     this._gamePhase = phase;
     GameEventCenter.emit(GameEvent.GAME_PHASE_CHANGE, { phase, turnPlayer: this.playerList[this.turnPlayerId] });
+    switch (this._gamePhase) {
+      case GamePhase.DRAW_PHASE:
+        GameEventCenter.emit(GameEvent.DRAW_PHASE_START);
+        break;
+      case GamePhase.MAIN_PHASE:
+        GameEventCenter.emit(GameEvent.MAIN_PHASE_START);
+        break;
+      case GamePhase.SEND_PHASE_START:
+        GameEventCenter.emit(GameEvent.SEND_PHASE_START);
+        break;
+      case GamePhase.FIGHT_PHASE:
+        GameEventCenter.emit(GameEvent.FIGHT_PHASE_START);
+        break;
+      case GamePhase.RECEIVE_PHASE:
+        GameEventCenter.emit(GameEvent.RECEIVE_PHASE_START);
+        break;
+    }
   }
 
   get turnPlayerId() {
@@ -106,9 +140,9 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
+    // ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
+    // ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
+    // ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
   }
 
   unregisterEvents() {
@@ -125,9 +159,9 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie);
     ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
-    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
-    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
-    ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
+    // ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
+    // ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
+    // ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
   }
 
   //初始化游戏
@@ -166,11 +200,20 @@ export class GameData extends DataBasic<GameUI> {
     this.gamePhase = data.currentPhase;
 
     //如果有传递的情报
-    if (data.messagePlayerId) {
+    if (data.messagePlayerId != null) {
       this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<unknown>data.messageDirection) as CardDirection;
       if (data.messageInTransmit && data.messageInTransmit.cardId !== this.messageInTransmit.id) {
         this.messageInTransmit = this.createMessage(data.messageInTransmit);
+      }
+
+      if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
+        //接收阶段
+        GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
+          player: this.playerList[data.messagePlayerId],
+          message: this.messageInTransmit,
+        });
+        this.messagePlayerId = null;
       }
     }
   }
@@ -233,14 +276,21 @@ export class GameData extends DataBasic<GameUI> {
   //有人传出情报
   private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
+    const targetPlayer = this.playerList[data.targetPlayerId];
     const card = player.removeHandCard(data.cardId)[0];
     this.messageInTransmit = card;
-    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, { player });
+    if (card instanceof Card) {
+      card.onSend();
+    }
+    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, { player, message: card, targetPlayer });
   }
 
   //有人选择接收情报
   private playerChooseReceiveMessage(data: ProcessEventType.ChooseReceive) {
-    GameEventCenter.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, { player: this.playerList[data.playerId] });
+    GameEventCenter.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, {
+      player: this.playerList[data.playerId],
+      message: this.messageInTransmit,
+    });
   }
 
   //濒死求澄清

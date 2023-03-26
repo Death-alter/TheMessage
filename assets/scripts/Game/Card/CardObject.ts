@@ -28,7 +28,6 @@ export class CardObject extends GameObject<GameCard> {
       imageNode.active = false;
       coverNode.active = true;
     } else {
-      console.log(card);
       imageNode.active = true;
       resources.load(card.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
@@ -64,18 +63,17 @@ export class CardObject extends GameObject<GameCard> {
   }
 
   flip() {
-    const node = this.node.getChildByName("Inner");
-    //未知卡牌不能翻面
-    if (!this.data || this.data instanceof UnknownCard) {
-      return;
-    } else {
-      //翻面动画
-      return new Promise((reslove, reject) => {
+    return new Promise((reslove, reject) => {
+      const node = this.node.getChildByName("Inner");
+      //未知卡牌不能翻面
+      if (!this.data || this.data instanceof UnknownCard) {
+        reject();
+      } else {
+        //翻面动画
         const scale = node.scale;
         tween(node)
           .to(0.5, { scale: new Vec3(0, 1, 1) })
           .call(() => {
-            console.log(this.data);
             if (this.data) {
               this.refresh(this.data);
             }
@@ -85,7 +83,7 @@ export class CardObject extends GameObject<GameCard> {
             reslove(null);
           })
           .start();
-      });
-    }
+      }
+    });
   }
 }

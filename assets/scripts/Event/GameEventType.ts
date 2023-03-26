@@ -48,10 +48,18 @@ export interface CharacterStatusChange {
 
 export interface PlayerSendMessage {
   player: Player;
+  message: GameCard;
+  targetPlayer: Player;
 }
 
 export interface PlayerChooseReceiveMessage {
   player: Player;
+  message: GameCard;
+}
+
+export interface PlayerReceiveMessage {
+  player: Player;
+  message: Card;
 }
 
 export interface PlayerDying {

@@ -26,16 +26,23 @@ export class CardAction extends Component {
   onEnable() {
     GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
     GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
+    GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
+    GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage, this);
+    GameEventCenter.on(GameEvent.RECEIVE_PHASE_START, this.receiveMessage, this);
   }
 
   onDisable() {
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
+    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage);
+    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
+    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage);
+    GameEventCenter.on(GameEvent.RECEIVE_PHASE_START, this.receiveMessage);
   }
 
   //抽牌动画
-  drawCards(data: GameEventType.PlayerDrawCard) {
-    const { player, cardList } = data;
+  drawCards({ player, cardList }: GameEventType.PlayerDrawCard) {
     return new Promise((resolve, reject) => {
       const cardGroup = new DataContainer<GameCard>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
@@ -70,8 +77,7 @@ export class CardAction extends Component {
   }
 
   //弃牌动画
-  discardCards(data: GameEventType.PlayerDiscardCard) {
-    const { player, cardList } = data;
+  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard) {
     return new Promise((resolve, reject) => {
       if (player.id === 0) {
         cardList.forEach((card) => {
@@ -118,35 +124,42 @@ export class CardAction extends Component {
 
   giveCards(form: Player, to: Player, cards: GameCard[]) {}
 
-  //开始传递情报动画
-  async seedMessage(player: Player, message: GameCard) {
-    console.log(player);
+  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
     const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
+    const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
+    const position = message.gameObject.node.worldPosition;
     if (message instanceof UnknownCard && !message.gameObject) {
       message.gameObject = GamePools.cardPool.get();
     }
+    this.handCardNode.getComponent(HandCardContianer).data.removeData(message);
     message.gameObject.node.setParent(this.node);
-    this._messageInTransmit = message;
-    if (this._messageInTransmit.status === CardStatus.FACE_UP) {
-      await this.turnOverMessage(<Card>this._messageInTransmit);
-    }
+    message.gameObject.node.worldPosition = position;
     if (player.id === 0) {
       tween(message.gameObject.node)
-        .to(0.8, {
+        .to(0.5, {
           worldPosition: panting.worldPosition,
           scale: new Vec3(0.6, 0.6, 1),
+        })
+        .to(0.8, {
+          worldPosition: targetPanting.worldPosition,
         })
         .start();
     } else {
       message.gameObject.node.worldPosition = panting.worldPosition;
       message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      tween(message.gameObject.node)
+        .to(0.8, {
+          worldPosition: targetPanting.worldPosition,
+        })
+        .start();
     }
   }
 
   //传递情报动画
-  transmitMessage(player: Player) {
-    const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
-    tween(this._messageInTransmit.gameObject.node)
+  transmitMessage({ messagePlayer, message }: GameEventType.MessageTransmission) {
+    const panting = messagePlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
+    console.log(message);
+    tween(message.gameObject.node)
       .to(0.8, {
         worldPosition: panting.worldPosition,
       })
@@ -166,8 +179,8 @@ export class CardAction extends Component {
     }
   }
 
-  chooseReceiveMessage() {
-    tween(this._messageInTransmit.gameObject.node)
+  chooseReceiveMessage({ player, message }: GameEventType.PlayerChooseReceiveMessage) {
+    tween(message.gameObject.node)
       .to(0.33, {
         scale: new Vec3(1, 1, 1),
       })
@@ -178,26 +191,21 @@ export class CardAction extends Component {
   }
 
   //接收情报动画
-  async receiveMessage(player: Player, card: Card) {
-    if (this._messageInTransmit.id !== card.id) {
-      card.gameObject = this._messageInTransmit.gameObject;
-      this._messageInTransmit = card;
-    }
+  async receiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
     const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
-    console.log(this._messageInTransmit);
-    if (this._messageInTransmit.status === CardStatus.FACE_DOWN) {
+    if (message.status === CardStatus.FACE_DOWN) {
       const time = new Date().getTime();
-      await this.turnOverMessage(<Card>this._messageInTransmit);
+      await message.flip();
       console.log(time - new Date().getTime());
     }
-    tween(this._messageInTransmit.gameObject.node)
+    tween(message.gameObject.node)
       .to(0.5, {
         worldPosition: messageContainer.worldPosition,
         scale: new Vec3(0, 0, 1),
       })
       .call(() => {
-        GamePools.cardPool.put(this._messageInTransmit.gameObject);
-        this._messageInTransmit.gameObject = null;
+        GamePools.cardPool.put(message.gameObject);
+        message.gameObject = null;
       })
       .start();
   }

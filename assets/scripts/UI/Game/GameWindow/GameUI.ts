@@ -76,19 +76,22 @@ export class GameUI extends GameObject<GameData> {
     // GameEventCenter.on(GameEvent.DECK_SHUFFLED, () => {});
 
     //抽卡
-    GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
+    // GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
 
     //弃牌
-    GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
+    // GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
 
-    //收到角色更新
-    // GameEventCenter.on(GameEvent.CHARACTER_STATUS_CHANGE, (data: GameEventType.CharacterStatusChange) => {});
+    //玩家开始传递情报
+    // GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
 
-    //有人传出情报
-    GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
+    //情报传递
+    // GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
 
     //有人选择接收情报
-    GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
+    // GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage, this);
+
+    //接收情报
+    // GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
 
     //濒死求澄清
     // GameEventCenter.on(GameEvent.PLAYER_DYING, (data: GameEventType.PlayerDying) => {});
@@ -97,10 +100,10 @@ export class GameUI extends GameObject<GameData> {
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
 
     //玩家死亡
-    GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
+    // GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
 
     //死亡给牌
-    GameEventCenter.on(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
+    // GameEventCenter.on(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
 
     //游戏结束
     // GameEventCenter.on(GameEvent.GAME_OVER, (data: notify_winner_toc) => {});
@@ -110,10 +113,10 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown);
     GameEventCenter.off(GameEvent.GAME_INIT, this.init);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
-    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
-    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
-    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission);
-    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
+    // GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
+    // GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
+    // GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
+    // GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie);
     GameEventCenter.off(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
   }
@@ -172,32 +175,31 @@ export class GameUI extends GameObject<GameData> {
     this.deckText.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + data.number.toString();
   }
 
-  onMessageTransmission(data: GameEventType.MessageTransmission) {
-    const { message, messagePlayer } = data;
-    console.log(data);
-    this.cardAction.seedMessage(messagePlayer, message);
-  }
+  // drawCards(data: GameEventType.PlayerDrawCard) {
+  // }
 
-  drawCards(data: GameEventType.PlayerDrawCard) {
-    //抽牌动画
-    const { player, cardList } = data;
-    this.cardAction.drawCards(player, cardList);
-  }
+  // discardCards(data: GameEventType.PlayerDrawCard) {
+  // }
 
-  discardCards(data: GameEventType.PlayerDiscardCard) {
-    //弃牌动画
-    const { player, cardList } = data;
-    this.cardAction.discardCards(player, cardList);
-  }
+  // playerSendMessage(data: GameEventType.PlayerSendMessage) {
+  //   if (data.player.id === 0) {
+  //     this.handCardList.removeData(data.message);
+  //   }
+  //   this.cardAction.playerSendMessage(data);
+  // }
 
-  playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
-    this.cardAction.chooseReceiveMessage();
-  }
+  // transmitMessage(data: GameEventType.MessageTransmission) {
+  //   this.cardAction.transmitMessage(data);
+  // }
+
+  // chooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
+  //   this.cardAction.chooseReceiveMessage(data);
+  // }
 
   playerDie(data: GameEventType.PlayerDie) {
     const { player, handCards, messages } = data;
-    this.cardAction.discardCards(player, handCards);
-    this.cardAction.discardCards(player, messages);
+    this.cardAction.discardCards({ player, cardList: handCards });
+    this.cardAction.discardCards({ player, cardList: messages });
   }
 
   playerDieGiveCard(data: GameEventType.PlayerDieGiveCard) {
