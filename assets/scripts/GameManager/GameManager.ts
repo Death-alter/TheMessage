@@ -12,6 +12,8 @@ import GamePools from "./GamePools";
 import { CardObject } from "../Game/Card/CardObject";
 import { CardGroupObject } from "../Game/Container/CardGroupObject";
 import { GameLogMessageObject } from "../Game/GameLog/GameLogMessageObject";
+import { GameUI } from "../UI/Game/GameWindow/GameUI";
+import { GameLogContainer } from "../Game/GameLog/GameLogContainer";
 
 const { ccclass, property } = _decorator;
 
@@ -21,6 +23,8 @@ export class GameManager extends Component {
   selectCharacterWindow: Node | null = null;
   @property(Node)
   gameWindow: Node | null = null;
+  @property(Node)
+  logContainer: Node | null = null;
   @property(Prefab)
   cardPrefab: Prefab | null = null;
   @property(Prefab)
@@ -32,8 +36,8 @@ export class GameManager extends Component {
   public gameLog: GameLogList;
 
   onLoad() {
-    this.gameData = new GameData();
-    this.gameLog = new GameLogList();
+    this.gameData = new GameData(this.gameWindow.getComponent(GameUI));
+    this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
   }
 
   onEnable() {

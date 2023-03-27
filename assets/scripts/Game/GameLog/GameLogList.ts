@@ -8,30 +8,31 @@ import * as GameEventType from "../../Event/GameEventType";
 import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { GameObject } from "../../GameObject";
+import GamePools from "../../GameManager/GamePools";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
 
-//   protected _gameObject: GameObject<GameLog>;
+  //   protected _gameObject: GameObject<GameLog>;
 
-//   get gameObject(): T {
-//     return this._gameObject;
-//   }
+  //   get gameObject(): T {
+  //     return this._gameObject;
+  //   }
 
-//   set gameObject(object: T | null) {
-//     if (object == this._gameObject) return;
-//     if (object) {
-//       if (this._gameObject) {
-//         this._gameObject.data = null;
-//       }
-//       this._gameObject = object;
-//       object.data = this;
-//     } else {
-//       const oldObject = this._gameObject;
-//       this._gameObject = null;
-//       oldObject.data = null;
-//     }
-//   }
+  //   set gameObject(object: T | null) {
+  //     if (object == this._gameObject) return;
+  //     if (object) {
+  //       if (this._gameObject) {
+  //         this._gameObject.data = null;
+  //       }
+  //       this._gameObject = object;
+  //       object.data = this;
+  //     } else {
+  //       const oldObject = this._gameObject;
+  //       this._gameObject = null;
+  //       oldObject.data = null;
+  //     }
+  //   }
 
   constructor(gameObject?: GameLogContainer | GameLogWindow) {
     super(gameObject);
@@ -48,10 +49,18 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}抽了${cardList.length}张牌。`));
+    const log = this.createLog(`【${player.seatNumber + 1}号】${player.character.name}抽了${cardList.length}张牌。`);
+    this.addData(log);
   }
 
   onPlayerDiscardCard({ cardList, player }: GameEventType.PlayerDiscardCard) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`));
+    const log = this.createLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`);
+    this.addData(log);
+  }
+
+  createLog(str: string) {
+    const log = new GameLog(str);
+    log.gameObject = GamePools.logMessagePool.get();
+    return log;
   }
 }

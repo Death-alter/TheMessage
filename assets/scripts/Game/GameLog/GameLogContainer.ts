@@ -9,7 +9,10 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
   init() {}
   onDataAdded(data: GameLog): void {
     data.gameObject.init();
-    data.gameObject.show(3);
+    data.gameObject.setText(data.text);
+    data.gameObject.show(3).then(() => {
+      data.gameObject.node.removeFromParent();
+    });
   }
   onDataRemoved(data: GameLog): void {}
   onAllDataRemoved(): void {}

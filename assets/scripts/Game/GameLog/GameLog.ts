@@ -10,6 +10,7 @@ export class GameLog extends DataBasic<GameLogMessageObject & GameLogTextObject>
   // public card: GameCard;
   // public message: GameCard;
   // public skill: Skill;
+
   public text: string;
 
   constructor(text: string) {

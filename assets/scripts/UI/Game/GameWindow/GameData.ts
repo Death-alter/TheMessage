@@ -109,6 +109,13 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
+  constructor(gameObject?: GameUI) {
+    super();
+    if (gameObject) {
+      this._gameObject = gameObject;
+    }
+  }
+
   registerEvents() {
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
     ProcessEventCenter.on(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
