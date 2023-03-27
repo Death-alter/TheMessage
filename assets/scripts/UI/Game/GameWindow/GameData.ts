@@ -180,13 +180,11 @@ export class GameData extends DataBasic<GameUI> {
       );
     }
 
-    console.log(this.playerList);
-
     //自己的角色设置身份
     this.selfPlayer = this.playerList[0];
     this.identity = createIdentity(
-      (<unknown>data.identity) as IdentityType,
-      (<unknown>data.secretTask) as SecretTaskType
+      (<number>data.identity) as IdentityType,
+      (<number>data.secretTask) as SecretTaskType
     );
     this.selfPlayer.confirmIdentity(this.identity);
 
@@ -202,15 +200,19 @@ export class GameData extends DataBasic<GameUI> {
     //如果有传递的情报
     if (data.messagePlayerId != null) {
       this.messagePlayerId = data.messagePlayerId;
-      this.messageDirection = (<unknown>data.messageDirection) as CardDirection;
-      if (data.messageInTransmit && data.messageInTransmit.cardId !== this.messageInTransmit.id) {
-        this.messageInTransmit = this.createMessage(data.messageInTransmit);
+      this.messageDirection = (<number>data.messageDirection) as CardDirection;
+      if (data.messageInTransmit) {
+        if (!this.messageInTransmit || data.messageInTransmit.cardId !== this.messageInTransmit.id) {
+          this.messageInTransmit = this.createMessage(data.messageInTransmit);
+        }
       }
 
       if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
         //接收阶段
+        const player = this.playerList[data.messagePlayerId];
+        player.addMessage(<Card>this.messageInTransmit);
         GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
-          player: this.playerList[data.messagePlayerId],
+          player,
           message: this.messageInTransmit,
         });
         this.messagePlayerId = null;
@@ -413,10 +415,10 @@ export class GameData extends DataBasic<GameUI> {
     if (card) {
       return createCard({
         id: card.cardId,
-        color: (<unknown>card.cardColor) as CardColor[],
-        type: (<unknown>card.cardType) as CardType,
-        direction: (<unknown>card.cardDir) as CardDirection,
-        drawCardColor: (<unknown>card.whoDrawCard) as CardColor[],
+        color: (<number[]>card.cardColor) as CardColor[],
+        type: (<number>card.cardType) as CardType,
+        direction: (<number>card.cardDir) as CardDirection,
+        drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
         usage: usage || CardUsage.UNKNOWN,
         lockable: card.canLock,
       });

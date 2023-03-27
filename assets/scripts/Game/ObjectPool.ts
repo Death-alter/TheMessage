@@ -1,8 +1,7 @@
 import { _decorator, instantiate, NodePool } from "cc";
-import { DataBasic } from "../DataBasic";
 import { GameObject } from "../GameObject";
 
-export class ObjectPool<T extends GameObject<DataBasic<T>>> {
+export class ObjectPool<T extends GameObject<any>> {
   private pool: NodePool = new NodePool();
   private template: T = null;
 

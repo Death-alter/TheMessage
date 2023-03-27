@@ -1,19 +1,17 @@
-import { _decorator, Component, Node, resources } from "cc";
+import { _decorator, Component, Node, resources, Prefab, instantiate } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
 import { ProcessEventCenter } from "../Event/EventTarget";
 import { ProcessEvent } from "../Event/type";
 import { createIdentity } from "../Game/Identity";
-import { Identity } from "../Game/Identity/Identity";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
 import { CharacterType } from "../Game/Character/type";
-import { Player } from "../Game/Player/Player";
-import { CardAction } from "./CardAction";
-import { Tooltip } from "./Tooltip";
 import { GameData } from "../UI/Game/GameWindow/GameData";
 import * as ProcessEventType from "../Event/ProcessEventType";
-import { DataContainer } from "../Game/Container/DataContainer";
-import { GameLog } from "../Game/GameLog/GameLog";
 import { GameLogList } from "../Game/GameLog/GameLogList";
+import GamePools from "./GamePools";
+import { CardObject } from "../Game/Card/CardObject";
+import { CardGroupObject } from "../Game/Container/CardGroupObject";
+import { GameLogMessageObject } from "../Game/GameLog/GameLogMessageObject";
 
 const { ccclass, property } = _decorator;
 
@@ -23,12 +21,13 @@ export class GameManager extends Component {
   selectCharacterWindow: Node | null = null;
   @property(Node)
   gameWindow: Node | null = null;
+  @property(Prefab)
+  cardPrefab: Prefab | null = null;
+  @property(Prefab)
+  logPrefab: Prefab | null = null;
+  @property(Node)
+  cardGroupNode: Node | null = null;
 
-  public identity: Identity;
-  public selfPlayer: Player;
-  public playerCharacterIdList: number[];
-  public cardAction: CardAction;
-  public toolTip: Tooltip;
   public gameData: GameData;
   public gameLog: GameLogList;
 
@@ -38,6 +37,13 @@ export class GameManager extends Component {
   }
 
   onEnable() {
+    //初始化GamePools
+    GamePools.init({
+      card: instantiate(this.cardPrefab).getComponent(CardObject),
+      cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
+      logMessage: instantiate(this.logPrefab).getComponent(GameLogMessageObject),
+    });
+
     this.gameWindow.active = false;
 
     //开始选人
@@ -59,14 +65,9 @@ export class GameManager extends Component {
   }
 
   startSelectCharacter(data: ProcessEventType.StartSelectCharacter) {
-    this.identity = createIdentity(
-      (<unknown>data.identity) as IdentityType,
-      (<unknown>data.secretTask) as SecretTaskType
-    );
-    this.playerCharacterIdList = data.characterIdList;
     this.selectCharacterWindow.getComponent(SelectCharacter).init({
-      identity: this.identity,
-      roles: (<unknown[]>data.characterIdList) as CharacterType[],
+      identity: createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType),
+      roles: (<number[]>data.characterIdList) as CharacterType[],
       waitingSecond: data.waitingSecond,
     });
   }

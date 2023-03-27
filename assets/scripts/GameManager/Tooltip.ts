@@ -33,7 +33,7 @@ export class Tooltip extends Component {
           case GamePhase.MAIN_PHASE:
             this.setText(TooltipText.SELF_MAIN_PHASE);
             break;
-          case GamePhase.SEND_PHASE:
+          case GamePhase.SEND_PHASE_START:
             this.setText(TooltipText.SELF_SEND_PHASE);
             break;
           case GamePhase.FIGHT_PHASE:

@@ -18,7 +18,7 @@ interface createCardOption {
   type: CardType;
   color: CardColor[];
   direction: CardDirection;
-  drawCardColor: CardColor[];
+  drawCardColor?: CardColor[];
   lockable: boolean;
   status?: CardStatus;
   usage?: CardUsage;

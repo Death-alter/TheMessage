@@ -67,7 +67,7 @@ export abstract class Card extends DataBasic<CardObject> {
     this._name = option.name;
     this._sprite = option.sprite;
     this._type = option.type;
-    this._status = option.status || CardStatus.FACE_UP;
+    this._status = option.status == null ? CardStatus.FACE_UP : option.status;
     this._usage = option.usage || CardUsage.UNKNOWN;
     this._direction = option.direction;
     this._color = option.color;

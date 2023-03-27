@@ -70,7 +70,6 @@ export class CardObject extends GameObject<GameCard> {
         reject();
       } else {
         //翻面动画
-        const scale = node.scale;
         tween(node)
           .to(0.5, { scale: new Vec3(0, 1, 1) })
           .call(() => {
@@ -78,7 +77,7 @@ export class CardObject extends GameObject<GameCard> {
               this.refresh(this.data);
             }
           })
-          .to(0.5, { scale })
+          .to(0.5, { scale: new Vec3(1, 1, 1) })
           .call(() => {
             reslove(null);
           })

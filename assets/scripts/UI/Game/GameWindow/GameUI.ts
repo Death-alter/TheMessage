@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, instantiate, Layout, Label } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label } from "cc";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../../../Event/type";
 import { CardObject } from "../../../Game/Card/CardObject";
@@ -13,6 +13,7 @@ import { HandCardList } from "../../../Game/Container/HandCardList";
 import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
+import { Card, UnknownCard } from "../../../Game/Card/Card";
 
 const { ccclass, property } = _decorator;
 
@@ -20,8 +21,6 @@ const { ccclass, property } = _decorator;
 export class GameUI extends GameObject<GameData> {
   @property(Prefab)
   playerPrefab: Prefab | null = null;
-  @property(Prefab)
-  cardPrefab: Prefab | null = null;
   @property(Node)
   leftPlayerNodeList: Node | null = null;
   @property(Node)
@@ -37,8 +36,6 @@ export class GameUI extends GameObject<GameData> {
   @property(Node)
   handCardUI: Node | null = null;
   @property(Node)
-  cardGroupNode: Node | null = null;
-  @property(Node)
   cardActionNode: Node | null = null;
   @property(Node)
   toolTipNode: Node | null = null;
@@ -50,11 +47,6 @@ export class GameUI extends GameObject<GameData> {
   public seq: number;
 
   onLoad() {
-    //初始化GamePools
-    GamePools.init({
-      card: instantiate(this.cardPrefab).getComponent(CardObject),
-      cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
-    });
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.toolTip = this.toolTipNode.getComponent(Tooltip);
   }
@@ -75,23 +67,23 @@ export class GameUI extends GameObject<GameData> {
     //播放洗牌动画（如果做了的话）
     // GameEventCenter.on(GameEvent.DECK_SHUFFLED, () => {});
 
-    //抽卡
-    // GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
+    //抽牌
+    GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
 
     //弃牌
-    // GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
+    GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
 
     //玩家开始传递情报
-    // GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
 
     //情报传递
-    // GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
+    GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
 
     //有人选择接收情报
-    // GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
 
     //接收情报
-    // GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage, this);
 
     //濒死求澄清
     // GameEventCenter.on(GameEvent.PLAYER_DYING, (data: GameEventType.PlayerDying) => {});
@@ -113,10 +105,11 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown);
     GameEventCenter.off(GameEvent.GAME_INIT, this.init);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
-    // GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
-    // GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
-    // GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
-    // GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.chooseReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
+    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
+    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
+    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie);
     GameEventCenter.off(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
   }
@@ -175,26 +168,36 @@ export class GameUI extends GameObject<GameData> {
     this.deckText.getChildByName("Label").getComponent(Label).string = "牌堆剩余数量：" + data.number.toString();
   }
 
-  // drawCards(data: GameEventType.PlayerDrawCard) {
-  // }
+  drawCards(data: GameEventType.PlayerDrawCard) {
+    this.cardAction.drawCards(data);
+  }
 
-  // discardCards(data: GameEventType.PlayerDrawCard) {
-  // }
+  discardCards(data: GameEventType.PlayerDrawCard) {
+    this.cardAction.discardCards(data);
+  }
 
-  // playerSendMessage(data: GameEventType.PlayerSendMessage) {
-  //   if (data.player.id === 0) {
-  //     this.handCardList.removeData(data.message);
-  //   }
-  //   this.cardAction.playerSendMessage(data);
-  // }
+  playerSendMessage(data: GameEventType.PlayerSendMessage) {
+    if (data.player.id === 0) {
+      this.handCardList.removeData(data.message);
+      (<Card>data.message).flip().then(() => {
+        this.cardAction.playerSendMessage(data);
+      });
+    } else {
+      this.cardAction.playerSendMessage(data);
+    }
+  }
 
-  // transmitMessage(data: GameEventType.MessageTransmission) {
-  //   this.cardAction.transmitMessage(data);
-  // }
+  transmitMessage(data: GameEventType.MessageTransmission) {
+    this.cardAction.transmitMessage(data);
+  }
 
-  // chooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
-  //   this.cardAction.chooseReceiveMessage(data);
-  // }
+  playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
+    this.cardAction.chooseReceiveMessage(data);
+  }
+
+  PlayerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
+    this.cardAction.receiveMessage(data);
+  }
 
   playerDie(data: GameEventType.PlayerDie) {
     const { player, handCards, messages } = data;

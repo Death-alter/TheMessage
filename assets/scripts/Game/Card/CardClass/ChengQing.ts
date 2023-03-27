@@ -19,7 +19,7 @@ export class ChengQing extends Card {
   }
 
   onConfirmPlay(gameData: GameData) {
-
+    
   }
 
   onEffect(gameData: GameData, { targetPlayer, targetCardId }: CardOnEffectParams) {

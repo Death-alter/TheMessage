@@ -2,8 +2,6 @@ import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITrans
 import { GameLog } from "./GameLog";
 import { GameObjectContainer } from "../Container/GameObjectContainer";
 import { GameLogMessageObject } from "./GameLogMessageObject";
-import { GameEventCenter } from "../../Event/EventTarget";
-import { GameEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
