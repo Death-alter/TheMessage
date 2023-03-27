@@ -7,8 +7,6 @@ import { GameLogWindow } from "./GameLogWindow";
 import * as GameEventType from "../../Event/GameEventType";
 import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
-import { GameObject } from "../../GameObject";
-import GamePools from "../../GameManager/GamePools";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
@@ -49,18 +47,10 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
-    const log = this.createLog(`【${player.seatNumber + 1}号】${player.character.name}抽了${cardList.length}张牌。`);
-    this.addData(log);
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}抽了${cardList.length}张牌。`));
   }
 
   onPlayerDiscardCard({ cardList, player }: GameEventType.PlayerDiscardCard) {
-    const log = this.createLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`);
-    this.addData(log);
-  }
-
-  createLog(str: string) {
-    const log = new GameLog(str);
-    log.gameObject = GamePools.logMessagePool.get();
-    return log;
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`));
   }
 }
