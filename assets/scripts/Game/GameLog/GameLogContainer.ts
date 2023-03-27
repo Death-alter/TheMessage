@@ -1,7 +1,8 @@
-import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween } from "cc";
+import { _decorator } from "cc";
 import { GameLog } from "./GameLog";
 import { GameObjectContainer } from "../Container/GameObjectContainer";
 import { GameLogMessageObject } from "./GameLogMessageObject";
+import GamePools from "../../GameManager/GamePools";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
@@ -11,7 +12,8 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
     data.gameObject.init();
     data.gameObject.setText(data.text);
     data.gameObject.show(3).then(() => {
-      data.gameObject.node.removeFromParent();
+      GamePools.logMessagePool.put(data.gameObject);
+      data.gameObject = null;
     });
   }
   onDataRemoved(data: GameLog): void {}
