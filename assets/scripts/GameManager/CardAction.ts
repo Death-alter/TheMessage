@@ -50,6 +50,7 @@ export class CardAction extends Component {
           }
           cardGroup.removeAllData();
           GamePools.cardGroupPool.put(cardGroup.gameObject);
+          cardGroup.gameObject = null;
           resolve(null);
         })
         .start();
@@ -93,6 +94,7 @@ export class CardAction extends Component {
             }
             cardGroup.removeAllData();
             GamePools.cardGroupPool.put(cardGroup.gameObject);
+            cardGroup.gameObject = null;
             resolve(null);
           });
       }
@@ -100,7 +102,36 @@ export class CardAction extends Component {
   }
 
   //打出卡牌动画，播放声音
-  useCard(user: Player, target: Player, card: Card) {}
+  playerPlayCard(data: GameEventType.PlayerPalyCard) {
+    const { card, player } = data;
+    if (!card.gameObject) {
+      (<Card>card).gameObject = GamePools.cardPool.get();
+      card.gameObject.node.setParent(this.node);
+      card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
+    }
+
+    if (player.id === 0) {
+      tween(card.gameObject.node)
+        .to(0.6, {
+          scale: new Vec3(0.6, 0.6, 1),
+          worldPosition: this.discardPileNode.worldPosition,
+        })
+        .start();
+    } else {
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      tween(card.gameObject.node)
+        .to(0.6, {
+          worldPosition: this.discardPileNode.worldPosition,
+        })
+        .start();
+    }
+  }
+
+  afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
+    const { card } = data;
+    GamePools.cardPool.put(card.gameObject);
+    card.gameObject = null;
+  }
 
   giveCards(form: Player, to: Player, cards: GameCard[]) {}
 

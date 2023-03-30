@@ -1,4 +1,4 @@
-import { _decorator, UIOpacity, Tween, tween, Label } from "cc";
+import { _decorator, UIOpacity, Tween, tween, Label, Node, UITransform } from "cc";
 import { GameObject } from "../../GameObject";
 import { GameLog } from "./GameLog";
 const { ccclass } = _decorator;
@@ -8,15 +8,18 @@ export class GameLogMessageObject extends GameObject<GameLog> {
   private _opacityTarget: UIOpacity | null = null;
   private _action: Tween<any> = null;
   private label: Label = null;
+  private background: Node = null;
 
   init() {
     this.label = this.node.getChildByName("Label").getComponent(Label);
+    this.background = this.node.getChildByName("Background");
     this._opacityTarget = this.getComponent(UIOpacity);
     tween(this._opacityTarget).hide().start();
   }
 
   setText(str: string) {
     this.label.string = str;
+    this.background.getComponent(UITransform).width = str.length * 20 + 10;
   }
 
   show(seconds = 2) {

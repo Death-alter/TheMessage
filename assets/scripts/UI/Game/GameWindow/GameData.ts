@@ -120,18 +120,18 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
     ProcessEventCenter.on(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
     ProcessEventCenter.once(
-      ProcessEvent.GET_PHASE_DATA,
-      (data: ProcessEventType.GetPhaseData) => {
+      ProcessEvent.DRAW_CARDS,
+      (data: ProcessEventType.DrawCards) => {
         //设置座位号
-        let i = data.currentPlayerId;
+        let i = data.playerId;
         let j = 0;
         do {
           this.playerList[i].seatNumber = j;
           i = (i + 1) % this.playerCount;
           ++j;
-        } while (i !== data.currentPlayerId);
+        } while (i !== data.playerId);
         GameEventCenter.emit(GameEvent.GAME_START, {
-          firstPlayerId: data.currentPlayerId,
+          firstPlayerId: data.playerId,
         });
       },
       this
@@ -147,9 +147,9 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
-    // ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
-    // ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
-    // ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
+    ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
+    ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
+    ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
   }
 
   unregisterEvents() {
@@ -166,9 +166,9 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie);
     ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
-    // ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
-    // ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
-    // ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
+    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
+    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
+    ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
   }
 
   //初始化游戏
@@ -381,7 +381,11 @@ export class GameData extends DataBasic<GameUI> {
     }
     if (card instanceof Card) card.onPlay();
     this.cardOnPlay = card;
-    GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, { player: this.playerList[data.userId], card });
+    const eventData: any = { player: this.playerList[data.userId], card };
+    if (data.targetPlayerId) {
+      eventData.targetPlayer = this.playerList[data.targetPlayerId];
+    }
+    GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
   }
 
   //卡牌效果处理
@@ -414,8 +418,9 @@ export class GameData extends DataBasic<GameUI> {
 
   //卡牌处理完毕
   private cardHandleFinish() {
+    const card = this.cardOnPlay;
     this.cardOnPlay = null;
-    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD);
+    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
   }
 
   private createCard(card?: card, usage?: CardUsage): GameCard {

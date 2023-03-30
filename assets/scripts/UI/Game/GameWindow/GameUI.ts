@@ -73,6 +73,12 @@ export class GameUI extends GameObject<GameData> {
     //弃牌
     GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
 
+    //打出卡牌
+    GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
+
+    //打出卡牌
+    GameEventCenter.on(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
+
     //玩家开始传递情报
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
 
@@ -107,6 +113,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
+    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage);
@@ -207,5 +214,16 @@ export class GameUI extends GameObject<GameData> {
 
   playerDieGiveCard(data: GameEventType.PlayerDieGiveCard) {
     this.cardAction.giveCards(data.player, data.targetPlayer, data.cardList);
+  }
+
+  playerPlayCard(data: GameEventType.PlayerPalyCard) {
+    if (data.player.id === 0) {
+      this.handCardList.removeData(data.card);
+    }
+    this.cardAction.playerPlayCard(data);
+  }
+
+  afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
+    this.cardAction.afterPlayerPlayCard(data);
   }
 }

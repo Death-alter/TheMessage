@@ -101,5 +101,10 @@ export interface GameOver {
 
 export interface PlayerPalyCard {
   player: Player;
+  targetPlayer?: Player;
+  card: GameCard;
+}
+
+export interface AfterPlayerPalyCard {
   card: GameCard;
 }

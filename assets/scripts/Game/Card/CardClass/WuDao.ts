@@ -18,16 +18,14 @@ export class WuDao extends Card {
     });
   }
 
-  onConfirmPlay() {
-    
-  }
-
+  onConfirmPlay() {}
 
   onPlay() {
     super.onPlay();
   }
 
   onEffect(gameData: GameData, { targetPlayer }: CardOnEffectParams) {
+    console.log(targetPlayer);
     gameData.messagePlayerId = targetPlayer.id;
   }
 }

@@ -27,7 +27,7 @@ export class WeiBi extends Card {
   onEffect(gameData: GameData, params: CardOnEffectParams) {}
 
   onGiveCard(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
-    console.log(card);
+    console.log(card, targetPlayer);
     let removedCard;
     if (card) {
       removedCard = targetPlayer.removeHandCard(card.id)[0];
