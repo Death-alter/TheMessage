@@ -14,6 +14,7 @@ import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card, UnknownCard } from "../../../Game/Card/Card";
+import { GameCard } from "../../../Game/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -100,8 +101,8 @@ export class GameUI extends GameObject<GameData> {
     //玩家死亡
     // GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
 
-    //死亡给牌
-    // GameEventCenter.on(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
+    //玩家给牌
+    GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
 
     //游戏结束
     // GameEventCenter.on(GameEvent.GAME_OVER, (data: notify_winner_toc) => {});
@@ -118,7 +119,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie);
-    GameEventCenter.off(GameEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
+    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard);
   }
 
   init(data: GameEventType.GameInit) {
@@ -176,10 +177,22 @@ export class GameUI extends GameObject<GameData> {
   }
 
   drawCards(data: GameEventType.PlayerDrawCard) {
-    this.cardAction.drawCards(data);
+    this.cardAction.drawCards(data).then(() => {
+      if (data.player.id === 0) {
+        console.log(data.cardList);
+        for (let card of data.cardList) {
+          this.handCardList.addData(card);
+        }
+      }
+    });
   }
 
   discardCards(data: GameEventType.PlayerDrawCard) {
+    if (data.player.id === 0) {
+      for (let card of data.cardList) {
+        this.handCardList.removeData(card);
+      }
+    }
     this.cardAction.discardCards(data);
   }
 
@@ -212,8 +225,22 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.discardCards({ player, cardList: messages });
   }
 
-  playerDieGiveCard(data: GameEventType.PlayerDieGiveCard) {
-    this.cardAction.giveCards(data.player, data.targetPlayer, data.cardList);
+  playerGiveCard(data: GameEventType.PlayerGiveCard) {
+    const { player, targetPlayer, cardList } = data;
+    if (player.id === 0) {
+      for (let card of cardList) {
+        this.handCardList.removeData(card);
+      }
+      this.cardAction.giveCards(data);
+    }
+
+    if (targetPlayer.id === 0) {
+      this.cardAction.giveCards(data).then(() => {
+        for (let card of cardList) {
+          this.handCardList.addData(card);
+        }
+      });
+    }
   }
 
   playerPlayCard(data: GameEventType.PlayerPalyCard) {

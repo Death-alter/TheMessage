@@ -41,7 +41,7 @@ export const enum CardDirection {
 }
 
 export interface CardOption {
-  id: number;
+  id?: number;
   name: string;
   type: CardType;
   sprite: string;
@@ -54,21 +54,21 @@ export interface CardOption {
 }
 
 export interface CardDefaultOption {
-  id: number;
-  direction: CardDirection;
-  color: CardColor[];
-  lockable: boolean;
+  id?: number;
+  direction?: CardDirection;
+  color?: CardColor[];
+  lockable?: boolean;
   status?: CardStatus;
   usage?: CardUsage;
   gameObject?: CardObject;
 }
 
 export interface ShiTanOption {
-  id: number;
-  direction: CardDirection;
-  drawCardColor: CardColor[];
-  color: CardColor[];
-  lockable: boolean;
+  id?: number;
+  direction?: CardDirection;
+  drawCardColor?: CardColor[];
+  color?: CardColor[];
+  lockable?: boolean;
   status?: CardStatus;
   usage?: CardUsage;
   gameObject?: CardObject;

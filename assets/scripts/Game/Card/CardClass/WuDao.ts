@@ -25,7 +25,6 @@ export class WuDao extends Card {
   }
 
   onEffect(gameData: GameData, { targetPlayer }: CardOnEffectParams) {
-    console.log(targetPlayer);
     gameData.messagePlayerId = targetPlayer.id;
   }
 }

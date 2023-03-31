@@ -71,7 +71,7 @@ export interface PlayerBeforeDeath {
   loseGame: boolean;
 }
 
-export interface PlayerDieGiveCard {
+export interface PlayerGiveCard {
   player: Player;
   targetPlayer: Player;
   cardList: GameCard[];

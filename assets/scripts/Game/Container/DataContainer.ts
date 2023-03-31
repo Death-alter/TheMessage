@@ -2,8 +2,6 @@ import { DataBasic } from "../../DataBasic";
 import { GameObjectContainer } from "./GameObjectContainer";
 import { GameObject } from "../../GameObject";
 
-//T:DataBasic
-
 export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic<GameObjectContainer<GameObject<T>>> {
   protected _list: T[] = [];
 

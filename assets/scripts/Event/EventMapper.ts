@@ -384,6 +384,7 @@ export class EventMapper {
 
     //误导
     NetworkEventCenter.on(NetworkEventToC.USE_WU_DAO_TOC, (data: protobufType.use_wu_dao_toc) => {
+      console.log(data.targetPlayerId);
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.WU_DAO,
@@ -399,6 +400,7 @@ export class EventMapper {
     NetworkEventCenter.on(
       NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC,
       (data: protobufType.wei_bi_wait_for_give_card_toc) => {
+        console.log(data.targetPlayerId);
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
           cardType: CardType.WEI_BI,

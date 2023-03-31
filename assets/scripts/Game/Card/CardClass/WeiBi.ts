@@ -1,3 +1,5 @@
+import { GameEventCenter } from "../../../Event/EventTarget";
+import { GameEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -27,7 +29,6 @@ export class WeiBi extends Card {
   onEffect(gameData: GameData, params: CardOnEffectParams) {}
 
   onGiveCard(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
-    console.log(card, targetPlayer);
     let removedCard;
     if (card) {
       removedCard = targetPlayer.removeHandCard(card.id)[0];
@@ -35,8 +36,13 @@ export class WeiBi extends Card {
     if (!removedCard) {
       removedCard = targetPlayer.removeHandCard(0)[0];
     }
-    console.log(removedCard);
     user.addHandCard(removedCard);
+
+    GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {
+      player: targetPlayer,
+      targetPlayer: user,
+      cardList: [card],
+    });
   }
 
   onShowHandCard(gameData: GameData, params: CardOnEffectParams) {}

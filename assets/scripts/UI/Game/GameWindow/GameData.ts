@@ -339,12 +339,7 @@ export class GameData extends DataBasic<GameUI> {
 
       const cardList = player.removeHandCard(cards);
       targetPlayer.addHandCard(cardList);
-      GameEventCenter.emit(GameEvent.PLAYER_DIE_GIVE_CARD, { player, targetPlayer, cardList });
-      GameEventCenter.emit(GameEvent.PLAYER_GET_CARDS_FROM_OTHERS, {
-        player: targetPlayer,
-        fromPlayer: player,
-        cardList,
-      });
+      GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList });
     }
   }
 
@@ -374,15 +369,20 @@ export class GameData extends DataBasic<GameUI> {
         card = this.selfPlayer.removeHandCard(data.cardId)[0];
       }
     } else {
-      card = this.playerList[data.userId].removeHandCard(0)[0];
+      this.playerList[data.userId].removeHandCard(0);
       if (data.card) {
         card = this.createFunctionCard(data.card);
+      } else {
+        card = createCard({
+          type: data.cardType,
+          usage: CardUsage.FUNCTION_CARD,
+        });
       }
     }
     if (card instanceof Card) card.onPlay();
     this.cardOnPlay = card;
     const eventData: any = { player: this.playerList[data.userId], card };
-    if (data.targetPlayerId) {
+    if (data.targetPlayerId != null) {
       eventData.targetPlayer = this.playerList[data.targetPlayerId];
     }
     GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
@@ -404,12 +404,12 @@ export class GameData extends DataBasic<GameUI> {
     const handlerName = data.handler || "onEffect";
     const params: CardOnEffectParams = {};
 
-    if (data.userId) params.user = this.playerList[data.userId];
-    if (data.targetPlayerId) params.targetPlayer = this.playerList[data.targetPlayerId];
+    if (data.userId != null) params.user = this.playerList[data.userId];
+    if (data.targetPlayerId != null) params.targetPlayer = this.playerList[data.targetPlayerId];
     if (data.card) params.card = this.createFunctionCard(data.card);
     if (data.targetCard) params.card = this.createCard(data.targetCard);
-    if (data.cardId) params.cardId = data.cardId;
-    if (data.targetCardId) params.targetCardId = data.targetCardId;
+    if (data.cardId != null) params.cardId = data.cardId;
+    if (data.targetCardId != null) params.targetCardId = data.targetCardId;
     if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card));
     if (data.flag) params.flag = data.flag;
 

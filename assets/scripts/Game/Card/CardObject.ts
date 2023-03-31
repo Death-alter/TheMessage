@@ -32,24 +32,33 @@ export class CardObject extends GameObject<GameCard> {
       resources.load(card.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
-      const colorNodeLeft = detailNode.getChildByPath("Color/Left").getComponent(Sprite);
-      const colorNodeRight = detailNode.getChildByPath("Color/Right").getComponent(Sprite);
-      if (card.color.length === 1) {
-        Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
-        Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[0]]);
-      } else {
-        Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
-        Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[1]]);
+
+      if (card.color != null) {
+        const colorNodeLeft = detailNode.getChildByPath("Color/Left").getComponent(Sprite);
+        const colorNodeRight = detailNode.getChildByPath("Color/Right").getComponent(Sprite);
+        if (card.color.length === 1) {
+          Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
+          Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[0]]);
+        } else {
+          Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
+          Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[1]]);
+        }
       }
-      if (card.direction === CardDirection.LEFT) {
-        Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, 90);
-      } else if (card.direction === CardDirection.RIGHT) {
-        Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, -90);
+
+      if (card.direction != null) {
+        if (card.direction === CardDirection.LEFT) {
+          Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, 90);
+        } else if (card.direction === CardDirection.RIGHT) {
+          Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, -90);
+        }
       }
-      if (card.lockable) {
-        detailNode.getChildByName("Lock").active = true;
-      } else {
-        detailNode.getChildByName("Lock").active = false;
+
+      if (card.lockable != null) {
+        if (card.lockable) {
+          detailNode.getChildByName("Lock").active = true;
+        } else {
+          detailNode.getChildByName("Lock").active = false;
+        }
       }
 
       if (card.status === CardStatus.FACE_UP) {

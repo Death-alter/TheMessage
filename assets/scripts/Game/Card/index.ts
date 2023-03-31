@@ -14,12 +14,12 @@ import { FenYunBianHuan } from "./CardClass/FenYunBianHuan";
 import { CardObject } from "../../Game/Card/CardObject";
 
 interface createCardOption {
-  id: number;
+  id?: number;
   type: CardType;
-  color: CardColor[];
-  direction: CardDirection;
+  color?: CardColor[];
+  direction?: CardDirection;
   drawCardColor?: CardColor[];
-  lockable: boolean;
+  lockable?: boolean;
   status?: CardStatus;
   usage?: CardUsage;
   gameObject?: CardObject;
