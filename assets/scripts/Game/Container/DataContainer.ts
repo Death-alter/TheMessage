@@ -18,18 +18,18 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
 
   addData(data: T) {
     this._list.push(data);
-    if (this.gameObject) {
+    if (this.gameObject && data.gameObject) {
+      this.gameObject.node.addChild(data.gameObject.node);
       this.gameObject.onDataAdded(data);
-      if (data.gameObject) this.gameObject.node.addChild(data.gameObject.node);
     }
   }
 
   removeData(data: T) {
     const index = this._list.indexOf(data);
     this._list.splice(index, 1);
-    if (this.gameObject) {
+    if (this.gameObject && data.gameObject) {
+      this.gameObject.node.removeChild(data.gameObject.node);
       this.gameObject.onDataRemoved(data);
-      if (data.gameObject) this.gameObject.node.removeChild(data.gameObject.node);
     }
   }
 

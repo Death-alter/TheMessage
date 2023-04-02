@@ -62,6 +62,11 @@ export interface PlayerReceiveMessage {
   message: Card;
 }
 
+export interface PlayerRemoveMessage {
+  player: Player;
+  message: Card;
+}
+
 export interface PlayerDying {
   player: Player;
 }

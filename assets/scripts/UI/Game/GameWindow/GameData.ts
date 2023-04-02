@@ -1,10 +1,9 @@
-import { _decorator } from "cc";
 import { GameEvent, ProcessEvent } from "../../../Event/type";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { Player } from "../../../Game/Player/Player";
 import { Identity } from "../../../Game/Identity/Identity";
 import { createCharacterById } from "../../../Game/Character";
-import { CharacterStatus, CharacterType } from "../../../Game/Character/type";
+import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
@@ -12,7 +11,6 @@ import {
   CardColor,
   CardDirection,
   CardOnEffectParams,
-  CardStatus,
   CardType,
   CardUsage,
   GameCard,
@@ -301,6 +299,13 @@ export class GameData extends DataBasic<GameUI> {
       message: this.messageInTransmit,
     });
   }
+
+  // private playerRemoveMessage(data) {
+  //   GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
+  //     player: this.playerList[data.playerId],
+  //     message: this.messageInTransmit,
+  //   });
+  // }
 
   //濒死求澄清
   private playerDying(data: ProcessEventType.PlayerDying) {

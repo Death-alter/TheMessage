@@ -197,14 +197,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
-    if (data.player.id === 0) {
-      this.handCardList.removeData(data.message);
-      (<Card>data.message).flip().then(() => {
-        this.cardAction.playerSendMessage(data);
-      });
-    } else {
-      this.cardAction.playerSendMessage(data);
-    }
+    this.cardAction.playerSendMessage(data, this.handCardList);
   }
 
   transmitMessage(data: GameEventType.MessageTransmission) {

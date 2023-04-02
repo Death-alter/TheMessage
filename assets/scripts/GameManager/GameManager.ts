@@ -24,6 +24,8 @@ export class GameManager extends Component {
   @property(Node)
   gameWindow: Node | null = null;
   @property(Node)
+  gameResultWindow: Node | null = null;
+  @property(Node)
   logContainer: Node | null = null;
   @property(Prefab)
   cardPrefab: Prefab | null = null;
@@ -56,6 +58,9 @@ export class GameManager extends Component {
     //游戏初始化
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.initGame, this);
 
+    //游戏初始化
+    ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.playerWin, this);
+
     this.gameData.registerEvents();
     this.gameLog.registerEvents();
   }
@@ -64,6 +69,7 @@ export class GameManager extends Component {
     //移除事件监听
     ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.playerWin);
     this.gameData.unregisterEvents();
     this.gameLog.unregisterEvents();
   }
@@ -81,5 +87,9 @@ export class GameManager extends Component {
     this.gameWindow.active = true;
     //预加载卡图
     resources.preloadDir("images/cards");
+  }
+
+  playerWin(data: ProcessEventType.PlayerWin) {
+    this.gameWindow.active = false;
   }
 }

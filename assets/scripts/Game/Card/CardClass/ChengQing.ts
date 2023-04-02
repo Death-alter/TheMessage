@@ -1,3 +1,6 @@
+import { card } from "../../../../protobuf/proto";
+import { GameEventCenter } from "../../../Event/EventTarget";
+import { GameEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -18,11 +21,13 @@ export class ChengQing extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData) {
-    
-  }
+  onConfirmPlay(gameData: GameData) {}
 
   onEffect(gameData: GameData, { targetPlayer, targetCardId }: CardOnEffectParams) {
-    targetPlayer.removeMessage(targetCardId);
+    const message = targetPlayer.removeMessage(targetCardId);
+    GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
+      player: targetPlayer,
+      message,
+    });
   }
 }

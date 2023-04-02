@@ -1,6 +1,5 @@
 import { _decorator, Component, tween, Node, Vec3 } from "cc";
 import { Card, UnknownCard } from "../Game/Card/Card";
-import { Player } from "../Game/Player/Player";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus, GameCard } from "../Game/Card/type";
 import GamePools from "./GamePools";
@@ -15,6 +14,8 @@ export class CardAction extends Component {
   deckNode: Node | null = null;
   @property(Node)
   discardPileNode: Node | null = null;
+  @property(Node)
+  cardInProcessNode: Node | null = null;
 
   public transmissionMessageObject: CardObject;
 
@@ -111,14 +112,14 @@ export class CardAction extends Component {
       tween(card.gameObject.node)
         .to(0.6, {
           scale: new Vec3(0.6, 0.6, 1),
-          worldPosition: this.discardPileNode.worldPosition,
+          worldPosition: this.cardInProcessNode.worldPosition,
         })
         .start();
     } else {
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       tween(card.gameObject.node)
         .to(0.6, {
-          worldPosition: this.discardPileNode.worldPosition,
+          worldPosition: this.cardInProcessNode.worldPosition,
         })
         .start();
     }
@@ -126,8 +127,15 @@ export class CardAction extends Component {
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     const { card } = data;
-    GamePools.cardPool.put(card.gameObject);
-    card.gameObject = null;
+    tween(card.gameObject.node)
+      .to(0.6, {
+        worldPosition: this.discardPileNode.worldPosition,
+      })
+      .call(() => {
+        GamePools.cardPool.put(card.gameObject);
+        card.gameObject = null;
+      })
+      .start();
   }
 
   giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
@@ -166,18 +174,26 @@ export class CardAction extends Component {
     });
   }
 
-  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
-    return new Promise((resolve, reject) => {
-      if (message instanceof UnknownCard && !message.gameObject) {
-        message.gameObject = GamePools.cardPool.get();
-      }
-      message.gameObject.node.setParent(this.node);
-      message.gameObject.node.worldPosition = message.gameObject.node.worldPosition;
-      this.transmissionMessageObject = message.gameObject;
-
+  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage, handCardList) {
+    return new Promise(async (resolve, reject) => {
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
       const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
+      let worldPosition;
+
       if (player.id === 0) {
+        worldPosition = message.gameObject.node.worldPosition;
+        handCardList.removeData(message);
+      } else {
+        (<Card>message).gameObject = GamePools.cardPool.get();
+        worldPosition = panting.worldPosition;
+      }
+
+      message.gameObject.node.setParent(this.node);
+      message.gameObject.node.worldPosition = worldPosition;
+      this.transmissionMessageObject = message.gameObject;
+
+      if (player.id === 0) {
+        await (<Card>message).flip();
         tween(message.gameObject.node)
           .to(0.5, {
             worldPosition: panting.worldPosition,
@@ -191,7 +207,6 @@ export class CardAction extends Component {
           })
           .start();
       } else {
-        message.gameObject.node.worldPosition = panting.worldPosition;
         message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         tween(message.gameObject.node)
           .to(0.8, {
@@ -241,14 +256,44 @@ export class CardAction extends Component {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
+      console.log(player);
       const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
       if (message.status === CardStatus.FACE_DOWN) {
         await message.flip();
+        tween(message.gameObject.node)
+          .to(0.5, {
+            worldPosition: messageContainer.worldPosition,
+            scale: new Vec3(0, 0, 1),
+          })
+          .call(() => {
+            GamePools.cardPool.put(message.gameObject);
+            message.gameObject = null;
+            resolve(null);
+          })
+          .start();
+      } else {
+        tween(message.gameObject.node)
+          .to(0.5, {
+            worldPosition: messageContainer.worldPosition,
+            scale: new Vec3(0, 0, 1),
+          })
+          .call(() => {
+            GamePools.cardPool.put(message.gameObject);
+            message.gameObject = null;
+            resolve(null);
+          })
+          .start();
       }
+    });
+  }
+
+  removeMessage({ player, message }: GameEventType.PlayerRemoveMessage) {
+    return new Promise((resolve, reject) => {
+      const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
+      message.gameObject.node.worldPosition = panting.worldPosition;
       tween(message.gameObject.node)
-        .to(0.5, {
-          worldPosition: messageContainer.worldPosition,
-          scale: new Vec3(0, 0, 1),
+        .to(0.8, {
+          worldPosition: this.discardPileNode.worldPosition,
         })
         .call(() => {
           GamePools.cardPool.put(message.gameObject);

@@ -34,7 +34,7 @@ export class EventMapper {
           error_message = "加入房间的请求太快";
           break;
         case protobufType.error_code.robot_not_allowed:
-          error_message = "五人局以上禁止添加机器人";
+          error_message = "禁止添加机器人";
           break;
         case protobufType.error_code.already_online:
           error_message = "你已经在线，不能重复登录";
@@ -391,7 +391,7 @@ export class EventMapper {
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        playerId: data.targetPlayerId,
+        targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });

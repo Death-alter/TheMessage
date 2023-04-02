@@ -71,7 +71,6 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   onAllDataRemoved() {}
 
   refresh() {
-    console.log(this.data);
     const offset = this._childWith / 2 - this._width / 2;
 
     //超出宽度后开始堆叠
