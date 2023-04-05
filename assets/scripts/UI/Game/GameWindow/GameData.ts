@@ -7,14 +7,7 @@ import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
-import {
-  CardColor,
-  CardDirection,
-  CardOnEffectParams,
-  CardType,
-  CardUsage,
-  GameCard,
-} from "../../../Game/Card/type";
+import { CardColor, CardDirection, CardOnEffectParams, CardType, CardUsage, GameCard } from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -350,18 +343,16 @@ export class GameData extends DataBasic<GameUI> {
 
   //游戏结束
   private gameOver(data: ProcessEventType.PlayerWin) {
-    GameEventCenter.emit(
-      GameEvent.GAME_OVER,
-      data.players.map((item) => {
+    GameEventCenter.emit(GameEvent.GAME_OVER, {
+      players: data.players.map((item) => {
         return {
           player: this.playerList[item.playerId],
-          identity: item.identity,
-          secretTask: item.secretTask,
+          identity: createIdentity(item.identity, item.secretTask),
           isWinner: item.isWinner,
           isDeclarer: item.isDeclarer,
         };
-      })
-    );
+      }),
+    });
   }
 
   //打出卡牌

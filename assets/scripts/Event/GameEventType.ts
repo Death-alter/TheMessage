@@ -1,7 +1,7 @@
 import { Card } from "../Game/Card/Card";
 import { GameCard } from "../Game/Card/type";
 import { CharacterStatus } from "../Game/Character/type";
-import { IdentityType, SecretTaskType } from "../Game/Identity/type";
+import { Identity } from "../Game/Identity/Identity";
 import { Player } from "../Game/Player/Player";
 import { GamePhase } from "../GameManager/type";
 
@@ -96,9 +96,8 @@ export interface PlayerGetCardsFromOthers {
 
 export interface GameOver {
   players: {
-    playerId: Player;
-    identity: IdentityType;
-    secretTask: SecretTaskType;
+    player: Player;
+    identity: Identity;
     isWinner: boolean;
     isDeclarer: boolean;
   }[];

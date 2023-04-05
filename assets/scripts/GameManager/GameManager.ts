@@ -1,12 +1,13 @@
 import { _decorator, Component, Node, resources, Prefab, instantiate } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
-import { ProcessEventCenter } from "../Event/EventTarget";
-import { ProcessEvent } from "../Event/type";
+import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
+import { GameEvent, ProcessEvent } from "../Event/type";
 import { createIdentity } from "../Game/Identity";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
 import { CharacterType } from "../Game/Character/type";
 import { GameData } from "../UI/Game/GameWindow/GameData";
 import * as ProcessEventType from "../Event/ProcessEventType";
+import * as GameEventType from "../Event/GameEventType";
 import { GameLogList } from "../Game/GameLog/GameLogList";
 import GamePools from "./GamePools";
 import { CardObject } from "../Game/Card/CardObject";
@@ -14,6 +15,7 @@ import { CardGroupObject } from "../Game/Container/CardGroupObject";
 import { GameLogMessageObject } from "../Game/GameLog/GameLogMessageObject";
 import { GameUI } from "../UI/Game/GameWindow/GameUI";
 import { GameLogContainer } from "../Game/GameLog/GameLogContainer";
+import { Winner } from "../UI/Game/WinnerWindow/Winner";
 
 const { ccclass, property } = _decorator;
 
@@ -58,8 +60,8 @@ export class GameManager extends Component {
     //游戏初始化
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.initGame, this);
 
-    //游戏初始化
-    ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.playerWin, this);
+    //游戏结束
+    GameEventCenter.on(GameEvent.GAME_OVER, this.gameOver, this);
 
     this.gameData.registerEvents();
     this.gameLog.registerEvents();
@@ -69,7 +71,7 @@ export class GameManager extends Component {
     //移除事件监听
     ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.playerWin);
+    GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver);
     this.gameData.unregisterEvents();
     this.gameLog.unregisterEvents();
   }
@@ -89,7 +91,9 @@ export class GameManager extends Component {
     resources.preloadDir("images/cards");
   }
 
-  playerWin(data: ProcessEventType.PlayerWin) {
+  gameOver(data: GameEventType.GameOver) {
     this.gameWindow.active = false;
+    this.gameResultWindow.getComponent(Winner).init(data.players);
+    this.gameResultWindow.active = true;
   }
 }

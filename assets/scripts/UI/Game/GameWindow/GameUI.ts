@@ -1,11 +1,8 @@
 import { _decorator, Node, Prefab, instantiate, Layout, Label } from "cc";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../../../Event/type";
-import { CardObject } from "../../../Game/Card/CardObject";
-import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
 import { CardAction } from "../../../GameManager/CardAction";
-import GamePools from "../../../GameManager/GamePools";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import * as GameEventType from "../../../Event/GameEventType";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -13,8 +10,6 @@ import { HandCardList } from "../../../Game/Container/HandCardList";
 import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
-import { Card, UnknownCard } from "../../../Game/Card/Card";
-import { GameCard } from "../../../Game/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -177,23 +172,11 @@ export class GameUI extends GameObject<GameData> {
   }
 
   drawCards(data: GameEventType.PlayerDrawCard) {
-    this.cardAction.drawCards(data).then(() => {
-      if (data.player.id === 0) {
-        console.log(data.cardList);
-        for (let card of data.cardList) {
-          this.handCardList.addData(card);
-        }
-      }
-    });
+    this.cardAction.drawCards(data, this.handCardList);
   }
 
   discardCards(data: GameEventType.PlayerDrawCard) {
-    if (data.player.id === 0) {
-      for (let card of data.cardList) {
-        this.handCardList.removeData(card);
-      }
-    }
-    this.cardAction.discardCards(data);
+    this.cardAction.discardCards(data, this.handCardList);
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
@@ -219,21 +202,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
-    const { player, targetPlayer, cardList } = data;
-    if (player.id === 0) {
-      for (let card of cardList) {
-        this.handCardList.removeData(card);
-      }
-      this.cardAction.giveCards(data);
-    }
-
-    if (targetPlayer.id === 0) {
-      this.cardAction.giveCards(data).then(() => {
-        for (let card of cardList) {
-          this.handCardList.addData(card);
-        }
-      });
-    }
+    this.cardAction.giveCards(data, this.handCardList);
   }
 
   playerPlayCard(data: GameEventType.PlayerPalyCard) {

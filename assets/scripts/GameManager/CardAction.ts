@@ -5,6 +5,7 @@ import { CardStatus, GameCard } from "../Game/Card/type";
 import GamePools from "./GamePools";
 import * as GameEventType from "../Event/GameEventType";
 import { CardObject } from "../Game/Card/CardObject";
+import { HandCardList } from "../Game/Container/HandCardList";
 
 const { ccclass, property } = _decorator;
 
@@ -20,15 +21,13 @@ export class CardAction extends Component {
   public transmissionMessageObject: CardObject;
 
   //抽牌动画
-  drawCards({ player, cardList }: GameEventType.PlayerDrawCard) {
+  drawCards({ player, cardList }: GameEventType.PlayerDrawCard, handCardList: HandCardList) {
     return new Promise((resolve, reject) => {
       const cardGroup = new DataContainer<GameCard>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
       for (let card of cardList) {
-        if (!card.gameObject) {
-          (<Card>card).gameObject = GamePools.cardPool.get();
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        }
+        (<Card>card).gameObject = GamePools.cardPool.get();
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         cardGroup.addData(card);
       }
       this.node.addChild(cardGroup.gameObject.node);
@@ -40,6 +39,7 @@ export class CardAction extends Component {
           for (let card of cardGroup.list) {
             if (player.id === 0) {
               card.gameObject.node.scale = new Vec3(1, 1, 1);
+              handCardList.addData(card);
             } else {
               GamePools.cardPool.put(card.gameObject);
               card.gameObject = null;
@@ -55,10 +55,11 @@ export class CardAction extends Component {
   }
 
   //弃牌动画
-  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard) {
+  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard, handCardList: HandCardList) {
     return new Promise((resolve, reject) => {
       if (player.id === 0) {
         cardList.forEach((card) => {
+          handCardList.removeData(card);
           card.gameObject.node.setParent(this.node);
           tween(card.gameObject.node)
             .to(0.6, {
@@ -81,6 +82,7 @@ export class CardAction extends Component {
           card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           cardGroup.addData(card);
         });
+        this.node.addChild(cardGroup.gameObject.node);
         cardGroup.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
         tween(cardGroup.gameObject.node)
           .to(0.6, { worldPosition: this.discardPileNode.worldPosition })
@@ -112,14 +114,14 @@ export class CardAction extends Component {
       tween(card.gameObject.node)
         .to(0.6, {
           scale: new Vec3(0.6, 0.6, 1),
-          worldPosition: this.cardInProcessNode.worldPosition,
+          worldPosition: this.discardPileNode.worldPosition,
         })
         .start();
     } else {
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       tween(card.gameObject.node)
         .to(0.6, {
-          worldPosition: this.cardInProcessNode.worldPosition,
+          worldPosition: this.discardPileNode.worldPosition,
         })
         .start();
     }
@@ -138,20 +140,26 @@ export class CardAction extends Component {
       .start();
   }
 
-  giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
+  giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard, handCardList: HandCardList) {
+    console.log(player, targetPlayer, cardList);
     return new Promise((resolve, reject) => {
       const cardGroup = new DataContainer<GameCard>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
 
       cardList.forEach((card) => {
-        if (!card.gameObject) {
+        if (player.id === 0) {
+          handCardList.removeData(card);
+        } else {
           (<Card>card).gameObject = GamePools.cardPool.get();
         }
+        console.log(card.gameObject);
         card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         cardGroup.addData(card);
       });
 
+      this.node.addChild(cardGroup.gameObject.node);
       cardGroup.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
+
       tween(cardGroup.gameObject.node)
         .to(0.8, {
           worldPosition: targetPlayer.gameObject.node.worldPosition,
@@ -174,7 +182,7 @@ export class CardAction extends Component {
     });
   }
 
-  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage, handCardList) {
+  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage, handCardList: HandCardList) {
     return new Promise(async (resolve, reject) => {
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
       const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");

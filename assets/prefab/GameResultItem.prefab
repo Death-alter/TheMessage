@@ -93,7 +93,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -200,
+      "x": -208,
       "y": 0,
       "z": 0
     },
@@ -133,8 +133,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 305.8,
-      "height": 50.4
+      "width": 296,
+      "height": 50
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -171,11 +171,11 @@
     "_string": "1号玩家（阿芙罗拉）",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 32,
+    "_actualFontSize": 30,
     "_fontSize": 32,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
-    "_overflow": 0,
+    "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
@@ -226,7 +226,7 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 180,
+      "x": 185,
       "y": 0,
       "z": 0
     },
@@ -806,6 +806,7 @@
       "__id__": 0
     },
     "fileId": "32LNbauhZAXo5R29s0Y6iC",
+    "instance": null,
     "targetOverrides": null
   }
 ]
