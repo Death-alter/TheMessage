@@ -62,6 +62,7 @@ export class CardObject extends GameObject<GameCard> {
       }
 
       if (card.status === CardStatus.FACE_UP) {
+        console.log(card.status)
         coverNode.active = false;
         coverNode.getComponent(Animation).stop();
       } else {

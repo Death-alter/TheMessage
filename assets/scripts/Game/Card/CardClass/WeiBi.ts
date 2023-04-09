@@ -41,7 +41,7 @@ export class WeiBi extends Card {
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {
       player: targetPlayer,
       targetPlayer: user,
-      cardList: [card],
+      cardList: [removedCard],
     });
   }
 

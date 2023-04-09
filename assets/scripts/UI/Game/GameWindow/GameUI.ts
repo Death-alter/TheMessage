@@ -72,7 +72,7 @@ export class GameUI extends GameObject<GameData> {
     //打出卡牌
     GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
 
-    //打出卡牌
+    //卡牌结算完
     GameEventCenter.on(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
 
     //玩家开始传递情报
@@ -80,6 +80,9 @@ export class GameUI extends GameObject<GameData> {
 
     //情报传递
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
+
+    //情报传递
+    GameEventCenter.on(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
 
     //有人选择接收情报
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
@@ -187,6 +190,10 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.transmitMessage(data);
   }
 
+  replaceMessage(data: GameEventType.MessageReplaced) {
+    this.cardAction.replaceMessage(data);
+  }
+
   playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
     this.cardAction.chooseReceiveMessage(data);
   }
@@ -197,8 +204,8 @@ export class GameUI extends GameObject<GameData> {
 
   playerDie(data: GameEventType.PlayerDie) {
     const { player, handCards, messages } = data;
-    this.cardAction.discardCards({ player, cardList: handCards });
-    this.cardAction.discardCards({ player, cardList: messages });
+    this.cardAction.discardCards({ player, cardList: handCards }, this.handCardList);
+    this.cardAction.discardCards({ player, cardList: messages }, this.handCardList);
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {

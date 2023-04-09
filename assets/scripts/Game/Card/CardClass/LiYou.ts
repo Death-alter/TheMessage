@@ -18,6 +18,8 @@ export class LiYou extends Card {
     });
   }
 
+  onConfirmPlay() {}
+
   onPlay() {
     super.onPlay();
   }

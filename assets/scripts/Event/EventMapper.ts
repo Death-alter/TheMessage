@@ -377,7 +377,7 @@ export class EventMapper {
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         cardId: data.cardId,
-        targetCardId: data.oldMessageCard,
+        targetCard: data.oldMessageCard,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });

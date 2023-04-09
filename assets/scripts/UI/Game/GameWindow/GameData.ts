@@ -31,6 +31,7 @@ export class GameData extends DataBasic<GameUI> {
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
   private _messagePlayerId: number;
+  private cardHandleFlag: boolean = false;
 
   get gamePhase() {
     return this._gamePhase;
@@ -282,7 +283,12 @@ export class GameData extends DataBasic<GameUI> {
     if (card instanceof Card) {
       card.onSend();
     }
-    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, { player, message: card, targetPlayer });
+    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, {
+      player,
+      message: card,
+      targetPlayer,
+      direction: data.direction,
+    });
   }
 
   //有人选择接收情报
@@ -409,14 +415,15 @@ export class GameData extends DataBasic<GameUI> {
     if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card));
     if (data.flag) params.flag = data.flag;
 
-    this.cardOnPlay[handlerName](this, params);
+    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, params);
   }
 
   //卡牌处理完毕
   private cardHandleFinish() {
     const card = this.cardOnPlay;
     this.cardOnPlay = null;
-    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
+    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card, flag: this.cardHandleFlag });
+    this.cardHandleFlag = false;
   }
 
   private createCard(card?: card, usage?: CardUsage): GameCard {

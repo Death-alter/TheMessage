@@ -1,5 +1,5 @@
 import { Card } from "../Game/Card/Card";
-import { GameCard } from "../Game/Card/type";
+import { CardDirection, GameCard } from "../Game/Card/type";
 import { CharacterStatus } from "../Game/Character/type";
 import { Identity } from "../Game/Identity/Identity";
 import { Player } from "../Game/Player/Player";
@@ -31,6 +31,11 @@ export interface MessageTransmission {
   messagePlayer: Player;
 }
 
+export interface MessageReplaced {
+  message: Card;
+  oldMessage: Card;
+}
+
 export interface PlayerDrawCard {
   player: Player;
   cardList: GameCard[];
@@ -50,6 +55,7 @@ export interface PlayerSendMessage {
   player: Player;
   message: GameCard;
   targetPlayer: Player;
+  direction: CardDirection;
 }
 
 export interface PlayerChooseReceiveMessage {
@@ -111,4 +117,5 @@ export interface PlayerPalyCard {
 
 export interface AfterPlayerPalyCard {
   card: GameCard;
+  flag: boolean;
 }
