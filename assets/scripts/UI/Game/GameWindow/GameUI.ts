@@ -199,7 +199,9 @@ export class GameUI extends GameObject<GameData> {
   }
 
   PlayerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
-    this.cardAction.receiveMessage(data);
+    this.cardAction.receiveMessage(data).then(() => {
+      data.player.addMessage(data.message);
+    });
   }
 
   playerDie(data: GameEventType.PlayerDie) {

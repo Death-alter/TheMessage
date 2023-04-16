@@ -1,5 +1,5 @@
 import { card } from "../../protobuf/proto";
-import { CardDirection, CardType, GameCard } from "../Game/Card/type";
+import { CardDirection, CardStatus, CardType, GameCard } from "../Game/Card/type";
 import { CharacterType } from "../Game/Character/type";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
 import { GamePhase } from "../GameManager/type";
@@ -171,8 +171,10 @@ export interface CardInProcess {
   targetPlayerId?: CharacterType;
   cardId?: number;
   card?: card;
+  cardStatus?: CardStatus;
   targetCardId?: number;
   targetCard?: card;
+  targetCardStatus?: CardStatus;
   cards?: card[];
   flag?: boolean;
 }

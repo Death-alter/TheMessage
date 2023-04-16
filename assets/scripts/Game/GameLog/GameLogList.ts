@@ -44,6 +44,9 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.onPlayerPlayCard, this);
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.onPlayerGiveCard, this);
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
+    GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
   }
 
   unregisterEvents() {
@@ -51,6 +54,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.onPlayerDiscardCard);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.onPlayerPlayCard);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.onPlayerGiveCard);
+    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage);
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
@@ -86,16 +90,35 @@ export class GameLogList extends DataContainer<GameLog> {
     );
   }
 
-  onPlayerSendMessage({ player, direction }: GameEventType.PlayerSendMessage) {
-    let directionText;
+  onPlayerSendMessage({ player, direction, targetPlayer }: GameEventType.PlayerSendMessage) {
     switch (direction) {
       case CardDirection.LEFT:
-        directionText = "左";
+        this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向左`));
+        break;
       case CardDirection.RIGHT:
-        directionText = "右";
+        this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向右`));
+        break;
       case CardDirection.UP:
-        directionText = "上";
+        this.addData(
+          new GameLog(
+            `【${player.seatNumber + 1}号】${player.character.name}传出情报，目标为【${
+              targetPlayer.seatNumber + 1
+            }号】${targetPlayer.character.name}`
+          )
+        );
+        break;
     }
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向${directionText}`));
+  }
+
+  onPlayerChooseReceiveMessage({ player }: GameEventType.PlayerChooseReceiveMessage) {
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}选择接收情报`));
+  }
+
+  onPlayerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}成功接收情报【${message.name}】`));
+  }
+
+  onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
+    this.addData(new GameLog(`情报转移至【${messagePlayer.seatNumber + 1}号】${messagePlayer.character.name}`));
   }
 }

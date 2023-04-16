@@ -2,6 +2,7 @@ import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor, 
 import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
+import { Tween, Node } from "cc";
 
 export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
@@ -13,6 +14,7 @@ export abstract class Card extends DataBasic<CardObject> {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
+  public action: Tween<Node> | null = null;
 
   public static readonly backSprite: string = "images/cards/CardBack";
 
@@ -38,7 +40,9 @@ export abstract class Card extends DataBasic<CardObject> {
   set status(status) {
     if (status == null || status === this._status) return;
     this._status = status;
-    this._gameObject.refresh(this);
+    if (this._gameObject) {
+      this._gameObject.refresh(this);
+    }
   }
 
   get usage() {
@@ -93,13 +97,11 @@ export abstract class Card extends DataBasic<CardObject> {
 
   //翻面
   flip() {
-    console.log(this._status);
     if (this._status === CardStatus.FACE_UP) {
       this._status = CardStatus.FACE_DOWN;
     } else {
       this._status = CardStatus.FACE_UP;
     }
-    console.log(this._status);
     return this.gameObject.flip();
   }
 }

@@ -112,10 +112,10 @@ export interface GameOver {
 export interface PlayerPalyCard {
   player: Player;
   targetPlayer?: Player;
-  card: GameCard;
+  card: Card;
 }
 
 export interface AfterPlayerPalyCard {
-  card: GameCard;
+  card: Card;
   flag: boolean;
 }

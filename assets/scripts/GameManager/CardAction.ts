@@ -105,13 +105,13 @@ export class CardAction extends Component {
   playerPlayCard(data: GameEventType.PlayerPalyCard) {
     const { card, player } = data;
     if (!card.gameObject) {
-      (<Card>card).gameObject = GamePools.cardPool.get();
+      card.gameObject = GamePools.cardPool.get();
       card.gameObject.node.setParent(this.node);
       card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
     }
 
     if (player.id === 0) {
-      tween(card.gameObject.node)
+      card.action = tween(card.gameObject.node)
         .to(0.6, {
           scale: new Vec3(0.6, 0.6, 1),
           worldPosition: this.discardPileNode.worldPosition,
@@ -119,7 +119,7 @@ export class CardAction extends Component {
         .start();
     } else {
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      tween(card.gameObject.node)
+      card.action = tween(card.gameObject.node)
         .to(0.6, {
           worldPosition: this.discardPileNode.worldPosition,
         })
@@ -129,18 +129,18 @@ export class CardAction extends Component {
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     const { card, flag } = data;
-    // tween(card.gameObject.node)
-    //   .to(0.6, {
-    //     worldPosition: this.discardPileNode.worldPosition,
-    //   })
-    //   .call(() => {
-    //     GamePools.cardPool.put(card.gameObject);
-    //     card.gameObject = null;
-    //   })
-    //   .start();
     if (!flag) {
-      GamePools.cardPool.put(card.gameObject);
-      card.gameObject = null;
+      if (card.action) {
+        card.action
+          .call(() => {
+            GamePools.cardPool.put(card.gameObject);
+            card.gameObject = null;
+          })
+          .start();
+      } else {
+        GamePools.cardPool.put(card.gameObject);
+        card.gameObject = null;
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat, tween } from "cc";
+import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat, tween, UIOpacity } from "cc";
 import { CardDirection, CardStatus, GameCard } from "./type";
 import { UnknownCard } from "./Card";
 import { GameObject } from "../../GameObject";
@@ -62,9 +62,9 @@ export class CardObject extends GameObject<GameCard> {
       }
 
       if (card.status === CardStatus.FACE_UP) {
-        console.log(card.status)
         coverNode.active = false;
         coverNode.getComponent(Animation).stop();
+        coverNode.getComponent(UIOpacity).opacity = 1;
       } else {
         coverNode.active = true;
         coverNode.getComponent(Animation).play();
@@ -81,13 +81,13 @@ export class CardObject extends GameObject<GameCard> {
       } else {
         //翻面动画
         tween(node)
-          .to(0.5, { scale: new Vec3(0, 1, 1) })
+          .to(0.3, { scale: new Vec3(0, 1, 1) })
           .call(() => {
             if (this.data) {
               this.refresh(this.data);
             }
           })
-          .to(0.5, { scale: new Vec3(1, 1, 1) })
+          .to(0.3, { scale: new Vec3(1, 1, 1) })
           .call(() => {
             reslove(null);
           })

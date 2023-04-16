@@ -7,7 +7,15 @@ import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
-import { CardColor, CardDirection, CardOnEffectParams, CardType, CardUsage, GameCard } from "../../../Game/Card/type";
+import {
+  CardColor,
+  CardDirection,
+  CardOnEffectParams,
+  CardStatus,
+  CardType,
+  CardUsage,
+  GameCard,
+} from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -30,7 +38,7 @@ export class GameData extends DataBasic<GameUI> {
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
-  private _messagePlayerId: number;
+  private _messagePlayerId: number = -1;
   private cardHandleFlag: boolean = false;
 
   get gamePhase() {
@@ -93,7 +101,7 @@ export class GameData extends DataBasic<GameUI> {
     if (playerId == null || playerId === this._messagePlayerId) return;
     const oldId = this._messagePlayerId;
     this._messagePlayerId = playerId;
-    if (oldId) {
+    if (oldId !== -1 && this.messageInTransmit && playerId !== -1) {
       GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
         message: this.messageInTransmit,
         messagePlayer: this.playerList[playerId],
@@ -197,7 +205,11 @@ export class GameData extends DataBasic<GameUI> {
     this.gamePhase = data.currentPhase;
 
     //如果有传递的情报
-    if (data.messagePlayerId != null) {
+    if (
+      data.currentPhase === GamePhase.SEND_PHASE ||
+      data.currentPhase === GamePhase.RECEIVE_PHASE ||
+      data.currentPhase === GamePhase.FIGHT_PHASE
+    ) {
       this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<number>data.messageDirection) as CardDirection;
       if (data.messageInTransmit) {
@@ -209,12 +221,12 @@ export class GameData extends DataBasic<GameUI> {
       if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
         //接收阶段
         const player = this.playerList[data.messagePlayerId];
-        player.addMessage(<Card>this.messageInTransmit);
         GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
           player,
           message: this.messageInTransmit,
         });
-        this.messagePlayerId = null;
+        this.messagePlayerId = -1;
+        this.messageInTransmit = null;
       }
     }
   }
@@ -409,10 +421,10 @@ export class GameData extends DataBasic<GameUI> {
     if (data.userId != null) params.user = this.playerList[data.userId];
     if (data.targetPlayerId != null) params.targetPlayer = this.playerList[data.targetPlayerId];
     if (data.card) params.card = this.createFunctionCard(data.card);
-    if (data.targetCard) params.card = this.createCard(data.targetCard);
+    if (data.targetCard) params.card = this.createCard(data.targetCard, null, data.targetCardStatus);
     if (data.cardId != null) params.cardId = data.cardId;
     if (data.targetCardId != null) params.targetCardId = data.targetCardId;
-    if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card));
+    if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card, null, data.cardStatus));
     if (data.flag) params.flag = data.flag;
 
     this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, params);
@@ -426,12 +438,13 @@ export class GameData extends DataBasic<GameUI> {
     this.cardHandleFlag = false;
   }
 
-  private createCard(card?: card, usage?: CardUsage): GameCard {
+  private createCard(card?: card, usage?: CardUsage, status?: CardStatus): GameCard {
     if (card) {
       return createCard({
         id: card.cardId,
         color: (<number[]>card.cardColor) as CardColor[],
         type: (<number>card.cardType) as CardType,
+        status,
         direction: (<number>card.cardDir) as CardDirection,
         drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
         usage: usage || CardUsage.UNKNOWN,
@@ -451,6 +464,6 @@ export class GameData extends DataBasic<GameUI> {
   }
 
   private createMessage(card?: card): GameCard {
-    return this.createCard(card, CardUsage.MESSAGE_CARD);
+    return this.createCard(card, CardUsage.MESSAGE_CARD, CardStatus.FACE_DOWN);
   }
 }
