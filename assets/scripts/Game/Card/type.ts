@@ -1,6 +1,5 @@
 import { CardObject } from "../../Game/Card/CardObject";
-import { Player } from "../Player/Player";
-import { Card, UnknownCard } from "./Card";
+import { Card} from "./Card";
 
 export const enum CardStatus {
   FACE_DOWN = 0,
@@ -77,5 +76,3 @@ export interface ShiTanOption {
 export interface CardOnEffectParams {
   [index: string]: any;
 }
-
-export type GameCard = Card | UnknownCard;

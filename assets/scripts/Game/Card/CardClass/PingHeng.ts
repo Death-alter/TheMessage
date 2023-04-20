@@ -17,5 +17,11 @@ export class PingHeng extends Card {
     });
   }
 
+  onConfirmPlay() {}
+
+  onPlay() {
+    super.onPlay();
+  }
+
   onEffect(): void {}
 }

@@ -1,8 +1,10 @@
+import { createCard } from "../index";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { CardInProcess } from "../../../Event/ProcessEventType";
 import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus } from "../type";
+import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus, CardDirection, CardUsage } from "../type";
 
 export class ShiTan extends Card {
   private _drawCardColor: CardColor[];
@@ -29,23 +31,31 @@ export class ShiTan extends Card {
 
   onConfirmPlay(): void {}
 
-  // onPlay({ playerId, seq }: { playerId: number; seq: number }) {
-  //   super.onPlay();
-  //   NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
-  //     cardId: this.id,
-  //     playerId,
-  //     seq,
-  //   });
-  // }
+  onPlay({ playerId, seq }: { playerId: number; seq: number }) {
+    super.onPlay();
+    NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
+      cardId: this.id,
+      playerId,
+      seq,
+    });
+  }
 
-  onEffect(gameData: GameData, params: CardOnEffectParams) {}
+  onEffect(gameData: GameData, { userId, flag }: CardInProcess) {}
 
-  onShow(gameData: GameData, { user, targetPlayer, card }: CardOnEffectParams) {
-    card = <Card>card;
+  onShow(gameData: GameData, { userId, targetPlayerId, card }: CardInProcess) {
     //自己是被试探的目标时展示那张试探牌
-    if (targetPlayer.id === 0) {
-      card.gameObject = gameData.cardOnPlay.gameObject;
-      card.status = CardStatus.FACE_DOWN;
+    if (targetPlayerId === 0) {
+      const shiTanCard = createCard({
+        id: card.cardId,
+        color: (<number[]>card.cardColor) as CardColor[],
+        type: (<number>card.cardType) as CardType,
+        direction: (<number>card.cardDir) as CardDirection,
+        drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
+        usage: CardUsage.MESSAGE_CARD,
+        status: CardStatus.FACE_DOWN,
+        lockable: card.canLock,
+      });
+      shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
       gameData.cardOnPlay = card;
       card.flip();
     }

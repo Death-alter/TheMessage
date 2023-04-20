@@ -1,17 +1,16 @@
-import { _decorator, tween, Node, Vec3, Tween } from "cc";
+import { _decorator } from "cc";
 import { GameObjectContainer } from "./GameObjectContainer";
-import { CardObject } from "../Card/CardObject";
-import { GameCard } from "../Card/type";
 import { GameObject } from "../../GameObject";
+import { Card } from "../Card/Card";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupObject")
-export class CardGroupObject extends GameObjectContainer<GameObject<GameCard>> {
+export class CardGroupObject extends GameObjectContainer<GameObject<Card>> {
   init() {}
 
-  onDataAdded(data: GameCard): void {}
+  onDataAdded(data: Card): void {}
 
-  onDataRemoved(data: GameCard): void {}
+  onDataRemoved(data: Card): void {}
 
   onAllDataRemoved(): void {}
 }

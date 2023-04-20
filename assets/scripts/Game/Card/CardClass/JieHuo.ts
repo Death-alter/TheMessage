@@ -1,6 +1,7 @@
+import { CardInProcess } from "../../../Event/ProcessEventType";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardType } from "../type";
 
 export class JieHuo extends Card {
   constructor(option: CardDefaultOption) {
@@ -18,16 +19,13 @@ export class JieHuo extends Card {
     });
   }
 
-  onConfirmPlay() {
-    
-  }
-
+  onConfirmPlay() {}
 
   onPlay() {
     super.onPlay();
   }
 
-  onEffect(gameData: GameData, params: CardOnEffectParams) {
-    gameData.messagePlayerId = params.targetPlayer.id;
+  onEffect(gameData: GameData, { targetPlayerId }: CardInProcess) {
+    gameData.messagePlayerId = targetPlayerId;
   }
 }

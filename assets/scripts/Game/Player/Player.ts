@@ -4,8 +4,8 @@ import { CharacterObject } from "../Character/CharacterObject";
 import { PlayerObject } from "./PlayerObject";
 import { PlayerOption, PlayerStatus } from "./type";
 import { DataBasic } from "../../DataBasic";
-import { GameCard, CardUsage, CardStatus, CardColor } from "../Card/type";
-import { Card, UnknownCard } from "../Card/Card";
+import { CardUsage, CardStatus, CardColor } from "../Card/type";
+import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
@@ -16,7 +16,7 @@ export class Player extends DataBasic<PlayerObject> {
   private _character: Character;
   private _identityList: Identity[] = [new Agent(), new Lurker(), new MysteriousPerson()];
   private _seatNumber: number;
-  private _handCards: GameCard[] = [];
+  private _handCards: Card[] = [];
   private _messages: Card[] = [];
   private _status: PlayerStatus = PlayerStatus.ALIVE;
 
@@ -103,7 +103,7 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //抽牌
-  addHandCard(cards: GameCard | GameCard[]) {
+  addHandCard(cards: Card | Card[]) {
     if (!(cards instanceof Array)) {
       cards = [cards];
     }
@@ -112,7 +112,7 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  removeHandCard(cardIds: number | number[]): GameCard[] {
+  removeHandCard(cardIds: number | number[]): Card[] {
     if (typeof cardIds === "number") {
       cardIds = [cardIds];
     }

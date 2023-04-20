@@ -1,8 +1,9 @@
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { CardDefaultOption, CardType } from "../type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { CardInProcess } from "../../../Event/ProcessEventType";
 
 export class DiaoBao extends Card {
   constructor(option: CardDefaultOption) {
@@ -27,7 +28,7 @@ export class DiaoBao extends Card {
     NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
   }
 
-  onEffect(gameData: GameData, { cardId, targetCard }: CardOnEffectParams) {
+  onEffect(gameData: GameData, { cardId, targetCard }: CardInProcess) {
     const oldMessage = gameData.messageInTransmit;
     gameData.messageInTransmit = gameData.cardOnPlay;
 

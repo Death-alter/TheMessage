@@ -75,7 +75,6 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerPlayCard({ player, targetPlayer, card }: GameEventType.PlayerPalyCard) {
-    card = <Card>card;
     if (targetPlayer) {
       this.addData(
         new GameLog(

@@ -331,7 +331,7 @@ export class EventMapper {
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        targetCard: data.playerId == 0 ? data.messageCard : null,
+        targetCard: data.messageCard,
       });
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
@@ -392,7 +392,6 @@ export class EventMapper {
     NetworkEventCenter.on(
       NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC,
       (data: protobufType.wei_bi_wait_for_give_card_toc) => {
-        console.log(data.targetPlayerId);
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
           cardType: CardType.WEI_BI,

@@ -14,12 +14,11 @@ import {
   CardStatus,
   CardType,
   CardUsage,
-  GameCard,
 } from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
-import { Card, UnknownCard } from "../../../Game/Card/Card";
+import { Card } from "../../../Game/Card/Card";
 import { card } from "../../../../protobuf/proto";
 import { DataBasic } from "../../../DataBasic";
 import { GameUI } from "./GameUI";
@@ -29,7 +28,7 @@ export class GameData extends DataBasic<GameUI> {
   public identity: Identity;
   public playerCount: number;
   public playerList: Player[];
-  public messageInTransmit: GameCard | null = null;
+  public messageInTransmit: Card | null = null;
   public messageDirection: CardDirection;
   public deckCardCount: number;
   public cardOnPlay: Card;
@@ -249,7 +248,7 @@ export class GameData extends DataBasic<GameUI> {
   //抽牌
   private drawCards(data: ProcessEventType.DrawCards) {
     const player = this.playerList[data.playerId];
-    const cardList: GameCard[] = [];
+    const cardList: Card[] = [];
 
     if (data.unknownCardCount) {
       for (let i = 0; i < data.unknownCardCount; i++) {
@@ -381,7 +380,7 @@ export class GameData extends DataBasic<GameUI> {
 
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
-    let card: GameCard;
+    let card: Card;
     if (data.userId === 0) {
       if (data.card) {
         card = this.selfPlayer.removeHandCard(data.card.cardId)[0];
@@ -419,7 +418,7 @@ export class GameData extends DataBasic<GameUI> {
     this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data);
   }
 
-  private createCard(card?: card, usage?: CardUsage, status?: CardStatus): GameCard {
+  private createCard(card?: card, usage?: CardUsage, status?: CardStatus): Card {
     if (card) {
       return createCard({
         id: card.cardId,
@@ -436,15 +435,15 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
-  private createFunctionCard(card?: card): GameCard {
+  private createFunctionCard(card?: card): Card {
     return this.createCard(card, CardUsage.FUNCTION_CARD);
   }
 
-  private createHandCard(card?: card): GameCard {
+  private createHandCard(card?: card): Card {
     return this.createCard(card, CardUsage.HAND_CARD);
   }
 
-  private createMessage(card?: card): GameCard {
+  private createMessage(card?: card): Card {
     return this.createCard(card, CardUsage.MESSAGE_CARD, CardStatus.FACE_DOWN);
   }
 }

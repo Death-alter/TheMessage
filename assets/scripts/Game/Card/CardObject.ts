@@ -1,25 +1,26 @@
 import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat, tween, UIOpacity } from "cc";
-import { CardDirection, CardStatus, GameCard } from "./type";
-import { UnknownCard } from "./Card";
+import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";
+import { UnknownCard } from "./CardClass/UnknownCard";
+import { Card } from "./Card";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")
-export class CardObject extends GameObject<GameCard> {
+export class CardObject extends GameObject<Card> {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
 
   get data() {
     return this._data;
   }
 
-  set data(data: GameCard) {
+  set data(data: Card) {
     super.data = data;
     if (data) {
       this.refresh(data);
     }
   }
 
-  refresh(card: GameCard) {
+  refresh(card: Card) {
     const coverNode = this.node.getChildByPath("Inner/Panting/Cover");
     const imageNode = this.node.getChildByPath("Inner/Panting/Image");
     const detailNode = imageNode.getChildByName("CardDetail");

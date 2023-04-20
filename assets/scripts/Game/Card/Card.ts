@@ -1,13 +1,4 @@
-import {
-  CardStatus,
-  CardUsage,
-  CardOption,
-  CardDirection,
-  CardType,
-  CardColor,
-  CardOnEffectParams,
-  ChengQingOnEffectParams,
-} from "./type";
+import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
 import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
@@ -91,10 +82,6 @@ export abstract class Card extends DataBasic<CardObject> {
     }
   }
 
-  setStatus(status: CardStatus) {
-    this._status = status;
-  }
-
   //当做功能牌打出
   onPlay(...args: any[]): void {
     this.usage = CardUsage.FUNCTION_CARD;
@@ -107,7 +94,7 @@ export abstract class Card extends DataBasic<CardObject> {
 
   abstract onConfirmPlay(gameData: GameData): void;
 
-  abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
+  abstract onEffect(gameData: GameData, params: CardInProcess): void;
 
   //翻面
   flip() {
@@ -117,20 +104,5 @@ export abstract class Card extends DataBasic<CardObject> {
       this._status = CardStatus.FACE_UP;
     }
     return this.gameObject.flip();
-  }
-}
-
-export class UnknownCard extends DataBasic<CardObject> {
-  public readonly id: number = 0;
-  public readonly status: CardStatus = CardStatus.FACE_DOWN;
-  public readonly backSprite: string = "images/cards/CardBack";
-
-  public usage: CardUsage;
-
-  constructor(gameObject?: CardObject) {
-    super();
-    if (gameObject) {
-      this.gameObject = gameObject;
-    }
   }
 }

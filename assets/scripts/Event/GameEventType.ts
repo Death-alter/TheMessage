@@ -1,5 +1,5 @@
 import { Card } from "../Game/Card/Card";
-import { CardDirection, GameCard } from "../Game/Card/type";
+import { CardDirection } from "../Game/Card/type";
 import { CharacterStatus } from "../Game/Character/type";
 import { Identity } from "../Game/Identity/Identity";
 import { Player } from "../Game/Player/Player";
@@ -48,12 +48,12 @@ export interface CardAddToHandCard {
 
 export interface PlayerDrawCard {
   player: Player;
-  cardList: GameCard[];
+  cardList:Card[];
 }
 
 export interface PlayerDiscardCard {
   player: Player;
-  cardList: GameCard[];
+  cardList: Card[];
 }
 
 export interface CharacterStatusChange {
@@ -63,14 +63,14 @@ export interface CharacterStatusChange {
 
 export interface PlayerSendMessage {
   player: Player;
-  message: GameCard;
+  message: Card;
   targetPlayer: Player;
   direction: CardDirection;
 }
 
 export interface PlayerChooseReceiveMessage {
   player: Player;
-  message: GameCard;
+  message: Card;
 }
 
 export interface PlayerReceiveMessage {
@@ -95,19 +95,19 @@ export interface PlayerBeforeDeath {
 export interface PlayerGiveCard {
   player: Player;
   targetPlayer: Player;
-  cardList: GameCard[];
+  cardList: Card[];
 }
 
 export interface PlayerDie {
   player: Player;
-  handCards: GameCard[];
+  handCards: Card[];
   messages: Card[];
 }
 
 export interface PlayerGetCardsFromOthers {
   player: Player;
   fromPlayer: Player;
-  cardList: GameCard[];
+  cardList: Card[];
 }
 
 export interface GameOver {

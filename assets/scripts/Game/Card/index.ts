@@ -1,5 +1,4 @@
-import { UnknownCard } from "./Card";
-import { GameCard, CardType, CardDirection, CardColor, CardStatus, CardUsage } from "./type";
+import { CardType, CardDirection, CardColor, CardStatus, CardUsage } from "./type";
 import { CardDefaultOption, ShiTanOption } from "./type";
 import { ChengQing } from "./CardClass/ChengQing";
 import { ShiTan } from "./CardClass/ShiTan";
@@ -12,6 +11,8 @@ import { DiaoBao } from "./CardClass/DiaoBao";
 import { WuDao } from "./CardClass/WuDao";
 import { FenYunBianHuan } from "./CardClass/FenYunBianHuan";
 import { CardObject } from "../../Game/Card/CardObject";
+import { UnknownCard } from "./CardClass/UnknownCard";
+import { Card } from "./Card";
 
 interface createCardOption {
   id?: number;
@@ -25,7 +26,7 @@ interface createCardOption {
   gameObject?: CardObject;
 }
 
-const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption): GameCard } } = {};
+const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption): Card } } = {};
 
 cardsMap[0] = ChengQing;
 cardsMap[1] = ShiTan;
@@ -38,14 +39,14 @@ cardsMap[7] = DiaoBao;
 cardsMap[8] = WuDao;
 cardsMap[9] = FenYunBianHuan;
 
-export function createCard(option: createCardOption): GameCard {
+export function createCard(option: createCardOption): Card {
   if (cardsMap[option.type]) {
     return new cardsMap[option.type](option);
   } else {
-    return new UnknownCard(option.gameObject);
+    return new UnknownCard(option);
   }
 }
 
 export function createUnknownCard(gameObject?): UnknownCard {
-  return new UnknownCard(gameObject);
+  return new UnknownCard({ gameObject });
 }
