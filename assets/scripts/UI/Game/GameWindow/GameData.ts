@@ -32,7 +32,7 @@ export class GameData extends DataBasic<GameUI> {
   public messageInTransmit: GameCard | null = null;
   public messageDirection: CardDirection;
   public deckCardCount: number;
-  public cardOnPlay: GameCard;
+  public cardOnPlay: Card;
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
 
@@ -149,7 +149,6 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
     ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
     ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish, this);
   }
 
   unregisterEvents() {
@@ -168,7 +167,6 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
     ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
     ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
-    ProcessEventCenter.off(ProcessEvent.CARD_HANDLE_FINISH, this.cardHandleFinish);
   }
 
   //初始化游戏
@@ -203,6 +201,14 @@ export class GameData extends DataBasic<GameUI> {
     //修改回合信息
     this.turnPlayerId = data.currentPlayerId;
     this.gamePhase = data.currentPhase;
+
+    //卡牌结算完成
+    if (data.currentPhase === GamePhase.MAIN_PHASE && this.cardOnPlay) {
+      const card = this.cardOnPlay;
+      this.cardOnPlay = null;
+      GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card, flag: this.cardHandleFlag });
+      this.cardHandleFlag = false;
+    }
 
     //如果有传递的情报
     if (
@@ -407,35 +413,10 @@ export class GameData extends DataBasic<GameUI> {
     if (!this.cardOnPlay) {
       return;
     }
-    if (this.cardOnPlay instanceof UnknownCard) {
-      if (data.card) {
-        this.cardOnPlay = this.createFunctionCard(data.card);
-      } else {
-        return;
-      }
-    }
 
     const handlerName = data.handler || "onEffect";
-    const params: CardOnEffectParams = {};
 
-    if (data.userId != null) params.user = this.playerList[data.userId];
-    if (data.targetPlayerId != null) params.targetPlayer = this.playerList[data.targetPlayerId];
-    if (data.card) params.card = this.createFunctionCard(data.card);
-    if (data.targetCard) params.card = this.createCard(data.targetCard, null, data.targetCardStatus);
-    if (data.cardId != null) params.cardId = data.cardId;
-    if (data.targetCardId != null) params.targetCardId = data.targetCardId;
-    if (data.cards) params.cardList = data.cards.map((card) => this.createCard(card, null, data.cardStatus));
-    if (data.flag) params.flag = data.flag;
-
-    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, params);
-  }
-
-  //卡牌处理完毕
-  private cardHandleFinish() {
-    const card = this.cardOnPlay;
-    this.cardOnPlay = null;
-    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card, flag: this.cardHandleFlag });
-    this.cardHandleFlag = false;
+    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data);
   }
 
   private createCard(card?: card, usage?: CardUsage, status?: CardStatus): GameCard {

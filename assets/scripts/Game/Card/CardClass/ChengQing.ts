@@ -1,4 +1,3 @@
-import { card } from "../../../../protobuf/proto";
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
@@ -24,7 +23,7 @@ export class ChengQing extends Card {
   onConfirmPlay(gameData: GameData) {}
 
   onEffect(gameData: GameData, { targetPlayer, targetCardId }: CardOnEffectParams) {
-    const message = targetPlayer.removeMessage(targetCardId);
+    const message = targetPlayer.removeMessage(targetCardId)[0];
     GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
       player: targetPlayer,
       message,

@@ -1,8 +1,18 @@
-import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
+import {
+  CardStatus,
+  CardUsage,
+  CardOption,
+  CardDirection,
+  CardType,
+  CardColor,
+  CardOnEffectParams,
+  ChengQingOnEffectParams,
+} from "./type";
 import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { Tween, Node } from "cc";
+import { CardInProcess } from "../../Event/ProcessEventType";
 
 export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
@@ -79,6 +89,10 @@ export abstract class Card extends DataBasic<CardObject> {
     if (option.gameObject) {
       this.gameObject = option.gameObject;
     }
+  }
+
+  setStatus(status: CardStatus) {
+    this._status = status;
   }
 
   //当做功能牌打出

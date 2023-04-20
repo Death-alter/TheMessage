@@ -75,14 +75,7 @@ export interface ShiTanOption {
 }
 
 export interface CardOnEffectParams {
-  user?: Player;
-  targetPlayer?: Player;
-  cardId?: number;
-  card?: GameCard;
-  targetCardId?: number;
-  targetCard?: GameCard;
-  cardList?: GameCard[];
-  flag?: boolean;
+  [index: string]: any;
 }
 
 export type GameCard = Card | UnknownCard;

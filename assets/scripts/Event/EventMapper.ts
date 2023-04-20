@@ -279,7 +279,6 @@ export class EventMapper {
         userId: data.playerId,
         flag: data.isDrawCard,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //利诱
@@ -294,7 +293,6 @@ export class EventMapper {
         targetCard: data.messageCard,
         flag: data.joinIntoHand,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //平衡
@@ -309,7 +307,6 @@ export class EventMapper {
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //澄清
@@ -324,7 +321,6 @@ export class EventMapper {
         targetPlayerId: data.targetPlayerId,
         targetCardId: data.targetCardId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //破译
@@ -335,7 +331,7 @@ export class EventMapper {
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        card: data.messageCard,
+        targetCard: data.playerId == 0 ? data.messageCard : null,
       });
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
@@ -349,13 +345,12 @@ export class EventMapper {
         flag: data.show,
       };
       if (data.show) {
-        eventData.card = data.messageCard;
+        eventData.targetCard = data.messageCard;
       }
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onShow",
         ...eventData,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //截获
@@ -365,7 +360,6 @@ export class EventMapper {
         cardType: CardType.JIE_HUO,
         userId: data.playerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //调包
@@ -379,7 +373,6 @@ export class EventMapper {
         cardId: data.cardId,
         targetCard: data.oldMessageCard,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //误导
@@ -393,7 +386,6 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         targetPlayerId: data.targetPlayerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //威逼
@@ -421,7 +413,6 @@ export class EventMapper {
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: protobufType.wei_bi_show_hand_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -432,7 +423,6 @@ export class EventMapper {
         wantType: data.wantType,
         cards: data.cards,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_HANDLE_FINISH);
     });
 
     //风云变幻

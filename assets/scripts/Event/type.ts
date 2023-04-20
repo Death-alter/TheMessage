@@ -269,9 +269,6 @@ export enum GameEvent {
   PLAYER_SEND_MESSAGE = "player_send_message",
   PLAYER_CHOOSE_RECEIVE_MESSAGE = "player_choose_receive_message",
   PLAYER_RECEIVE_MESSAGE = "player_receive_message",
-  PLAYER_RECEIVE_RED_MESSAGE = "player_receive_red_message",
-  PLAYER_RECEIVE_BLUE_MESSAGE = "player_receive_blue_message",
-  PLAYER_RECEIVE_BLACK_MESSAGE = "player_receive_black_message",
   PLAYER_REOMVE_MESSAGE = "player_remove_message",
   PLAYER_DYING = "player_dying",
   PLAYER_BEFORE_DEATH = "player_before_death",
@@ -282,6 +279,7 @@ export enum GameEvent {
   MESSAGE_STATUS_CHANGE = "message_status_change",
   MESSAGE_REPLACED = "message_replaced",
   MESSAGE_PLACED_INTO_MESSAGE_ZONE = "message_placed_into_message_zone",
+  CARD_ADD_TO_HAND_CARD = "card_add_to_hand_card",
   CHARACTER_STATUS_CHANGE = "character_status_change",
   GAME_OVER = "game_over",
 }

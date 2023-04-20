@@ -36,6 +36,16 @@ export interface MessageReplaced {
   oldMessage: Card;
 }
 
+export interface MessagePlacedIntoMessageZone {
+  player: Player;
+  message: Card;
+}
+
+export interface CardAddToHandCard {
+  player: Player;
+  message: Card;
+}
+
 export interface PlayerDrawCard {
   player: Player;
   cardList: GameCard[];

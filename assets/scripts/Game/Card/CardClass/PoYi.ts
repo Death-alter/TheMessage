@@ -2,7 +2,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 
 export class PoYi extends Card {
   constructor(option: CardDefaultOption) {
@@ -20,10 +20,7 @@ export class PoYi extends Card {
     });
   }
 
-  onConfirmPlay() {
-    
-  }
-
+  onConfirmPlay() {}
 
   onPlay(seq: number) {
     super.onPlay();
@@ -33,21 +30,24 @@ export class PoYi extends Card {
     });
   }
 
-  onEffect(gameData: GameData, { card }: CardOnEffectParams): void {
-    if (card) {
-      card = <Card>card;
-      card.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = card;
-      card.flip();
+  onEffect(gameData: GameData, { targetCard }: CardOnEffectParams): void {
+    if (targetCard) {
+      targetCard = <Card>targetCard;
+      targetCard.setStatus(CardStatus.FACE_UP);
+      targetCard.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = targetCard;
+      targetCard.flip();
     }
   }
 
-  onShow(gameData: GameData, { user, card, flag }: CardOnEffectParams) {
+  onShow(gameData: GameData, { user, targetCard, flag }: CardOnEffectParams) {
+    console.log(targetCard, flag);
     if (flag && user.id !== 0) {
-      card = <Card>card;
-      card.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = card;
-      card.flip();
+      targetCard = <Card>targetCard;
+      targetCard.setStatus(CardStatus.FACE_UP);
+      targetCard.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = targetCard;
+      targetCard.flip();
     }
   }
 }

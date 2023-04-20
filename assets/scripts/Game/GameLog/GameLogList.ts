@@ -46,7 +46,10 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage, this);
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
+    GameEventCenter.on(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard, this);
+    GameEventCenter.on(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone, this);
   }
 
   unregisterEvents() {
@@ -54,7 +57,13 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.onPlayerDiscardCard);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.onPlayerPlayCard);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.onPlayerGiveCard);
+    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage);
+    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission);
+    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard);
+    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone);
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
@@ -118,7 +127,19 @@ export class GameLogList extends DataContainer<GameLog> {
     this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}成功接收情报【${message.name}】`));
   }
 
+  onPlayerRemoveMessage({ player, message }: GameEventType.PlayerRemoveMessage) {
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}移除情报情报【${message.name}】`));
+  }
+
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
     this.addData(new GameLog(`情报转移至【${messagePlayer.seatNumber + 1}号】${messagePlayer.character.name}`));
+  }
+
+  onCardAddToHandCard({ player, message }: GameEventType.CardAddToHandCard) {
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把【${message.name}】加入手牌`));
+  }
+
+  onMessagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
+    this.addData(new GameLog(`情报【${message.name}】被置入【${player.seatNumber + 1}号】${player.character.name}`));
   }
 }
