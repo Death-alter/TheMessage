@@ -43,7 +43,7 @@ export interface MessagePlacedIntoMessageZone {
 
 export interface CardAddToHandCard {
   player: Player;
-  message: Card;
+  card: Card;
 }
 
 export interface PlayerDrawCard {

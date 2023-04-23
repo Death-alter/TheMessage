@@ -29,13 +29,7 @@ export class ShiTan extends Card {
 
   onConfirmPlay(): void {}
 
-  onPlay({ playerId, seq }: { playerId: number; seq: number }) {
-    super.onPlay();
-    NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
-      cardId: this.id,
-      playerId,
-      seq,
-    });
+  onPlay() {
   }
 
   onEffect(gameData: GameData, { userId, flag }: CardOnEffectParams) {}

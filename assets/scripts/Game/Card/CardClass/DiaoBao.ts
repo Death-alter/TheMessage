@@ -28,7 +28,7 @@ export class DiaoBao extends Card {
   }
 
   onEffect(gameData: GameData, { cardId, targetCard }: CardOnEffectParams) {
-    const oldMessage = gameData.messageInTransmit;
+    let oldMessage = gameData.messageInTransmit;
     gameData.messageInTransmit = gameData.cardOnPlay;
 
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {

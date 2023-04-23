@@ -134,8 +134,9 @@ export class GameLogList extends DataContainer<GameLog> {
     this.addData(new GameLog(`情报转移至【${messagePlayer.seatNumber + 1}号】${messagePlayer.character.name}`));
   }
 
-  onCardAddToHandCard({ player, message }: GameEventType.CardAddToHandCard) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把【${message.name}】加入手牌`));
+  onCardAddToHandCard({ player, card }: GameEventType.CardAddToHandCard) {
+    console.log(card);
+    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把【${card.name}】加入手牌`));
   }
 
   onMessagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {

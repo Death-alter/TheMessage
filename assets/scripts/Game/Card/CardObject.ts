@@ -1,4 +1,4 @@
-import { _decorator, resources, Animation, Sprite, SpriteFrame, Node, Vec3, Color, Quat, tween, UIOpacity } from "cc";
+import { _decorator, resources, Animation, Sprite, SpriteFrame, Label, Vec3, Color, Quat, tween, UIOpacity } from "cc";
 import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
@@ -25,6 +25,9 @@ export class CardObject extends GameObject<Card> {
     const imageNode = this.node.getChildByPath("Inner/Panting/Image");
     const detailNode = imageNode.getChildByName("CardDetail");
     const sprite = imageNode.getComponent(Sprite);
+
+    detailNode.getChildByPath("Name/Label").getComponent(Label).string = card.name;
+
     if (card instanceof UnknownCard) {
       imageNode.active = false;
       coverNode.active = true;
@@ -34,32 +37,39 @@ export class CardObject extends GameObject<Card> {
         sprite.spriteFrame = spriteFrame;
       });
 
-      if (card.color != null) {
-        const colorNodeLeft = detailNode.getChildByPath("Color/Left").getComponent(Sprite);
-        const colorNodeRight = detailNode.getChildByPath("Color/Right").getComponent(Sprite);
+      const colorNodeLeft = detailNode.getChildByPath("Color/Left");
+      const colorNodeRight = detailNode.getChildByPath("Color/Right");
+      if (!card.color || card.color.length === 0) {
+        colorNodeLeft.active = false;
+        colorNodeRight.active = false;
+      } else {
+        colorNodeLeft.active = true;
+        colorNodeRight.active = true;
         if (card.color.length === 1) {
-          Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
-          Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[0]]);
+          Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
+          Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
         } else {
-          Color.fromHEX(colorNodeLeft.color, CardObject.colors[card.color[0]]);
-          Color.fromHEX(colorNodeRight.color, CardObject.colors[card.color[1]]);
+          Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
+          Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[1]]);
         }
       }
 
+      const arrow = detailNode.getChildByName("Arrow");
       if (card.direction != null) {
+        arrow.active = true;
         if (card.direction === CardDirection.LEFT) {
-          Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, 90);
+          Quat.fromAngleZ(arrow.rotation, 90);
         } else if (card.direction === CardDirection.RIGHT) {
-          Quat.fromAngleZ(detailNode.getChildByName("Arrow").rotation, -90);
+          Quat.fromAngleZ(arrow.rotation, -90);
         }
+      } else {
+        arrow.active = false;
       }
 
-      if (card.lockable != null) {
-        if (card.lockable) {
-          detailNode.getChildByName("Lock").active = true;
-        } else {
-          detailNode.getChildByName("Lock").active = false;
-        }
+      if (card.lockable) {
+        detailNode.getChildByName("Lock").active = true;
+      } else {
+        detailNode.getChildByName("Lock").active = false;
       }
 
       if (card.status === CardStatus.FACE_UP) {

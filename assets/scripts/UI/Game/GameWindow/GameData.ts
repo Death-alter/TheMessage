@@ -195,7 +195,10 @@ export class GameData extends DataBasic<GameUI> {
     this.gamePhase = data.currentPhase;
 
     //卡牌结算完成
-    if (data.currentPhase === GamePhase.MAIN_PHASE && this.cardOnPlay) {
+    if (
+      (data.currentPhase === GamePhase.MAIN_PHASE || data.currentPhase === GamePhase.FIGHT_PHASE) &&
+      this.cardOnPlay
+    ) {
       const card = this.cardOnPlay;
       this.cardOnPlay = null;
       GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card, flag: this.cardHandleFlag });
@@ -263,7 +266,11 @@ export class GameData extends DataBasic<GameUI> {
   private discardCards(data: ProcessEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
     const cardIdList = data.cards.map((item) => item.cardId);
-    const cardList = player.removeHandCard(cardIdList);
+    let cardList = player.removeHandCard(cardIdList);
+    const num = cardIdList.length - cardList.length;
+    if (num > 0) {
+      cardList = [...cardList, ...player.removeHandCard(new Array(num).fill(0))];
+    }
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
 
@@ -374,14 +381,14 @@ export class GameData extends DataBasic<GameUI> {
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: Card;
-    if (data.userId === 0) {
-      if (data.card) {
-        card = this.selfPlayer.removeHandCard(data.card.cardId)[0];
-      } else {
-        card = this.selfPlayer.removeHandCard(data.cardId)[0];
-      }
+    const user = this.playerList[data.userId];
+    if (data.card) {
+      card = user.removeHandCard(data.card.cardId)[0];
     } else {
-      this.playerList[data.userId].removeHandCard(0);
+      card = user.removeHandCard(data.cardId)[0];
+    }
+
+    if (!card || card.type === CardType.UNKNOWN) {
       if (data.card) {
         card = this.createFunctionCard(data.card);
       } else {
@@ -391,7 +398,9 @@ export class GameData extends DataBasic<GameUI> {
         });
       }
     }
-    if (card instanceof Card) card.onPlay();
+
+    console.log(card);
+    card.onPlay();
     this.cardOnPlay = card;
     const eventData: any = { player: this.playerList[data.userId], card };
     if (data.targetPlayerId != null) {

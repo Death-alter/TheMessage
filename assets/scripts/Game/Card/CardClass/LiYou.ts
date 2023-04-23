@@ -34,14 +34,15 @@ export class LiYou extends Card {
       targetPlayer.addHandCard(card);
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player: targetPlayer,
-        message: targetCard,
+        card: card,
       });
     } else {
       const card = gameData.createMessage(targetCard);
+      console.log(card);
       targetPlayer.addMessage(card);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,
-        message: targetCard,
+        message: card,
       });
     }
   }

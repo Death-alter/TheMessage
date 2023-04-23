@@ -270,6 +270,7 @@ export class CardAction extends Component {
       const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
       if (message.status === CardStatus.FACE_DOWN) {
         await message.flip();
+        console.log(message, message.gameObject);
         tween(message.gameObject.node)
           .to(0.5, {
             worldPosition: messageContainer.worldPosition,
