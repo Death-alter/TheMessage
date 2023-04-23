@@ -299,6 +299,7 @@ export class CardAction extends Component {
 
   replaceMessage({ message, oldMessage }: GameEventType.MessageReplaced) {
     return new Promise((resolve, reject) => {
+      this.transmissionMessageObject = message.gameObject;
       const worldPosition = oldMessage.gameObject.node.worldPosition;
       tween(message.gameObject.node)
         .to(0.8, {
@@ -310,8 +311,8 @@ export class CardAction extends Component {
           worldPosition: this.discardPileNode.worldPosition,
         })
         .call(() => {
-          GamePools.cardPool.put(message.gameObject);
-          message.gameObject = null;
+          GamePools.cardPool.put(oldMessage.gameObject);
+          oldMessage.gameObject = null;
           resolve(null);
         })
         .start();

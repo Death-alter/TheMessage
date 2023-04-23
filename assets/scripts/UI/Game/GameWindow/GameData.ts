@@ -7,14 +7,7 @@ import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
-import {
-  CardColor,
-  CardDirection,
-  CardOnEffectParams,
-  CardStatus,
-  CardType,
-  CardUsage,
-} from "../../../Game/Card/type";
+import { CardColor, CardDirection, CardOnEffectParams, CardStatus, CardType, CardUsage } from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -250,7 +243,7 @@ export class GameData extends DataBasic<GameUI> {
     const player = this.playerList[data.playerId];
     const cardList: Card[] = [];
 
-    if (data.unknownCardCount) {
+    if (data.unknownCardCount !== 0) {
       for (let i = 0; i < data.unknownCardCount; i++) {
         const card = this.createHandCard();
         cardList.push(card);
@@ -412,13 +405,12 @@ export class GameData extends DataBasic<GameUI> {
     if (!this.cardOnPlay) {
       return;
     }
-
     const handlerName = data.handler || "onEffect";
 
-    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data);
+    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data.data);
   }
 
-  private createCard(card?: card, usage?: CardUsage, status?: CardStatus): Card {
+  createCard(card?: card, usage?: CardUsage, status?: CardStatus): Card {
     if (card) {
       return createCard({
         id: card.cardId,
@@ -435,15 +427,15 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
-  private createFunctionCard(card?: card): Card {
+  createFunctionCard(card?: card, status: CardStatus = CardStatus.FACE_UP): Card {
     return this.createCard(card, CardUsage.FUNCTION_CARD);
   }
 
-  private createHandCard(card?: card): Card {
+  createHandCard(card?: card, status: CardStatus = CardStatus.FACE_UP): Card {
     return this.createCard(card, CardUsage.HAND_CARD);
   }
 
-  private createMessage(card?: card): Card {
+  createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
     return this.createCard(card, CardUsage.MESSAGE_CARD, CardStatus.FACE_DOWN);
   }
 }

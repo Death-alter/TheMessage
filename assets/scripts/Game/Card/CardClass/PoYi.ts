@@ -1,10 +1,8 @@
-import { createCard } from "../index";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { CardInProcess } from "../../../Event/ProcessEventType";
 import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDefaultOption, CardDirection, CardStatus, CardType, CardUsage } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class PoYi extends Card {
   constructor(option: CardDefaultOption) {
@@ -32,29 +30,21 @@ export class PoYi extends Card {
     });
   }
 
-  onEffect(gameData: GameData, { targetCard }: CardInProcess): void {
-    if (targetCard) {
-      const card = createCard({
-        id: targetCard.cardId,
-        color: (<number[]>targetCard.cardColor) as CardColor[],
-        type: (<number>targetCard.cardType) as CardType,
-        direction: (<number>targetCard.cardDir) as CardDirection,
-        drawCardColor: (<number[]>targetCard.whoDrawCard) as CardColor[],
-        usage: CardUsage.HAND_CARD,
-        status: CardStatus.FACE_DOWN,
-        lockable: targetCard.canLock,
-      });
-      card.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = card;
-      targetCard.flip();
+  onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
+    if (userId === 0) {
+      const message = gameData.createMessage(targetCard);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+      message.flip();
     }
   }
 
-  onShow(gameData: GameData, { user, targetCard, flag }: CardInProcess) {
-    if (flag && user.id !== 0) {
-      targetCard.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = targetCard;
-      targetCard.flip();
+  onShow(gameData: GameData, { userId, targetCard, flag }: CardOnEffectParams) {
+    if (flag && userId !== 0) {
+      const message = gameData.createMessage(targetCard);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+      message.flip();
     }
   }
 }

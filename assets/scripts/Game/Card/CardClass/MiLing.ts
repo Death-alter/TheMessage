@@ -4,13 +4,13 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
-export class ChengQing extends Card {
+export class MiLing extends Card {
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
-      name: "澄清",
-      type: CardType.CHENG_QING,
-      sprite: "images/cards/ChengQing",
+      name: "密令",
+      type: CardType.MI_LING,
+      sprite: "images/cards/MiLing",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,
@@ -22,12 +22,5 @@ export class ChengQing extends Card {
 
   onConfirmPlay(gameData: GameData) {}
 
-  onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {
-    const targetPlayer = gameData.playerList[targetPlayerId];
-    const message = targetPlayer.removeMessage(targetCardId)[0];
-    GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
-      player: targetPlayer,
-      message,
-    });
-  }
+  onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {}
 }

@@ -1,6 +1,4 @@
-import { createCard } from "../index";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { CardInProcess } from "../../../Event/ProcessEventType";
 import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
@@ -40,21 +38,12 @@ export class ShiTan extends Card {
     });
   }
 
-  onEffect(gameData: GameData, { userId, flag }: CardInProcess) {}
+  onEffect(gameData: GameData, { userId, flag }: CardOnEffectParams) {}
 
-  onShow(gameData: GameData, { userId, targetPlayerId, card }: CardInProcess) {
+  onShow(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     //自己是被试探的目标时展示那张试探牌
     if (targetPlayerId === 0) {
-      const shiTanCard = createCard({
-        id: card.cardId,
-        color: (<number[]>card.cardColor) as CardColor[],
-        type: (<number>card.cardType) as CardType,
-        direction: (<number>card.cardDir) as CardDirection,
-        drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
-        usage: CardUsage.MESSAGE_CARD,
-        status: CardStatus.FACE_DOWN,
-        lockable: card.canLock,
-      });
+      const shiTanCard = gameData.createFunctionCard(card);
       shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
       gameData.cardOnPlay = card;
       card.flip();

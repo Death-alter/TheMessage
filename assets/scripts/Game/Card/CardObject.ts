@@ -65,7 +65,7 @@ export class CardObject extends GameObject<Card> {
       if (card.status === CardStatus.FACE_UP) {
         coverNode.active = false;
         coverNode.getComponent(Animation).stop();
-        coverNode.getComponent(UIOpacity).opacity = 1;
+        coverNode.getComponent(UIOpacity).opacity = 255;
       } else {
         coverNode.active = true;
         coverNode.getComponent(Animation).play();

@@ -1,10 +1,8 @@
-import { createCard } from "../index";
 import { GameEventCenter } from "../../../Event/EventTarget";
-import { CardInProcess } from "../../../Event/ProcessEventType";
 import { GameEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDefaultOption, CardDirection, CardType, CardUsage } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class LiYou extends Card {
   constructor(option: CardDefaultOption) {
@@ -28,34 +26,18 @@ export class LiYou extends Card {
     super.onPlay();
   }
 
-  onEffect(gameData: GameData, { targetPlayerId, targetCard, flag }: CardInProcess): void {
+  onEffect(gameData: GameData, { targetPlayerId, targetCard, flag }: CardOnEffectParams): void {
     if (!targetCard) return;
     const targetPlayer = gameData.playerList[targetPlayerId];
     if (flag) {
-      const card = createCard({
-        id: targetCard.cardId,
-        color: (<number[]>targetCard.cardColor) as CardColor[],
-        type: (<number>targetCard.cardType) as CardType,
-        direction: (<number>targetCard.cardDir) as CardDirection,
-        drawCardColor: (<number[]>targetCard.whoDrawCard) as CardColor[],
-        usage: CardUsage.HAND_CARD,
-        lockable: targetCard.canLock,
-      });
+      const card = gameData.createHandCard(targetCard);
       targetPlayer.addHandCard(card);
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player: targetPlayer,
         message: targetCard,
       });
     } else {
-      const card = createCard({
-        id: targetCard.cardId,
-        color: (<number[]>targetCard.cardColor) as CardColor[],
-        type: (<number>targetCard.cardType) as CardType,
-        direction: (<number>targetCard.cardDir) as CardDirection,
-        drawCardColor: (<number[]>targetCard.whoDrawCard) as CardColor[],
-        usage: CardUsage.MESSAGE_CARD,
-        lockable: targetCard.canLock,
-      });
+      const card = gameData.createMessage(targetCard);
       targetPlayer.addMessage(card);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,

@@ -1,5 +1,5 @@
 import { card } from "../../protobuf/proto";
-import { CardDirection, CardType, } from "../Game/Card/type";
+import { CardDirection, CardOnEffectParams, CardType } from "../Game/Card/type";
 import { CharacterType } from "../Game/Character/type";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
 import { GamePhase } from "../GameManager/type";
@@ -167,5 +167,5 @@ export interface CardPlayed {
 
 export interface CardInProcess {
   handler?: string;
-  [index: string]: any;
+  data: CardOnEffectParams;
 }
