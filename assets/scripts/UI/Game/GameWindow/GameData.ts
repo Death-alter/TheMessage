@@ -385,6 +385,10 @@ export class GameData extends DataBasic<GameUI> {
       card = user.removeHandCard(data.cardId);
     }
 
+    if (!card) {
+      user.removeHandCard(0);
+    }
+
     if (!card || card.type === CardType.UNKNOWN) {
       if (data.card) {
         card = this.createFunctionCard(data.card);
@@ -396,7 +400,6 @@ export class GameData extends DataBasic<GameUI> {
       }
     }
 
-    console.log(card);
     card.onPlay();
     this.cardOnPlay = card;
     const eventData: any = { player: this.playerList[data.userId], card };

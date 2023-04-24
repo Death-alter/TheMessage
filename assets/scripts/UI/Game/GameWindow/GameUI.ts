@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, Material } from "cc";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -178,7 +178,7 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.drawCards(data, this.handCardList);
   }
 
-  discardCards(data: GameEventType.PlayerDrawCard) {
+  discardCards(data: GameEventType.PlayerDiscardCard) {
     this.cardAction.discardCards(data, this.handCardList);
   }
 
@@ -207,7 +207,8 @@ export class GameUI extends GameObject<GameData> {
   playerDie(data: GameEventType.PlayerDie) {
     const { player, handCards, messages } = data;
     this.cardAction.discardCards({ player, cardList: handCards }, this.handCardList);
-    this.cardAction.discardCards({ player, cardList: messages }, this.handCardList);
+    this.cardAction.removeMessage({ player, messageList: messages });
+    player.die();
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {

@@ -320,17 +320,35 @@ export class CardAction extends Component {
     });
   }
 
-  removeMessage({ player, message }: GameEventType.PlayerRemoveMessage) {
+  removeMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
     return new Promise((resolve, reject) => {
+      const cardGroup = new DataContainer<Card>();
+      cardGroup.gameObject = GamePools.cardGroupPool.get();
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
-      message.gameObject.node.worldPosition = panting.worldPosition;
-      tween(message.gameObject.node)
+
+      messageList.forEach((card) => {
+        if (!card.gameObject) {
+          card.gameObject = GamePools.cardPool.get();
+        }
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        cardGroup.addData(card);
+      });
+
+      this.node.addChild(cardGroup.gameObject.node);
+      cardGroup.gameObject.node.worldPosition = panting.worldPosition;
+
+      tween(cardGroup.gameObject.node)
         .to(0.8, {
           worldPosition: this.discardPileNode.worldPosition,
         })
         .call(() => {
-          GamePools.cardPool.put(message.gameObject);
-          message.gameObject = null;
+          for (let card of cardGroup.list) {
+            GamePools.cardPool.put(card.gameObject);
+            card.gameObject = null;
+          }
+          cardGroup.removeAllData();
+          GamePools.cardGroupPool.put(cardGroup.gameObject);
+          cardGroup.gameObject = null;
           resolve(null);
         })
         .start();

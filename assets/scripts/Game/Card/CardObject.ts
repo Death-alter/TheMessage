@@ -15,8 +15,8 @@ export class CardObject extends GameObject<Card> {
 
   set data(data: Card) {
     super.data = data;
-    if (data) {
-      this.refresh(data);
+    if (this.data) {
+      this.refresh(this.data);
     }
   }
 
@@ -99,6 +99,7 @@ export class CardObject extends GameObject<Card> {
             }
           })
           .to(0.3, { scale: new Vec3(1, 1, 1) })
+          .delay(0.2)
           .call(() => {
             reslove(null);
           })

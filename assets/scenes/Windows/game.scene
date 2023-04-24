@@ -188,7 +188,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 454.67625899280574,
+    "_orthoHeight": 455.2517985611511,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -5510,7 +5510,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -72,
+      "y": 140,
       "z": 0
     },
     "_lrot": {
@@ -5553,7 +5553,7 @@
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0
+      "y": 1
     },
     "_id": "b1DSjMA+FJhKa52w9HxyXa"
   },
@@ -5580,7 +5580,7 @@
     "_paddingBottom": 0,
     "_spacingX": 0,
     "_spacingY": 5,
-    "_verticalDirection": 0,
+    "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_constraint": 0,
     "_constraintNum": 2,

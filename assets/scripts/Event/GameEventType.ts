@@ -80,7 +80,7 @@ export interface PlayerReceiveMessage {
 
 export interface PlayerRemoveMessage {
   player: Player;
-  message: Card;
+  messageList: Card[];
 }
 
 export interface PlayerDying {
