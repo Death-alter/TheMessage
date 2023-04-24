@@ -24,15 +24,21 @@ export class DiaoBao extends Card {
 
   onPlay() {
     super.onPlay();
-    NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
+    // NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
   }
 
   onEffect(gameData: GameData, { cardId, targetCard }: CardOnEffectParams) {
-    let oldMessage = gameData.messageInTransmit;
-    gameData.messageInTransmit = gameData.cardOnPlay;
+    const oldMessage = gameData.messageInTransmit;
+    if (cardId) {
+      gameData.messageInTransmit = gameData.cardOnPlay;
+      gameData.messageInTransmit.flip();
+    } else {
+      gameData.messageInTransmit = gameData.createMessage();
+      gameData.messageInTransmit.gameObject = gameData.cardOnPlay.gameObject;
+    }
 
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
-      message: gameData.cardOnPlay,
+      message: gameData.messageInTransmit,
       oldMessage,
     });
 

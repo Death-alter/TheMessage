@@ -39,8 +39,8 @@ export class ShiTan extends Card {
     if (targetPlayerId === 0) {
       const shiTanCard = gameData.createFunctionCard(card);
       shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
-      gameData.cardOnPlay = card;
-      card.flip();
+      gameData.cardOnPlay = shiTanCard;
+      shiTanCard.flip();
     }
   }
 }

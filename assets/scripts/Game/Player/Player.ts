@@ -112,21 +112,31 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //弃牌
-  removeHandCard(cardIds: number | number[]): Card[] {
+  removeHandCard(cardId: number): Card;
+  removeHandCard(cardIds: number[]): Card[];
+  removeHandCard(cardIds: number | number[]): Card | Card[] {
     if (typeof cardIds === "number") {
-      cardIds = [cardIds];
-    }
-    const arr = [];
-    for (let cardId of cardIds) {
+      let card = null;
       for (let i = 0; i < this._handCards.length; i++) {
-        if (cardId === this._handCards[i].id) {
-          arr.push(this._handCards.splice(i, 1)[0]);
-          break;
+        if (cardIds === this._handCards[i].id) {
+          card = this._handCards.splice(i, 1)[0];
         }
       }
+      this.gameObject.refreshHandCardCount();
+      return card;
+    } else {
+      const arr = [];
+      for (let cardId of cardIds) {
+        for (let i = 0; i < this._handCards.length; i++) {
+          if (cardId === this._handCards[i].id) {
+            arr.push(this._handCards.splice(i, 1)[0]);
+            break;
+          }
+        }
+      }
+      this.gameObject.refreshHandCardCount();
+      return arr;
     }
-    this.gameObject.refreshHandCardCount();
-    return arr;
   }
 
   //丢弃所有手牌

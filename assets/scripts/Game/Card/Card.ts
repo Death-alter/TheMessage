@@ -3,7 +3,6 @@ import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { Tween, Node } from "cc";
-import { CardInProcess } from "../../Event/ProcessEventType";
 
 export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
@@ -94,7 +93,7 @@ export abstract class Card extends DataBasic<CardObject> {
 
   abstract onConfirmPlay(gameData: GameData): void;
 
-  abstract onEffect(gameData: GameData, params: CardInProcess): void;
+  abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
 
   //翻面
   flip() {

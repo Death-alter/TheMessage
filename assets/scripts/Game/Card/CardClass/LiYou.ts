@@ -38,7 +38,6 @@ export class LiYou extends Card {
       });
     } else {
       const card = gameData.createMessage(targetCard);
-      console.log(card);
       targetPlayer.addMessage(card);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,

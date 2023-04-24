@@ -24,10 +24,10 @@ export class PoYi extends Card {
 
   onPlay(seq: number) {
     super.onPlay();
-    NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-      cardId: this.id,
-      seq,
-    });
+    // NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+    //   cardId: this.id,
+    //   seq,
+    // });
   }
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {

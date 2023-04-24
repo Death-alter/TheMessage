@@ -27,7 +27,7 @@ export class FenYunBianHuan extends Card {
     super.onPlay();
   }
 
-  onEffect(gameData: GameData, params: CardOnEffectParams): void {}
+  onEffect(gameData: GameData, params: CardOnEffectParams) {}
 
   onShowCards(gameData: GameData, params: CardOnEffectParams) {}
 

@@ -265,11 +265,15 @@ export class GameData extends DataBasic<GameUI> {
   //弃牌
   private discardCards(data: ProcessEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
-    const cardIdList = data.cards.map((item) => item.cardId);
-    let cardList = player.removeHandCard(cardIdList);
-    const num = cardIdList.length - cardList.length;
-    if (num > 0) {
-      cardList = [...cardList, ...player.removeHandCard(new Array(num).fill(0))];
+    const cardList = [];
+    for (const card of data.cards) {
+      const removedCard = player.removeHandCard(card.cardId);
+      if (removedCard) {
+        cardList.push(removedCard);
+      } else {
+        player.removeHandCard(0);
+        cardList.push(this.createHandCard(card));
+      }
     }
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
@@ -295,7 +299,7 @@ export class GameData extends DataBasic<GameUI> {
   private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
-    const card = player.removeHandCard(data.cardId)[0];
+    const card = player.removeHandCard(data.cardId);
     this.messageInTransmit = card;
     if (card instanceof Card) {
       card.onSend();
@@ -315,13 +319,6 @@ export class GameData extends DataBasic<GameUI> {
       message: this.messageInTransmit,
     });
   }
-
-  // private playerRemoveMessage(data) {
-  //   GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
-  //     player: this.playerList[data.playerId],
-  //     message: this.messageInTransmit,
-  //   });
-  // }
 
   //濒死求澄清
   private playerDying(data: ProcessEventType.PlayerDying) {
@@ -383,9 +380,9 @@ export class GameData extends DataBasic<GameUI> {
     let card: Card;
     const user = this.playerList[data.userId];
     if (data.card) {
-      card = user.removeHandCard(data.card.cardId)[0];
+      card = user.removeHandCard(data.card.cardId);
     } else {
-      card = user.removeHandCard(data.cardId)[0];
+      card = user.removeHandCard(data.cardId);
     }
 
     if (!card || card.type === CardType.UNKNOWN) {

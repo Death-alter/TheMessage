@@ -97,7 +97,7 @@ export class GameUI extends GameObject<GameData> {
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
 
     //玩家死亡
-    // GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
+    GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
 
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);

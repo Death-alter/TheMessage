@@ -33,10 +33,10 @@ export class WeiBi extends Card {
     const targetPlayer = gameData.playerList[targetPlayerId];
     let removedCard;
     if (card) {
-      removedCard = targetPlayer.removeHandCard(card.cardId)[0];
+      removedCard = targetPlayer.removeHandCard(card.cardId);
     }
     if (!removedCard) {
-      removedCard = targetPlayer.removeHandCard(0)[0];
+      removedCard = targetPlayer.removeHandCard(0);
     }
     user.addHandCard(removedCard);
 
