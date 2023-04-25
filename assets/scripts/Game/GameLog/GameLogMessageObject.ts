@@ -7,19 +7,19 @@ const { ccclass } = _decorator;
 export class GameLogMessageObject extends GameObject<GameLog> {
   private _opacityTarget: UIOpacity | null = null;
   private _action: Tween<any> = null;
-  private label: RichText = null;
+  private label: Node = null;
   private background: Node = null;
 
   init() {
-    this.label = this.node.getChildByName("RichText").getComponent(RichText);
     this.background = this.node.getChildByName("Background");
+    this.label = this.node.getChildByName("RichText");
     this._opacityTarget = this.getComponent(UIOpacity);
     tween(this._opacityTarget).hide().start();
   }
 
   setText(str: string) {
-    this.label.string = str;
-    this.background.getComponent(UITransform).width = str.length * 20 + 10;
+    this.label.getComponent(RichText).string = str;
+    this.background.getComponent(UITransform).width = this.label.getComponent(UITransform).width + 20;
   }
 
   show(seconds = 2) {

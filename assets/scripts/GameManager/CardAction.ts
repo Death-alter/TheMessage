@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3 } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Sprite } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -174,6 +174,13 @@ export class CardAction extends Component {
       card.gameObject.node.setParent(this.node);
       card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
     }
+
+    console.log(
+      card.gameObject.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Left").getComponent(Sprite).color
+    );
+    console.log(
+      card.gameObject.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Right").getComponent(Sprite).color
+    );
 
     if (player.id === 0) {
       card.action = tween(card.gameObject.node)

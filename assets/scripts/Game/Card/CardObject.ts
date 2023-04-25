@@ -39,20 +39,23 @@ export class CardObject extends GameObject<Card> {
 
       const colorNodeLeft = detailNode.getChildByPath("Color/Left");
       const colorNodeRight = detailNode.getChildByPath("Color/Right");
+      console.log(card.color);
       if (!card.color || card.color.length === 0) {
         colorNodeLeft.active = false;
         colorNodeRight.active = false;
       } else {
-        colorNodeLeft.active = true;
-        colorNodeRight.active = true;
-        console.log(card.color);
         if (card.color.length === 1) {
           Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
           Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
+          console.log(CardObject.colors[card.color[0]]);
         } else {
           Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
           Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[1]]);
+          console.log(CardObject.colors[card.color[0]]);
+          console.log(CardObject.colors[card.color[1]]);
         }
+        colorNodeLeft.active = true;
+        colorNodeRight.active = true;
       }
 
       const arrow = detailNode.getChildByName("Arrow");
@@ -104,8 +107,6 @@ export class CardObject extends GameObject<Card> {
           .to(0.3, { scale: new Vec3(1, 1, 1) })
           .delay(0.2)
           .call(() => {
-            console.log(this.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Left").getComponent(Sprite).color);
-            console.log(this.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Right").getComponent(Sprite).color);
             reslove(null);
           })
           .start();

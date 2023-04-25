@@ -43,36 +43,38 @@ export class GameLogList extends DataContainer<GameLog> {
     let colorStr = "";
     if (card.color && card.color.length) {
       if (card.color.length === 1) {
-        colorStr = `<color=${CardObject.colors[card.color[0]]}>`;
         switch (card.color[0]) {
           case CardColor.BLACK:
-            colorStr += "黑色";
+            colorStr += `<color=#FFFFFF>黑色</color>`;
             break;
           case CardColor.BLUE:
-            colorStr += "蓝色";
+            colorStr += `<color=${CardObject.colors[card.color[0]]}>蓝色</color>`;
             break;
           case CardColor.RED:
-            colorStr += "红色";
+            colorStr += `<color=${CardObject.colors[card.color[0]]}>红色</color>`;
             break;
         }
-        colorStr += "</color>";
       } else {
         for (let item of card.color) {
           switch (item) {
             case CardColor.BLACK:
-              colorStr += `<color=${CardObject.colors[card.color[0]]}>黑</color>`;
+              colorStr += `<color=#FFFFFF>黑</color>`;
               break;
             case CardColor.BLUE:
-              colorStr += `<color=${CardObject.colors[card.color[0]]}>蓝</color>`;
+              colorStr += `<color=${CardObject.colors[item]}>蓝</color>`;
               break;
             case CardColor.RED:
-              colorStr += `<color=${CardObject.colors[card.color[0]]}>红</color>`;
+              colorStr += `<color=${CardObject.colors[item]}>红</color>`;
               break;
           }
         }
       }
     }
-    return `【${colorStr}|${card.name}】`;
+    if (colorStr) {
+      return `【${colorStr}|${card.name}】`;
+    } else {
+      return `【${card.name}】`;
+    }
   }
 
   registerEvents() {
