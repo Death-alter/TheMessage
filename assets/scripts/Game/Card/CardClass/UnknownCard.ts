@@ -12,7 +12,6 @@ export class UnknownCard extends Card {
       color: [],
       lockable: false,
       status: CardStatus.FACE_DOWN,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }

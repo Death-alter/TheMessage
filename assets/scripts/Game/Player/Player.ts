@@ -4,12 +4,12 @@ import { CharacterObject } from "../Character/CharacterObject";
 import { PlayerObject } from "./PlayerObject";
 import { PlayerOption, PlayerStatus } from "./type";
 import { DataBasic } from "../../DataBasic";
-import { CardUsage, CardStatus, CardColor } from "../Card/type";
+import { CardStatus, CardColor } from "../Card/type";
 import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
-import { Sprite } from "cc";
+import { Color, Sprite } from "cc";
 
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
@@ -165,7 +165,6 @@ export class Player extends DataBasic<PlayerObject> {
       messages = [messages];
     }
     messages.forEach((message) => {
-      if (message.usage !== CardUsage.MESSAGE_CARD) message.usage = CardUsage.MESSAGE_CARD;
       if (message.status !== CardStatus.FACE_UP) message.status = CardStatus.FACE_UP;
     });
 
@@ -217,10 +216,18 @@ export class Player extends DataBasic<PlayerObject> {
   die() {
     this.gameObject.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
     this.gameObject.node.getChildByPath("Border/CharacterPanting/Mask/Cover").getComponent(Sprite).grayscale = true;
-    this.gameObject.node.getChildByPath("Border/Message/Blue").getComponent(Sprite).grayscale = true;
-    this.gameObject.node.getChildByPath("Border/Message/Black").getComponent(Sprite).grayscale = true;
-    this.gameObject.node.getChildByPath("Border/Message/Red").getComponent(Sprite).grayscale = true;
-    this.gameObject.node.getChildByPath("Border/Message/HandCard").getComponent(Sprite).grayscale = true;
+    const blue = this.gameObject.node.getChildByPath("Border/Message/Blue").getComponent(Sprite);
+    blue.grayscale = true;
+    Color.fromHEX(blue.color, "#FFFFFF");
+    const black = this.gameObject.node.getChildByPath("Border/Message/Black").getComponent(Sprite);
+    black.grayscale = true;
+    Color.fromHEX(black.color, "#FFFFFF");
+    const red = this.gameObject.node.getChildByPath("Border/Message/Red").getComponent(Sprite);
+    red.grayscale = true;
+    Color.fromHEX(red.color, "#FFFFFF");
+    const handCard = this.gameObject.node.getChildByPath("Border/Message/HandCard").getComponent(Sprite);
+    handCard.grayscale = true;
+    Color.fromHEX(handCard.color, "#FFFFFF");
     this._alive = false;
   }
 }

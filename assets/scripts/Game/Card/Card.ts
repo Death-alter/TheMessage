@@ -1,4 +1,4 @@
-import { CardStatus, CardUsage, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
+import { CardStatus, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
 import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
@@ -10,7 +10,6 @@ export abstract class Card extends DataBasic<CardObject> {
   protected _type: CardType;
   protected _sprite: string;
   protected _status: CardStatus;
-  protected _usage: CardUsage;
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
@@ -45,14 +44,6 @@ export abstract class Card extends DataBasic<CardObject> {
     }
   }
 
-  get usage() {
-    return this._usage;
-  }
-  set usage(usage) {
-    if (usage == null || usage === this._usage) return;
-    this._usage = usage;
-  }
-
   get direction() {
     return this._direction;
   }
@@ -72,7 +63,6 @@ export abstract class Card extends DataBasic<CardObject> {
     this._sprite = option.sprite;
     this._type = option.type;
     this._status = option.status == null ? CardStatus.FACE_UP : option.status;
-    this._usage = option.usage || CardUsage.UNKNOWN;
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
@@ -83,12 +73,10 @@ export abstract class Card extends DataBasic<CardObject> {
 
   //当做功能牌打出
   onPlay(...args: any[]): void {
-    this.usage = CardUsage.FUNCTION_CARD;
   }
 
   //当做情报传递
   onSend(...args: any[]): void {
-    this.usage = CardUsage.MESSAGE_CARD;
   }
 
   abstract onConfirmPlay(gameData: GameData): void;
@@ -102,6 +90,8 @@ export abstract class Card extends DataBasic<CardObject> {
     } else {
       this._status = CardStatus.FACE_UP;
     }
-    return this.gameObject.flip();
+    if (this.gameObject.flip) {
+      return this.gameObject.flip();
+    }
   }
 }

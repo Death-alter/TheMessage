@@ -15,7 +15,6 @@ export class ChengQing extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }
@@ -27,7 +26,7 @@ export class ChengQing extends Card {
     const message = targetPlayer.removeMessage(targetCardId)[0];
     GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
       player: targetPlayer,
-      message,
+      messageList: [message],
     });
   }
 }

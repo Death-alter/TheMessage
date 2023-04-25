@@ -1,4 +1,4 @@
-import { CardType, CardDirection, CardColor, CardStatus, CardUsage } from "./type";
+import { CardType, CardDirection, CardColor, CardStatus } from "./type";
 import { CardDefaultOption, ShiTanOption } from "./type";
 import { ChengQing } from "./CardClass/ChengQing";
 import { ShiTan } from "./CardClass/ShiTan";
@@ -22,7 +22,6 @@ interface createCardOption {
   drawCardColor?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  usage?: CardUsage;
   gameObject?: CardObject;
 }
 

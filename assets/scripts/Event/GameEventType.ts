@@ -3,7 +3,7 @@ import { CardDirection } from "../Game/Card/type";
 import { CharacterStatus } from "../Game/Character/type";
 import { Identity } from "../Game/Identity/Identity";
 import { Player } from "../Game/Player/Player";
-import { GamePhase } from "../GameManager/type";
+import { CardActionLocation, GamePhase } from "../GameManager/type";
 
 export interface GameInit {
   playerList: Player[];
@@ -44,11 +44,12 @@ export interface MessagePlacedIntoMessageZone {
 export interface CardAddToHandCard {
   player: Player;
   card: Card;
+  from: CardActionLocation;
 }
 
 export interface PlayerDrawCard {
   player: Player;
-  cardList:Card[];
+  cardList: Card[];
 }
 
 export interface PlayerDiscardCard {

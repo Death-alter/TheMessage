@@ -7,7 +7,7 @@ import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
-import { CardColor, CardDirection, CardOnEffectParams, CardStatus, CardType, CardUsage } from "../../../Game/Card/type";
+import { CardColor, CardDirection, CardOnEffectParams, CardStatus, CardType } from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -248,13 +248,13 @@ export class GameData extends DataBasic<GameUI> {
 
     if (data.unknownCardCount !== 0) {
       for (let i = 0; i < data.unknownCardCount; i++) {
-        const card = this.createHandCard();
+        const card = this.createCard();
         cardList.push(card);
       }
     }
     if (data.cards && data.cards.length) {
       for (let item of data.cards) {
-        const card = this.createHandCard(item);
+        const card = this.createCard(item);
         cardList.push(card);
       }
     }
@@ -272,7 +272,7 @@ export class GameData extends DataBasic<GameUI> {
         cardList.push(removedCard);
       } else {
         player.removeHandCard(0);
-        cardList.push(this.createHandCard(card));
+        cardList.push(this.createCard(card));
       }
     }
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
@@ -391,11 +391,10 @@ export class GameData extends DataBasic<GameUI> {
 
     if (!card || card.type === CardType.UNKNOWN) {
       if (data.card) {
-        card = this.createFunctionCard(data.card);
+        card = this.createCard(data.card);
       } else {
         card = createCard({
-          type: data.cardType,
-          usage: CardUsage.FUNCTION_CARD,
+          type: data.cardType
         });
       }
     }
@@ -419,7 +418,7 @@ export class GameData extends DataBasic<GameUI> {
     this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data.data);
   }
 
-  createCard(card?: card, usage?: CardUsage, status?: CardStatus): Card {
+  createCard(card?: card,  status?: CardStatus): Card {
     if (card) {
       return createCard({
         id: card.cardId,
@@ -428,7 +427,6 @@ export class GameData extends DataBasic<GameUI> {
         status,
         direction: (<number>card.cardDir) as CardDirection,
         drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
-        usage: usage || CardUsage.UNKNOWN,
         lockable: card.canLock,
       });
     } else {
@@ -436,15 +434,7 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
-  createFunctionCard(card?: card, status: CardStatus = CardStatus.FACE_UP): Card {
-    return this.createCard(card, CardUsage.FUNCTION_CARD);
-  }
-
-  createHandCard(card?: card, status: CardStatus = CardStatus.FACE_UP): Card {
-    return this.createCard(card, CardUsage.HAND_CARD);
-  }
-
   createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
-    return this.createCard(card, CardUsage.MESSAGE_CARD, CardStatus.FACE_DOWN);
+    return this.createCard(card, CardStatus.FACE_DOWN);
   }
 }

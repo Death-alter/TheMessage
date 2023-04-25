@@ -69,6 +69,9 @@ export class GameUI extends GameObject<GameData> {
     //弃牌
     GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
 
+    //卡牌加入手牌
+    GameEventCenter.on(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
+
     //打出卡牌
     GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
 
@@ -84,11 +87,17 @@ export class GameUI extends GameObject<GameData> {
     //情报传递
     GameEventCenter.on(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
 
+    //情报置入情报区
+    GameEventCenter.on(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
+
     //有人选择接收情报
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
 
     //接收情报
-    GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
+
+    //移除情报
+    GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
 
     //濒死求澄清
     // GameEventCenter.on(GameEvent.PLAYER_DYING, (data: GameEventType.PlayerDying) => {});
@@ -101,9 +110,6 @@ export class GameUI extends GameObject<GameData> {
 
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
-
-    //游戏结束
-    // GameEventCenter.on(GameEvent.GAME_OVER, (data: notify_winner_toc) => {});
   }
 
   onDisable() {
@@ -113,9 +119,13 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard);
+    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
+    GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage);
+    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.PlayerReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage);
+    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard);
   }
@@ -182,6 +192,17 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.discardCards(data, this.handCardList);
   }
 
+  cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
+    this.cardAction.addCardToHandCard(
+      {
+        player: data.player,
+        cards: [data.card],
+        from: data.from,
+      },
+      this.handCardList
+    );
+  }
+
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
     this.cardAction.playerSendMessage(data, this.handCardList);
   }
@@ -198,10 +219,18 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.chooseReceiveMessage(data);
   }
 
-  PlayerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
+  playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
     this.cardAction.receiveMessage(data).then(() => {
       data.player.addMessage(data.message);
     });
+  }
+
+  playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
+    this.cardAction.removeMessage(data);
+  }
+
+  messagePlacedIntoMessageZone(data: GameEventType.MessagePlacedIntoMessageZone) {
+    this.cardAction.messagePlacedIntoMessageZone(data);
   }
 
   playerDie(data: GameEventType.PlayerDie) {

@@ -45,6 +45,7 @@ export class CardObject extends GameObject<Card> {
       } else {
         colorNodeLeft.active = true;
         colorNodeRight.active = true;
+        console.log(card.color);
         if (card.color.length === 1) {
           Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
           Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
@@ -78,7 +79,9 @@ export class CardObject extends GameObject<Card> {
         coverNode.getComponent(UIOpacity).opacity = 255;
       } else {
         coverNode.active = true;
-        coverNode.getComponent(Animation).play();
+        if (card.id) {
+          coverNode.getComponent(Animation).play();
+        }
       }
     }
   }
@@ -88,7 +91,7 @@ export class CardObject extends GameObject<Card> {
       const node = this.node.getChildByName("Inner");
       //未知卡牌不能翻面
       if (!this.data || this.data instanceof UnknownCard) {
-        reject();
+        reject("未知卡牌不能翻面");
       } else {
         //翻面动画
         tween(node)
@@ -101,6 +104,8 @@ export class CardObject extends GameObject<Card> {
           .to(0.3, { scale: new Vec3(1, 1, 1) })
           .delay(0.2)
           .call(() => {
+            console.log(this.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Left").getComponent(Sprite).color);
+            console.log(this.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Right").getComponent(Sprite).color);
             reslove(null);
           })
           .start();

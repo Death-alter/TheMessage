@@ -15,7 +15,6 @@ export class MiLing extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }

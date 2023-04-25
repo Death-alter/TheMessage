@@ -1,8 +1,9 @@
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
+import { CardActionLocation } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType, CardUsage } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 
 export class FenYunBianHuan extends Card {
   public showCardList: Card[] = [];
@@ -17,7 +18,6 @@ export class FenYunBianHuan extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }
@@ -32,7 +32,7 @@ export class FenYunBianHuan extends Card {
 
   onShowCards(gameData: GameData, { cards }: CardOnEffectParams) {
     for (let card of cards) {
-      this.showCardList.push(gameData.createCard(card, CardUsage.UNKNOWN, CardStatus.FACE_UP));
+      this.showCardList.push(gameData.createCard(card, CardStatus.FACE_UP));
     }
     console.log(this.showCardList);
   }
@@ -40,7 +40,6 @@ export class FenYunBianHuan extends Card {
   onChooseCard(gameData: GameData, { playerId, cardId, asMessageCard }: CardOnEffectParams) {
     const player = gameData.playerList[playerId];
     for (let card of this.showCardList) {
-      console.log(card);
       if (card.id === cardId) {
         if (asMessageCard) {
           player.addMessage(card);
@@ -53,6 +52,7 @@ export class FenYunBianHuan extends Card {
           GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
             player,
             card,
+            from: CardActionLocation.DECK,
           });
         }
         break;

@@ -15,7 +15,6 @@ export class DiaoBao extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }
@@ -27,15 +26,16 @@ export class DiaoBao extends Card {
     // NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
   }
 
-  onEffect(gameData: GameData, { cardId, targetCard }: CardOnEffectParams) {
-    const oldMessage = gameData.messageInTransmit;
-    if (cardId) {
-      gameData.messageInTransmit = gameData.cardOnPlay;
-      gameData.messageInTransmit.flip();
+  onEffect(gameData: GameData, { cardId, oldMessageCard }: CardOnEffectParams) {
+    let oldMessage;
+    if (cardId !== 0 && gameData.messageInTransmit.id === cardId) {
+      oldMessage = gameData.messageInTransmit;
     } else {
-      gameData.messageInTransmit = gameData.createMessage();
-      gameData.messageInTransmit.gameObject = gameData.cardOnPlay.gameObject;
+      oldMessage = gameData.createMessage(oldMessageCard);
+      oldMessage.gameObject = gameData.messageInTransmit.gameObject;
     }
+
+    gameData.messageInTransmit = gameData.cardOnPlay;
 
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
       message: gameData.messageInTransmit,

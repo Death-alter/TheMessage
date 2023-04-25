@@ -8,7 +8,8 @@ import * as GameEventType from "../../Event/GameEventType";
 import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
-import { CardDirection } from "../Card/type";
+import { CardColor, CardDirection } from "../Card/type";
+import { CardObject } from "../Card/CardObject";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
@@ -36,6 +37,42 @@ export class GameLogList extends DataContainer<GameLog> {
 
   constructor(gameObject?: GameLogContainer | GameLogWindow) {
     super(gameObject);
+  }
+
+  private formatCard(card: Card) {
+    let colorStr = "";
+    if (card.color && card.color.length) {
+      if (card.color.length === 1) {
+        colorStr = `<color=${CardObject.colors[card.color[0]]}>`;
+        switch (card.color[0]) {
+          case CardColor.BLACK:
+            colorStr += "黑色";
+            break;
+          case CardColor.BLUE:
+            colorStr += "蓝色";
+            break;
+          case CardColor.RED:
+            colorStr += "红色";
+            break;
+        }
+        colorStr += "</color>";
+      } else {
+        for (let item of card.color) {
+          switch (item) {
+            case CardColor.BLACK:
+              colorStr += `<color=${CardObject.colors[card.color[0]]}>黑</color>`;
+              break;
+            case CardColor.BLUE:
+              colorStr += `<color=${CardObject.colors[card.color[0]]}>蓝</color>`;
+              break;
+            case CardColor.RED:
+              colorStr += `<color=${CardObject.colors[card.color[0]]}>红</color>`;
+              break;
+          }
+        }
+      }
+    }
+    return `【${colorStr}|${card.name}】`;
   }
 
   registerEvents() {
@@ -80,11 +117,11 @@ export class GameLogList extends DataContainer<GameLog> {
         new GameLog(
           `【${player.seatNumber + 1}号】${player.character.name}对【${targetPlayer.seatNumber + 1}号】${
             targetPlayer.character.name
-          }使用了${card.name}`
+          }使用了${this.formatCard(card)}`
         )
       );
     } else {
-      this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用了${card.name}`));
+      this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用了${this.formatCard(card)}`));
     }
   }
 
@@ -123,11 +160,18 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}成功接收情报【${message.name}】`));
+    this.addData(
+      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}成功接收情报${this.formatCard(message)}`)
+    );
   }
 
-  onPlayerRemoveMessage({ player, message }: GameEventType.PlayerRemoveMessage) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}移除情报情报【${message.name}】`));
+  onPlayerRemoveMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
+    let str = `【${player.seatNumber + 1}号】${player.character.name}移除情报情报`;
+
+    for (let message of messageList) {
+      str += this.formatCard(message);
+    }
+    this.addData(new GameLog(str));
   }
 
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
@@ -136,10 +180,14 @@ export class GameLogList extends DataContainer<GameLog> {
 
   onCardAddToHandCard({ player, card }: GameEventType.CardAddToHandCard) {
     console.log(card);
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把【${card.name}】加入手牌`));
+    this.addData(
+      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${this.formatCard(card)}加入手牌`)
+    );
   }
 
   onMessagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
-    this.addData(new GameLog(`情报【${message.name}】被置入【${player.seatNumber + 1}号】${player.character.name}`));
+    this.addData(
+      new GameLog(`情报${this.formatCard(message)}被置入【${player.seatNumber + 1}号】${player.character.name}`)
+    );
   }
 }

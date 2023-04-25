@@ -1,5 +1,5 @@
 import { NetworkEventCenter, ProcessEventCenter } from "./EventTarget";
-import * as protobufType from "../../protobuf/proto.d";
+import * as ProtobufType from "../../protobuf/proto.d";
 import { NetworkEventToC, ProcessEvent } from "./type";
 import { _decorator, director } from "cc";
 import { CardType } from "../Game/Card/type";
@@ -9,40 +9,40 @@ import { CardType } from "../Game/Card/type";
 export class EventMapper {
   public static init() {
     //error
-    NetworkEventCenter.on(NetworkEventToC.ERROR_CODE_TOC, (data: protobufType.error_code_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.ERROR_CODE_TOC, (data: ProtobufType.error_code_toc) => {
       let error_message;
       switch (data.code) {
-        case protobufType.error_code.client_version_not_match:
+        case ProtobufType.error_code.client_version_not_match:
           error_message = `客户端版本号不匹配,服务器版本号为${data.intParams[0]}`;
           break;
-        case protobufType.error_code.no_more_room:
+        case ProtobufType.error_code.no_more_room:
           error_message = "没有更多的房间了";
           break;
-        case protobufType.error_code.record_not_exists:
+        case ProtobufType.error_code.record_not_exists:
           error_message = "录像不存在";
           break;
-        case protobufType.error_code.load_record_failed:
+        case ProtobufType.error_code.load_record_failed:
           error_message = "读取录像失败";
           break;
-        case protobufType.error_code.record_version_not_match:
+        case ProtobufType.error_code.record_version_not_match:
           error_message = `录像的版本号不匹配,服务器版本号为${data.intParams[0]}`;
           break;
-        case protobufType.error_code.name_too_long:
+        case ProtobufType.error_code.name_too_long:
           error_message = "玩家名字过长";
           break;
-        case protobufType.error_code.join_room_too_fast:
+        case ProtobufType.error_code.join_room_too_fast:
           error_message = "加入房间的请求太快";
           break;
-        case protobufType.error_code.robot_not_allowed:
+        case ProtobufType.error_code.robot_not_allowed:
           error_message = "禁止添加机器人";
           break;
-        case protobufType.error_code.already_online:
+        case ProtobufType.error_code.already_online:
           error_message = "你已经在线，不能重复登录";
           break;
-        case protobufType.error_code.no_color_message_card:
+        case ProtobufType.error_code.no_color_message_card:
           error_message = "场上没有这种颜色的情报";
           break;
-        case protobufType.error_code.login_failed:
+        case ProtobufType.error_code.login_failed:
           error_message = "密码错误";
           break;
         default:
@@ -53,34 +53,34 @@ export class EventMapper {
     });
 
     //流程
-    NetworkEventCenter.on(NetworkEventToC.PAUSE_RECORD_TOC, (data: protobufType.pause_record_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.PAUSE_RECORD_TOC, (data: ProtobufType.pause_record_toc) => {
       ProcessEventCenter.emit(ProcessEvent.RECORD_STATUS_CHANGE, { paused: data.pause });
     });
-    NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, (data: protobufType.get_record_list_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, (data: ProtobufType.get_record_list_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_RECORD_LIST, { records: data.records });
     });
     NetworkEventCenter.on(NetworkEventToC.ADD_ORDER_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ORDER_SUCCESS);
     });
-    NetworkEventCenter.on(NetworkEventToC.GET_ORDERS_TOC, (data: protobufType.get_orders_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.GET_ORDERS_TOC, (data: ProtobufType.get_orders_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_ORDERS, { orders: data.orders });
     });
-    NetworkEventCenter.on(NetworkEventToC.HEART_TOC, (data: protobufType.heart_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.HEART_TOC, (data: ProtobufType.heart_toc) => {
       ProcessEventCenter.emit(ProcessEvent.UPDATE_ONLINE_COUNT, { onlineCount: data.onlineCount });
     });
     NetworkEventCenter.on(NetworkEventToC.ADD_ONE_POSITION_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ROOM_POSITION);
     });
-    NetworkEventCenter.on(NetworkEventToC.REMOVE_ONE_POSITION_TOC, (data: protobufType.remove_one_position_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.REMOVE_ONE_POSITION_TOC, (data: ProtobufType.remove_one_position_toc) => {
       ProcessEventCenter.emit(ProcessEvent.REMOVE_ROOM_POSITION, { position: data.position });
     });
     NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.DISPLAY_RECORD_END);
     });
-    NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: protobufType.save_record_success_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: ProtobufType.save_record_success_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SAVE_RECORD_SUCCESS, { recordId: data.recordId });
     });
-    NetworkEventCenter.on(NetworkEventToC.GET_ROOM_INFO_TOC, (data: protobufType.get_room_info_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.GET_ROOM_INFO_TOC, (data: ProtobufType.get_room_info_toc) => {
       director.loadScene("room", (e) => {
         const players = [];
         for (let i = 0; i < data.names.length; i++) {
@@ -97,7 +97,7 @@ export class EventMapper {
         });
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.JOIN_ROOM_TOC, (data: protobufType.join_room_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.JOIN_ROOM_TOC, (data: ProtobufType.join_room_toc) => {
       ProcessEventCenter.emit(ProcessEvent.JOIN_ROOM, {
         name: data.name,
         position: data.position,
@@ -105,10 +105,10 @@ export class EventMapper {
         gameCount: data.gameCount,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.LEAVE_ROOM_TOC, (data: protobufType.leave_room_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.LEAVE_ROOM_TOC, (data: ProtobufType.leave_room_toc) => {
       ProcessEventCenter.emit(ProcessEvent.LEAVE_ROOM, { position: data.position });
     });
-    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: protobufType.wait_for_select_role_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: ProtobufType.wait_for_select_role_toc) => {
       director.loadScene("game", (e) => {
         ProcessEventCenter.emit(ProcessEvent.START_SELECT_CHARACTER, {
           playerCount: data.playerCount,
@@ -119,15 +119,15 @@ export class EventMapper {
         });
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: protobufType.auto_play_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: ProtobufType.auto_play_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_AUTO_PLAY_STATUS, { enable: data.enable });
     });
-    NetworkEventCenter.on(NetworkEventToC.SELECT_ROLE_TOC, (data: protobufType.select_role_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.SELECT_ROLE_TOC, (data: ProtobufType.select_role_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, {
         characterId: data.role,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.INIT_TOC, (data: protobufType.init_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.INIT_TOC, (data: ProtobufType.init_toc) => {
       const players = [];
       for (let i = 0; i < data.names.length; i++) {
         players.push({
@@ -143,32 +143,32 @@ export class EventMapper {
         players,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC, (data: protobufType.notify_role_update_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_ROLE_UPDATE_TOC, (data: ProtobufType.notify_role_update_toc) => {
       ProcessEventCenter.emit(ProcessEvent.UPDATE_CHARACTER_STATUS, {
         playerId: data.playerId,
         characterId: data.role,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.ADD_CARD_TOC, (data: protobufType.add_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.ADD_CARD_TOC, (data: ProtobufType.add_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.DRAW_CARDS, {
         playerId: data.playerId,
         cards: data.cards,
         unknownCardCount: data.unknownCardCount,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.SYNC_DECK_NUM_TOC, (data: protobufType.sync_deck_num_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.SYNC_DECK_NUM_TOC, (data: ProtobufType.sync_deck_num_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SYNC_DECK_NUM, {
         number: data.num,
         shuffled: data.shuffled,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.DISCARD_CARD_TOC, (data: protobufType.discard_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.DISCARD_CARD_TOC, (data: ProtobufType.discard_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.DISCARD_CARDS, {
         playerId: data.playerId,
         cards: data.cards,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_PHASE_TOC, (data: protobufType.notify_phase_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_PHASE_TOC, (data: ProtobufType.notify_phase_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_PHASE_DATA, {
         currentPlayerId: data.currentPlayerId,
         currentPhase: data.currentPhase,
@@ -183,7 +183,7 @@ export class EventMapper {
         seq: data.seq,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.SEND_MESSAGE_CARD_TOC, (data: protobufType.send_message_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.SEND_MESSAGE_CARD_TOC, (data: ProtobufType.send_message_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
         cardId: data.cardId,
         senderId: data.playerId,
@@ -192,12 +192,12 @@ export class EventMapper {
         direction: data.cardDir,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.CHOOSE_RECEIVE_TOC, (data: protobufType.choose_receive_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.CHOOSE_RECEIVE_TOC, (data: ProtobufType.choose_receive_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CHOOSE_RECEIVE, {
         playerId: data.playerId,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, (data: protobufType.wait_for_cheng_qing_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, (data: ProtobufType.wait_for_cheng_qing_toc) => {
       ProcessEventCenter.emit(ProcessEvent.PLAYER_DYING, {
         playerId: data.diePlayerId,
       });
@@ -207,18 +207,18 @@ export class EventMapper {
         seq: data.seq,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DYING_TOC, (data: protobufType.notify_dying_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DYING_TOC, (data: ProtobufType.notify_dying_toc) => {
       ProcessEventCenter.emit(ProcessEvent.PLAYER_BEFORE_DEATH, {
         playerId: data.playerId,
         loseGame: data.loseGame,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DIE_TOC, (data: protobufType.notify_die_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DIE_TOC, (data: ProtobufType.notify_die_toc) => {
       ProcessEventCenter.emit(ProcessEvent.PLAYER_DIE, {
         playerId: data.playerId,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_WINNER_TOC, (data: protobufType.notify_winner_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_WINNER_TOC, (data: ProtobufType.notify_winner_toc) => {
       const players = [];
       for (let i = 0; i < data.secretTasks.length; i++) {
         players.push({
@@ -233,7 +233,7 @@ export class EventMapper {
     });
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_DIE_GIVE_CARD_TOC,
-      (data: protobufType.wait_for_die_give_card_toc) => {
+      (data: ProtobufType.wait_for_die_give_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
@@ -241,7 +241,7 @@ export class EventMapper {
         });
       }
     );
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DIE_GIVE_CARD_TOC, (data: protobufType.notify_die_give_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_DIE_GIVE_CARD_TOC, (data: ProtobufType.notify_die_give_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.PLAYER_DIE_GIVE_CARD, {
         playerId: data.playerId,
         targetPlayerId: data.targetPlayerId,
@@ -253,7 +253,7 @@ export class EventMapper {
     //卡牌
 
     //试探
-    NetworkEventCenter.on(NetworkEventToC.USE_SHI_TAN_TOC, (data: protobufType.use_shi_tan_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_SHI_TAN_TOC, (data: ProtobufType.use_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         userId: data.playerId,
         cardId: data.cardId,
@@ -261,7 +261,7 @@ export class EventMapper {
         targetPlayerId: data.targetPlayerId,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.SHOW_SHI_TAN_TOC, (data: protobufType.show_shi_tan_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.SHOW_SHI_TAN_TOC, (data: ProtobufType.show_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onShow",
         data: {
@@ -276,7 +276,7 @@ export class EventMapper {
         seq: data.seq,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.EXECUTE_SHI_TAN_TOC, (data: protobufType.execute_shi_tan_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.EXECUTE_SHI_TAN_TOC, (data: ProtobufType.execute_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
           userId: data.playerId,
@@ -286,7 +286,7 @@ export class EventMapper {
     });
 
     //利诱
-    NetworkEventCenter.on(NetworkEventToC.USE_LI_YOU_TOC, (data: protobufType.use_li_you_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_LI_YOU_TOC, (data: ProtobufType.use_li_you_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.liYouCard,
         cardType: CardType.LI_YOU,
@@ -295,6 +295,7 @@ export class EventMapper {
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
+          userId: data.playerId,
           targetPlayerId: data.targetPlayerId,
           targetCard: data.messageCard,
           flag: data.joinIntoHand,
@@ -303,7 +304,7 @@ export class EventMapper {
     });
 
     //平衡
-    NetworkEventCenter.on(NetworkEventToC.USE_PING_HENG_TOC, (data: protobufType.use_ping_heng_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_PING_HENG_TOC, (data: ProtobufType.use_ping_heng_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.pingHengCard,
         cardType: CardType.PING_HENG,
@@ -319,7 +320,7 @@ export class EventMapper {
     });
 
     //澄清
-    NetworkEventCenter.on(NetworkEventToC.USE_CHENG_QING_TOC, (data: protobufType.use_cheng_qing_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_CHENG_QING_TOC, (data: ProtobufType.use_cheng_qing_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.CHENG_QING,
@@ -335,7 +336,7 @@ export class EventMapper {
     });
 
     //破译
-    NetworkEventCenter.on(NetworkEventToC.USE_PO_YI_TOC, (data: protobufType.use_po_yi_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_PO_YI_TOC, (data: ProtobufType.use_po_yi_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.PO_YI,
@@ -353,7 +354,7 @@ export class EventMapper {
         seq: data.seq,
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.PO_YI_SHOW_TOC, (data: protobufType.po_yi_show_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.PO_YI_SHOW_TOC, (data: ProtobufType.po_yi_show_toc) => {
       const eventData: any = {
         userId: data.playerId,
         flag: data.show,
@@ -368,7 +369,7 @@ export class EventMapper {
     });
 
     //截获
-    NetworkEventCenter.on(NetworkEventToC.USE_JIE_HUO_TOC, (data: protobufType.use_jie_huo_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_JIE_HUO_TOC, (data: ProtobufType.use_jie_huo_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.JIE_HUO,
@@ -377,7 +378,7 @@ export class EventMapper {
     });
 
     //调包
-    NetworkEventCenter.on(NetworkEventToC.USE_DIAO_BAO_TOC, (data: protobufType.use_diao_bao_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_DIAO_BAO_TOC, (data: ProtobufType.use_diao_bao_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         cardId: data.cardId,
         cardType: CardType.DIAO_BAO,
@@ -386,13 +387,13 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
           cardId: data.cardId,
-          targetCard: data.oldMessageCard,
+          oldMessageCard: data.oldMessageCard,
         },
       });
     });
 
     //误导
-    NetworkEventCenter.on(NetworkEventToC.USE_WU_DAO_TOC, (data: protobufType.use_wu_dao_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.USE_WU_DAO_TOC, (data: ProtobufType.use_wu_dao_toc) => {
       console.log(data.targetPlayerId);
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
@@ -409,7 +410,7 @@ export class EventMapper {
     //威逼
     NetworkEventCenter.on(
       NetworkEventToC.WEI_BI_WAIT_FOR_GIVE_CARD_TOC,
-      (data: protobufType.wei_bi_wait_for_give_card_toc) => {
+      (data: ProtobufType.wei_bi_wait_for_give_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
           cardType: CardType.WEI_BI,
@@ -423,7 +424,7 @@ export class EventMapper {
         });
       }
     );
-    NetworkEventCenter.on(NetworkEventToC.WEI_BI_GIVE_CARD_TOC, (data: protobufType.wei_bi_give_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.WEI_BI_GIVE_CARD_TOC, (data: ProtobufType.wei_bi_give_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onGiveCard",
         data: {
@@ -433,7 +434,7 @@ export class EventMapper {
         },
       });
     });
-    NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: protobufType.wei_bi_show_hand_card_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: ProtobufType.wei_bi_show_hand_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onShowHandCard",
         data: {
@@ -449,14 +450,14 @@ export class EventMapper {
     //风云变幻
     NetworkEventCenter.on(
       NetworkEventToC.USE_FENG_YUN_BIAN_HUAN_TOC,
-      (data: protobufType.use_feng_yun_bian_huan_toc) => {
+      (data: ProtobufType.use_feng_yun_bian_huan_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
           cardType: CardType.FENG_YUN_BIAN_HUAN,
           userId: data.playerId,
         });
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-          step: "onShowCards",
+          handler: "onShowCards",
           data: {
             cards: data.showCards,
           },
@@ -465,7 +466,7 @@ export class EventMapper {
     );
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC,
-      (data: protobufType.wait_for_feng_yun_bian_huan_choose_card_toc) => {
+      (data: ProtobufType.wait_for_feng_yun_bian_huan_choose_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
@@ -475,7 +476,7 @@ export class EventMapper {
     );
     NetworkEventCenter.on(
       NetworkEventToC.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC,
-      (data: protobufType.feng_yun_bian_huan_choose_card_toc) => {
+      (data: ProtobufType.feng_yun_bian_huan_choose_card_toc) => {
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
           handler: "onChooseCard",
           data: {

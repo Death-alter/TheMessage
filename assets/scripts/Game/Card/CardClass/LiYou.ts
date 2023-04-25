@@ -15,7 +15,6 @@ export class LiYou extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      usage: option.usage,
       gameObject: option.gameObject,
     });
   }
@@ -26,23 +25,26 @@ export class LiYou extends Card {
     super.onPlay();
   }
 
-  onEffect(gameData: GameData, { targetPlayerId, targetCard, flag }: CardOnEffectParams): void {
+  onEffect(gameData: GameData, { userId, targetPlayerId, targetCard, flag }: CardOnEffectParams): void {
     if (!targetCard) return;
+    const card = gameData.createCard(targetCard);
     const targetPlayer = gameData.playerList[targetPlayerId];
-    if (flag) {
-      const card = gameData.createHandCard(targetCard);
-      targetPlayer.addHandCard(card);
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player: targetPlayer,
-        card: card,
-      });
-    } else {
-      const card = gameData.createMessage(targetCard);
-      targetPlayer.addMessage(card);
-      GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
-        player: targetPlayer,
-        message: card,
-      });
-    }
+    const user = gameData.playerList[userId];
+    gameData.gameObject.cardAction.liYouShowCard(card).then(() => {
+      if (flag) {
+        targetPlayer.addHandCard(card);
+        GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+          player: user,
+          card: card,
+        });
+      } else {
+        const card = gameData.createMessage(targetCard);
+        targetPlayer.addMessage(card);
+        GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+          player: targetPlayer,
+          message: card,
+        });
+      }
+    });
   }
 }

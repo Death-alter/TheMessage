@@ -6,13 +6,6 @@ export const enum CardStatus {
   FACE_UP = 1,
 }
 
-export const enum CardUsage {
-  UNKNOWN = 0,
-  FUNCTION_CARD = 1,
-  MESSAGE_CARD = 2,
-  HAND_CARD = 3,
-}
-
 export const enum CardType {
   UNKNOWN = -1, //未知卡牌
   CHENG_QING = 0, // 澄清
@@ -46,7 +39,6 @@ export interface CardOption {
   type: CardType;
   sprite: string;
   status?: CardStatus;
-  usage?: CardUsage;
   color?: CardColor[];
   direction?: CardDirection;
   lockable?: boolean;
@@ -59,7 +51,6 @@ export interface CardDefaultOption {
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  usage?: CardUsage;
   gameObject?: CardObject;
 }
 
@@ -70,7 +61,6 @@ export interface ShiTanOption {
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  usage?: CardUsage;
   gameObject?: CardObject;
 }
 
