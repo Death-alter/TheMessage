@@ -23,34 +23,10 @@ export class Tooltip extends Component {
     this.hideText();
     this.hideButtons();
 
-    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, (data: GamePhaseChange) => {
-      const { turnPlayer, phase } = data;
-      if (turnPlayer.id === 0) {
-        switch (phase) {
-          case GamePhase.DRAW_PHASE:
-            this.setText(TooltipText.SELF_DRAW_PHASE);
-            break;
-          case GamePhase.MAIN_PHASE:
-            this.setText(TooltipText.SELF_MAIN_PHASE);
-            break;
-          case GamePhase.SEND_PHASE_START:
-            this.setText(TooltipText.SELF_SEND_PHASE);
-            break;
-          case GamePhase.FIGHT_PHASE:
-            this.setText(TooltipText.SELF_FIGHT_PHASE);
-            break;
-          case GamePhase.RECEIVE_PHASE:
-            this.setText(TooltipText.SELF_RECEIVE_PHASE);
-            break;
-        }
-      }
-    });
-
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hideText, this);
   }
 
   onDisable() {
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hideText);
   }
 
@@ -61,6 +37,26 @@ export class Tooltip extends Component {
 
   setText(text: string) {
     this.textNode.getComponent(Label).string = text;
+  }
+
+  setTextByPhase(phase: GamePhase) {
+    switch (phase) {
+      case GamePhase.DRAW_PHASE:
+        this.setText(TooltipText.SELF_DRAW_PHASE);
+        break;
+      case GamePhase.MAIN_PHASE:
+        this.setText(TooltipText.SELF_MAIN_PHASE);
+        break;
+      case GamePhase.SEND_PHASE_START:
+        this.setText(TooltipText.SELF_SEND_PHASE);
+        break;
+      case GamePhase.FIGHT_PHASE:
+        this.setText(TooltipText.SELF_FIGHT_PHASE);
+        break;
+      case GamePhase.RECEIVE_PHASE:
+        this.setText(TooltipText.SELF_RECEIVE_PHASE);
+        break;
+    }
   }
 
   hideText() {

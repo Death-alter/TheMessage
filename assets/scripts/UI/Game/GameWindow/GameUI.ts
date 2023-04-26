@@ -50,12 +50,15 @@ export class GameUI extends GameObject<GameData> {
   onEnable() {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
 
     //收到初始化
     GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
 
     //收到游戏开始
     // GameEventCenter.once(GameEvent.GAME_START, (data: GameEventType.GameStart) => {});
+
+    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
 
     //卡组数量变化
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
@@ -100,7 +103,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
 
     //濒死求澄清
-    // GameEventCenter.on(GameEvent.PLAYER_DYING, (data: GameEventType.PlayerDying) => {});
+    GameEventCenter.on(GameEvent.PLAYER_DYING, this.playerDying, this);
 
     //玩家死前
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
@@ -114,7 +117,9 @@ export class GameUI extends GameObject<GameData> {
 
   onDisable() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown);
     GameEventCenter.off(GameEvent.GAME_INIT, this.init);
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
@@ -173,11 +178,19 @@ export class GameUI extends GameObject<GameData> {
   onStartCountDown(data: ProcessEventType.StartCountDown) {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     if (data.playerId === 0) {
-      this.toolTipNode.getComponent(Tooltip).startCoundDown(data.second);
+      this.toolTip.startCoundDown(data.second);
     } else {
       this.playerObjectList[data.playerId].startCoundDown(data.second);
     }
     this.seq = data.seq;
+  }
+
+  onStopCountDown() {
+    this.toolTip.hideText();
+  }
+
+  onGamePhaseChange(data: GameEventType.GamePhaseChange) {
+    this.toolTip.setTextByPhase(data.phase);
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
@@ -237,7 +250,10 @@ export class GameUI extends GameObject<GameData> {
     const { player, handCards, messages } = data;
     this.cardAction.discardCards({ player, cardList: handCards }, this.handCardList);
     this.cardAction.removeMessage({ player, messageList: messages });
-    player.die();
+  }
+
+  playerDying({ player }: GameEventType.PlayerDying) {
+    this.toolTip.setText(`【${player.seatNumber + 1}号】${player.character.name}濒死，是否使用澄清`);
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
@@ -253,5 +269,6 @@ export class GameUI extends GameObject<GameData> {
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     this.cardAction.afterPlayerPlayCard(data);
+    this.toolTip.setTextByPhase(this.data.gamePhase);
   }
 }

@@ -9,8 +9,6 @@ import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
-import { Color, Sprite } from "cc";
-
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
   private _name: string;
@@ -20,7 +18,6 @@ export class Player extends DataBasic<PlayerObject> {
   private _handCards: Card[] = [];
   private _messages: Card[] = [];
   private _status: PlayerStatus = PlayerStatus.ALIVE;
-  private _alive: boolean = true;
 
   get id() {
     return this._id;
@@ -28,10 +25,6 @@ export class Player extends DataBasic<PlayerObject> {
 
   get name() {
     return this._name;
-  }
-
-  get alive() {
-    return this._alive;
   }
 
   get character() {
@@ -211,23 +204,5 @@ export class Player extends DataBasic<PlayerObject> {
         break;
       }
     }
-  }
-
-  die() {
-    this.gameObject.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
-    this.gameObject.node.getChildByPath("Border/CharacterPanting/Mask/Cover").getComponent(Sprite).grayscale = true;
-    const blue = this.gameObject.node.getChildByPath("Border/Message/Blue").getComponent(Sprite);
-    blue.grayscale = true;
-    Color.fromHEX(blue.color, "#FFFFFF");
-    const black = this.gameObject.node.getChildByPath("Border/Message/Black").getComponent(Sprite);
-    black.grayscale = true;
-    Color.fromHEX(black.color, "#FFFFFF");
-    const red = this.gameObject.node.getChildByPath("Border/Message/Red").getComponent(Sprite);
-    red.grayscale = true;
-    Color.fromHEX(red.color, "#FFFFFF");
-    const handCard = this.gameObject.node.getChildByPath("Border/Message/HandCard").getComponent(Sprite);
-    handCard.grayscale = true;
-    Color.fromHEX(handCard.color, "#FFFFFF");
-    this._alive = false;
   }
 }

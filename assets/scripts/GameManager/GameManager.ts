@@ -40,11 +40,6 @@ export class GameManager extends Component {
   public gameLog: GameLogList;
 
   onLoad() {
-    this.gameData = new GameData(this.gameWindow.getComponent(GameUI));
-    this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
-  }
-
-  onEnable() {
     //初始化GamePools
     GamePools.init({
       card: instantiate(this.cardPrefab).getComponent(CardObject),
@@ -52,6 +47,11 @@ export class GameManager extends Component {
       logMessage: instantiate(this.logPrefab).getComponent(GameLogMessageObject),
     });
 
+    this.gameData = new GameData(this.gameWindow.getComponent(GameUI));
+    this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
+  }
+
+  onEnable() {
     this.gameWindow.active = false;
 
     //开始选人

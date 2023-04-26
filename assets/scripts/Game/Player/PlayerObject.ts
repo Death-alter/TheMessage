@@ -1,4 +1,4 @@
-import { _decorator, Label, Node } from "cc";
+import { _decorator, Label, Node, Sprite, Color } from "cc";
 import { CharacterObject } from "../Character/CharacterObject";
 import { Player } from "./Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
@@ -70,6 +70,20 @@ export class PlayerObject extends GameObject<Player> {
     switch (this.data.status) {
       case PlayerStatus.DEAD:
         this._selectable = false;
+        this.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
+        this.node.getChildByPath("Border/CharacterPanting/Mask/Cover").getComponent(Sprite).grayscale = true;
+        const blue = this.node.getChildByPath("Border/Message/Blue").getComponent(Sprite);
+        blue.grayscale = true;
+        Color.fromHEX(blue.color, "#FFFFFF");
+        const black = this.node.getChildByPath("Border/Message/Black").getComponent(Sprite);
+        black.grayscale = true;
+        Color.fromHEX(black.color, "#FFFFFF");
+        const red = this.node.getChildByPath("Border/Message/Red").getComponent(Sprite);
+        red.grayscale = true;
+        Color.fromHEX(red.color, "#FFFFFF");
+        const handCard = this.node.getChildByPath("Border/Message/HandCard").getComponent(Sprite);
+        handCard.grayscale = true;
+        Color.fromHEX(handCard.color, "#FFFFFF");
         break;
       case PlayerStatus.DYING:
         break;
