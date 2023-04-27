@@ -26,7 +26,10 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  onConfirmPlay(): void {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
+
 
   onPlay() {
   }

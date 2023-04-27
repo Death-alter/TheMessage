@@ -1,22 +1,28 @@
-import { _decorator, Component, Node, Label } from "cc";
+import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate } from "cc";
 import { ProgressControl } from "../UI/Game/ProgressControl";
 import { TooltipText } from "./TooltipText";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";
 import { GamePhase } from "./type";
-import { GamePhaseChange } from "../Event/GameEventType";
 const { ccclass, property } = _decorator;
+
+interface ButtonConfig {
+  text: string;
+  onclick: () => void;
+}
 
 @ccclass("Tooltip")
 export class Tooltip extends Component {
   @property(Node)
   textNode: Node | null = null;
   @property(Node)
-  confirmButton: Node | null = null;
-  @property(Node)
-  cancelButton: Node | null = null;
+  buttons: Node | null = null;
   @property(Node)
   progressBar: Node | null = null;
+  @property(Prefab)
+  buttonPrefab: Prefab | null = null;
+
+  private buttonPool = new NodePool();
 
   onEnable() {
     this.progressBar.active = false;
@@ -68,26 +74,55 @@ export class Tooltip extends Component {
   }
 
   showButtons() {
-    this.confirmButton.active = true;
-    this.cancelButton.active = true;
+    this.buttons.active = true;
   }
 
   hideButtons() {
-    this.confirmButton.active = false;
-    this.cancelButton.active = false;
+    this.buttons.active = false;
   }
 
-  confirm({ TooltipText, confirmText, cancelText }) {
+  setButtons(buttons: ButtonConfig[]) {
+    const l = buttons.length - this.buttons.children.length;
+    if (l >= 0) {
+      for (let i = 0; i < l; i++) {
+        let button = this.buttonPool.get();
+        if (!button) {
+          button = instantiate(this.buttonPrefab);
+        }
+        this.buttons.addChild(button);
+      }
+    } else {
+      for (let i = buttons.length; i < this.buttons.children.length; i++) {
+        this.buttonPool.put(this.buttons.children[i]);
+      }
+    }
+    for (let i = 0; i < buttons.length; i++) {
+      const button = this.buttons.children[i];
+      const config = buttons[i];
+      button.getChildByName("Label").getComponent(Label).string = config.text;
+      button.off(Node.EventType.TOUCH_END);
+      button.on(Node.EventType.TOUCH_END, config.onclick, button);
+    }
+  }
+
+  confirm(confirmText, cancelText) {
     return new Promise((reslove, reject) => {
-      this.confirmButton.getChildByName("Label").getComponent(Label).string = confirmText;
-      this.cancelButton.getChildByName("Label").getComponent(Label).string = cancelText;
-      this.confirmButton.once(Node.EventType.TOUCH_END, () => {
-        reslove(null);
-      });
-      this.cancelButton.once(Node.EventType.TOUCH_END, () => {
-        reject(null);
-      });
-      this.setText(TooltipText);
+      this.setButtons([
+        {
+          text: confirmText,
+          onclick: () => {
+            reslove(null);
+          },
+        },
+        {
+          text: cancelText,
+          onclick: () => {
+            this.hideButtons();
+            reject(null);
+          },
+        },
+      ]);
+      this.showButtons();
     });
   }
 }

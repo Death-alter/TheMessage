@@ -72,12 +72,16 @@ export abstract class Card extends DataBasic<CardObject> {
   }
 
   //当做功能牌打出
-  onPlay(...args: any[]): void {
-  }
+  onPlay(...args: any[]): void {}
 
   //当做情报传递
-  onSend(...args: any[]): void {
-  }
+  onSend(...args: any[]): void {}
+
+  onSelectAsFunctionCard() {}
+
+  onSelectAsMessage() {}
+
+  onSelectAsHandCard() {}
 
   abstract onConfirmPlay(gameData: GameData): void;
 

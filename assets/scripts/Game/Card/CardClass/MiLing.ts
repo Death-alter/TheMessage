@@ -19,7 +19,10 @@ export class MiLing extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData) {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
+
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {}
 }

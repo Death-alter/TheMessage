@@ -34,9 +34,13 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
   }
 
   removeAllData() {
+    const oldList = this._list;
     this._list = [];
     if (this.gameObject) {
       this.gameObject.node.removeAllChildren();
+      for (let data of oldList) {
+        this.gameObject.onDataRemoved(data);
+      }
       this.gameObject.onAllDataRemoved();
     }
   }

@@ -17,7 +17,9 @@ export class JieHuo extends Card {
     });
   }
 
-  onConfirmPlay() {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
 
   onPlay() {
     super.onPlay();

@@ -1,3 +1,4 @@
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardType } from "../type";
 
@@ -16,7 +17,10 @@ export class PingHeng extends Card {
     });
   }
 
-  onConfirmPlay() {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
+
 
   onPlay() {
     super.onPlay();

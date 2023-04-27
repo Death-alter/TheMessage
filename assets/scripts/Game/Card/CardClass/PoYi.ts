@@ -19,7 +19,10 @@ export class PoYi extends Card {
     });
   }
 
-  onConfirmPlay() {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
+
 
   onPlay(seq: number) {
     super.onPlay();

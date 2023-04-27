@@ -49,13 +49,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     card.gameObject.node.on(
       Node.EventType.TOUCH_END,
       (event) => {
-        if (this._selectedCard === card) {
-          this._selectedCard = null;
-        } else {
-          this._selectedCard = card;
-        }
-        this.scheduleOnce(this.refresh, 0);
-        ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
+        this.selectCard(card);
       },
       this
     );
@@ -105,5 +99,16 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         }
       }
     }
+  }
+
+  selectCard(card) {
+    if (this._selectedCard === card) {
+      this._selectedCard = null;
+      ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_HAND_CARD, card);
+    } else {
+      this._selectedCard = card;
+      ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
+    }
+    this.scheduleOnce(this.refresh, 0);
   }
 }

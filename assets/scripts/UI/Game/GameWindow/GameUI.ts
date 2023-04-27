@@ -10,6 +10,8 @@ import { HandCardList } from "../../../Game/Container/HandCardList";
 import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
+import { Card } from "../../../Game/Card/Card";
+import { GamePhase } from "../../../GameManager/type";
 
 const { ccclass, property } = _decorator;
 
@@ -51,6 +53,10 @@ export class GameUI extends GameObject<GameData> {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+
+    //玩家选择手牌
+    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, this.playerSelectHandCard, this);
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, this.playerCancelSelectHandCard, this);
 
     //收到初始化
     GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
@@ -269,6 +275,19 @@ export class GameUI extends GameObject<GameData> {
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     this.cardAction.afterPlayerPlayCard(data);
+    this.toolTip.setTextByPhase(this.data.gamePhase);
+  }
+
+  playerSelectHandCard(card: Card) {
+    switch (this.data.gamePhase) {
+      case GamePhase.MAIN_PHASE:
+      case GamePhase.SEND_PHASE:
+      case GamePhase.FIGHT_PHASE:
+    }
+  }
+
+  playerCancelSelectHandCard() {
+    this.toolTip.hideButtons();
     this.toolTip.setTextByPhase(this.data.gamePhase);
   }
 }

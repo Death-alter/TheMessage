@@ -19,7 +19,9 @@ export class ChengQing extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData) {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {
     const targetPlayer = gameData.playerList[targetPlayerId];

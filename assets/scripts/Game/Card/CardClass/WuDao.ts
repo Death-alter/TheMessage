@@ -17,7 +17,10 @@ export class WuDao extends Card {
     });
   }
 
-  onConfirmPlay() {}
+  onConfirmPlay(gameData: GameData) {
+    console.log(this);
+  }
+
 
   onPlay() {
     super.onPlay();
