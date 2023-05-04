@@ -345,7 +345,10 @@
     },
     "_hoverSprite": null,
     "_pressedSprite": null,
-    "_disabledSprite": null,
+    "_disabledSprite": {
+      "__uuid__": "0e786607-d6d6-46c7-b940-cbfb0df89761@f9941",
+      "__expectedType__": "cc.SpriteFrame"
+    },
     "_duration": 0.1,
     "_zoomScale": 1.2,
     "_target": {

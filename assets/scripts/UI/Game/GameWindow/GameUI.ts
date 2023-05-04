@@ -54,10 +54,6 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
 
-    //玩家选择手牌
-    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, this.playerSelectHandCard, this);
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, this.playerCancelSelectHandCard, this);
-
     //收到初始化
     GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
 
@@ -69,7 +65,7 @@ export class GameUI extends GameObject<GameData> {
     //卡组数量变化
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
 
-    //播放洗牌动画（如果做了的话）
+    //洗牌
     // GameEventCenter.on(GameEvent.DECK_SHUFFLED, () => {});
 
     //抽牌
@@ -192,11 +188,25 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onStopCountDown() {
-    this.toolTip.hideText();
+    this.toolTip.hide();
   }
 
   onGamePhaseChange(data: GameEventType.GamePhaseChange) {
     this.toolTip.setTextByPhase(data.phase);
+    this.toolTip.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          console.log(1);
+        },
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          console.log(2);
+        },
+      },
+    ]);
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
@@ -276,18 +286,19 @@ export class GameUI extends GameObject<GameData> {
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     this.cardAction.afterPlayerPlayCard(data);
     this.toolTip.setTextByPhase(this.data.gamePhase);
-  }
-
-  playerSelectHandCard(card: Card) {
-    switch (this.data.gamePhase) {
-      case GamePhase.MAIN_PHASE:
-      case GamePhase.SEND_PHASE:
-      case GamePhase.FIGHT_PHASE:
-    }
-  }
-
-  playerCancelSelectHandCard() {
-    this.toolTip.hideButtons();
-    this.toolTip.setTextByPhase(this.data.gamePhase);
+    this.toolTip.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          console.log(1);
+        },
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          console.log(2);
+        },
+      },
+    ]);
   }
 }

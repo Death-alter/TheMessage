@@ -9,6 +9,7 @@ const { ccclass, property } = _decorator;
 interface ButtonConfig {
   text: string;
   onclick: () => void;
+  disabled?: ((eventName: string, eventData: any) => boolean) | ((data: any) => boolean) | boolean;
 }
 
 @ccclass("Tooltip")
@@ -26,19 +27,18 @@ export class Tooltip extends Component {
 
   onEnable() {
     this.progressBar.active = false;
-    this.hideText();
-    this.hideButtons();
+    this.hide();
 
-    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hideText, this);
+    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   onDisable() {
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hideText);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide);
   }
 
   startCoundDown(second: number, callback?: Function) {
     this.progressBar.getComponent(ProgressControl).startCoundDown(second, callback);
-    this.showText();
+    this.show();
   }
 
   setText(text: string) {
@@ -65,19 +65,13 @@ export class Tooltip extends Component {
     }
   }
 
-  hideText() {
-    this.textNode.active = false;
-  }
-
-  showText() {
+  show() {
     this.textNode.active = true;
-  }
-
-  showButtons() {
     this.buttons.active = true;
   }
 
-  hideButtons() {
+  hide() {
+    this.textNode.active = false;
     this.buttons.active = false;
   }
 
@@ -117,12 +111,10 @@ export class Tooltip extends Component {
         {
           text: cancelText,
           onclick: () => {
-            this.hideButtons();
             reject(null);
           },
         },
       ]);
-      this.showButtons();
     });
   }
 }
