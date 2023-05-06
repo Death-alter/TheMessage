@@ -1,6 +1,6 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, Material } from "cc";
-import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, ProcessEvent } from "../../../Event/type";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, Material, Button } from "cc";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
 import { CardAction } from "../../../GameManager/CardAction";
 import { Tooltip } from "../../../GameManager/Tooltip";
@@ -11,7 +11,8 @@ import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
-import { GamePhase } from "../../../GameManager/type";
+import { GamePhase, WaitingType } from "../../../GameManager/type";
+import { CardType } from "../../../Game/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -39,14 +40,14 @@ export class GameUI extends GameObject<GameData> {
   toolTipNode: Node | null = null;
 
   public cardAction: CardAction;
-  public toolTip: Tooltip;
+  public tooltip: Tooltip;
   public handCardList: HandCardList;
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
 
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
-    this.toolTip = this.toolTipNode.getComponent(Tooltip);
+    this.tooltip = this.toolTipNode.getComponent(Tooltip);
   }
 
   onEnable() {
@@ -60,7 +61,7 @@ export class GameUI extends GameObject<GameData> {
     //收到游戏开始
     // GameEventCenter.once(GameEvent.GAME_START, (data: GameEventType.GameStart) => {});
 
-    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
+    // GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
 
     //卡组数量变化
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
@@ -105,7 +106,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
 
     //濒死求澄清
-    GameEventCenter.on(GameEvent.PLAYER_DYING, this.playerDying, this);
+    // GameEventCenter.on(GameEvent.PLAYER_DYING, this.playerDying, this);
 
     //玩家死前
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
@@ -121,7 +122,7 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown);
     GameEventCenter.off(GameEvent.GAME_INIT, this.init);
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
+    // GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
@@ -175,12 +176,45 @@ export class GameUI extends GameObject<GameData> {
     this.rightPlayerNodeList.getComponent(Layout).updateLayout();
     this.topPlayerNodeList.getComponent(Layout).updateLayout();
     this.leftPlayerNodeList.getComponent(Layout).updateLayout();
+
+    //绑定点击事件
+    for (let i = 0; i < data.playerList.length; i++) {
+      this.playerObjectList[i].node.on(
+        Node.EventType.TOUCH_END,
+        (event) => {
+          console.log(1);
+          const flag = this.data.selectedPlayers.select(data.playerList[i]);
+        },
+        this
+      );
+    }
   }
 
   onStartCountDown(data: ProcessEventType.StartCountDown) {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     if (data.playerId === 0) {
-      this.toolTip.startCoundDown(data.second);
+      this.tooltip.startCoundDown(data.second);
+      switch (data.type) {
+        case WaitingType.PLAY_CARD:
+          switch (this.data.gamePhase) {
+            case GamePhase.MAIN_PHASE:
+              this.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+              break;
+            case GamePhase.FIGHT_PHASE:
+              this.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
+              break;
+          }
+          break;
+        case WaitingType.SEND_MESSAGE:
+          this.promotSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+          break;
+        case WaitingType.RECEIVE_MESSAGE:
+          this.promotReceiveMessage("传递阶段，请选择要使用的卡牌或接收情报");
+          break;
+        case WaitingType.PLAYER_DYING:
+          this.promotUseHandCard("玩家濒死，是否使用澄清？");
+          break;
+      }
     } else {
       this.playerObjectList[data.playerId].startCoundDown(data.second);
     }
@@ -188,25 +222,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onStopCountDown() {
-    this.toolTip.hide();
-  }
-
-  onGamePhaseChange(data: GameEventType.GamePhaseChange) {
-    this.toolTip.setTextByPhase(data.phase);
-    this.toolTip.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          console.log(1);
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          console.log(2);
-        },
-      },
-    ]);
+    this.tooltip.hide();
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
@@ -268,10 +284,6 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.removeMessage({ player, messageList: messages });
   }
 
-  playerDying({ player }: GameEventType.PlayerDying) {
-    this.toolTip.setText(`【${player.seatNumber + 1}号】${player.character.name}濒死，是否使用澄清`);
-  }
-
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
     this.cardAction.giveCards(data, this.handCardList);
   }
@@ -285,18 +297,109 @@ export class GameUI extends GameObject<GameData> {
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
     this.cardAction.afterPlayerPlayCard(data);
-    this.toolTip.setTextByPhase(this.data.gamePhase);
-    this.toolTip.setButtons([
+  }
+
+  promotUseHandCard(tooltipText) {
+    this.handCardList.selectedCards.limit = 1;
+    this.tooltip.setText(tooltipText);
+    const buttons = this.tooltip.setButtons([
       {
         text: "确定",
         onclick: () => {
-          console.log(1);
+          this.handCardList.selectedCards.list.forEach((card) => {
+            card.onConfirmPlay(this.data, this.tooltip, () => {
+              this.promotUseHandCard(tooltipText);
+            });
+          });
+          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+        },
+        disabled: true,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          switch (this.data.gamePhase) {
+            case GamePhase.MAIN_PHASE:
+              NetworkEventCenter.emit(NetworkEventToS.END_MAIN_PHASE_TOS, {
+                seq: this.seq,
+              });
+              break;
+            case GamePhase.FIGHT_PHASE:
+              NetworkEventCenter.emit(NetworkEventToS.END_FIGHT_PHASE_TOS, {
+                seq: this.seq,
+              });
+              break;
+            case GamePhase.RECEIVE_PHASE:
+              NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+                seq: this.seq,
+              });
+              break;
+          }
+          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+        },
+      },
+    ]);
+    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        buttons[0].getComponent(Button).interactable = true;
+      }
+    });
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
+      buttons[0].getComponent(Button).interactable = false;
+    });
+  }
+
+  promotSendMessage(tooltipText) {
+    this.handCardList.selectedCards.limit = 1;
+    this.tooltip.setText(tooltipText);
+    const buttons = this.tooltip.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          this.handCardList.selectedCards.list.forEach((card) => {
+            NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
+              cardId: card.id,
+              targetPlayerId: 1,
+              lockPlayerId: 0,
+              direction: card.direction,
+              seq: this.seq,
+            });
+          });
+          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+        },
+        disabled: true,
+      },
+    ]);
+    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, () => {
+      buttons[0].getComponent(Button).interactable = true;
+    });
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
+      buttons[0].getComponent(Button).interactable = false;
+    });
+  }
+
+  promotReceiveMessage(tooltipText) {
+    this.tooltip.setText(tooltipText);
+    this.tooltip.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+            receive: true,
+            seq: this.seq,
+          });
         },
       },
       {
         text: "取消",
         onclick: () => {
-          console.log(2);
+          NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
+            receive: false,
+            seq: this.seq,
+          });
         },
       },
     ]);

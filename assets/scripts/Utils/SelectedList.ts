@@ -1,6 +1,6 @@
 export class SelectedList<T> {
   private _list: Set<T> = new Set();
-  private _limit: number = 1;
+  private _limit: number = 0;
 
   get list() {
     return this._list;
@@ -18,6 +18,12 @@ export class SelectedList<T> {
     this._limit = num;
     if (this._list.size > num) {
       this.clear();
+    }
+  }
+
+  constructor(limit?: number) {
+    if (limit != null) {
+      this._limit = limit;
     }
   }
 

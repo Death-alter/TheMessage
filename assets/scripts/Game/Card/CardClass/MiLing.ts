@@ -3,8 +3,11 @@ import { GameEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { GamePhase } from "../../../GameManager/type";
 
 export class MiLing extends Card {
+  public readonly availablePhases = [GamePhase.SEND_PHASE_START];
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

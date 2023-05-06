@@ -1,8 +1,11 @@
+import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class JieHuo extends Card {
+  public readonly availablePhases = [GamePhase.FIGHT_PHASE];
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

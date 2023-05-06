@@ -1,11 +1,12 @@
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
-import { CardActionLocation } from "../../../GameManager/type";
+import { CardActionLocation, GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 
 export class FenYunBianHuan extends Card {
+  public readonly availablePhases = [GamePhase.MAIN_PHASE];
   public showCardList: Card[] = [];
 
   constructor(option: CardDefaultOption) {

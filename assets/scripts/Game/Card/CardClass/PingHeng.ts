@@ -1,8 +1,11 @@
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardType } from "../type";
+import { GamePhase } from "../../../GameManager/type";
 
 export class PingHeng extends Card {
+  public readonly availablePhases = [GamePhase.MAIN_PHASE];
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

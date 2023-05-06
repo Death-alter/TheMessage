@@ -2,7 +2,7 @@ import { card } from "../../protobuf/proto";
 import { CardDirection, CardOnEffectParams, CardType } from "../Game/Card/type";
 import { CharacterType } from "../Game/Character/type";
 import { IdentityType, SecretTaskType } from "../Game/Identity/type";
-import { GamePhase } from "../GameManager/type";
+import { GamePhase, WaitingType } from "../GameManager/type";
 
 export interface NetworkError {
   code?: number;
@@ -112,6 +112,7 @@ export interface GetPhaseData {
 export interface StartCountDown {
   playerId: number;
   second: number;
+  type: WaitingType;
   seq: number;
 }
 

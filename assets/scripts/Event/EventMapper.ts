@@ -3,6 +3,7 @@ import * as ProtobufType from "../../protobuf/proto.d";
 import { NetworkEventToC, ProcessEvent } from "./type";
 import { _decorator, director } from "cc";
 import { CardType } from "../Game/Card/type";
+import { WaitingType } from "../GameManager/type";
 
 //把网络协议映射为程序事件
 
@@ -177,9 +178,26 @@ export class EventMapper {
         messageInTransmit: data.messageCard,
         senderId: data.senderId,
       });
+      let type;
+      switch (data.currentPhase) {
+        case ProtobufType.phase.Main_Phase:
+        case ProtobufType.phase.Fight_Phase:
+          type = WaitingType.PLAY_CARD;
+          break;
+        case ProtobufType.phase.Send_Start_Phase:
+          type = WaitingType.SEND_MESSAGE;
+          break;
+        case ProtobufType.phase.Send_Phase:
+          type = WaitingType.RECEIVE_MESSAGE;
+          break;
+        default:
+          type = WaitingType.UNKNOWN;
+      }
+
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.waitingPlayerId,
         second: data.waitingSecond,
+        type,
         seq: data.seq,
       });
     });
@@ -204,6 +222,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.waitingPlayerId,
         second: data.waitingSecond,
+        type: WaitingType.PLAYER_DYING,
         seq: data.seq,
       });
     });
@@ -237,6 +256,7 @@ export class EventMapper {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
+          type: WaitingType.GIVE_CARD,
           seq: data.seq,
         });
       }
@@ -273,6 +293,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
         second: data.waitingSecond,
+        type: WaitingType.HNADLER_CARD,
         seq: data.seq,
       });
     });
@@ -351,6 +372,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.playerId,
         second: data.waitingSecond,
+        type: WaitingType.HNADLER_CARD,
         seq: data.seq,
       });
     });
@@ -420,6 +442,7 @@ export class EventMapper {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
+          type: WaitingType.HNADLER_CARD,
           seq: data.seq,
         });
       }
@@ -470,6 +493,7 @@ export class EventMapper {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
+          type: WaitingType.HNADLER_CARD,
           seq: data.seq,
         });
       }

@@ -1,10 +1,14 @@
-import { GameEventCenter } from "../../../Event/EventTarget";
-import { GameEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
+import { Tooltip } from "../../../GameManager/Tooltip";
+import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class ChengQing extends Card {
+  public readonly availablePhases = [GamePhase.MAIN_PHASE];
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
@@ -19,8 +23,24 @@ export class ChengQing extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
+  onConfirmPlay(gameData: GameData, tooltip: Tooltip, restore: () => void) {
+    const data: any = {
+      cardId: this.id,
+    };
+    tooltip.setText("请选择要澄清的目标");
+    const buttons = tooltip.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, data);
+        },
+        disabled: true,
+      },
+      {
+        text: "取消",
+        onclick: restore,
+      },
+    ]);
   }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {

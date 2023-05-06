@@ -30,3 +30,15 @@ export interface MoveNodeParams {
   to: ActionLocation;
   duration?: number;
 }
+
+export const enum WaitingType {
+  UNKNOWN = 0,
+  PLAY_CARD = 1,
+  HNADLER_CARD = 2,
+  GIVE_CARD = 3,
+  PLAYER_DYING = 4,
+  USE_SKILL = 5,
+  HNADLER_SKILL = 6,
+  SEND_MESSAGE = 7,
+  RECEIVE_MESSAGE = 8,
+}

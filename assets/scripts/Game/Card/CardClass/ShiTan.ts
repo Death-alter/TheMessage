@@ -3,8 +3,10 @@ import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus, CardDirection } from "../type";
+import { GamePhase } from "../../../GameManager/type";
 
 export class ShiTan extends Card {
+  public readonly availablePhases = [GamePhase.MAIN_PHASE];
   private _drawCardColor: CardColor[];
 
   get drawCardColor() {

@@ -48,8 +48,6 @@ export class GameManager extends Component {
     });
 
     this.gameData = new GameData(this.gameWindow.getComponent(GameUI));
-    console.log(this.gameData);
-    console.log(this.gameWindow.getComponent(GameUI));
     this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
   }
 

@@ -3,8 +3,11 @@ import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GamePhase } from "../../../GameManager/type";
 
 export class DiaoBao extends Card {
+  public readonly availablePhases = [GamePhase.FIGHT_PHASE];
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
@@ -22,7 +25,6 @@ export class DiaoBao extends Card {
   onConfirmPlay(gameData: GameData) {
     console.log(this);
   }
-
 
   onPlay() {
     super.onPlay();

@@ -3,6 +3,8 @@ import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { Tween, Node } from "cc";
+import { Tooltip } from "../../GameManager/Tooltip";
+import { GamePhase } from "../../GameManager/type";
 
 export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
@@ -16,6 +18,7 @@ export abstract class Card extends DataBasic<CardObject> {
   public action: Tween<Node> | null = null;
 
   public static readonly backSprite: string = "images/cards/CardBack";
+  public abstract readonly availablePhases: GamePhase[];
 
   get id() {
     return this._id;
@@ -77,13 +80,7 @@ export abstract class Card extends DataBasic<CardObject> {
   //当做情报传递
   onSend(...args: any[]): void {}
 
-  onSelectAsFunctionCard() {}
-
-  onSelectAsMessage() {}
-
-  onSelectAsHandCard() {}
-
-  abstract onConfirmPlay(gameData: GameData): void;
+  abstract onConfirmPlay(gameData: GameData, tooltip: Tooltip, restore: () => void): void;
 
   abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
 

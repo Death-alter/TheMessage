@@ -15,6 +15,7 @@ import { Card } from "../../../Game/Card/Card";
 import { card } from "../../../../protobuf/proto";
 import { DataBasic } from "../../../DataBasic";
 import { GameUI } from "./GameUI";
+import { SelectedList } from "../../../Utils/SelectedList";
 
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
@@ -27,6 +28,7 @@ export class GameData extends DataBasic<GameUI> {
   public cardOnPlay: Card;
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
+  public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -394,7 +396,7 @@ export class GameData extends DataBasic<GameUI> {
         card = this.createCard(data.card);
       } else {
         card = createCard({
-          type: data.cardType
+          type: data.cardType,
         });
       }
     }
@@ -418,7 +420,7 @@ export class GameData extends DataBasic<GameUI> {
     this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data.data);
   }
 
-  createCard(card?: card,  status?: CardStatus): Card {
+  createCard(card?: card, status?: CardStatus): Card {
     if (card) {
       return createCard({
         id: card.cardId,

@@ -2,6 +2,8 @@ import { Card } from "../Card";
 import { CardDefaultOption, CardStatus, CardType } from "../type";
 
 export class UnknownCard extends Card {
+  public readonly availablePhases = [];
+
   constructor(option: CardDefaultOption) {
     super({
       id: 0,

@@ -1,6 +1,5 @@
-import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate } from "cc";
+import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate, Button, EventHandler } from "cc";
 import { ProgressControl } from "../UI/Game/ProgressControl";
-import { TooltipText } from "./TooltipText";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";
 import { GamePhase } from "./type";
@@ -9,7 +8,7 @@ const { ccclass, property } = _decorator;
 interface ButtonConfig {
   text: string;
   onclick: () => void;
-  disabled?: ((eventName: string, eventData: any) => boolean) | ((data: any) => boolean) | boolean;
+  disabled?: boolean;
 }
 
 @ccclass("Tooltip")
@@ -24,6 +23,7 @@ export class Tooltip extends Component {
   buttonPrefab: Prefab | null = null;
 
   private buttonPool = new NodePool();
+  private defaultText: string;
 
   onEnable() {
     this.progressBar.active = false;
@@ -41,28 +41,13 @@ export class Tooltip extends Component {
     this.show();
   }
 
-  setText(text: string) {
-    this.textNode.getComponent(Label).string = text;
+  setText(text?: string) {
+    this.textNode.getComponent(Label).string = text || this.defaultText;
   }
 
-  setTextByPhase(phase: GamePhase) {
-    switch (phase) {
-      case GamePhase.DRAW_PHASE:
-        this.setText(TooltipText.SELF_DRAW_PHASE);
-        break;
-      case GamePhase.MAIN_PHASE:
-        this.setText(TooltipText.SELF_MAIN_PHASE);
-        break;
-      case GamePhase.SEND_PHASE_START:
-        this.setText(TooltipText.SELF_SEND_PHASE);
-        break;
-      case GamePhase.FIGHT_PHASE:
-        this.setText(TooltipText.SELF_FIGHT_PHASE);
-        break;
-      case GamePhase.RECEIVE_PHASE:
-        this.setText(TooltipText.SELF_RECEIVE_PHASE);
-        break;
-    }
+  setDefaultText(text: string) {
+    this.defaultText = text;
+    this.setText();
   }
 
   show() {
@@ -76,6 +61,7 @@ export class Tooltip extends Component {
   }
 
   setButtons(buttons: ButtonConfig[]) {
+    this.buttons.removeAllChildren();
     const l = buttons.length - this.buttons.children.length;
     if (l >= 0) {
       for (let i = 0; i < l; i++) {
@@ -96,22 +82,24 @@ export class Tooltip extends Component {
       button.getChildByName("Label").getComponent(Label).string = config.text;
       button.off(Node.EventType.TOUCH_END);
       button.on(Node.EventType.TOUCH_END, config.onclick, button);
+      button.getComponent(Button).interactable = !buttons[i].disabled;
     }
+    return this.buttons.children;
   }
 
   confirm(confirmText, cancelText) {
     return new Promise((reslove, reject) => {
-      this.setButtons([
+      const buttons = this.setButtons([
         {
           text: confirmText,
           onclick: () => {
-            reslove(null);
+            reslove(buttons);
           },
         },
         {
           text: cancelText,
           onclick: () => {
-            reject(null);
+            reject(buttons);
           },
         },
       ]);
