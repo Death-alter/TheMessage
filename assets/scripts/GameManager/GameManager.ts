@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, resources, Prefab, instantiate } from "cc";
+import { _decorator, Component, Node, resources, Prefab, instantiate, NodePool } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";
@@ -16,6 +16,8 @@ import { GameLogMessageObject } from "../Game/GameLog/GameLogMessageObject";
 import { GameUI } from "../UI/Game/GameWindow/GameUI";
 import { GameLogContainer } from "../Game/GameLog/GameLogContainer";
 import { Winner } from "../UI/Game/WinnerWindow/Winner";
+import { ShowCardsWindow } from "../UI/Game/ShowCardsWindow/ShowCardsWindow";
+import { Tooltip } from "./Tooltip";
 
 const { ccclass, property } = _decorator;
 
@@ -35,9 +37,12 @@ export class GameManager extends Component {
   logPrefab: Prefab | null = null;
   @property(Node)
   cardGroupNode: Node | null = null;
+  @property(Node)
+  showCardsWindow: Node | null = null;
 
   public gameData: GameData;
   public gameLog: GameLogList;
+  public buttonPool = new NodePool();
 
   onLoad() {
     //初始化GamePools
@@ -47,8 +52,14 @@ export class GameManager extends Component {
       logMessage: instantiate(this.logPrefab).getComponent(GameLogMessageObject),
     });
 
-    this.gameData = new GameData(this.gameWindow.getComponent(GameUI));
+    const gameUI = this.gameWindow.getComponent(GameUI);
+
+    this.gameData = new GameData(gameUI);
     this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
+
+    gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
+    gameUI.toolTipNode.getComponent(Tooltip).init(this.buttonPool);
+    this.showCardsWindow.getComponent(ShowCardsWindow).init(this.buttonPool);
   }
 
   onEnable() {

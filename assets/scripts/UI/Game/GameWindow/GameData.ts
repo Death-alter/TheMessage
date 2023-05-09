@@ -401,7 +401,7 @@ export class GameData extends DataBasic<GameUI> {
       }
     }
 
-    card.onPlay();
+    card.onPlay(this, data);
     this.cardOnPlay = card;
     const eventData: any = { player: this.playerList[data.userId], card };
     if (data.targetPlayerId != null) {

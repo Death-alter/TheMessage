@@ -42,3 +42,9 @@ export const enum WaitingType {
   SEND_MESSAGE = 7,
   RECEIVE_MESSAGE = 8,
 }
+
+export interface ButtonConfig {
+  text: string;
+  onclick: () => void;
+  disabled?: boolean;
+}

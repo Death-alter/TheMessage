@@ -167,7 +167,7 @@ export class CardAction extends Component {
   }
 
   //打出卡牌动画，播放声音
-  playerPlayCard(data: GameEventType.PlayerPalyCard) {
+  playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
@@ -199,7 +199,7 @@ export class CardAction extends Component {
     }
   }
 
-  afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
+  afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     const { card, flag } = data;
     if (!flag) {
       if (card.action) {

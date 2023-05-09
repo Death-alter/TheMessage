@@ -12,7 +12,7 @@ import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
 import { GamePhase, WaitingType } from "../../../GameManager/type";
-import { CardType } from "../../../Game/Card/type";
+import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 
 const { ccclass, property } = _decorator;
 
@@ -44,6 +44,7 @@ export class GameUI extends GameObject<GameData> {
   public handCardList: HandCardList;
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
+  public showCardsWindow: ShowCardsWindow;
 
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
@@ -288,14 +289,14 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.giveCards(data, this.handCardList);
   }
 
-  playerPlayCard(data: GameEventType.PlayerPalyCard) {
+  playerPlayCard(data: GameEventType.PlayerPlayCard) {
     if (data.player.id === 0) {
       this.handCardList.removeData(data.card);
     }
     this.cardAction.playerPlayCard(data);
   }
 
-  afterPlayerPlayCard(data: GameEventType.AfterPlayerPalyCard) {
+  afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     this.cardAction.afterPlayerPlayCard(data);
   }
 

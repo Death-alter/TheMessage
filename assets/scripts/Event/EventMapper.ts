@@ -438,9 +438,10 @@ export class EventMapper {
           cardType: CardType.WEI_BI,
           userId: data.playerId,
           targetPlayerId: data.targetPlayerId,
+          wantType: data.wantType,
         });
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-          playerId: data.playerId,
+          playerId: data.targetPlayerId,
           second: data.waitingSecond,
           type: WaitingType.HNADLER_CARD,
           seq: data.seq,

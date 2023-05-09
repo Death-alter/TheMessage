@@ -164,6 +164,7 @@ export interface CardPlayed {
   cardId?: number;
   card?: card;
   targetPlayerId?: number;
+  [index: string]: any;
 }
 
 export interface CardInProcess {

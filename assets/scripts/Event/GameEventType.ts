@@ -120,13 +120,13 @@ export interface GameOver {
   }[];
 }
 
-export interface PlayerPalyCard {
+export interface PlayerPlayCard {
   player: Player;
   targetPlayer?: Player;
   card: Card;
 }
 
-export interface AfterPlayerPalyCard {
+export interface AfterPlayerPlayCard {
   card: Card;
   flag: boolean;
 }

@@ -113,7 +113,7 @@ export class GameLogList extends DataContainer<GameLog> {
     this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`));
   }
 
-  onPlayerPlayCard({ player, targetPlayer, card }: GameEventType.PlayerPalyCard) {
+  onPlayerPlayCard({ player, targetPlayer, card }: GameEventType.PlayerPlayCard) {
     if (targetPlayer) {
       this.addData(
         new GameLog(

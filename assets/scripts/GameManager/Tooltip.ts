@@ -1,15 +1,9 @@
-import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate, Button, EventHandler } from "cc";
+import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate, Button } from "cc";
 import { ProgressControl } from "../UI/Game/ProgressControl";
-import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { GameEvent, ProcessEvent } from "../Event/type";
-import { GamePhase } from "./type";
+import { ProcessEventCenter } from "../Event/EventTarget";
+import { ProcessEvent } from "../Event/type";
+import { ButtonConfig } from "./type";
 const { ccclass, property } = _decorator;
-
-interface ButtonConfig {
-  text: string;
-  onclick: () => void;
-  disabled?: boolean;
-}
 
 @ccclass("Tooltip")
 export class Tooltip extends Component {
@@ -22,7 +16,7 @@ export class Tooltip extends Component {
   @property(Prefab)
   buttonPrefab: Prefab | null = null;
 
-  private buttonPool = new NodePool();
+  private buttonPool: NodePool;
   private defaultText: string;
 
   onEnable() {
@@ -34,6 +28,10 @@ export class Tooltip extends Component {
 
   onDisable() {
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide);
+  }
+
+  init(buttonPool) {
+    this.buttonPool = buttonPool;
   }
 
   startCoundDown(second: number, callback?: Function) {
