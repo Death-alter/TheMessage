@@ -230,6 +230,8 @@ export enum ProcessEvent {
   STOP_COUNT_DOWN = "stop_count_down",
   SELECT_HAND_CARD = "select_hand_card",
   CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
+  SELECT_PLAYER = "select_player",
+  CANCEL_SELECT_PLAYER= "cancel_select_player",
   UPDATE_CHARACTER_STATUS = "update_character_status",
   SEND_MESSAGE = "send_message",
   CHOOSE_RECEIVE = "choose_receive",

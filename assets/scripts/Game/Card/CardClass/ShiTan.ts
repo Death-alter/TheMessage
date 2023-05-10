@@ -4,6 +4,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus, CardDirection } from "../type";
 import { GamePhase } from "../../../GameManager/type";
+import { Tooltip } from "../../../GameManager/Tooltip";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -27,6 +28,13 @@ export class ShiTan extends Card {
     });
     this._drawCardColor = option.drawCardColor;
   }
+
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+  
+  enabledToPlay(gameData: GameData): boolean {
+    return true;
+  }
+
 
   onConfirmPlay(gameData: GameData) {
     console.log(this);

@@ -4,6 +4,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GamePhase } from "../../../GameManager/type";
+import { Tooltip } from "../../../GameManager/Tooltip";
 
 export class DiaoBao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
@@ -20,6 +21,12 @@ export class DiaoBao extends Card {
       status: option.status,
       gameObject: option.gameObject,
     });
+  }
+
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+
+  enabledToPlay(gameData: GameData): boolean {
+    return true;
   }
 
   onConfirmPlay(gameData: GameData) {

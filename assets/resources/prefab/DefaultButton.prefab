@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "TooltipButton",
+    "_name": "DefaultButton",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "TooltipButton",
+    "_name": "DefaultButton",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,

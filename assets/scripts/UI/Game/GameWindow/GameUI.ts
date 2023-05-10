@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, Material, Button } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, color } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -13,6 +13,9 @@ import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
 import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
+import DynamicButtons from "../../../Utils/DynamicButtons";
+import { Player } from "../../../Game/Player/Player";
+import { SelectedList } from "../../../Utils/SelectedList";
 
 const { ccclass, property } = _decorator;
 
@@ -45,6 +48,7 @@ export class GameUI extends GameObject<GameData> {
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
   public showCardsWindow: ShowCardsWindow;
+  public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
 
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
@@ -183,11 +187,40 @@ export class GameUI extends GameObject<GameData> {
       this.playerObjectList[i].node.on(
         Node.EventType.TOUCH_END,
         (event) => {
-          console.log(1);
-          const flag = this.data.selectedPlayers.select(data.playerList[i]);
+          this.selectPlayer(data.playerList[i]);
         },
         this
       );
+    }
+  }
+
+  selectPlayer(player: Player) {
+    if (this.selectedPlayers.isSelected(player)) {
+      this.selectedPlayers.deselect(player);
+      ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+    } else {
+      const flag = this.selectedPlayers.select(player);
+      if (flag) {
+        ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
+      } else {
+        const firstCard = this.selectedPlayers.list[0];
+        this.selectedPlayers.deselect(firstCard);
+        ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+        this.selectedPlayers.select(player);
+        ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
+      }
+    }
+    this.scheduleOnce(this.refreshPlayerSelectedState, 0);
+  }
+
+  refreshPlayerSelectedState() {
+    for (let player of this.data.playerList) {
+      const border = player.gameObject.node.getChildByName("Border");
+      if (this.selectedPlayers.isSelected(player)) {
+        border.getComponent(Sprite).color = color(0, 255, 0);
+      } else {
+        border.getComponent(Sprite).color = color(0, 0, 0);
+      }
     }
   }
 
@@ -301,90 +334,83 @@ export class GameUI extends GameObject<GameData> {
   }
 
   promotUseHandCard(tooltipText) {
+    const setTooltip = () => {
+      this.tooltip.setText(tooltipText);
+      this.tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            this.handCardList.selectedCards.list[0].onConfirmPlay(this.data, this.tooltip);
+            this.handCardList.selectedCards.limit = 0;
+            ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+          },
+          enabled: false,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            switch (this.data.gamePhase) {
+              case GamePhase.MAIN_PHASE:
+                NetworkEventCenter.emit(NetworkEventToS.END_MAIN_PHASE_TOS, {
+                  seq: this.seq,
+                });
+                break;
+              case GamePhase.FIGHT_PHASE:
+                NetworkEventCenter.emit(NetworkEventToS.END_FIGHT_PHASE_TOS, {
+                  seq: this.seq,
+                });
+                break;
+              case GamePhase.RECEIVE_PHASE:
+                NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+                  seq: this.seq,
+                });
+                break;
+            }
+            this.handCardList.selectedCards.limit = 0;
+            ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+          },
+        },
+      ]);
+    };
+
     this.handCardList.selectedCards.limit = 1;
-    this.tooltip.setText(tooltipText);
-    const buttons = this.tooltip.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          this.handCardList.selectedCards.list.forEach((card) => {
-            card.onConfirmPlay(this.data, this.tooltip, () => {
-              this.promotUseHandCard(tooltipText);
-            });
-          });
-          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
-        },
-        disabled: true,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          switch (this.data.gamePhase) {
-            case GamePhase.MAIN_PHASE:
-              NetworkEventCenter.emit(NetworkEventToS.END_MAIN_PHASE_TOS, {
-                seq: this.seq,
-              });
-              break;
-            case GamePhase.FIGHT_PHASE:
-              NetworkEventCenter.emit(NetworkEventToS.END_FIGHT_PHASE_TOS, {
-                seq: this.seq,
-              });
-              break;
-            case GamePhase.RECEIVE_PHASE:
-              NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-                seq: this.seq,
-              });
-              break;
-          }
-          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
-        },
-      },
-    ]);
+    setTooltip();
     ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        buttons[0].getComponent(Button).interactable = true;
-      }
+      card.onSelectedToPlay(this.data, this.tooltip);
+      this.tooltip.buttons.setEnabled(0, () => card.enabledToPlay(this.data));
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
-      buttons[0].getComponent(Button).interactable = false;
+      setTooltip();
     });
   }
 
   promotSendMessage(tooltipText) {
     this.handCardList.selectedCards.limit = 1;
     this.tooltip.setText(tooltipText);
-    const buttons = this.tooltip.setButtons([
+    this.tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          this.handCardList.selectedCards.list.forEach((card) => {
-            NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-              cardId: card.id,
-              targetPlayerId: 1,
-              lockPlayerId: 0,
-              direction: card.direction,
-              seq: this.seq,
-            });
+          const card = this.handCardList.selectedCards.list[0];
+          NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
+            cardId: card.id,
+            targetPlayerId: 1,
+            lockPlayerId: 0,
+            direction: card.direction,
+            seq: this.seq,
           });
-          ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-          ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+          this.handCardList.selectedCards.limit = 0;
         },
-        disabled: true,
+        enabled: () => {
+          return this.handCardList.selectedCards.list.length === 1;
+        },
       },
     ]);
-    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, () => {
-      buttons[0].getComponent(Button).interactable = true;
-    });
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
-      buttons[0].getComponent(Button).interactable = false;
-    });
   }
 
   promotReceiveMessage(tooltipText) {
     this.tooltip.setText(tooltipText);
-    this.tooltip.setButtons([
+    this.tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {

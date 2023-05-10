@@ -1,13 +1,9 @@
 export class SelectedList<T> {
-  private _list: Set<T> = new Set();
+  private _list: T[] = [];
   private _limit: number = 0;
 
   get list() {
     return this._list;
-  }
-
-  get size() {
-    return this._list.size;
   }
 
   get limit() {
@@ -16,7 +12,7 @@ export class SelectedList<T> {
 
   set limit(num: number) {
     this._limit = num;
-    if (this._list.size > num) {
+    if (this._list.length > num) {
       this.clear();
     }
   }
@@ -28,12 +24,12 @@ export class SelectedList<T> {
   }
 
   isSelected(item: T) {
-    return this._list.has(item);
+    return this._list.indexOf(item) !== -1;
   }
 
-  select(item: T): boolean {
-    if (this._list.size < this._limit) {
-      this._list.add(item);
+  select(item: T) {
+    if (this._list.length < this._limit) {
+      this._list.push(item);
       return true;
     } else {
       return false;
@@ -41,10 +37,16 @@ export class SelectedList<T> {
   }
 
   deselect(item: T): boolean {
-    return this._list.delete(item);
+    const index = this._list.indexOf(item);
+    if (index === -1) {
+      return false;
+    } else {
+      this._list.splice(index, 1);
+      return true;
+    }
   }
 
   clear() {
-    this._list.clear();
+    this._list = [];
   }
 }

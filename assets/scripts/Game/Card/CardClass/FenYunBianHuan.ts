@@ -1,5 +1,6 @@
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
+import { Tooltip } from "../../../GameManager/Tooltip";
 import { CardActionLocation, GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
@@ -23,10 +24,15 @@ export class FenYunBianHuan extends Card {
     });
   }
 
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+
+  enabledToPlay(gameData: GameData): boolean {
+    return true;
+  }
+
   onConfirmPlay(gameData: GameData) {
     console.log(this);
   }
-
 
   onPlay() {
     super.onPlay();

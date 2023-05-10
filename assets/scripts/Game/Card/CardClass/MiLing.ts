@@ -4,6 +4,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
+import { Tooltip } from "../../../GameManager/Tooltip";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -21,6 +22,14 @@ export class MiLing extends Card {
       gameObject: option.gameObject,
     });
   }
+
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+  
+  enabledToPlay(gameData: GameData): boolean {
+    return true;
+  }
+
+
 
   onConfirmPlay(gameData: GameData) {
     console.log(this);

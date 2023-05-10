@@ -28,7 +28,6 @@ export class GameData extends DataBasic<GameUI> {
   public cardOnPlay: Card;
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
-  public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -395,9 +394,7 @@ export class GameData extends DataBasic<GameUI> {
       if (data.card) {
         card = this.createCard(data.card);
       } else {
-        card = createCard({
-          type: data.cardType,
-        });
+        card = this.createCardByType(data.cardType);
       }
     }
 
@@ -434,6 +431,10 @@ export class GameData extends DataBasic<GameUI> {
     } else {
       return createUnknownCard();
     }
+  }
+
+  createCardByType(type) {
+    return createCard({ type });
   }
 
   createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {

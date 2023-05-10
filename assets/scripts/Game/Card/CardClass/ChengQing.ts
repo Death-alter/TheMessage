@@ -23,22 +23,35 @@ export class ChengQing extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData, tooltip: Tooltip, restore: () => void) {
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+
+  enabledToPlay(gameData: GameData): boolean {
+    return true;
+  }
+
+  onConfirmPlay(gameData: GameData, tooltip: Tooltip) {
     const data: any = {
       cardId: this.id,
     };
+    gameData.gameObject.selectedPlayers.limit = 1;
     tooltip.setText("请选择要澄清的目标");
-    const buttons = tooltip.setButtons([
+    tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, data);
+          gameData.gameObject.selectedPlayers.limit = 0;
         },
-        disabled: true,
+        enabled: () => {
+          return gameData.gameObject.selectedPlayers.list.length === 1;
+        },
       },
       {
         text: "取消",
-        onclick: restore,
+        onclick: () => {
+          gameData.gameObject.selectedPlayers.limit = 0;
+          // restore();
+        },
       },
     ]);
   }

@@ -5,10 +5,11 @@ import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { CardPlayed } from "../../../Event/ProcessEventType";
-import { Button } from "cc";
+import { Tooltip } from "../../../GameManager/Tooltip";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
+  private wantType: CardType;
 
   constructor(option: CardDefaultOption) {
     super({
@@ -24,13 +25,59 @@ export class WeiBi extends Card {
     });
   }
 
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
+    gameData.gameObject.selectedPlayers.limit = 1;
+    tooltip.setText(`请选择要威逼的目标`);
+    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
+      gameData.gameObject.showCardsWindow.show({
+        title: "请选择一种卡牌",
+        cardList: [
+          gameData.createCardByType(CardType.JIE_HUO),
+          gameData.createCardByType(CardType.WU_DAO),
+          gameData.createCardByType(CardType.DIAO_BAO),
+          gameData.createCardByType(CardType.CHENG_QING),
+        ],
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              this.wantType = gameData.gameObject.showCardsWindow.selectedCards.list[0].type;
+            },
+          },
+          {
+            text: "取消",
+            onclick: () => {
+              gameData.gameObject.showCardsWindow.hide();
+              gameData.gameObject.selectedPlayers.clear();
+            },
+          },
+        ],
+      });
+    });
+  }
+
+  enabledToPlay(gameData: GameData) {
+    return !!(
+      gameData.gameObject.handCardList.selectedCards.list[0] &&
+      gameData.gameObject.selectedPlayers.list[0] &&
+      this.wantType
+    );
+  }
+
+  onConfirmPlay(gameData: GameData, tooltip: Tooltip) {
+    const card = gameData.gameObject.handCardList.selectedCards.list[0];
+    const player = gameData.gameObject.selectedPlayers.list[0];
+    NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
+      cardId: card.id,
+      playerId: player.id,
+      wantType: CardType.JIE_HUO,
+      seq: gameData.gameObject.seq,
+    });
   }
 
   //有人使用威逼
   onPlay(gameData: GameData, params: CardPlayed) {
-    super.onPlay();
     if (params.targetPlayerId === 0) {
       const handCardList = gameData.gameObject.handCardList;
       const tooltip = gameData.gameObject.tooltip;
@@ -54,7 +101,7 @@ export class WeiBi extends Card {
           break;
       }
       tooltip.setText(`【${user.seatNumber + 1}号】${user.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
-      const buttons = tooltip.setButtons([
+      tooltip.buttons.setButtons([
         {
           text: "确定",
           onclick: () => {
@@ -64,20 +111,15 @@ export class WeiBi extends Card {
                 seq: gameData.gameObject.seq,
               });
             });
-            ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-            ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
           },
-          disabled: true,
+          enabled: () => {
+            for (let card of handCardList.selectedCards.list) {
+              return card.type === params.wantType;
+            }
+            return false;
+          },
         },
       ]);
-      ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-        if (card.type === params.wantType) {
-          buttons[0].getComponent(Button).interactable = true;
-        }
-      });
-      ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
-        buttons[0].getComponent(Button).interactable = false;
-      });
       tooltip.show();
     }
   }

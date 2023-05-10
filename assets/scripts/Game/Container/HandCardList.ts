@@ -9,4 +9,14 @@ export class HandCardList extends DataContainer<Card> {
   constructor(gameObject?: HandCardContianer) {
     super(gameObject);
   }
+
+  removeData(data: Card) {
+    super.removeData(data);
+    this.selectedCards.deselect(data);
+  }
+
+  removeAllData() {
+    super.removeAllData();
+    this.selectedCards.clear();
+  }
 }

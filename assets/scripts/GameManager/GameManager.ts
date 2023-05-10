@@ -17,7 +17,6 @@ import { GameUI } from "../UI/Game/GameWindow/GameUI";
 import { GameLogContainer } from "../Game/GameLog/GameLogContainer";
 import { Winner } from "../UI/Game/WinnerWindow/Winner";
 import { ShowCardsWindow } from "../UI/Game/ShowCardsWindow/ShowCardsWindow";
-import { Tooltip } from "./Tooltip";
 
 const { ccclass, property } = _decorator;
 
@@ -42,7 +41,6 @@ export class GameManager extends Component {
 
   public gameData: GameData;
   public gameLog: GameLogList;
-  public buttonPool = new NodePool();
 
   onLoad() {
     //初始化GamePools
@@ -58,8 +56,6 @@ export class GameManager extends Component {
     this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
-    gameUI.toolTipNode.getComponent(Tooltip).init(this.buttonPool);
-    this.showCardsWindow.getComponent(ShowCardsWindow).init(this.buttonPool);
   }
 
   onEnable() {

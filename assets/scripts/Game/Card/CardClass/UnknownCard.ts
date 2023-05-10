@@ -18,6 +18,12 @@ export class UnknownCard extends Card {
     });
   }
 
+  onSelectedToPlay(): void {}
+
+  enabledToPlay(): boolean {
+    return false;
+  }
+
   onConfirmPlay() {}
 
   onEffect() {}

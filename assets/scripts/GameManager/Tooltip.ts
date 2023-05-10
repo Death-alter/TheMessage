@@ -2,7 +2,7 @@ import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate, Butt
 import { ProgressControl } from "../UI/Game/ProgressControl";
 import { ProcessEventCenter } from "../Event/EventTarget";
 import { ProcessEvent } from "../Event/type";
-import { ButtonConfig } from "./type";
+import DynamicButtons, { ButtonConfig } from "../Utils/DynamicButtons";
 const { ccclass, property } = _decorator;
 
 @ccclass("Tooltip")
@@ -10,14 +10,16 @@ export class Tooltip extends Component {
   @property(Node)
   textNode: Node | null = null;
   @property(Node)
-  buttons: Node | null = null;
+  buttonNode: Node | null = null;
   @property(Node)
   progressBar: Node | null = null;
-  @property(Prefab)
-  buttonPrefab: Prefab | null = null;
 
-  private buttonPool: NodePool;
   private defaultText: string;
+  public buttons: DynamicButtons;
+
+  onLoad() {
+    this.buttons = this.buttonNode.getComponent(DynamicButtons);
+  }
 
   onEnable() {
     this.progressBar.active = false;
@@ -28,10 +30,6 @@ export class Tooltip extends Component {
 
   onDisable() {
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide);
-  }
-
-  init(buttonPool) {
-    this.buttonPool = buttonPool;
   }
 
   startCoundDown(second: number, callback?: Function) {
@@ -50,57 +48,11 @@ export class Tooltip extends Component {
 
   show() {
     this.textNode.active = true;
-    this.buttons.active = true;
+    this.buttonNode.active = true;
   }
 
   hide() {
     this.textNode.active = false;
-    this.buttons.active = false;
-  }
-
-  setButtons(buttons: ButtonConfig[]) {
-    this.buttons.removeAllChildren();
-    const l = buttons.length - this.buttons.children.length;
-    if (l >= 0) {
-      for (let i = 0; i < l; i++) {
-        let button = this.buttonPool.get();
-        if (!button) {
-          button = instantiate(this.buttonPrefab);
-        }
-        this.buttons.addChild(button);
-      }
-    } else {
-      for (let i = buttons.length; i < this.buttons.children.length; i++) {
-        this.buttonPool.put(this.buttons.children[i]);
-      }
-    }
-    for (let i = 0; i < buttons.length; i++) {
-      const button = this.buttons.children[i];
-      const config = buttons[i];
-      button.getChildByName("Label").getComponent(Label).string = config.text;
-      button.off(Node.EventType.TOUCH_END);
-      button.on(Node.EventType.TOUCH_END, config.onclick, button);
-      button.getComponent(Button).interactable = !buttons[i].disabled;
-    }
-    return this.buttons.children;
-  }
-
-  confirm(confirmText, cancelText) {
-    return new Promise((reslove, reject) => {
-      const buttons = this.setButtons([
-        {
-          text: confirmText,
-          onclick: () => {
-            reslove(buttons);
-          },
-        },
-        {
-          text: cancelText,
-          onclick: () => {
-            reject(buttons);
-          },
-        },
-      ]);
-    });
+    this.buttonNode.active = false;
   }
 }

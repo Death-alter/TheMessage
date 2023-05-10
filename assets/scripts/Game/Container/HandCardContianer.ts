@@ -111,6 +111,12 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
       const flag = data.selectedCards.select(card);
       if (flag) {
         ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
+      } else {
+        const firstCard = data.selectedCards.list[0];
+        data.selectedCards.deselect(firstCard);
+        ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_HAND_CARD, card);
+        data.selectedCards.select(card);
+        ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
       }
     }
     this.scheduleOnce(this.refresh, 0);

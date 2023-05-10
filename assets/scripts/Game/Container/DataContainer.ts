@@ -20,8 +20,8 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
     this._list.push(data);
     if (this.gameObject && data.gameObject) {
       this.gameObject.node.addChild(data.gameObject.node);
+      this.gameObject.onDataAdded(data);
     }
-    this.gameObject.onDataAdded(data);
   }
 
   removeData(data: T) {
@@ -29,8 +29,8 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
     this._list.splice(index, 1);
     if (this.gameObject && data.gameObject) {
       this.gameObject.node.removeChild(data.gameObject.node);
+      this.gameObject.onDataRemoved(data);
     }
-    this.gameObject.onDataRemoved(data);
   }
 
   removeAllData() {
