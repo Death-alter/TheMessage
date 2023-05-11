@@ -121,4 +121,9 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     }
     this.scheduleOnce(this.refresh, 0);
   }
+
+  resetSelectCard() {
+    (<HandCardList>this.data).selectedCards.clear();
+    this.scheduleOnce(this.refresh, 0);
+  }
 }

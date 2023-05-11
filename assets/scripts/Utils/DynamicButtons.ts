@@ -14,16 +14,27 @@ export default class DynamicButtons extends Component {
   private buttonEnabled: { [index: number]: () => boolean };
 
   onLoad() {
-    resources.load("prefab/DefaultButton", Prefab, (err, prefab) => {
-      if (!err && prefab) {
-        prefab.addRef();
-        this.buttonPrefab = prefab;
-      }
-    });
+    if (!this.buttonPrefab) {
+      this.loadPrefab();
+    }
   }
 
   update(deltaTime: number) {
     this.refreshButtonState();
+  }
+
+  loadPrefab() {
+    return new Promise((resolve, reject) => {
+      resources.load("prefab/DefaultButton", Prefab, (err, prefab) => {
+        if (!err && prefab) {
+          prefab.addRef();
+          this.buttonPrefab = prefab;
+          resolve(prefab);
+        } else {
+          reject(err);
+        }
+      });
+    });
   }
 
   getButton(index: number) {
@@ -42,7 +53,10 @@ export default class DynamicButtons extends Component {
     delete this.buttonEnabled[index];
   }
 
-  setButtons(buttons: ButtonConfig[]) {
+  async setButtons(buttons: ButtonConfig[]) {
+    if (!this.buttonPrefab) {
+      await this.loadPrefab();
+    }
     this.buttonEnabled = [];
     this.node.removeAllChildren();
     const l = buttons.length - this.node.children.length;

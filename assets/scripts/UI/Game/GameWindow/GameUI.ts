@@ -53,6 +53,26 @@ export class GameUI extends GameObject<GameData> {
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
+    this.tooltip.nextPhase.on(Node.EventType.TOUCH_END, () => {
+      switch (this.data.gamePhase) {
+        case GamePhase.MAIN_PHASE:
+          NetworkEventCenter.emit(NetworkEventToS.END_MAIN_PHASE_TOS, {
+            seq: this.seq,
+          });
+          break;
+        case GamePhase.FIGHT_PHASE:
+          NetworkEventCenter.emit(NetworkEventToS.END_FIGHT_PHASE_TOS, {
+            seq: this.seq,
+          });
+          break;
+        case GamePhase.RECEIVE_PHASE:
+          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+            seq: this.seq,
+          });
+          break;
+      }
+      this.tooltip.hideNextPhaseButton();
+    });
   }
 
   onEnable() {
@@ -213,6 +233,11 @@ export class GameUI extends GameObject<GameData> {
     this.scheduleOnce(this.refreshPlayerSelectedState, 0);
   }
 
+  resetSelectPlayer() {
+    this.selectedPlayers.clear();
+    this.scheduleOnce(this.refreshPlayerSelectedState, 0);
+  }
+
   refreshPlayerSelectedState() {
     for (let player of this.data.playerList) {
       const border = player.gameObject.node.getChildByName("Border");
@@ -232,9 +257,13 @@ export class GameUI extends GameObject<GameData> {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
+              this.tooltip.setNextPhaseButtonText("传递阶段");
+              this.tooltip.showNextPhaseButton();
               this.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
               break;
             case GamePhase.FIGHT_PHASE:
+              this.tooltip.setNextPhaseButtonText("跳过");
+              this.tooltip.showNextPhaseButton();
               this.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
               break;
           }
@@ -334,53 +363,15 @@ export class GameUI extends GameObject<GameData> {
   }
 
   promotUseHandCard(tooltipText) {
-    const setTooltip = () => {
-      this.tooltip.setText(tooltipText);
-      this.tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            this.handCardList.selectedCards.list[0].onConfirmPlay(this.data, this.tooltip);
-            this.handCardList.selectedCards.limit = 0;
-            ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-          },
-          enabled: false,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            switch (this.data.gamePhase) {
-              case GamePhase.MAIN_PHASE:
-                NetworkEventCenter.emit(NetworkEventToS.END_MAIN_PHASE_TOS, {
-                  seq: this.seq,
-                });
-                break;
-              case GamePhase.FIGHT_PHASE:
-                NetworkEventCenter.emit(NetworkEventToS.END_FIGHT_PHASE_TOS, {
-                  seq: this.seq,
-                });
-                break;
-              case GamePhase.RECEIVE_PHASE:
-                NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-                  seq: this.seq,
-                });
-                break;
-            }
-            this.handCardList.selectedCards.limit = 0;
-            ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-          },
-        },
-      ]);
-    };
-
+    this.tooltip.setText(tooltipText);
+    this.tooltip.buttons.setButtons([]);
     this.handCardList.selectedCards.limit = 1;
-    setTooltip();
     ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      card.onSelectedToPlay(this.data, this.tooltip);
-      this.tooltip.buttons.setEnabled(0, () => card.enabledToPlay(this.data));
+      card.onSelectedToPlay(this.data, this.tooltip, () => {});
     });
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, () => {
-      setTooltip();
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
+      this.tooltip.setText(tooltipText);
+      card.onDeselected();
     });
   }
 
@@ -423,7 +414,7 @@ export class GameUI extends GameObject<GameData> {
       {
         text: "取消",
         onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
+          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
             receive: false,
             seq: this.seq,
           });

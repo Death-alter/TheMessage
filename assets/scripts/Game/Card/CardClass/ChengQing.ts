@@ -29,7 +29,7 @@ export class ChengQing extends Card {
     return true;
   }
 
-  onConfirmPlay(gameData: GameData, tooltip: Tooltip) {
+  onConfirmPlay(gameData: GameData, tooltip: Tooltip,) {
     const data: any = {
       cardId: this.id,
     };

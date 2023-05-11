@@ -13,12 +13,15 @@ export class Tooltip extends Component {
   buttonNode: Node | null = null;
   @property(Node)
   progressBar: Node | null = null;
+  @property(Node)
+  nextPhase: Node | null = null;
 
   private defaultText: string;
   public buttons: DynamicButtons;
 
   onLoad() {
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
+    this.nextPhase.active = false;
   }
 
   onEnable() {
@@ -54,5 +57,17 @@ export class Tooltip extends Component {
   hide() {
     this.textNode.active = false;
     this.buttonNode.active = false;
+  }
+
+  showNextPhaseButton() {
+    this.nextPhase.active = true;
+  }
+
+  hideNextPhaseButton() {
+    this.nextPhase.active = false;
+  }
+
+  setNextPhaseButtonText(text: string) {
+    this.nextPhase.getComponentInChildren(Label).string = text;
   }
 }

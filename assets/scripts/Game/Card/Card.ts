@@ -80,7 +80,9 @@ export abstract class Card extends DataBasic<CardObject> {
   //当做情报传递
   onSend(...args: any[]): void {}
 
-  abstract onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void;
+  abstract onSelectedToPlay(gameData: GameData, tooltip: Tooltip, restore: () => void): void;
+
+  abstract onDeselected(): void;
 
   abstract enabledToPlay(gameData: GameData): boolean;
 

@@ -24,35 +24,36 @@ export class ShowCardsWindow extends Component {
     this.cardContainer.addComponent(CardGroupObject);
     this.cardList.gameObject = this.cardContainer.getComponent(CardGroupObject);
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
-    this.node.active = false;
   }
 
-  show(options: { title?: string; cardList?: Card[]; buttons?: ButtonConfig[]; limit: number }) {
-    const { title, cardList, buttons, limit } = options;
-    if (title) {
-      this.setTitle(title);
-    }
-    if (cardList && cardList.length) {
-      this.cardList.removeAllData();
-      for (let card of cardList) {
-        card.gameObject = GamePools.cardPool.get();
-        card.gameObject.node.on(
-          Node.EventType.TOUCH_END,
-          (event) => {
-            this.selectCard(card);
-          },
-          this
-        );
-        this.cardList.addData(card);
+  show(options?: { title?: string; cardList?: Card[]; buttons?: ButtonConfig[]; limit: number }) {
+    this.node.active = true;
+    if (options) {
+      const { title, cardList, buttons, limit } = options;
+      if (title) {
+        this.setTitle(title);
+      }
+      if (cardList && cardList.length) {
+        this.cardList.removeAllData();
+        for (let card of cardList) {
+          card.gameObject = GamePools.cardPool.get();
+          card.gameObject.node.on(
+            Node.EventType.TOUCH_END,
+            (event) => {
+              this.selectCard(card);
+            },
+            this
+          );
+          this.cardList.addData(card);
+        }
+      }
+      if (buttons) {
+        this.buttons.setButtons(buttons);
+      }
+      if (limit) {
+        this.selectedCards.limit = limit;
       }
     }
-    if (buttons) {
-      this.buttons.setButtons(buttons);
-    }
-    if (limit) {
-      this.selectedCards.limit = limit;
-    }
-    this.node.active = true;
   }
 
   hide() {
