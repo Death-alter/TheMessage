@@ -16,6 +16,7 @@ import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import DynamicButtons from "../../../Utils/DynamicButtons";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
+import { CardDirection } from "../../../Game/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -253,6 +254,8 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     if (data.playerId === 0) {
       this.tooltip.startCoundDown(data.second);
+      ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {
@@ -367,36 +370,110 @@ export class GameUI extends GameObject<GameData> {
     this.tooltip.buttons.setButtons([]);
     this.handCardList.selectedCards.limit = 1;
     ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      card.onSelectedToPlay(this.data, this.tooltip, () => {});
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        card.onSelectedToPlay(this.data, this.tooltip);
+      } else {
+        this.tooltip.setText("现在不能使用这张卡");
+      }
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
       this.tooltip.setText(tooltipText);
-      card.onDeselected();
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        card.onDeselected(this.data, this.tooltip);
+      }
     });
   }
 
   promotSendMessage(tooltipText) {
     this.handCardList.selectedCards.limit = 1;
     this.tooltip.setText(tooltipText);
-    this.tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          const card = this.handCardList.selectedCards.list[0];
-          NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-            cardId: card.id,
-            targetPlayerId: 1,
-            lockPlayerId: 0,
-            direction: card.direction,
-            seq: this.seq,
+    const sendMessageButtonConfig = {
+      text: "传递情报",
+      onclick: async () => {
+        const card = this.handCardList.selectedCards.list[0];
+        const data: any = {
+          cardId: card.id,
+          lockPlayerId: 0,
+          direction: card.direction,
+          seq: this.seq,
+        };
+        console.log(card.direction);
+        await (() => {
+          return new Promise((resolve, reject) => {
+            switch (card.direction) {
+              case CardDirection.LEFT:
+                data.targetPlayerId = this.data.playerList.length - 1;
+                resolve(null);
+                break;
+              case CardDirection.RIGHT:
+                data.targetPlayerId = 1;
+                resolve(null);
+                break;
+              case CardDirection.UP:
+                this.tooltip.setText("请选择要传递情报的目标");
+                ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
+                  data.targetPlayerId = player.id;
+                  resolve(null);
+                });
+                break;
+            }
           });
-          this.handCardList.selectedCards.limit = 0;
-        },
-        enabled: () => {
-          return this.handCardList.selectedCards.list.length === 1;
-        },
+        })();
+        if (card.lockable) {
+          await (() => {
+            return new Promise((resolve, reject) => {
+              this.tooltip.setText("请选择一名角色锁定");
+              this.tooltip.buttons.setButtons([
+                {
+                  text: "锁定",
+                  onclick: () => {
+                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                    this.handCardList.selectedCards.limit = 0;
+                    resolve(null);
+                  },
+                  enabled: () => {
+                    return this.selectedPlayers.list.length === 1;
+                  },
+                },
+                {
+                  text: "不锁定",
+                  onclick: () => {
+                    this.handCardList.selectedCards.limit = 0;
+                    resolve(null);
+                  },
+                },
+              ]);
+            });
+          })();
+        }
+
+        NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
       },
-    ]);
+    };
+
+    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
+      this.tooltip.setText("请选择一项操作");
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        this.tooltip.buttons.setButtons([
+          {
+            text: card.name,
+            onclick: () => {
+              card.onSelectedToPlay(this.data, this.tooltip);
+            },
+          },
+          sendMessageButtonConfig,
+        ]);
+      } else {
+        this.tooltip.buttons.setButtons([sendMessageButtonConfig]);
+      }
+    });
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
+      this.tooltip.setText(tooltipText);
+      this.tooltip.buttons.setButtons([]);
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        card.onDeselected(this.data, this.tooltip);
+      }
+    });
   }
 
   promotReceiveMessage(tooltipText) {

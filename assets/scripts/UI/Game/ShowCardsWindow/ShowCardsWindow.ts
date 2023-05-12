@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label } from "cc";
+import { _decorator, Component, Node, Label, Sprite, color } from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
@@ -64,11 +64,32 @@ export class ShowCardsWindow extends Component {
     this.title.getComponentInChildren(Label).string = text;
   }
 
+  refresh() {
+    for (let card of this.cardList.list) {
+      if (this.selectedCards.isSelected(card)) {
+        console.log(card);
+      } else {
+        // card.gameObject.getComponent(Sprite).color = color(255, 255, 255);
+      }
+    }
+  }
+
   selectCard(card) {
     if (this.selectedCards.isSelected(card)) {
       this.selectedCards.deselect(card);
     } else {
-      this.selectedCards.select(card);
+      const flag = this.selectedCards.select(card);
+      if (!flag) {
+        const firstCard = this.selectedCards.list[0];
+        this.selectedCards.deselect(firstCard);
+        this.selectedCards.select(card);
+      }
     }
+    this.scheduleOnce(this.refresh, 0);
+  }
+
+  resetSelectCard() {
+    this.selectedCards.clear();
+    this.scheduleOnce(this.refresh, 0);
   }
 }

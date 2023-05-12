@@ -23,14 +23,9 @@ export class WuDao extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
 
-  enabledToPlay(gameData: GameData): boolean {
-    return true;
+  onDeselected() {
   }
-
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
-  }
-
+  
   onPlay() {
     super.onPlay();
   }

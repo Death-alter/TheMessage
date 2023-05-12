@@ -49,3 +49,22 @@ export function createCard(option: createCardOption): Card {
 export function createUnknownCard(gameObject?): UnknownCard {
   return new UnknownCard({ gameObject });
 }
+
+export function copyCard(card: Card) {
+  if (card instanceof UnknownCard) {
+    return createUnknownCard();
+  } else {
+    const option: createCardOption = {
+      id: card.id,
+      type: card.type,
+      color: card.color,
+      direction: card.direction,
+      lockable: card.lockable,
+      status: card.status,
+    };
+    if (card instanceof ShiTan) {
+      option.drawCardColor = card.drawCardColor;
+    }
+    return createCard(option);
+  }
+}

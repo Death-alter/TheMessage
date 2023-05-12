@@ -384,6 +384,9 @@ export class CardAction extends Component {
           location: CardActionLocation.PLAYER,
           player,
         },
+        from: {
+          location: CardActionLocation.DECK,
+        },
       });
       tween(message.gameObject.node)
         .to(0.5, {

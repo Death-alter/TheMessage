@@ -1,5 +1,5 @@
-import { GameEventCenter } from "../../../Event/EventTarget";
-import { GameEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -23,17 +23,36 @@ export class LiYou extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
-  
-  enabledToPlay(gameData: GameData): boolean {
-    return true;
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+    gameData.gameObject.selectedPlayers.limit = 1;
+    tooltip.setText(`请选择要利诱的目标`);
+    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
+      tooltip.setText(`是否使用利诱？`);
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            const card = gameData.gameObject.handCardList.selectedCards.list[0];
+            const player = gameData.gameObject.selectedPlayers.list[0];
+            NetworkEventCenter.emit(NetworkEventToS.USE_LI_YOU_TOS, {
+              cardId: card.id,
+              playerId: player.id,
+              seq: gameData.gameObject.seq,
+            });
+            gameData.gameObject.resetSelectPlayer();
+            gameData.gameObject.selectedPlayers.limit = 0;
+            ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+          },
+        },
+      ]);
+    });
   }
 
-
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
+  onDeselected(gameData: GameData, tooltip: Tooltip) {
+    gameData.gameObject.resetSelectPlayer();
+    gameData.gameObject.selectedPlayers.limit = 0;
+    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
-
 
   onPlay() {
     super.onPlay();

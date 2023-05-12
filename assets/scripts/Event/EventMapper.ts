@@ -459,6 +459,13 @@ export class EventMapper {
       });
     });
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: ProtobufType.wei_bi_show_hand_card_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+        card: data.card,
+        cardType: CardType.WEI_BI,
+        userId: data.playerId,
+        targetPlayerId: data.targetPlayerId,
+        wantType: data.wantType,
+      });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onShowHandCard",
         data: {

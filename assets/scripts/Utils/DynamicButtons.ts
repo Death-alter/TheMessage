@@ -81,7 +81,6 @@ export default class DynamicButtons extends Component {
       button.on(Node.EventType.TOUCH_END, config.onclick, button);
       if (config.enabled != null) {
         if (config.enabled instanceof Function) {
-          button.getComponent(Button).interactable = config.enabled();
           this.buttonEnabled[i] = config.enabled;
         } else {
           button.getComponent(Button).interactable = <boolean>buttons[i].enabled;

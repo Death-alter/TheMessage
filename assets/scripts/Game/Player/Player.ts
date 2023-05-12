@@ -9,6 +9,7 @@ import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
+import { copyCard, createCard } from "../Card";
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
   private _name: string;
@@ -204,5 +205,21 @@ export class Player extends DataBasic<PlayerObject> {
         break;
       }
     }
+  }
+
+  getMessagesCopy(): Card[] {
+    const arr = [];
+    for (let message of this._messages) {
+      arr.push(copyCard(message));
+    }
+    return arr;
+  }
+
+  getHandCardsCopy(): Card[] {
+    const arr = [];
+    for (let message of this._handCards) {
+      arr.push(copyCard(message));
+    }
+    return arr;
   }
 }

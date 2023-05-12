@@ -25,16 +25,8 @@ export class MiLing extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
   
-  enabledToPlay(gameData: GameData): boolean {
-    return true;
+  onDeselected() {
   }
-
-
-
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
-  }
-
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {}
 }
