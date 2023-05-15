@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, color } from "cc";
+import { _decorator, Component, Node, Label, Sprite, color, UITransform, Vec3 } from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
@@ -37,6 +37,7 @@ export class ShowCardsWindow extends Component {
         this.cardList.removeAllData();
         for (let card of cardList) {
           card.gameObject = GamePools.cardPool.get();
+          card.gameObject.node.scale = new Vec3(1, 1, 1);
           card.gameObject.node.on(
             Node.EventType.TOUCH_END,
             (event) => {

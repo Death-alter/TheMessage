@@ -497,7 +497,7 @@ export class GameUI extends GameObject<GameData> {
               seq: this.seq,
             });
           },
-          enabled: !(this.data.lockedPlayer && this.data.lockedPlayer.id === 0),
+          enabled: !(this.data.lockedPlayer && this.data.lockedPlayer.id === 0) || this.data.senderId !== 0,
         },
       ]);
     };

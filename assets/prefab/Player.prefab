@@ -1983,7 +1983,7 @@
       "__id__": 1
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 93
@@ -2070,8 +2070,8 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
+      "r": 245,
+      "g": 255,
       "b": 0,
       "a": 255
     },

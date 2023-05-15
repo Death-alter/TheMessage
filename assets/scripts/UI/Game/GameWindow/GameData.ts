@@ -32,6 +32,7 @@ export class GameData extends DataBasic<GameUI> {
   private _turnPlayerId: number;
   private _messagePlayerId: number = -1;
   private _lockedPlayer: Player;
+  private _senderId: number = -1;
   private cardHandleFlag: boolean = false;
 
   get gamePhase() {
@@ -96,6 +97,7 @@ export class GameData extends DataBasic<GameUI> {
     this._messagePlayerId = playerId;
     if (oldId !== -1 && this.messageInTransmit && playerId !== -1) {
       GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
+        sender: this.playerList[this._senderId],
         message: this.messageInTransmit,
         messagePlayer: this.playerList[playerId],
       });
@@ -114,6 +116,10 @@ export class GameData extends DataBasic<GameUI> {
       this._lockedPlayer.gameObject.locked = false;
       this._lockedPlayer = null;
     }
+  }
+
+  get senderId() {
+    return this._senderId;
   }
 
   constructor(gameObject?: GameUI) {
@@ -242,6 +248,7 @@ export class GameData extends DataBasic<GameUI> {
           message: this.messageInTransmit,
         });
         this.messagePlayerId = -1;
+        this._senderId = -1;
         this.messageInTransmit = null;
       }
     }
@@ -316,6 +323,7 @@ export class GameData extends DataBasic<GameUI> {
     const targetPlayer = this.playerList[data.targetPlayerId];
     const card = player.removeHandCard(data.cardId);
     this.messageInTransmit = card;
+    this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
       this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
     }

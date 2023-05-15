@@ -1,8 +1,8 @@
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDefaultOption, CardOnEffectParams, CardType, MiLingOption } from "../type";
+import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 
@@ -57,6 +57,14 @@ export class MiLing extends Card {
     });
   }
 
+  onDeselected(gameData: GameData, tooltip: Tooltip) {
+    gameData.gameObject.resetSelectPlayer();
+    gameData.gameObject.selectedPlayers.limit = 0;
+    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+  }
+
+  onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {}
+
   secretButtonClicked(gameData: GameData, tooltip: Tooltip, secret: number) {
     const card = gameData.gameObject.handCardList.selectedCards.list[0];
     const player = gameData.gameObject.selectedPlayers.list[0];
@@ -68,12 +76,4 @@ export class MiLing extends Card {
     });
     this.onDeselected(gameData, tooltip);
   }
-
-  onDeselected(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.resetSelectPlayer();
-    gameData.gameObject.selectedPlayers.limit = 0;
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-  }
-
-  onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {}
 }
