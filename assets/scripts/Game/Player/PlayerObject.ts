@@ -17,7 +17,8 @@ export class PlayerObject extends GameObject<Player> {
   messageCounts: Node | null = null;
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
-  private _selectable = true;
+  private _selectable: boolean = true;
+  private _locked: boolean = false;
 
   get data() {
     return this._data;
@@ -33,6 +34,15 @@ export class PlayerObject extends GameObject<Player> {
 
   get selectable() {
     return this._selectable;
+  }
+
+  get locked() {
+    return this._locked;
+  }
+
+  set locked(locked: boolean) {
+    this._locked = locked;
+    this.refreshLockState();
   }
 
   onLoad() {
@@ -64,6 +74,14 @@ export class PlayerObject extends GameObject<Player> {
     this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts.red.toString();
     this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string =
       this.data.messageCounts.blue.toString();
+  }
+
+  refreshLockState() {
+    if (this._locked) {
+      this.node.getChildByPath("Border/PlayerLock").active = true;
+    } else {
+      this.node.getChildByPath("Border/PlayerLock").active = false;
+    }
   }
 
   refreshStatus() {

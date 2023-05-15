@@ -1,5 +1,5 @@
-import { GameEventCenter } from "../../../Event/EventTarget";
-import { GameEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { CardActionLocation, GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
@@ -24,18 +24,23 @@ export class FenYunBianHuan extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
-
-  onDeselected() {
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+    tooltip.setText(`是否使用风云变幻？`);
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          const card = gameData.gameObject.handCardList.selectedCards.list[0];
+          NetworkEventCenter.emit(NetworkEventToS.USE_FENG_YUN_BIAN_HUAN_TOS, {
+            cardId: card.id,
+            seq: gameData.gameObject.seq,
+          });
+        },
+      },
+    ]);
   }
 
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
-  }
-
-  onPlay() {
-    super.onPlay();
-  }
+  onDeselected() {}
 
   onEffect(gameData: GameData, params: CardOnEffectParams) {}
 

@@ -13,7 +13,6 @@ import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
 import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
-import DynamicButtons from "../../../Utils/DynamicButtons";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection } from "../../../Game/Card/type";
@@ -216,6 +215,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   selectPlayer(player: Player) {
+    if (!player.gameObject.selectable) return;
     if (this.selectedPlayers.isSelected(player)) {
       this.selectedPlayers.deselect(player);
       ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
@@ -275,7 +275,7 @@ export class GameUI extends GameObject<GameData> {
           this.promotSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          this.promotReceiveMessage("传递阶段，请选择要使用的卡牌或接收情报");
+          this.promotReceiveMessage("情报传递到你面前，是否接收情报？");
           break;
         case WaitingType.PLAYER_DYING:
           this.promotUseHandCard("玩家濒死，是否使用澄清？");
@@ -477,26 +477,45 @@ export class GameUI extends GameObject<GameData> {
   }
 
   promotReceiveMessage(tooltipText) {
-    this.tooltip.setText(tooltipText);
-    this.tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-            receive: true,
-            seq: this.seq,
-          });
+    const setTooltip = () => {
+      this.tooltip.setText(tooltipText);
+      this.tooltip.buttons.setButtons([
+        {
+          text: "接收情报",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+              receive: true,
+              seq: this.seq,
+            });
+          },
         },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-            receive: false,
-            seq: this.seq,
-          });
+        {
+          text: "不接收",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+              receive: false,
+              seq: this.seq,
+            });
+          },
+          enabled: !(this.data.lockedPlayer && this.data.lockedPlayer.id === 0),
         },
-      },
-    ]);
+      ]);
+    };
+
+    setTooltip();
+    this.handCardList.selectedCards.limit = 1;
+    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        card.onSelectedToPlay(this.data, this.tooltip);
+      } else {
+        this.tooltip.setText("现在不能使用这张卡");
+      }
+    });
+    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
+      setTooltip();
+      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        card.onDeselected(this.data, this.tooltip);
+      }
+    });
   }
 }

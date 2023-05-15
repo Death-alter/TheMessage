@@ -67,6 +67,7 @@ export interface PlayerSendMessage {
   message: Card;
   targetPlayer: Player;
   direction: CardDirection;
+  lockedPlayer: Player;
 }
 
 export interface PlayerChooseReceiveMessage {

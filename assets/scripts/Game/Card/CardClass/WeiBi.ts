@@ -26,7 +26,7 @@ export class WeiBi extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.selectedPlayers.limit = 1;
-    tooltip.setText(`请选择要威逼的目标`);
+    tooltip.setText(`请选择威逼的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       gameData.gameObject.showCardsWindow.show({
         title: "选择目标交给你的卡牌种类",

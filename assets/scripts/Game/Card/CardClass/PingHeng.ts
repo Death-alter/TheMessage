@@ -25,7 +25,7 @@ export class PingHeng extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
-    tooltip.setText(`请选择要平衡的目标`);
+    tooltip.setText(`请选择平衡的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       tooltip.setText(`是否使用平衡？`);
       tooltip.buttons.setButtons([

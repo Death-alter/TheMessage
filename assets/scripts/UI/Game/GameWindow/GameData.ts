@@ -15,7 +15,6 @@ import { Card } from "../../../Game/Card/Card";
 import { card } from "../../../../protobuf/proto";
 import { DataBasic } from "../../../DataBasic";
 import { GameUI } from "./GameUI";
-import { SelectedList } from "../../../Utils/SelectedList";
 
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
@@ -32,6 +31,7 @@ export class GameData extends DataBasic<GameUI> {
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
   private _messagePlayerId: number = -1;
+  private _lockedPlayer: Player;
   private cardHandleFlag: boolean = false;
 
   get gamePhase() {
@@ -99,6 +99,20 @@ export class GameData extends DataBasic<GameUI> {
         message: this.messageInTransmit,
         messagePlayer: this.playerList[playerId],
       });
+    }
+  }
+
+  get lockedPlayer() {
+    return this._lockedPlayer;
+  }
+
+  set lockedPlayer(player: Player) {
+    if (player) {
+      this._lockedPlayer = player;
+      player.gameObject.locked = true;
+    } else {
+      this._lockedPlayer.gameObject.locked = false;
+      this._lockedPlayer = null;
     }
   }
 
@@ -302,6 +316,10 @@ export class GameData extends DataBasic<GameUI> {
     const targetPlayer = this.playerList[data.targetPlayerId];
     const card = player.removeHandCard(data.cardId);
     this.messageInTransmit = card;
+    if (data.lockPlayerIds.length) {
+      this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
+    }
+
     if (card instanceof Card) {
       card.onSend();
     }
@@ -310,6 +328,7 @@ export class GameData extends DataBasic<GameUI> {
       message: card,
       targetPlayer,
       direction: data.direction,
+      lockedPlayer: this.lockedPlayer,
     });
   }
 
@@ -426,6 +445,7 @@ export class GameData extends DataBasic<GameUI> {
         status,
         direction: (<number>card.cardDir) as CardDirection,
         drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
+        secretColor: (<number[]>card.secretColor) as CardColor[],
         lockable: card.canLock,
       });
     } else {

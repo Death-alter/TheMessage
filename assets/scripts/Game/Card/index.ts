@@ -1,4 +1,4 @@
-import { CardType, CardDirection, CardColor, CardStatus } from "./type";
+import { CardType, CardDirection, CardColor, CardStatus, MiLingOption } from "./type";
 import { CardDefaultOption, ShiTanOption } from "./type";
 import { ChengQing } from "./CardClass/ChengQing";
 import { ShiTan } from "./CardClass/ShiTan";
@@ -13,6 +13,7 @@ import { FenYunBianHuan } from "./CardClass/FenYunBianHuan";
 import { CardObject } from "../../Game/Card/CardObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
+import { MiLing } from "./CardClass/MiLing";
 
 interface createCardOption {
   id?: number;
@@ -20,12 +21,13 @@ interface createCardOption {
   color?: CardColor[];
   direction?: CardDirection;
   drawCardColor?: CardColor[];
+  secretColor?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
   gameObject?: CardObject;
 }
 
-const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption): Card } } = {};
+const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption | MiLingOption): Card } } = {};
 
 cardsMap[0] = ChengQing;
 cardsMap[1] = ShiTan;
@@ -37,6 +39,7 @@ cardsMap[6] = JieHuo;
 cardsMap[7] = DiaoBao;
 cardsMap[8] = WuDao;
 cardsMap[9] = FenYunBianHuan;
+cardsMap[10] = MiLing;
 
 export function createCard(option: createCardOption): Card {
   if (cardsMap[option.type]) {
@@ -64,6 +67,9 @@ export function copyCard(card: Card) {
     };
     if (card instanceof ShiTan) {
       option.drawCardColor = card.drawCardColor;
+    }
+    if (card instanceof MiLing) {
+      option.secretColor = card.secretColor;
     }
     return createCard(option);
   }

@@ -31,7 +31,7 @@ export class ShiTan extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
-    tooltip.setText(`请选择要试探的目标`);
+    tooltip.setText(`请选择试探的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       tooltip.setText(`是否使用试探？`);
       tooltip.buttons.setButtons([

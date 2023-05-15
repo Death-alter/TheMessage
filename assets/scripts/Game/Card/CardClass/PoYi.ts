@@ -1,5 +1,5 @@
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS } from "../../../Event/type";
+import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -23,23 +23,23 @@ export class PoYi extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
-  
-  onDeselected() {
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+    tooltip.setText(`是否使用破译？`);
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          const card = gameData.gameObject.handCardList.selectedCards.list[0];
+          NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+            cardId: card.id,
+            seq: gameData.gameObject.seq,
+          });
+        },
+      },
+    ]);
   }
 
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
-  }
-
-
-  onPlay(seq: number) {
-    super.onPlay();
-    // NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-    //   cardId: this.id,
-    //   seq,
-    // });
-  }
+  onDeselected(gameData: GameData) {}
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
     if (userId === 0) {

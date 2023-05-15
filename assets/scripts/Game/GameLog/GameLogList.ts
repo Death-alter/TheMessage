@@ -137,24 +137,25 @@ export class GameLogList extends DataContainer<GameLog> {
     );
   }
 
-  onPlayerSendMessage({ player, direction, targetPlayer }: GameEventType.PlayerSendMessage) {
+  onPlayerSendMessage({ player, direction, targetPlayer, lockedPlayer }: GameEventType.PlayerSendMessage) {
+    let str = "";
     switch (direction) {
       case CardDirection.LEFT:
-        this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向左`));
+        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向左`;
         break;
       case CardDirection.RIGHT:
-        this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向右`));
+        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向右`;
         break;
       case CardDirection.UP:
-        this.addData(
-          new GameLog(
-            `【${player.seatNumber + 1}号】${player.character.name}传出情报，目标为【${
-              targetPlayer.seatNumber + 1
-            }号】${targetPlayer.character.name}`
-          )
-        );
+        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，目标为【${
+          targetPlayer.seatNumber + 1
+        }号】${targetPlayer.character.name}`;
         break;
     }
+    if (lockedPlayer) {
+      str += `，锁定【${lockedPlayer.seatNumber + 1}号】${lockedPlayer.character.name}`;
+    }
+    this.addData(new GameLog(str));
   }
 
   onPlayerChooseReceiveMessage({ player }: GameEventType.PlayerChooseReceiveMessage) {

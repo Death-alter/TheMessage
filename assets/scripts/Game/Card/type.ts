@@ -65,6 +65,16 @@ export interface ShiTanOption {
   gameObject?: CardObject;
 }
 
+export interface MiLingOption {
+  id?: number;
+  direction?: CardDirection;
+  secretColor?: CardColor[];
+  color?: CardColor[];
+  lockable?: boolean;
+  status?: CardStatus;
+  gameObject?: CardObject;
+}
+
 export interface CardOnEffectParams {
   [index: string]: any;
 }
