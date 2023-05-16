@@ -234,6 +234,18 @@ export class GameUI extends GameObject<GameData> {
     this.scheduleOnce(this.refreshPlayerSelectedState, 0);
   }
 
+  setPlayerSelectable(filter: (player: Player) => boolean) {
+    for (let player of this.playerObjectList) {
+      player.selectable = filter(player.data);
+    }
+  }
+
+  clearPlayerSelectable() {
+    for (let player of this.playerObjectList) {
+      player.selectable = true;
+    }
+  }
+
   resetSelectPlayer() {
     this.selectedPlayers.clear();
     this.scheduleOnce(this.refreshPlayerSelectedState, 0);
@@ -377,6 +389,7 @@ export class GameUI extends GameObject<GameData> {
       }
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
+      console.log("取消选择", card);
       this.tooltip.setText(tooltipText);
       if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
         card.onDeselected(this.data, this.tooltip);
@@ -393,8 +406,8 @@ export class GameUI extends GameObject<GameData> {
         const card = this.handCardList.selectedCards.list[0];
         const data: any = {
           cardId: card.id,
-          lockPlayerId: 0,
-          direction: card.direction,
+          lockPlayerId: [],
+          cardDir: card.direction,
           seq: this.seq,
         };
         console.log(card.direction);
@@ -497,7 +510,7 @@ export class GameUI extends GameObject<GameData> {
               seq: this.seq,
             });
           },
-          enabled: !(this.data.lockedPlayer && this.data.lockedPlayer.id === 0) || this.data.senderId !== 0,
+          enabled: !(this.data.lockedPlayer && this.data.lockedPlayer.id === 0) && this.data.senderId !== 0,
         },
       ]);
     };

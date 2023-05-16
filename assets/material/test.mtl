@@ -4,16 +4,12 @@
   "_objFlags": 0,
   "_native": "",
   "_effectAsset": {
-    "__uuid__": "fe764050-bf9c-4dca-92d2-234949eb54bd",
+    "__uuid__": "6308c013-7d49-4160-9516-562dd205b480",
     "__expectedType__": "cc.EffectAsset"
   },
   "_techIdx": 0,
   "_defines": [
-    {
-      "USE_TEXTURE": true,
-      "USE_ALPHA_TEST": true,
-      "SHOW_INNER_GLOW": true
-    }
+    {}
   ],
   "_states": [
     {
@@ -27,17 +23,6 @@
     }
   ],
   "_props": [
-    {
-      "glowColor": {
-        "__type__": "cc.Color",
-        "r": 255,
-        "g": 235,
-        "b": 0,
-        "a": 255
-      },
-      "spriteWidth": 50,
-      "spriteHeight": 50,
-      "glowRange": 1
-    }
+    {}
   ]
 }

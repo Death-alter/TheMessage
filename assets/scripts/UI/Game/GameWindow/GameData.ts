@@ -444,6 +444,33 @@ export class GameData extends DataBasic<GameUI> {
     this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data.data);
   }
 
+  getPlayerNeighbors(player: Player): Player[];
+  getPlayerNeighbors(playerId: number): Player[];
+  getPlayerNeighbors(player: Player | number) {
+    if (!(player instanceof Player)) {
+      player = this.playerList[player];
+    }
+    const arr = [];
+    let i = (player.id + 1) % this.playerList.length;
+    while (i !== player.id) {
+      if (player.isAlive) {
+        arr.push(player);
+        break;
+      }
+      i = (i + 1) % this.playerList.length;
+    }
+
+    i = (player.id - 1 + this.playerList.length) % this.playerList.length;
+    while (i !== player.id) {
+      if (player.isAlive) {
+        arr.push(player);
+        break;
+      }
+      i = (player.id - 1 + this.playerList.length) % this.playerList.length;
+    }
+    return arr;
+  }
+
   createCard(card?: card, status?: CardStatus): Card {
     if (card) {
       return createCard({

@@ -131,6 +131,9 @@ export class WeiBi extends Card {
       removedCard = targetPlayer.removeHandCard(0);
     }
     user.addHandCard(removedCard);
+    if (user.id === 0) {
+      gameData.gameObject.handCardList.addData(removedCard);
+    }
 
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {
       player: targetPlayer,

@@ -59,7 +59,7 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   get messageCounts() {
-    const data = { black: 0, red: 0, blue: 0 };
+    const data = { black: 0, red: 0, blue: 0, total: this._messages.length };
     for (let message of this._messages) {
       for (let color of message.color) {
         switch (color) {
@@ -88,6 +88,10 @@ export class Player extends DataBasic<PlayerObject> {
     if (this.gameObject) {
       this.gameObject.refreshStatus();
     }
+  }
+
+  get isAlive() {
+    return this._status !== PlayerStatus.DEAD;
   }
 
   constructor(option: PlayerOption) {

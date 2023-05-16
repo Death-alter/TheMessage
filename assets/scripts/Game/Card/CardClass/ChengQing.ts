@@ -26,6 +26,9 @@ export class ChengQing extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.selectedPlayers.limit = 1;
+    gameData.gameObject.setPlayerSelectable((player) => {
+      return player.messageCounts.total !== 0;
+    });
     tooltip.setText(`请选择要澄清的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player: Player) => {
       gameData.gameObject.showCardsWindow.show({
@@ -44,6 +47,7 @@ export class ChengQing extends Card {
               });
               gameData.gameObject.resetSelectPlayer();
               gameData.gameObject.selectedPlayers.limit = 0;
+              gameData.gameObject.clearPlayerSelectable();
               gameData.gameObject.showCardsWindow.hide();
               ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
             },
@@ -61,7 +65,9 @@ export class ChengQing extends Card {
   }
 
   onDeselected(gameData: GameData, tooltip: Tooltip) {
+    console.log(1);
     gameData.gameObject.selectedPlayers.limit = 0;
+    gameData.gameObject.clearPlayerSelectable();
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 

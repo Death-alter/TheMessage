@@ -33,7 +33,19 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   get selectable() {
-    return this._selectable;
+    if (this.data) {
+      if (this.data.status === PlayerStatus.DEAD) {
+        return false;
+      }
+      return this._selectable;
+    } else {
+      return false;
+    }
+  }
+
+  set selectable(selectable) {
+    this._selectable = selectable;
+    this.refreshSelectableState();
   }
 
   get locked() {
@@ -76,6 +88,16 @@ export class PlayerObject extends GameObject<Player> {
       this.data.messageCounts.blue.toString();
   }
 
+  refreshSelectableState() {
+    if (this.data.isAlive) {
+      if (this._selectable) {
+        this.node.getChildByPath("Cover").active = false;
+      } else {
+        this.node.getChildByPath("Cover").active = true;
+      }
+    }
+  }
+
   refreshLockState() {
     if (this._locked) {
       this.node.getChildByPath("Border/PlayerLock").active = true;
@@ -87,7 +109,6 @@ export class PlayerObject extends GameObject<Player> {
   refreshStatus() {
     switch (this.data.status) {
       case PlayerStatus.DEAD:
-        this._selectable = false;
         this.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
         this.node.getChildByPath("Border/CharacterPanting/Mask/Cover").getComponent(Sprite).grayscale = true;
         const blue = this.node.getChildByPath("Border/Message/Blue").getComponent(Sprite);
@@ -106,7 +127,6 @@ export class PlayerObject extends GameObject<Player> {
       case PlayerStatus.DYING:
         break;
       case PlayerStatus.ALIVE:
-        this._selectable = true;
         break;
     }
   }

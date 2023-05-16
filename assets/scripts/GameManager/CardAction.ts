@@ -169,6 +169,7 @@ export class CardAction extends Component {
   //打出卡牌动画，播放声音
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
+    console.log(card);
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
       card.gameObject.node.setParent(this.node);

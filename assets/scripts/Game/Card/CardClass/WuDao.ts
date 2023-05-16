@@ -25,9 +25,13 @@ export class WuDao extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
+    const neighbors = gameData.getPlayerNeighbors(gameData.messagePlayerId);
+    gameData.gameObject.setPlayerSelectable((player) => {
+      return neighbors.indexOf(player) !== -1;
+    });
     tooltip.setText(`请选择误导的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
-      tooltip.setText(`是否使用平衡？`);
+      tooltip.setText(`是否使用误导？`);
       tooltip.buttons.setButtons([
         {
           text: "确定",
@@ -39,9 +43,7 @@ export class WuDao extends Card {
               targetPlayerId: player.id,
               seq: gameData.gameObject.seq,
             });
-            gameData.gameObject.resetSelectPlayer();
-            gameData.gameObject.selectedPlayers.limit = 0;
-            ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+            this.onDeselected(gameData, tooltip);
           },
         },
       ]);
@@ -51,6 +53,7 @@ export class WuDao extends Card {
   onDeselected(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.resetSelectPlayer();
     gameData.gameObject.selectedPlayers.limit = 0;
+    gameData.gameObject.clearPlayerSelectable();
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
