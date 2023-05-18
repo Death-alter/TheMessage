@@ -12,7 +12,21 @@
     {
       "name": "BACKGROUND",
       "value": 524288
+    },
+    {
+      "name": "EFFECT",
+      "value": 262144
     }
   ],
-  "custom_joint_texture_layouts": []
+  "custom_joint_texture_layouts": [],
+  "sorting-layer": {
+    "layers": [
+      {
+        "id": 0,
+        "name": "default",
+        "value": 0
+      }
+    ],
+    "increaseId": 1
+  }
 }

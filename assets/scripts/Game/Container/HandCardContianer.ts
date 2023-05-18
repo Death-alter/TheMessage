@@ -5,6 +5,7 @@ import { ProcessEvent } from "../../Event/type";
 import { GameObjectContainer } from "./GameObjectContainer";
 import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
+import { setNodeLayer } from "../../Utils/utils";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardContianer")
@@ -13,6 +14,8 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
   spacingX: number = 0;
+  @property(Node)
+  cardActionNode: Node | null;
 
   private _maxLength: number;
   private _childWith: number;
@@ -90,8 +93,12 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         const x = offset + i * (this.spacingX + this._childWith);
         if (data.selectedCards.isSelected(<Card>this.data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
+          node.parent = this.cardActionNode;
+          setNodeLayer(node, 1 << 18);
         } else {
           node.setPosition(new Vec3(node.position.x, 0, 0));
+          node.parent = this.node;
+          setNodeLayer(node, 1 << 25);
         }
         if (x !== node.position.x) {
           tween(node)
