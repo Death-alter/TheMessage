@@ -1,4 +1,5 @@
-// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
+
 CCEffect %{
   techniques:
   - passes:
@@ -16,21 +17,7 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
-    - vert: sprite-vs:vert
-      frag: sprite-fs:frag
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
-      blendState:
-        targets:
-        - blend: true
-          blendSrc: src_alpha
-          blendDst: one_minus_src_alpha
-          blendDstAlpha: one_minus_src_alpha
-      rasterizerState:
-        cullMode: none
       properties:
-        alphaThreshold: { value: 0.5 }
         # 自定义参数
         # 发光颜色
         lightColor: { 
@@ -84,8 +71,16 @@ CCProgram fs %{
   in vec4 v_color;
   in float v_dist;
 
+  uniform glow {
+    // 发光颜色
+    vec4 lightColor;
+    // 发光范围
+    float glowColorSize;
+    // 特别地，必须是 vec4 先于 float 声明
+  };
+
   vec4 frag () {
-    vec4 o = v_color;
+    vec4 o = lightColor;
 
     #if __VERSION__ < 300
       #ifdef GL_OES_standard_derivatives
@@ -97,137 +92,10 @@ CCProgram fs %{
       float aa = fwidth(v_dist);
     #endif
 
-    float alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);
+    float alpha = 1. - smoothstep(1.0, -aa, abs(v_dist) - 1.0);
     o.rgb *= o.a;
     o *= alpha;
 
     return o;
   }
-}%
-
-
-CCProgram sprite-vs %{
-  precision highp float;
-  #include <builtin/uniforms/cc-global>
-  #if USE_LOCAL
-    #include <builtin/uniforms/cc-local>
-  #endif
-  #if SAMPLE_FROM_RT
-    #include <common/common-define>
-  #endif
-  in vec3 a_position;
-  in vec2 a_texCoord;
-  in vec4 a_color;
-
-  out vec4 color;
-  out vec2 uv0;
-
-  vec4 vert () {
-    vec4 pos = vec4(a_position, 1);
-
-    #if USE_LOCAL
-      pos = cc_matWorld * pos;
-    #endif
-
-    #if USE_PIXEL_ALIGNMENT
-      pos = cc_matView * pos;
-      pos.xyz = floor(pos.xyz);
-      pos = cc_matProj * pos;
-    #else
-      pos = cc_matViewProj * pos;
-    #endif
-
-    uv0 = a_texCoord;
-
-    #if SAMPLE_FROM_RT
-      CC_HANDLE_RT_SAMPLE_FLIP(uv0);
-    #endif
-    color = a_color;
-
-    return pos;
-  }
-}%
-
-CCProgram sprite-fs %{
-  precision highp float;
-  #include <builtin/internal/embedded-alpha>
-  #include <builtin/internal/alpha-test>
-  #include <builtin/uniforms/cc-global>
-
-  in vec4 color;
-
-  #if USE_TEXTURE
-    in vec2 uv0;
-    #pragma builtin(local)
-    layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;
-  #endif
-
-  vec4 getTextureColor(sampler2D mainTexture, vec2 uv0) {
-    if (uv0.x > 1.0 || uv0.x < 0.0 || uv0.y > 1.0 || uv0.y < 0.0) {
-      return vec4(0.0, 0.0, 0.0, 0.0);
-    }
-    return texture(mainTexture, uv0);
-  }
-
-  #if SHOW_OUTTER_GLOW
-
-    uniform glow {
-      // 发光颜色
-      vec4 lightColor;
-      // 发光范围
-      float glowColorSize;
-      // 特别地，必须是 vec4 先于 float 声明
-    };
-
-    bool checkIsMakeOutline(vec2 pos) {
-      float alpha = 0.1;
-      vec4 color = texture(cc_spriteTexture, pos);
-      if(color.a >= alpha || glowColorSize == 0.0)return false;
-      color = texture(cc_spriteTexture, pos + vec2(0, glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, 0));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(0, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, 0));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, glowColorSize));
-      if(color.a >= alpha)return true;
-
-      return false;
-    }
-
-  #endif
-
-  vec4 frag () {
-    vec4 o = vec4(1, 1, 1, 1);
-    vec4 incolor = color;
-    o *= color;
-
-    #if USE_TEXTURE
-      o *= texture(cc_spriteTexture, uv0);
-      #if CC_USE_ALPHA_ATLAS_TEXTURE
-      o.a *= texture(cc_spriteTexture, uv0 + vec2(0, 0.5)).r;
-      #endif
-    #endif
-
-    #if SHOW_OUTTER_GLOW
-      float alpha = o.a;
-      if (alpha == 0.0) {
-        
-      }
-      o = lightColor;
-    #endif
-
-    ALPHA_TEST(o);
-
-    return o;
-  }
-
 }%

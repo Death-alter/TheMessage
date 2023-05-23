@@ -9,23 +9,9 @@
   },
   "_techIdx": 0,
   "_defines": [
-    {},
-    {
-      "SAMPLE_FROM_RT": true,
-      "USE_TEXTURE": true,
-      "SHOW_OUTTER_GLOW": true
-    }
+    {}
   ],
   "_states": [
-    {
-      "rasterizerState": {},
-      "depthStencilState": {},
-      "blendState": {
-        "targets": [
-          {}
-        ]
-      }
-    },
     {
       "rasterizerState": {},
       "depthStencilState": {},
@@ -37,16 +23,8 @@
     }
   ],
   "_props": [
-    {},
     {
-      "lightColor": {
-        "__type__": "cc.Color",
-        "r": 0,
-        "g": 31,
-        "b": 255,
-        "a": 255
-      },
-      "glowColorSize": 0.5
+      "glowColorSize": 0.1
     }
   ]
 }
