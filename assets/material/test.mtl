@@ -10,8 +10,7 @@
   "_techIdx": 0,
   "_defines": [
     {
-      "USE_TEXTURE": true,
-      "SHOW_OUTTER_GLOW": true
+      "USE_TEXTURE": true
     }
   ],
   "_states": [
@@ -27,7 +26,7 @@
   ],
   "_props": [
     {
-      "scaleFactor": 2,
+      "scaleFactor": 1.2,
       "worldPosition": {
         "__type__": "cc.Vec2",
         "x": 640,
