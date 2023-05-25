@@ -9,7 +9,10 @@
   },
   "_techIdx": 0,
   "_defines": [
-    {}
+    {
+      "USE_TEXTURE": true,
+      "SHOW_OUTTER_GLOW": true
+    }
   ],
   "_states": [
     {
@@ -24,7 +27,20 @@
   ],
   "_props": [
     {
-      "glowColorSize": 0.1
+      "scaleFactor": 2,
+      "worldPosition": {
+        "__type__": "cc.Vec2",
+        "x": 640,
+        "y": 360
+      },
+      "lightColor": {
+        "__type__": "cc.Color",
+        "r": 0,
+        "g": 194,
+        "b": 255,
+        "a": 255
+      },
+      "glowColorSize": 0.05
     }
   ]
 }

@@ -1,30 +1,41 @@
-// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
-
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 CCEffect %{
   techniques:
   - passes:
-    - vert: vs:vert
-      frag: fs:frag
-      blendState:
-        targets:
-        - blend: true
-          blendSrc: one
-          blendDst: one_minus_src_alpha
-          blendSrcAlpha: one
-          blendDstAlpha: one_minus_src_alpha
-      rasterizerState:
-        cullMode: none
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
       depthStencilState:
         depthTest: false
         depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
       properties:
+        alphaThreshold: { value: 0.5 }
         # 自定义参数
+        scaleFactor: {
+          value: 1,
+          editor: {
+            tooltip: "放大倍数",
+          }
+        }
+        worldPosition: {
+          value: [0 ,0],
+          editor: {
+            tooltip: "中心坐标",
+          }
+        }
         # 发光颜色
         lightColor: { 
           value: [1.0, 1.0, 0.0, 1.0], 
           editor: { 
             type: color,
-            tooltip: "颜色1"
+            tooltip: "发光颜色"
           } 
         } 
         # 发光宽度
@@ -38,64 +49,150 @@ CCEffect %{
         }
 }%
 
-CCProgram vs %{
+CCProgram sprite-vs %{
   precision highp float;
-
   #include <builtin/uniforms/cc-global>
-  #include <builtin/uniforms/cc-local>
-
+  #if USE_LOCAL
+    #include <builtin/uniforms/cc-local>
+  #endif
+  #if SAMPLE_FROM_RT
+    #include <common/common-define>
+  #endif
   in vec3 a_position;
-
+  in vec2 a_texCoord;
   in vec4 a_color;
-  out vec4 v_color;
 
-  in float a_dist;
-  out float v_dist;
+  out vec4 color;
+  out vec2 uv0;
+
+  uniform pramas {
+    // 发光颜色
+    vec4 lightColor;
+
+    vec2 worldPosition;
+    // 发光范围
+    float glowColorSize;
+    //缩放倍数
+    float scaleFactor;
+  };
 
   vec4 vert () {
     vec4 pos = vec4(a_position, 1);
-    pos = cc_matViewProj * cc_matWorld * pos;
+    mat4 mt_trans_1 = mat4(1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, -worldPosition.x,-worldPosition.y,0.0,1.0);
+    mat4 mt_scale = mat4(scaleFactor,0.0,0.0,0.0, 0.0,scaleFactor,0.0,0.0, 0.0,0.0,scaleFactor,0.0, 0.0,0.0,0.0,1.0);
+    mat4 mt_trans_2 = mat4(1.0,0.0,0.0,0.0, 0.0,1.0,0.0,0.0, 0.0,0.0,1.0,0.0, worldPosition.x,worldPosition.y,0.0,1.0);
 
-    v_color = a_color;
-    v_dist = a_dist;
+    #if USE_LOCAL
+      pos = cc_matWorld * pos;
+    #endif
+
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
+    #else
+      pos = cc_matViewProj * mt_trans_2 * mt_scale * mt_trans_1 * pos;
+    #endif
+
+    uv0 = a_texCoord;
+
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(uv0);
+    #endif
+    color = a_color;
 
     return pos;
   }
 }%
 
-CCProgram fs %{
-  #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 300])
-
+CCProgram sprite-fs %{
   precision highp float;
+  #include <builtin/internal/embedded-alpha>
+  #include <builtin/internal/alpha-test>
+  #include <builtin/uniforms/cc-global>
 
-  in vec4 v_color;
-  in float v_dist;
+  in vec4 color;
 
-  uniform glow {
+  // 必须是 vec4 先于 float 声明
+  uniform pramas {
     // 发光颜色
     vec4 lightColor;
+
+    vec2 worldPosition;
     // 发光范围
     float glowColorSize;
-    // 特别地，必须是 vec4 先于 float 声明
+    //缩放倍数
+    float scaleFactor;
   };
 
+  #if USE_TEXTURE
+    in vec2 uv0;
+    #pragma builtin(local)
+    layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;
+  #endif
+
+  vec4 getTextureColor(sampler2D mainTexture, vec2 uv0) {
+    if (uv0.x > 1.0 || uv0.x < 0.0 || uv0.y > 1.0 || uv0.y < 0.0) {
+      return vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    return texture(mainTexture, uv0);
+  }
+
+  vec2 convertToOriginCoordinate(vec2 uv) {
+    return (uv * scaleFactor + (1.0 - scaleFactor) * vec2(0.5 , 0.5));
+  }
+
+  #if SHOW_OUTTER_GLOW
+
+    bool checkIsMakeOutline(vec2 pos) {
+      float alpha = 0.1;
+      vec4 color = texture(cc_spriteTexture, pos);
+      if(color.a >= alpha || glowColorSize == 0.0)return false;
+      color = texture(cc_spriteTexture, pos + vec2(0, glowColorSize));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, glowColorSize));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, 0));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, -glowColorSize));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(0, -glowColorSize));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, -glowColorSize));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, 0));
+      if(color.a >= alpha)return true;
+      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, glowColorSize));
+      if(color.a >= alpha)return true;
+
+      return false;
+    }
+
+  #endif
+
   vec4 frag () {
-    vec4 o = lightColor;
+    vec4 o = vec4(1, 1, 1, 1);
+    vec4 incolor = color;
+    o *= color;
 
-    #if __VERSION__ < 300
-      #ifdef GL_OES_standard_derivatives
-        float aa = fwidth(v_dist);
-      #else
-        float aa = 0.05;
-      #endif
-    #else
-      float aa = fwidth(v_dist);
+    vec2 new_uv = uv0;
+    #if USE_TEXTURE
+      // o *= texture(cc_spriteTexture, uv0);
+      new_uv = convertToOriginCoordinate(uv0);
+      if(new_uv.x >= 0.0 && new_uv.y >= 0.0 && new_uv.x <= 1.0 && new_uv.y <= 1.0) {
+        o *= texture(cc_spriteTexture, new_uv);
+      }else{
+        #if SHOW_OUTTER_GLOW
+          if(new_uv.x < 1.0 + glowColorSize && new_uv.x > 0.0 - glowColorSize && new_uv.y < 1.0 + glowColorSize && new_uv.y > 0.0 - glowColorSize){
+            o = lightColor;
+            o.a *= smoothstep(-glowColorSize , 0.0, sqrt( 1.0 - abs(new_uv.x - 0.5) - abs(new_uv.y - 0.5) ));
+          }else{
+            o = vec4(0, 0, 0, 0);
+          }
+        #endif
+      }
     #endif
-
-    float alpha = 1. - smoothstep(1.0, -aa, abs(v_dist) - 1.0);
-    o.rgb *= o.a;
-    o *= alpha;
-
     return o;
   }
+
 }%
