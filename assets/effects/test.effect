@@ -30,6 +30,12 @@ CCEffect %{
             tooltip: "中心坐标",
           }
         }
+        texSize: {
+          value: [0 ,0],
+          editor: {
+            tooltip: "贴图宽高",
+          }
+        }
         # 发光颜色
         lightColor: { 
           value: [1.0, 1.0, 0.0, 1.0], 
@@ -40,11 +46,9 @@ CCEffect %{
         } 
         # 发光宽度
         glowColorSize: { 
-          value: 0.01,
+          value: 10,
           editor: {
             tooltip: "发光宽度",
-            range: [0.0, 1.0],
-            step: 0.01,
           }
         }
 }%
@@ -66,13 +70,10 @@ CCProgram sprite-vs %{
   out vec2 uv0;
 
   uniform pramas {
-    // 发光颜色
     vec4 lightColor;
-
     vec2 worldPosition;
-    // 发光范围
+    vec2 texSize;
     float glowColorSize;
-    //缩放倍数
     float scaleFactor;
   };
 
@@ -115,13 +116,10 @@ CCProgram sprite-fs %{
 
   // 必须是 vec4 先于 float 声明
   uniform pramas {
-    // 发光颜色
     vec4 lightColor;
-
     vec2 worldPosition;
-    // 发光范围
+    vec2 texSize;
     float glowColorSize;
-    //缩放倍数
     float scaleFactor;
   };
 
@@ -142,34 +140,6 @@ CCProgram sprite-fs %{
     return (uv * scaleFactor + (1.0 - scaleFactor) * vec2(0.5 , 0.5));
   }
 
-  #if SHOW_OUTTER_GLOW
-
-    bool checkIsMakeOutline(vec2 pos) {
-      float alpha = 0.1;
-      vec4 color = texture(cc_spriteTexture, pos);
-      if(color.a >= alpha || glowColorSize == 0.0)return false;
-      color = texture(cc_spriteTexture, pos + vec2(0, glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, 0));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(glowColorSize, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(0, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, -glowColorSize));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, 0));
-      if(color.a >= alpha)return true;
-      color = texture(cc_spriteTexture, pos + vec2(-glowColorSize, glowColorSize));
-      if(color.a >= alpha)return true;
-
-      return false;
-    }
-
-  #endif
-
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);
     vec4 incolor = color;
@@ -183,9 +153,9 @@ CCProgram sprite-fs %{
         o *= texture(cc_spriteTexture, new_uv);
       }else{
         #if SHOW_OUTTER_GLOW
-          if(new_uv.x < 1.0 + glowColorSize && new_uv.x > 0.0 - glowColorSize && new_uv.y < 1.0 + glowColorSize && new_uv.y > 0.0 - glowColorSize){
+          if(new_uv.x < 1.0 + glowColorSize / texSize.x && new_uv.x > 0.0 - glowColorSize / texSize.x && new_uv.y < 1.0 + glowColorSize / texSize.y && new_uv.y > 0.0 - glowColorSize  / texSize.y){
             o = lightColor;
-            o.a *= smoothstep(-glowColorSize , 0.0, sqrt( 1.0 - abs(new_uv.x - 0.5) - abs(new_uv.y - 0.5) ));
+            o.a *= smoothstep(-glowColorSize / texSize.x, 0.0, 0.5 - abs(new_uv.x - 0.5)) * smoothstep(-glowColorSize / texSize.y , 0.0, 0.5 - abs(new_uv.y - 0.5));
           }else{
             o = vec4(0, 0, 0, 0);
           }

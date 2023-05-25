@@ -33,14 +33,19 @@
         "x": 640,
         "y": 360
       },
+      "texSize": {
+        "__type__": "cc.Vec2",
+        "x": 110,
+        "y": 153
+      },
       "lightColor": {
         "__type__": "cc.Color",
         "r": 0,
         "g": 194,
         "b": 255,
-        "a": 255
+        "a": 241
       },
-      "glowColorSize": 0.05
+      "glowColorSize": 8
     }
   ]
 }
