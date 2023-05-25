@@ -182,12 +182,11 @@ CCProgram sprite-fs %{
       if(new_uv.x >= 0.0 && new_uv.y >= 0.0 && new_uv.x <= 1.0 && new_uv.y <= 1.0) {
         o *= texture(cc_spriteTexture, new_uv);
       }else{
+        o = vec4(0, 0, 0, 0);
         #if SHOW_OUTTER_GLOW
           if(new_uv.x < 1.0 + glowColorSize && new_uv.x > 0.0 - glowColorSize && new_uv.y < 1.0 + glowColorSize && new_uv.y > 0.0 - glowColorSize){
             o = lightColor;
             o.a *= smoothstep(-glowColorSize , 0.0, sqrt( 1.0 - abs(new_uv.x - 0.5) - abs(new_uv.y - 0.5) ));
-          }else{
-            o = vec4(0, 0, 0, 0);
           }
         #endif
       }
