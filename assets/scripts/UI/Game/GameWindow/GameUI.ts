@@ -268,6 +268,8 @@ export class GameUI extends GameObject<GameData> {
       this.tooltip.startCoundDown(data.second);
       ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
       ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+      this.handCardList.selectedCards.limit = 0;
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {

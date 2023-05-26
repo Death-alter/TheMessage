@@ -68,16 +68,17 @@ export class ShowCardsWindow extends Component {
   refresh() {
     for (let card of this.cardList.list) {
       if (this.selectedCards.isSelected(card)) {
-        console.log(card);
+        card.gameObject.openOuterGlow();
       } else {
-        // card.gameObject.getComponent(Sprite).color = color(255, 255, 255);
+        card.gameObject.closeOuterGlow();
       }
     }
   }
 
-  selectCard(card) {
+  selectCard(card: Card) {
     if (this.selectedCards.isSelected(card)) {
       this.selectedCards.deselect(card);
+      
     } else {
       const flag = this.selectedCards.select(card);
       if (!flag) {

@@ -96,6 +96,8 @@ export class GameManager extends Component {
     this.gameWindow.active = true;
     //预加载卡图
     resources.preloadDir("images/cards");
+    //预加载材质
+    resources.preloadDir("material");
   }
 
   gameOver(data: GameEventType.GameOver) {

@@ -5,7 +5,6 @@ import { ProcessEvent } from "../../Event/type";
 import { GameObjectContainer } from "./GameObjectContainer";
 import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
-import { setNodeLayer } from "../../Utils/utils";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardContianer")
@@ -78,8 +77,10 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         const x = offset - (2 * i * offset) / (this.data.list.length - 1);
         if (data.selectedCards.isSelected(<Card>this.data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
+          (<Card>this.data.list[i]).gameObject.openOuterGlow();
         } else {
           node.setPosition(new Vec3(node.position.x, 0, 0));
+          (<Card>this.data.list[i]).gameObject.closeOuterGlow();
         }
         if (x !== node.position.x) {
           tween(node)
@@ -93,12 +94,10 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         const x = offset + i * (this.spacingX + this._childWith);
         if (data.selectedCards.isSelected(<Card>this.data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
-          node.parent = this.cardActionNode;
-          setNodeLayer(node, 1 << 18);
+          (<Card>this.data.list[i]).gameObject.openOuterGlow();
         } else {
           node.setPosition(new Vec3(node.position.x, 0, 0));
-          node.parent = this.node;
-          setNodeLayer(node, 1 << 25);
+          (<Card>this.data.list[i]).gameObject.closeOuterGlow();
         }
         if (x !== node.position.x) {
           tween(node)
@@ -109,7 +108,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     }
   }
 
-  selectCard(card) {
+  selectCard(card: Card) {
     const data = <HandCardList>this.data;
     if (data.selectedCards.isSelected(card)) {
       data.selectedCards.deselect(card);

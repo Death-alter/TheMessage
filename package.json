@@ -2,7 +2,7 @@
   "name": "fengsheng_rebuild",
   "uuid": "b8f2909c-87be-41e7-9da8-754f03378753",
   "creator": {
-    "version": "3.7.1"
+    "version": "3.7.3"
   },
   "dependencies": {
     "protobufjs": "^7.2.2",
