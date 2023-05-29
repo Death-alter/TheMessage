@@ -2,7 +2,7 @@ import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarg
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 
@@ -47,6 +47,30 @@ export class PoYi extends Card {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
+      if (message.color.indexOf(CardColor.BLACK) !== -1) {
+        const tooltip = gameData.gameObject.tooltip;
+        tooltip.setText(`是否翻开并摸一张牌？`);
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+                show: true,
+                seq: gameData.gameObject.seq,
+              });
+            },
+          },
+          {
+            text: "取消",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+                show: false,
+                seq: gameData.gameObject.seq,
+              });
+            },
+          },
+        ]);
+      }
     }
   }
 

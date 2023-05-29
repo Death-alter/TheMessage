@@ -4,6 +4,7 @@ import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
 import GamePools from "../../../GameManager/GamePools";
 import DynamicButtons, { ButtonConfig } from "../../../Utils/DynamicButtons";
+import { OuterGlow } from "../../../Utils/OuterGlow";
 import { SelectedList } from "../../../Utils/SelectedList";
 const { ccclass, property } = _decorator;
 
@@ -16,7 +17,7 @@ export class ShowCardsWindow extends Component {
   @property(Node)
   title: Node | null = null;
 
-  private cardList = new DataContainer<Card>();
+  public cardList = new DataContainer<Card>();
   public selectedCards: SelectedList<Card> = new SelectedList<Card>();
   public buttons: DynamicButtons;
 
@@ -34,19 +35,7 @@ export class ShowCardsWindow extends Component {
         this.setTitle(title);
       }
       if (cardList && cardList.length) {
-        this.cardList.removeAllData();
-        for (let card of cardList) {
-          card.gameObject = GamePools.cardPool.get();
-          card.gameObject.node.scale = new Vec3(1, 1, 1);
-          card.gameObject.node.on(
-            Node.EventType.TOUCH_END,
-            (event) => {
-              this.selectCard(card);
-            },
-            this
-          );
-          this.cardList.addData(card);
-        }
+        this.setCardList(cardList);
       }
       if (buttons) {
         this.buttons.setButtons(buttons);
@@ -65,12 +54,40 @@ export class ShowCardsWindow extends Component {
     this.title.getComponentInChildren(Label).string = text;
   }
 
+  setCardList(cardList: Card[]) {
+    this.cardList.removeAllData();
+    for (let card of cardList) {
+      this.addCard(card);
+    }
+  }
+
+  addCard(card: Card) {
+    card.gameObject = GamePools.cardPool.get();
+    card.gameObject.node.scale = new Vec3(1, 1, 1);
+    card.gameObject.node.on(
+      Node.EventType.TOUCH_END,
+      (event) => {
+        this.selectCard(card);
+      },
+      this
+    );
+    this.cardList.addData(card);
+  }
+
+  removeCard(card: Card) {
+    this.cardList.removeData(card);
+    const gameObject = card.gameObject;
+    gameObject.node.off(Node.EventType.TOUCH_END);
+    card.gameObject = null;
+    GamePools.cardPool.put(gameObject);
+  }
+
   refresh() {
     for (let card of this.cardList.list) {
       if (this.selectedCards.isSelected(card)) {
-        card.gameObject.openOuterGlow();
+        card.gameObject.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        card.gameObject.closeOuterGlow();
+        card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }
@@ -78,7 +95,6 @@ export class ShowCardsWindow extends Component {
   selectCard(card: Card) {
     if (this.selectedCards.isSelected(card)) {
       this.selectedCards.deselect(card);
-      
     } else {
       const flag = this.selectedCards.select(card);
       if (!flag) {

@@ -8,7 +8,6 @@ import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../
 
 export class FenYunBianHuan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
-  public showCardList: Card[] = [];
 
   constructor(option: CardDefaultOption) {
     super({
@@ -50,35 +49,86 @@ export class FenYunBianHuan extends Card {
       list.push(gameData.createCard(card, CardStatus.FACE_UP));
     }
     gameData.gameObject.showCardsWindow.show({
-      title: "选择目标交给你的卡牌种类",
+      title: "",
       cardList: list,
       limit: 1,
-      // buttons: [
-      //   {
-      //     text: "确定",
-      //     onclick: () => {
-      //       const card = gameData.gameObject.handCardList.selectedCards.list[0];
-      //       const player = gameData.gameObject.selectedPlayers.list[0];
-      //       NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
-      //         cardId: card.id,
-      //         playerId: player.id,
-      //         wantType: gameData.gameObject.showCardsWindow.selectedCards.list[0].type,
-      //         seq: gameData.gameObject.seq,
-      //       });
-      //       gameData.gameObject.resetSelectPlayer();
-      //       gameData.gameObject.selectedPlayers.limit = 0;
-      //       gameData.gameObject.showCardsWindow.hide();
-      //       ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-      //     },
-      //   },
-      // ],
+      buttons: [],
     });
+  }
+
+  waitingForChooseCard(gameData: GameData, { playerId }: CardOnEffectParams) {
+    const player = gameData.playerList[playerId];
+    const showCardsWindow = gameData.gameObject.showCardsWindow;
+    if (playerId !== 0) {
+      showCardsWindow.setTitle(`等待${player.seatNumber}号玩家选择一张牌`);
+      showCardsWindow.buttons.setButtons([]);
+    } else {
+      gameData.gameObject.showCardsWindow.setTitle(`请选择一张牌`);
+      showCardsWindow.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            gameData.gameObject.showCardsWindow.hide();
+            const card = gameData.gameObject.handCardList.selectedCards.list[0];
+            const messages = player.getMessagesCopy();
+            let flag = (() => {
+              console.log(card);
+              for (let color of card.color) {
+                messages.forEach((message) => {
+                  if (message.color.indexOf(color) !== -1) {
+                    return true;
+                  }
+                });
+              }
+              return false;
+            })();
+            if (flag) {
+              NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                cardId: card.id,
+                asMmessageCard: false,
+                seq: gameData.gameObject.seq,
+              });
+            } else {
+              const tooltip = gameData.gameObject.tooltip;
+              tooltip.setText(`是否将该牌置入情报区？`);
+              tooltip.buttons.setButtons([
+                {
+                  text: "加入手牌",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                      cardId: card.id,
+                      asMmessageCard: false,
+                      seq: gameData.gameObject.seq,
+                    });
+                  },
+                },
+                {
+                  text: "置入情报区",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                      cardId: card.id,
+                      asMmessageCard: true,
+                      seq: gameData.gameObject.seq,
+                    });
+                  },
+                },
+              ]);
+            }
+          },
+          enabled: () => {
+            return !!gameData.gameObject.showCardsWindow.selectedCards.list.length;
+          },
+        },
+      ]);
+    }
   }
 
   onChooseCard(gameData: GameData, { playerId, cardId, asMessageCard }: CardOnEffectParams) {
     const player = gameData.playerList[playerId];
-    for (let card of this.showCardList) {
+    const cardList = gameData.gameObject.showCardsWindow.cardList.list;
+    for (let card of cardList) {
       if (card.id === cardId) {
+        gameData.gameObject.showCardsWindow.removeCard(card);
         if (asMessageCard) {
           player.addMessage(card);
           GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {

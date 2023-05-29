@@ -26,6 +26,7 @@ export class WuDao extends Card {
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
     const neighbors = gameData.getPlayerNeighbors(gameData.messagePlayerId);
+    console.log(neighbors);
     gameData.gameObject.setPlayerSelectable((player) => {
       return neighbors.indexOf(player) !== -1;
     });

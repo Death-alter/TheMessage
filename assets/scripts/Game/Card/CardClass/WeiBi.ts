@@ -26,6 +26,9 @@ export class WeiBi extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.selectedPlayers.limit = 1;
+    gameData.gameObject.setPlayerSelectable((player) => {
+      return player.id !== 0;
+    });
     tooltip.setText(`请选择威逼的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       gameData.gameObject.showCardsWindow.show({
@@ -51,9 +54,11 @@ export class WeiBi extends Card {
               });
               gameData.gameObject.resetSelectPlayer();
               gameData.gameObject.selectedPlayers.limit = 0;
+              gameData.gameObject.clearPlayerSelectable();
               gameData.gameObject.showCardsWindow.hide();
               ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
             },
+            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
           },
           {
             text: "取消",
@@ -69,6 +74,7 @@ export class WeiBi extends Card {
 
   onDeselected(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.selectedPlayers.limit = 0;
+    gameData.gameObject.clearPlayerSelectable();
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 

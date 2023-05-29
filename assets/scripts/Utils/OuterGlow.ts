@@ -1,5 +1,16 @@
-import { _decorator, Component, Node, UITransform, Graphics, Color, color, CCInteger, Material, Sprite } from "cc";
-import radiusMask from "./radiusMask";
+import {
+  _decorator,
+  Component,
+  Node,
+  Vec2,
+  UITransform,
+  Color,
+  color,
+  CCInteger,
+  Material,
+  Sprite,
+  resources,
+} from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("OuterGlow")
@@ -10,55 +21,37 @@ export class OuterGlow extends Component {
   @property(Color)
   color: Color = color(0, 0, 0);
 
-  @property(Material)
-  material: Material = null;
+  private showOuterGlow: boolean = false;
 
-  start() {
-    // const grap = this.getComponent(Graphics);
-    // const nodeTransform = this.node.getComponent(UITransform);
-    // grap.rect(-nodeTransform.width / 2, -nodeTransform.height / 2, nodeTransform.width, nodeTransform.height);
-    // grap.stroke();
-    // grap.fill();
-
-    // const glowNode = new Node("OuterGlow");
-    // glowNode.addComponent(UITransform);
-    // glowNode.addComponent(Graphics);
-    // this.node.addChild(glowNode);
-    // const nodeTransform = this.node.getComponent(UITransform);
-    // const glowNodeTransform = glowNode.getComponent(UITransform);
-    // glowNodeTransform.width = nodeTransform.width + this.glowWidth * 2;
-    // glowNodeTransform.height = nodeTransform.height + this.glowWidth * 2;
-    // const grap = glowNode.getComponent(Graphics);
-    // const mask = this.node.getComponent(radiusMask);
-    // if (mask) {
-    //   grap.roundRect(
-    //     -nodeTransform.width / 2,
-    //     -nodeTransform.height / 2,
-    //     nodeTransform.width,
-    //     nodeTransform.height,
-    //     mask.radius
-    //   );
-    //   grap.stroke();
-    //   grap.fill();
-    // } else {
-    //   grap.rect(-nodeTransform.width / 2, -nodeTransform.height / 2, nodeTransform.width, nodeTransform.height);
-    //   grap.stroke();
-    //   grap.fill();
-    // }
-
-    const glowNode = new Node("OuterGlow");
-    glowNode.addComponent(UITransform);
-    glowNode.addComponent(Sprite);
-    const nodeTransform = this.node.getComponent(UITransform);
-    const glowNodeTransform = glowNode.getComponent(UITransform);
-    glowNodeTransform.width = nodeTransform.width + this.glowWidth * 2;
-    glowNodeTransform.height = nodeTransform.height + this.glowWidth * 2;
-    const sprite = glowNode.getComponent(Sprite);
-
-    this.material.setProperty("lightColor", Color.RED);
-    // // mat.setProperty("glowColorSize", this.glowWidth / nodeTransform.width);
-    sprite.customMaterial = this.material;
+  openOuterGlow(c?: string) {
+    if (this.showOuterGlow) return;
+    resources.load("material/rectOuterGlow", Material, (err, material) => {
+      material.addRef();
+      const transform = this.node.getComponent(UITransform);
+      material.setProperty("texSize", new Vec2(transform.width, transform.height));
+      material.setProperty("glowColorSize", parseFloat(this.glowWidth.toFixed(1)));
+      if (c) {
+        material.setProperty("lightColor", color(c));
+      }
+      this.node.getComponent(Sprite).customMaterial = material;
+      this.showOuterGlow = true;
+    });
   }
 
-  update(deltaTime: number) {}
+  refreshOuterGlow() {
+    const material = this.node.getComponent(Sprite).material;
+    const p = material.passes[0].getHandle("worldPosition");
+    material.passes[0].setUniform(p, new Vec2(this.node.worldPosition.x, this.node.worldPosition.y));
+  }
+
+  closeOuterGlow() {
+    this.node.getComponent(Sprite).customMaterial = null;
+    this.showOuterGlow = false;
+  }
+
+  update() {
+    if (this.showOuterGlow) {
+      this.refreshOuterGlow();
+    }
+  }
 }

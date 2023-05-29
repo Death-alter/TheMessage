@@ -504,6 +504,12 @@ export class EventMapper {
           type: WaitingType.HNADLER_CARD,
           seq: data.seq,
         });
+        ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+          handler: "waitingForChooseCard",
+          data: {
+            playerId: data.playerId,
+          },
+        });
       }
     );
     NetworkEventCenter.on(

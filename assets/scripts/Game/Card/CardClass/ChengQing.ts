@@ -65,7 +65,6 @@ export class ChengQing extends Card {
   }
 
   onDeselected(gameData: GameData, tooltip: Tooltip) {
-    console.log(1);
     gameData.gameObject.selectedPlayers.limit = 0;
     gameData.gameObject.clearPlayerSelectable();
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);

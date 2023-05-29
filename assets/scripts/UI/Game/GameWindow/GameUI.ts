@@ -16,6 +16,7 @@ import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection } from "../../../Game/Card/type";
+import { OuterGlow } from "../../../Utils/OuterGlow";
 
 const { ccclass, property } = _decorator;
 
@@ -231,7 +232,7 @@ export class GameUI extends GameObject<GameData> {
         ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
       }
     }
-    this.scheduleOnce(this.refreshPlayerSelectedState, 0);
+    this.refreshPlayerSelectedState();
   }
 
   setPlayerSelectable(filter: (player: Player) => boolean) {
@@ -248,16 +249,15 @@ export class GameUI extends GameObject<GameData> {
 
   resetSelectPlayer() {
     this.selectedPlayers.clear();
-    this.scheduleOnce(this.refreshPlayerSelectedState, 0);
+    this.refreshPlayerSelectedState();
   }
 
   refreshPlayerSelectedState() {
     for (let player of this.data.playerList) {
-      const border = player.gameObject.node.getChildByName("Border");
       if (this.selectedPlayers.isSelected(player)) {
-        border.getComponent(Sprite).color = color(0, 255, 0);
+        this.node.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        border.getComponent(Sprite).color = color(0, 0, 0);
+        this.node.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }
@@ -268,8 +268,6 @@ export class GameUI extends GameObject<GameData> {
       this.tooltip.startCoundDown(data.second);
       ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
       ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
-      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
-      this.handCardList.selectedCards.limit = 0;
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {
@@ -303,6 +301,11 @@ export class GameUI extends GameObject<GameData> {
 
   onStopCountDown() {
     this.tooltip.hide();
+    this.selectedPlayers.limit = 0;
+    this.resetSelectPlayer();
+    this.clearPlayerSelectable();
+    this.handCardList.selectedCards.limit = 0;
+    (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
@@ -329,6 +332,10 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
+    if (data.player.id === 0) {
+      this.handCardList.selectedCards.limit = 0;
+      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+    }
     this.cardAction.playerSendMessage(data, this.handCardList);
   }
 
@@ -365,14 +372,19 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
+    if (data.player.id === 0) {
+      this.handCardList.selectedCards.limit = 0;
+      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+    }
     this.cardAction.giveCards(data, this.handCardList);
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     if (data.player.id === 0) {
-      this.handCardList.removeData(data.card);
+      this.handCardList.selectedCards.limit = 0;
+      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
     }
-    this.cardAction.playerPlayCard(data);
+    this.cardAction.playerPlayCard(data, this.handCardList);
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
@@ -391,7 +403,6 @@ export class GameUI extends GameObject<GameData> {
       }
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
-      console.log("取消选择", card);
       this.tooltip.setText(tooltipText);
       if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
         card.onDeselected(this.data, this.tooltip);
@@ -412,7 +423,6 @@ export class GameUI extends GameObject<GameData> {
           cardDir: card.direction,
           seq: this.seq,
         };
-        console.log(card.direction);
         await (() => {
           return new Promise((resolve, reject) => {
             switch (card.direction) {

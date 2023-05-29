@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3, Sprite } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Sprite, UITransform } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -167,23 +167,12 @@ export class CardAction extends Component {
   }
 
   //打出卡牌动画，播放声音
-  playerPlayCard(data: GameEventType.PlayerPlayCard) {
+  playerPlayCard(data: GameEventType.PlayerPlayCard, handCardList: HandCardList) {
     const { card, player } = data;
-    console.log(card);
-    if (!card.gameObject) {
-      card.gameObject = GamePools.cardPool.get();
-      card.gameObject.node.setParent(this.node);
-      card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
-    }
-
-    console.log(
-      card.gameObject.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Left").getComponent(Sprite).color
-    );
-    console.log(
-      card.gameObject.node.getChildByPath("Inner/Panting/Image/CardDetail/Color/Right").getComponent(Sprite).color
-    );
 
     if (player.id === 0) {
+      handCardList.removeData(card);
+      card.gameObject.node.setParent(this.node);
       card.action = tween(card.gameObject.node)
         .to(0.6, {
           scale: new Vec3(0.6, 0.6, 1),
@@ -191,6 +180,9 @@ export class CardAction extends Component {
         })
         .start();
     } else {
+      card.gameObject = GamePools.cardPool.get();
+      card.gameObject.node.setParent(this.node);
+      card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       card.action = tween(card.gameObject.node)
         .to(0.6, {
@@ -243,8 +235,9 @@ export class CardAction extends Component {
         duration: 0.8,
       }).then(() => {
         for (let card of cardGroup.list) {
-          if (player.id === 0) {
+          if (targetPlayer.id === 0) {
             card.gameObject.node.scale = new Vec3(1, 1, 1);
+            handCardList.addData(card);
           } else {
             GamePools.cardPool.put(card.gameObject);
             card.gameObject = null;
@@ -470,6 +463,7 @@ export class CardAction extends Component {
       if (!card.gameObject) {
         card.gameObject = GamePools.cardPool.get();
       }
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       this.moveNode({
         node: card.gameObject.node,
         from: { location: CardActionLocation.DECK },
