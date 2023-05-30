@@ -86,6 +86,10 @@ export abstract class Card extends DataBasic<CardObject> {
 
   abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
 
+  onFinish(gameData: GameData): boolean | void {
+    return true;
+  }
+
   //翻面
   flip() {
     if (this._status === CardStatus.FACE_UP) {

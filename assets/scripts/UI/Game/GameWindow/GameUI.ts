@@ -72,6 +72,12 @@ export class GameUI extends GameObject<GameData> {
           });
           break;
       }
+      this.selectedPlayers.limit = 0;
+      ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+      this.resetSelectPlayer();
+      this.clearPlayerSelectable();
+      this.handCardList.selectedCards.limit = 0;
+      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
       this.tooltip.hideNextPhaseButton();
     });
   }
@@ -228,7 +234,7 @@ export class GameUI extends GameObject<GameData> {
         const firstPlayer = this.selectedPlayers.list[0];
         if (firstPlayer) {
           this.selectedPlayers.deselect(firstPlayer);
-          ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+          ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, firstPlayer);
         }
         this.selectedPlayers.select(player);
         ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
@@ -303,6 +309,7 @@ export class GameUI extends GameObject<GameData> {
 
   onStopCountDown() {
     this.tooltip.hide();
+    this.tooltip.hideNextPhaseButton();
     (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
   }
 
@@ -388,7 +395,10 @@ export class GameUI extends GameObject<GameData> {
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     this.selectedPlayers.limit = 0;
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-    this.cardAction.afterPlayerPlayCard(data);
+    const flag = data.card.onFinish(this.data);
+    if (flag !== false) {
+      this.cardAction.afterPlayerPlayCard(data);
+    }
   }
 
   promotUseHandCard(tooltipText) {
@@ -437,6 +447,9 @@ export class GameUI extends GameObject<GameData> {
                 break;
               case CardDirection.UP:
                 this.tooltip.setText("请选择要传递情报的目标");
+                this.setPlayerSelectable((player) => {
+                  return player.id !== 0;
+                });
                 this.tooltip.buttons.setButtons([]);
                 this.selectedPlayers.limit = 1;
                 ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
@@ -451,10 +464,10 @@ export class GameUI extends GameObject<GameData> {
         if (card.lockable) {
           await (() => {
             return new Promise((resolve, reject) => {
-              this.selectedPlayers.limit = 1;
               switch (card.direction) {
                 case CardDirection.LEFT:
                 case CardDirection.RIGHT:
+                  this.selectedPlayers.limit = 1;
                   this.setPlayerSelectable((player) => {
                     return player.id !== 0;
                   });
@@ -477,7 +490,7 @@ export class GameUI extends GameObject<GameData> {
                         data.lockPlayerId = [this.selectedPlayers.list[0].id];
                         break;
                       case CardDirection.UP:
-                        data.lockPlayerId = data.targetPlayerId;
+                        data.lockPlayerId = [data.targetPlayerId];
                         break;
                     }
                     this.handCardList.selectedCards.limit = 0;
@@ -498,10 +511,13 @@ export class GameUI extends GameObject<GameData> {
             });
           })();
         }
-        this.selectedPlayers.limit = 0;
-        this.refreshPlayerSelectedState();
-        this.clearPlayerSelectable();
+
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
+        this.scheduleOnce(() => {
+          this.clearPlayerSelectable();
+          this.resetSelectPlayer();
+          this.selectedPlayers.limit = 0;
+        }, 0);
       },
     };
 
@@ -524,6 +540,7 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
       this.tooltip.setText(tooltipText);
       this.selectedPlayers.limit = 0;
+      this.clearPlayerSelectable();
       this.resetSelectPlayer();
       this.tooltip.buttons.setButtons([]);
       if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {

@@ -33,7 +33,6 @@ export class GameData extends DataBasic<GameUI> {
   private _messagePlayerId: number = -1;
   private _lockedPlayer: Player;
   private _senderId: number = -1;
-  private cardHandleFlag: boolean = false;
 
   get gamePhase() {
     return this._gamePhase;
@@ -70,6 +69,7 @@ export class GameData extends DataBasic<GameUI> {
         GameEventCenter.emit(GameEvent.SEND_PHASE_START);
         break;
       case GamePhase.FIGHT_PHASE:
+        this.lockedPlayer = null;
         GameEventCenter.emit(GameEvent.FIGHT_PHASE_START);
         break;
       case GamePhase.RECEIVE_PHASE:
@@ -113,7 +113,9 @@ export class GameData extends DataBasic<GameUI> {
       this._lockedPlayer = player;
       player.gameObject.locked = true;
     } else {
-      this._lockedPlayer.gameObject.locked = false;
+      if (this._lockedPlayer) {
+        this._lockedPlayer.gameObject.locked = false;
+      }
       this._lockedPlayer = null;
     }
   }
@@ -222,8 +224,7 @@ export class GameData extends DataBasic<GameUI> {
     ) {
       const card = this.cardOnPlay;
       this.cardOnPlay = null;
-      GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card, flag: this.cardHandleFlag });
-      this.cardHandleFlag = false;
+      GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
     }
 
     //如果有传递的情报
@@ -240,7 +241,7 @@ export class GameData extends DataBasic<GameUI> {
         }
       }
 
-      if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
+      if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting) {
         //接收阶段
         const player = this.playerList[data.messagePlayerId];
         GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
@@ -440,8 +441,7 @@ export class GameData extends DataBasic<GameUI> {
       return;
     }
     const handlerName = data.handler || "onEffect";
-
-    this.cardHandleFlag = !!this.cardOnPlay[handlerName](this, data.data);
+    this.cardOnPlay[handlerName](this, data.data);
   }
 
   getPlayerNeighbors(player: Player): Player[];

@@ -2,7 +2,7 @@ import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarg
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 
@@ -24,19 +24,23 @@ export class PoYi extends Card {
   }
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
-    tooltip.setText(`是否使用破译？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          const card = gameData.gameObject.handCardList.selectedCards.list[0];
-          NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-            cardId: card.id,
-            seq: gameData.gameObject.seq,
-          });
+    if (gameData.messageInTransmit.status === CardStatus.FACE_UP) {
+      tooltip.setText(`该情报无需破译`);
+    } else {
+      tooltip.setText(`是否使用破译？`);
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            const card = gameData.gameObject.handCardList.selectedCards.list[0];
+            NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+              cardId: card.id,
+              seq: gameData.gameObject.seq,
+            });
+          },
         },
-      },
-    ]);
+      ]);
+    }
   }
 
   onDeselected(gameData: GameData) {}
@@ -71,6 +75,8 @@ export class PoYi extends Card {
           },
         ]);
       } else {
+        // gameData.gameObject.tooltip.setText("");
+        // gameData.gameObject.tooltip.buttons.setButtons([]);
         NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
           show: false,
           seq: gameData.gameObject.seq,
