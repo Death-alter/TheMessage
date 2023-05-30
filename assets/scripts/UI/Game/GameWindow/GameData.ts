@@ -453,20 +453,21 @@ export class GameData extends DataBasic<GameUI> {
     const arr = [];
     let i = (player.id + 1) % this.playerList.length;
     while (i !== player.id) {
-      if (player.isAlive) {
-        arr.push(player);
+      if (this.playerList[i].isAlive) {
+        arr.push(this.playerList[i]);
         break;
       }
       i = (i + 1) % this.playerList.length;
     }
-
     i = (player.id - 1 + this.playerList.length) % this.playerList.length;
     while (i !== player.id) {
-      if (player.isAlive) {
-        arr.push(player);
+      if (this.playerList[i].isAlive) {
+        if (arr.indexOf(this.playerList[i]) === -1) {
+          arr.push(this.playerList[i]);
+        }
         break;
       }
-      i = (player.id - 1 + this.playerList.length) % this.playerList.length;
+      i = (i - 1 + this.playerList.length) % this.playerList.length;
     }
     return arr;
   }

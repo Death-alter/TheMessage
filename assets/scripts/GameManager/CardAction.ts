@@ -190,6 +190,7 @@ export class CardAction extends Component {
         })
         .start();
     }
+    console.log(handCardList);
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {

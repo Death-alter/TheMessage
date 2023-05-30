@@ -36,6 +36,7 @@ export class JieHuo extends Card {
             seq: gameData.gameObject.seq,
           });
         },
+        enabled: () => gameData.messagePlayerId !== 0,
       },
     ]);
   }

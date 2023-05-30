@@ -86,6 +86,7 @@ export class WeiBi extends Card {
       const user = gameData.playerList[params.userId];
 
       handCardList.selectedCards.limit = 1;
+      console.log(handCardList.selectedCards.limit)
 
       let cardTypeText;
       switch (params.wantType as CardType) {
@@ -136,10 +137,11 @@ export class WeiBi extends Card {
     if (!removedCard) {
       removedCard = targetPlayer.removeHandCard(0);
     }
-    user.addHandCard(removedCard);
     if (user.id === 0) {
-      gameData.gameObject.handCardList.addData(removedCard);
+      removedCard = gameData.createCard(card);
+      // gameData.gameObject.handCardList.addData(removedCard);
     }
+    user.addHandCard(removedCard);
 
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {
       player: targetPlayer,

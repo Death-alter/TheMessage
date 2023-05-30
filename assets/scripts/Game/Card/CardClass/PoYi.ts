@@ -70,6 +70,11 @@ export class PoYi extends Card {
             },
           },
         ]);
+      } else {
+        NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+          show: false,
+          seq: gameData.gameObject.seq,
+        });
       }
     }
   }

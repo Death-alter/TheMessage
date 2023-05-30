@@ -78,7 +78,15 @@ export default class DynamicButtons extends Component {
       const config = buttons[i];
       button.getChildByName("Label").getComponent(Label).string = config.text;
       button.off(Node.EventType.TOUCH_END);
-      button.on(Node.EventType.TOUCH_END, config.onclick, button);
+      button.on(
+        Node.EventType.TOUCH_END,
+        () => {
+          if (button.getComponent(Button).interactable) {
+            config.onclick();
+          }
+        },
+        button
+      );
       if (config.enabled != null) {
         if (config.enabled instanceof Function) {
           this.buttonEnabled[i] = config.enabled;

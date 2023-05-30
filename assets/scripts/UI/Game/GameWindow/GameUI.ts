@@ -216,7 +216,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   selectPlayer(player: Player) {
-    if (!player.gameObject.selectable) return;
+    if (!player.gameObject.selectable || this.selectedPlayers.limit <= 0) return;
     if (this.selectedPlayers.isSelected(player)) {
       this.selectedPlayers.deselect(player);
       ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
@@ -225,9 +225,11 @@ export class GameUI extends GameObject<GameData> {
       if (flag) {
         ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
       } else {
-        const firstCard = this.selectedPlayers.list[0];
-        this.selectedPlayers.deselect(firstCard);
-        ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+        const firstPlayer = this.selectedPlayers.list[0];
+        if (firstPlayer) {
+          this.selectedPlayers.deselect(firstPlayer);
+          ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+        }
         this.selectedPlayers.select(player);
         ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
       }
@@ -255,9 +257,9 @@ export class GameUI extends GameObject<GameData> {
   refreshPlayerSelectedState() {
     for (let player of this.data.playerList) {
       if (this.selectedPlayers.isSelected(player)) {
-        this.node.getComponentInChildren(OuterGlow).openOuterGlow();
+        player.gameObject.node.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        this.node.getComponentInChildren(OuterGlow).closeOuterGlow();
+        player.gameObject.node.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }
@@ -301,10 +303,6 @@ export class GameUI extends GameObject<GameData> {
 
   onStopCountDown() {
     this.tooltip.hide();
-    this.selectedPlayers.limit = 0;
-    this.resetSelectPlayer();
-    this.clearPlayerSelectable();
-    this.handCardList.selectedCards.limit = 0;
     (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
   }
 
@@ -372,10 +370,10 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
-    if (data.player.id === 0) {
-      this.handCardList.selectedCards.limit = 0;
-      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
-    }
+    // if (data.player.id === 0) {
+    //   this.handCardList.selectedCards.limit = 0;
+    //   (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+    // }
     this.cardAction.giveCards(data, this.handCardList);
   }
 
@@ -388,6 +386,8 @@ export class GameUI extends GameObject<GameData> {
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
+    this.selectedPlayers.limit = 0;
+    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
     this.cardAction.afterPlayerPlayCard(data);
   }
 
@@ -423,6 +423,7 @@ export class GameUI extends GameObject<GameData> {
           cardDir: card.direction,
           seq: this.seq,
         };
+
         await (() => {
           return new Promise((resolve, reject) => {
             switch (card.direction) {
@@ -436,6 +437,8 @@ export class GameUI extends GameObject<GameData> {
                 break;
               case CardDirection.UP:
                 this.tooltip.setText("请选择要传递情报的目标");
+                this.tooltip.buttons.setButtons([]);
+                this.selectedPlayers.limit = 1;
                 ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
                   data.targetPlayerId = player.id;
                   resolve(null);
@@ -444,15 +447,39 @@ export class GameUI extends GameObject<GameData> {
             }
           });
         })();
+
         if (card.lockable) {
           await (() => {
             return new Promise((resolve, reject) => {
-              this.tooltip.setText("请选择一名角色锁定");
+              this.selectedPlayers.limit = 1;
+              switch (card.direction) {
+                case CardDirection.LEFT:
+                case CardDirection.RIGHT:
+                  this.setPlayerSelectable((player) => {
+                    return player.id !== 0;
+                  });
+                  this.tooltip.setText("请选择一名角色锁定");
+                  break;
+                case CardDirection.UP:
+                  this.setPlayerSelectable((player) => {
+                    return player.id === data.targetPlayerId;
+                  });
+                  this.tooltip.setText("是否锁定该角色");
+                  break;
+              }
               this.tooltip.buttons.setButtons([
                 {
                   text: "锁定",
                   onclick: () => {
-                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                    switch (card.direction) {
+                      case CardDirection.LEFT:
+                      case CardDirection.RIGHT:
+                        data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                        break;
+                      case CardDirection.UP:
+                        data.lockPlayerId = data.targetPlayerId;
+                        break;
+                    }
                     this.handCardList.selectedCards.limit = 0;
                     resolve(null);
                   },
@@ -471,7 +498,9 @@ export class GameUI extends GameObject<GameData> {
             });
           })();
         }
-
+        this.selectedPlayers.limit = 0;
+        this.refreshPlayerSelectedState();
+        this.clearPlayerSelectable();
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
       },
     };
@@ -494,6 +523,8 @@ export class GameUI extends GameObject<GameData> {
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
       this.tooltip.setText(tooltipText);
+      this.selectedPlayers.limit = 0;
+      this.resetSelectPlayer();
       this.tooltip.buttons.setButtons([]);
       if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
         card.onDeselected(this.data, this.tooltip);

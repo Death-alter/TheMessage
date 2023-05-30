@@ -100,9 +100,9 @@ export class PlayerObject extends GameObject<Player> {
 
   refreshLockState() {
     if (this._locked) {
-      this.node.getChildByPath("Border/PlayerLock").active = true;
+      this.node.getChildByName("PlayerLock").active = true;
     } else {
-      this.node.getChildByPath("Border/PlayerLock").active = false;
+      this.node.getChildByName("PlayerLock").active = false;
     }
   }
 
