@@ -8,6 +8,7 @@ import { Tooltip } from "../../../GameManager/Tooltip";
 
 export class DiaoBao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
+  public messageToReplaced: Card = null;
 
   constructor(option: CardDefaultOption) {
     super({
@@ -41,31 +42,26 @@ export class DiaoBao extends Card {
 
   onDeselected() {}
 
-  onConfirmPlay(gameData: GameData) {
-    console.log(this);
-  }
-
-  onPlay() {
-    super.onPlay();
-    // NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, { cardId: this.id });
-  }
-
   onEffect(gameData: GameData, { cardId, oldMessageCard }: CardOnEffectParams) {
-    let oldMessage;
-    if (cardId !== 0 && gameData.messageInTransmit.id === cardId) {
+    let oldMessage: Card;
+    if (cardId !== 0 && gameData.messageInTransmit.id === oldMessageCard.cardId) {
       oldMessage = gameData.messageInTransmit;
     } else {
       oldMessage = gameData.createMessage(oldMessageCard);
       oldMessage.gameObject = gameData.messageInTransmit.gameObject;
+      oldMessage.flip();
     }
 
     gameData.messageInTransmit = gameData.cardOnPlay;
+    this.messageToReplaced = oldMessage;
+  }
 
+  onFinish(gameData: GameData) {
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
       message: gameData.messageInTransmit,
-      oldMessage,
+      oldMessage: this.messageToReplaced,
     });
-
-    return true;
+    this.messageToReplaced = null;
+    return false;
   }
 }

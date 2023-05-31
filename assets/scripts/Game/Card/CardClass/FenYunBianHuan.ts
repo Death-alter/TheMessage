@@ -3,6 +3,7 @@ import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { CardActionLocation, GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { OuterGlow } from "../../../Utils/OuterGlow";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 
@@ -60,6 +61,7 @@ export class FenYunBianHuan extends Card {
     const player = gameData.playerList[playerId];
     const showCardsWindow = gameData.gameObject.showCardsWindow;
     if (playerId !== 0) {
+      gameData.gameObject.showCardsWindow.show();
       showCardsWindow.setTitle(`等待${player.seatNumber}号玩家选择一张牌`);
       showCardsWindow.buttons.setButtons([]);
     } else {
@@ -68,11 +70,10 @@ export class FenYunBianHuan extends Card {
         {
           text: "确定",
           onclick: () => {
+            const card = gameData.gameObject.showCardsWindow.selectedCards.list[0];
             gameData.gameObject.showCardsWindow.hide();
-            const card = gameData.gameObject.handCardList.selectedCards.list[0];
             const messages = player.getMessagesCopy();
             let flag = (() => {
-              console.log(card);
               for (let color of card.color) {
                 messages.forEach((message) => {
                   if (message.color.indexOf(color) !== -1) {
@@ -128,6 +129,7 @@ export class FenYunBianHuan extends Card {
     const cardList = gameData.gameObject.showCardsWindow.cardList.list;
     for (let card of cardList) {
       if (card.id === cardId) {
+        card.gameObject.node.getComponentInChildren(OuterGlow).closeOuterGlow();
         gameData.gameObject.showCardsWindow.removeCard(card);
         if (asMessageCard) {
           player.addMessage(card);
@@ -146,5 +148,9 @@ export class FenYunBianHuan extends Card {
         break;
       }
     }
+  }
+
+  onFinish(gameData: GameData) {
+    gameData.gameObject.showCardsWindow.hide();
   }
 }

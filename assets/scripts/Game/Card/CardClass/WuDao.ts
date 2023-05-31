@@ -40,7 +40,7 @@ export class WuDao extends Card {
           onclick: () => {
             const card = gameData.gameObject.handCardList.selectedCards.list[0];
             const player = gameData.gameObject.selectedPlayers.list[0];
-            NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
+            NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
               cardId: card.id,
               targetPlayerId: player.id,
               seq: gameData.gameObject.seq,
@@ -59,11 +59,8 @@ export class WuDao extends Card {
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
-  onPlay() {
-    super.onPlay();
-  }
-
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {
     gameData.messagePlayerId = targetPlayerId;
   }
+
 }

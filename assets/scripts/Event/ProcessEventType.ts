@@ -107,6 +107,7 @@ export interface GetPhaseData {
   messageDirection: CardDirection;
   messageInTransmit: card;
   senderId: number;
+  needWaiting: boolean; 
 }
 
 export interface StartCountDown {

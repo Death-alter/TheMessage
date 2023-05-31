@@ -25,6 +25,9 @@ export class PingHeng extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
+    gameData.gameObject.setPlayerSelectable((player) => {
+      return player.id !== 0;
+    });
     tooltip.setText(`请选择平衡的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       tooltip.setText(`是否使用平衡？`);
@@ -40,6 +43,7 @@ export class PingHeng extends Card {
               seq: gameData.gameObject.seq,
             });
             gameData.gameObject.resetSelectPlayer();
+            gameData.gameObject.clearPlayerSelectable();
             gameData.gameObject.selectedPlayers.limit = 0;
             ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
           },
@@ -50,6 +54,7 @@ export class PingHeng extends Card {
 
   onDeselected(gameData: GameData, tooltip: Tooltip) {
     gameData.gameObject.resetSelectPlayer();
+    gameData.gameObject.clearPlayerSelectable();
     gameData.gameObject.selectedPlayers.limit = 0;
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
