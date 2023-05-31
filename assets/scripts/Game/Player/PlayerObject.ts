@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Sprite, Color } from "cc";
+import { _decorator, Label, Node, Sprite, Color, color } from "cc";
 import { CharacterObject } from "../Character/CharacterObject";
 import { Player } from "./Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
@@ -107,26 +107,33 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   refreshStatus() {
+    const statusTextNode = this.node.getChildByPath("Border/StatusText");
+    console.log(statusTextNode)
     switch (this.data.status) {
       case PlayerStatus.DEAD:
         this.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
         this.node.getChildByPath("Border/CharacterPanting/Mask/Cover").getComponent(Sprite).grayscale = true;
         const blue = this.node.getChildByPath("Border/Message/Blue").getComponent(Sprite);
         blue.grayscale = true;
-        Color.fromHEX(blue.color, "#FFFFFF");
+        blue.color = color("#FFFFFF");
         const black = this.node.getChildByPath("Border/Message/Black").getComponent(Sprite);
         black.grayscale = true;
-        Color.fromHEX(black.color, "#FFFFFF");
+        black.color = color("#FFFFFF");
         const red = this.node.getChildByPath("Border/Message/Red").getComponent(Sprite);
         red.grayscale = true;
-        Color.fromHEX(red.color, "#FFFFFF");
+        red.color = color("#FFFFFF");
         const handCard = this.node.getChildByPath("Border/Message/HandCard").getComponent(Sprite);
         handCard.grayscale = true;
-        Color.fromHEX(handCard.color, "#FFFFFF");
+        handCard.color = color("#FFFFFF");
+        statusTextNode.getComponent(Label).string = "死亡";
+        statusTextNode.active = true;
         break;
       case PlayerStatus.DYING:
+        statusTextNode.getComponent(Label).string = "濒死";
+        statusTextNode.active = true;
         break;
       case PlayerStatus.ALIVE:
+        statusTextNode.active = false;
         break;
     }
   }

@@ -54,10 +54,6 @@ export class LiYou extends Card {
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
-  onPlay() {
-    super.onPlay();
-  }
-
   onEffect(gameData: GameData, { userId, targetPlayerId, targetCard, flag }: CardOnEffectParams): void {
     if (!targetCard) return;
     const card = gameData.createCard(targetCard);

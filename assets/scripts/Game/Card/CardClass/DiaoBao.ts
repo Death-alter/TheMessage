@@ -40,8 +40,6 @@ export class DiaoBao extends Card {
     ]);
   }
 
-  onDeselected() {}
-
   onEffect(gameData: GameData, { cardId, oldMessageCard }: CardOnEffectParams) {
     let oldMessage: Card;
     if (cardId !== 0 && gameData.messageInTransmit.id === oldMessageCard.cardId) {
@@ -49,7 +47,6 @@ export class DiaoBao extends Card {
     } else {
       oldMessage = gameData.createMessage(oldMessageCard);
       oldMessage.gameObject = gameData.messageInTransmit.gameObject;
-      oldMessage.flip();
     }
 
     gameData.messageInTransmit = gameData.cardOnPlay;

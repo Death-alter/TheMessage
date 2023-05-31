@@ -26,6 +26,7 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
 
   removeData(data: T) {
     const index = this._list.indexOf(data);
+    if (index === -1) return;
     this._list.splice(index, 1);
     if (this.gameObject && data.gameObject) {
       this.gameObject.node.removeChild(data.gameObject.node);

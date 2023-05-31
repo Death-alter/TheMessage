@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween } from "cc";
+import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween, color } from "cc";
 import {ProcessEventCenter} from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;

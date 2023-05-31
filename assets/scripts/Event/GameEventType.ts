@@ -85,10 +85,6 @@ export interface PlayerRemoveMessage {
   messageList: Card[];
 }
 
-export interface PlayerDying {
-  player: Player;
-}
-
 export interface PlayerBeforeDeath {
   player: Player;
   loseGame: boolean;

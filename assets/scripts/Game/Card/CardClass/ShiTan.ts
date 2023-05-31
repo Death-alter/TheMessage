@@ -60,9 +60,6 @@ export class ShiTan extends Card {
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
-  onPlay() {
-  }
-
   onEffect(gameData: GameData, { userId, flag }: CardOnEffectParams) {}
 
   onShow(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {

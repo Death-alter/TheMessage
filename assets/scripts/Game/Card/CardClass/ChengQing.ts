@@ -51,6 +51,7 @@ export class ChengQing extends Card {
               gameData.gameObject.showCardsWindow.hide();
               ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
             },
+            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
           },
           {
             text: "取消",

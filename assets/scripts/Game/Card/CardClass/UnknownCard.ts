@@ -17,12 +17,4 @@ export class UnknownCard extends Card {
       gameObject: option.gameObject,
     });
   }
-
-  onSelectedToPlay(): void {}
-
-  onDeselected(): void {}
-
-  onConfirmPlay() {}
-
-  onEffect() {}
 }

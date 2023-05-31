@@ -1,4 +1,4 @@
-import { Node } from "cc";
+import { Node, Vec2, Vec3 } from "cc";
 import { Player } from "../Game/Player/Player";
 
 export const enum GamePhase {
@@ -20,8 +20,9 @@ export const enum CardActionLocation {
 }
 
 export interface ActionLocation {
-  location: CardActionLocation;
+  location?: CardActionLocation;
   player?: Player;
+  position?: Vec3;
 }
 
 export interface MoveNodeParams {

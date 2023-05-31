@@ -221,10 +221,10 @@ export class EventMapper {
         playerId: data.waitingPlayerId,
         second: data.waitingSecond,
         type: WaitingType.PLAYER_DYING,
+        params: {
+          diePlayerId: data.diePlayerId,
+        },
         seq: data.seq,
-      });
-      ProcessEventCenter.emit(ProcessEvent.PLAYER_DYING, {
-        playerId: data.diePlayerId,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.NOTIFY_DYING_TOC, (data: ProtobufType.notify_dying_toc) => {
@@ -444,8 +444,13 @@ export class EventMapper {
           card: data.card,
           cardType: CardType.WEI_BI,
           userId: data.playerId,
-          targetPlayerId: data.targetPlayerId,
-          wantType: data.wantType,
+        });
+        ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+          data: {
+            userId: data.playerId,
+            targetPlayerId: data.targetPlayerId,
+            wantType: data.wantType,
+          },
         });
       }
     );

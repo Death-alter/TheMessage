@@ -79,17 +79,16 @@ export class WeiBi extends Card {
   }
 
   //有人使用威逼
-  onPlay(gameData: GameData, params: CardPlayed) {
-    if (params.targetPlayerId === 0) {
+  onEffect(gameData: GameData, { userId, targetPlayerId, wantType }: CardPlayed) {
+    if (targetPlayerId === 0) {
       const handCardList = gameData.gameObject.handCardList;
       const tooltip = gameData.gameObject.tooltip;
-      const user = gameData.playerList[params.userId];
+      const user = gameData.playerList[userId];
 
       handCardList.selectedCards.limit = 1;
-      console.log(handCardList.selectedCards.limit)
 
       let cardTypeText;
-      switch (params.wantType as CardType) {
+      switch (wantType as CardType) {
         case CardType.JIE_HUO:
           cardTypeText = "截获";
           break;
@@ -114,18 +113,13 @@ export class WeiBi extends Card {
             });
           },
           enabled: () => {
-            return (
-              handCardList.selectedCards.list.length === 1 &&
-              handCardList.selectedCards.list[0].type === params.wantType
-            );
+            return handCardList.selectedCards.list.length === 1 && handCardList.selectedCards.list[0].type === wantType;
           },
         },
       ]);
       tooltip.show();
     }
   }
-
-  onEffect(gameData: GameData, params: CardOnEffectParams) {}
 
   onGiveCard(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     const user = gameData.playerList[userId];
@@ -139,7 +133,6 @@ export class WeiBi extends Card {
     }
     if (user.id === 0) {
       removedCard = gameData.createCard(card);
-      // gameData.gameObject.handCardList.addData(removedCard);
     }
     user.addHandCard(removedCard);
 

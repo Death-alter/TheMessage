@@ -7,14 +7,10 @@ import {
   SpriteFrame,
   Label,
   Vec3,
-  Color,
   color,
   Quat,
   tween,
   UIOpacity,
-  Material,
-  UITransform,
-  Vec2,
 } from "cc";
 import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";
@@ -26,46 +22,16 @@ const { ccclass, property } = _decorator;
 export class CardObject extends GameObject<Card> {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
 
-  private defaultMaterial: Material = null;
-  private showOuterGlow: boolean = false;
-
   get data() {
     return this._data;
   }
 
   set data(data: Card) {
     super.data = data;
-    if (this.data) {
-      this.refresh(this.data);
+    if (this._data) {
+      this.refresh(this._data);
     }
   }
-
-  // openOuterGlow(c?: string) {
-  //   const imageNode = this.node.getChildByPath("Inner/Panting/Image");
-  //   if (this.defaultMaterial && imageNode.getComponent(Sprite).material !== this.defaultMaterial) return;
-  //   resources.load("material/rectOuterGlow", Material, (err, material) => {
-  //     material.addRef();
-  //     const transform = imageNode.getComponent(UITransform);
-  //     material.setProperty("texSize", new Vec2(transform.width, transform.height));
-  //     if (c) {
-  //       material.setProperty("lightColor", color(c));
-  //     }
-  //     imageNode.getComponent(Sprite).customMaterial = material;
-  //     this.showOuterGlow = true;
-  //   });
-  // }
-
-  // refreshOuterGlow() {
-  //   const imageNode = this.node.getChildByPath("Inner/Panting/Image");
-  //   const material = imageNode.getComponent(Sprite).material;
-  //   const p = material.passes[0].getHandle("worldPosition");
-  //   material.passes[0].setUniform(p, new Vec2(imageNode.worldPosition.x, imageNode.worldPosition.y));
-  // }
-
-  // closeOuterGlow() {
-  //   this.node.getChildByPath("Inner/Panting/Image").getComponent(Sprite).customMaterial = null;
-  //   this.showOuterGlow = false;
-  // }
 
   refresh(card: Card) {
     const coverNode = this.node.getChildByPath("Inner/Panting/Cover");
@@ -86,20 +52,16 @@ export class CardObject extends GameObject<Card> {
 
       const colorNodeLeft = detailNode.getChildByPath("Color/Left");
       const colorNodeRight = detailNode.getChildByPath("Color/Right");
-      console.log(card.color);
       if (!card.color || card.color.length === 0) {
         colorNodeLeft.active = false;
         colorNodeRight.active = false;
       } else {
         if (card.color.length === 1) {
-          Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
-          Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
-          console.log(CardObject.colors[card.color[0]]);
+          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
+          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
         } else {
-          Color.fromHEX(colorNodeLeft.getComponent(Sprite).color, CardObject.colors[card.color[0]]);
-          Color.fromHEX(colorNodeRight.getComponent(Sprite).color, CardObject.colors[card.color[1]]);
-          console.log(CardObject.colors[card.color[0]]);
-          console.log(CardObject.colors[card.color[1]]);
+          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
+          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[1]])
         }
         colorNodeLeft.active = true;
         colorNodeRight.active = true;

@@ -9,7 +9,6 @@ const { ccclass, property } = _decorator;
 export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> {
   init() {}
   onDataAdded(data: GameLog): void {
-    data.gameObject = GamePools.logMessagePool.get();
     this.node.addChild(data.gameObject.node);
     data.gameObject.init();
     data.gameObject.setText(data.text);

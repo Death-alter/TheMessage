@@ -10,30 +10,31 @@ import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
 import { CardObject } from "../Card/CardObject";
+import GamePools from "../../GameManager/GamePools";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
 
-  //   protected _gameObject: GameObject<GameLog>;
+    // protected _gameObject: GameObject<GameLog>;
 
-  //   get gameObject(): T {
-  //     return this._gameObject;
-  //   }
+    // get gameObject(): T {
+    //   return this._gameObject;
+    // }
 
-  //   set gameObject(object: T | null) {
-  //     if (object == this._gameObject) return;
-  //     if (object) {
-  //       if (this._gameObject) {
-  //         this._gameObject.data = null;
-  //       }
-  //       this._gameObject = object;
-  //       object.data = this;
-  //     } else {
-  //       const oldObject = this._gameObject;
-  //       this._gameObject = null;
-  //       oldObject.data = null;
-  //     }
-  //   }
+    // set gameObject(object: T | null) {
+    //   if (object == this._gameObject) return;
+    //   if (object) {
+    //     if (this._gameObject) {
+    //       this._gameObject.data = null;
+    //     }
+    //     this._gameObject = object;
+    //     object.data = this;
+    //   } else {
+    //     const oldObject = this._gameObject;
+    //     this._gameObject = null;
+    //     oldObject.data = null;
+    //   }
+    // }
 
   constructor(gameObject?: GameLogContainer | GameLogWindow) {
     super(gameObject);
@@ -75,6 +76,11 @@ export class GameLogList extends DataContainer<GameLog> {
     } else {
       return `【${card.name}】`;
     }
+  }
+
+  addData(data: GameLog): void {
+    data.gameObject = GamePools.logMessagePool.get();
+    super.addData(data)
   }
 
   registerEvents() {
@@ -182,7 +188,6 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onCardAddToHandCard({ player, card }: GameEventType.CardAddToHandCard) {
-    console.log(card);
     this.addData(
       new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${this.formatCard(card)}加入手牌`)
     );

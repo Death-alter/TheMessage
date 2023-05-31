@@ -167,6 +167,9 @@ export class Player extends DataBasic<PlayerObject> {
     });
 
     this._messages = [...this._messages, ...messages];
+    if (this.messageCounts.black >= 3) {
+      this.status = PlayerStatus.DYING;
+    }
     this.gameObject.refreshMessageCount();
   }
 
@@ -183,6 +186,9 @@ export class Player extends DataBasic<PlayerObject> {
           break;
         }
       }
+    }
+    if (this.messageCounts.black < 3 && this.status === PlayerStatus.DYING) {
+      this.status = PlayerStatus.ALIVE;
     }
     this.gameObject.refreshMessageCount();
     return arr;

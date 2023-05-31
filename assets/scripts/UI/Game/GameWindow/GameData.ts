@@ -27,6 +27,7 @@ export class GameData extends DataBasic<GameUI> {
   public cardOnPlay: Card;
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
+  public dyingPlayer: Player = null; //等待澄清的玩家
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -157,7 +158,6 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.on(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
     ProcessEventCenter.on(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
     ProcessEventCenter.on(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_DYING, this.playerDying, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
@@ -175,7 +175,6 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter);
     ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage);
     ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DYING, this.playerDying);
     ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie);
@@ -329,9 +328,6 @@ export class GameData extends DataBasic<GameUI> {
       this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
     }
 
-    if (card instanceof Card) {
-      card.onSend();
-    }
     GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, {
       player,
       message: card,
@@ -349,16 +345,10 @@ export class GameData extends DataBasic<GameUI> {
     });
   }
 
-  //濒死求澄清
-  private playerDying(data: ProcessEventType.PlayerDying) {
-    const player = this.playerList[data.playerId];
-    player.status = PlayerStatus.DYING;
-    GameEventCenter.emit(GameEvent.PLAYER_DYING, { player });
-  }
-
   //玩家死亡前
   private playerBeforeDeath(data: ProcessEventType.PlayerBeforeDeath) {
     const player = this.playerList[data.playerId];
+    this.dyingPlayer = null;
     player.status = PlayerStatus.DEAD;
     GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
   }
@@ -426,7 +416,6 @@ export class GameData extends DataBasic<GameUI> {
       }
     }
 
-    card.onPlay(this, data);
     this.cardOnPlay = card;
     const eventData: any = { player: this.playerList[data.userId], card };
     if (data.targetPlayerId != null) {

@@ -15,7 +15,7 @@ import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
-import { CardDirection } from "../../../Game/Card/type";
+import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
 
 const { ccclass, property } = _decorator;
@@ -136,9 +136,6 @@ export class GameUI extends GameObject<GameData> {
 
     //移除情报
     GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
-
-    //濒死求澄清
-    // GameEventCenter.on(GameEvent.PLAYER_DYING, this.playerDying, this);
 
     //玩家死前
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
@@ -298,7 +295,7 @@ export class GameUI extends GameObject<GameData> {
           this.promotReceiveMessage("情报传递到你面前，是否接收情报？");
           break;
         case WaitingType.PLAYER_DYING:
-          this.promotUseHandCard("玩家濒死，是否使用澄清？");
+          this.promotUseCengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
           break;
       }
     } else {
@@ -418,6 +415,59 @@ export class GameUI extends GameObject<GameData> {
         card.onDeselected(this.data, this.tooltip);
       }
     });
+  }
+
+  promotUseCengQing(tooltipText, playerId) {
+    const player = this.data.playerList[playerId];
+    this.handCardList.selectedCards.limit = 1;
+    this.tooltip.setText(tooltipText);
+    this.tooltip.buttons.setButtons([
+      {
+        text: "澄清",
+        onclick: () => {
+          this.showCardsWindow.show({
+            title: "选择一张情报弃置",
+            cardList: player.getMessagesCopy(),
+            limit: 1,
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                    use: true,
+                    cardId: this.handCardList.selectedCards.list[0].id,
+                    targetCardId: this.showCardsWindow.selectedCards.list[0].id,
+                    seq: this.seq,
+                  });
+                  this.showCardsWindow.hide();
+                  ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  this.showCardsWindow.hide();
+                },
+              },
+            ],
+          });
+        },
+        enabled: () =>
+          this.handCardList.selectedCards.list[0] &&
+          this.handCardList.selectedCards.list[0].type === CardType.CHENG_QING,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          this.handCardList.selectedCards.limit = 0;
+          (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+          NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+            use: false,
+            seq: this.seq,
+          });
+        },
+      },
+    ]);
   }
 
   promotSendMessage(tooltipText) {

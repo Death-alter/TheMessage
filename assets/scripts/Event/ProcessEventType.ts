@@ -107,13 +107,14 @@ export interface GetPhaseData {
   messageDirection: CardDirection;
   messageInTransmit: card;
   senderId: number;
-  needWaiting: boolean; 
+  needWaiting: boolean;
 }
 
 export interface StartCountDown {
   playerId: number;
   second: number;
   type: WaitingType;
+  params?: { [index: string]: any };
   seq: number;
 }
 
@@ -126,10 +127,6 @@ export interface SendMessage {
 }
 
 export interface ChooseReceive {
-  playerId: number;
-}
-
-export interface PlayerDying {
   playerId: number;
 }
 

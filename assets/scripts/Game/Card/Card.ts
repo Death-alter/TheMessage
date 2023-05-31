@@ -74,17 +74,13 @@ export abstract class Card extends DataBasic<CardObject> {
     }
   }
 
-  //当做功能牌打出
-  onPlay(...args: any[]): void {}
+  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
 
-  //当做情报传递
-  onSend(...args: any[]): void {}
+  onDeselected(gameData: GameData, tooltip: Tooltip): void {}
 
-  abstract onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void;
-
-  abstract onDeselected(gameData: GameData, tooltip: Tooltip): void;
-
-  abstract onEffect(gameData: GameData, params: CardOnEffectParams): void;
+  onEffect(gameData: GameData, params: CardOnEffectParams): boolean | void {
+    return true;
+  }
 
   onFinish(gameData: GameData): boolean | void {
     return true;

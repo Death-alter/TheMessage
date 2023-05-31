@@ -59,9 +59,5 @@ export class PingHeng extends Card {
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
-  onPlay() {
-    super.onPlay();
-  }
-
   onEffect(): void {}
 }

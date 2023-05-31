@@ -1,6 +1,5 @@
 import {
   _decorator,
-  Color,
   Component,
   director,
   instantiate,
@@ -10,6 +9,7 @@ import {
   Prefab,
   RichText,
   Sprite,
+  color,
 } from "cc";
 import { GameOver } from "../../../Event/GameEventType";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
@@ -38,15 +38,15 @@ export class Winner extends Component {
       })`;
       const identityLabel = item.getChildByPath("Identity/Label").getComponent(Label);
       identityLabel.string = data.identity.name;
-      Color.fromHEX(identityLabel.color, data.identity.color);
+      identityLabel.color = color(data.identity.color)
       item.getChildByName("SecretTask").getComponent(RichText).string =
         data.identity instanceof MysteriousPerson ? `<color=black>${data.identity.secretTaskText}</color=black>` : "";
 
       if (data.isWinner) {
-        Color.fromHEX(item.getComponent(Sprite).color, "#6DFF70");
+        item.getComponent(Sprite).color = color("#6DFF70")
         item.getChildByName("Flag").getComponent(Label).string = "赢";
       } else {
-        Color.fromHEX(item.getComponent(Sprite).color, "#FF8181");
+        item.getComponent(Sprite).color = color("#FF8181")
         item.getChildByName("Flag").getComponent(Label).string = "输";
       }
       if (data.isDeclarer) {
