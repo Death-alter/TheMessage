@@ -11,16 +11,23 @@ import {
   Quat,
   tween,
   UIOpacity,
+  find,
+  sys,
 } from "cc";
 import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
+import { GameUI } from "../../UI/Game/GameWindow/GameUI";
+import { CardInfoWindow } from "../../UI/Game/GameWindow/CardInfoWindow";
+import { copyCard } from "./index";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")
 export class CardObject extends GameObject<Card> {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
+  private touchStartTime: number = 0;
+  private isOnTouch = false;
 
   get data() {
     return this._data;
@@ -30,6 +37,49 @@ export class CardObject extends GameObject<Card> {
     super.data = data;
     if (this._data) {
       this.refresh(this._data);
+    }
+  }
+
+  onEnable() {
+    if (sys.isMobile) {
+      this.node.on(Node.EventType.TOUCH_START, () => {
+        this.touchStartTime = new Date().getTime();
+        this.isOnTouch = true;
+      });
+      this.node.on(Node.EventType.TOUCH_END, () => {
+        if (this.isOnTouch) {
+          const deltaTime = new Date().getTime() - this.touchStartTime;
+          if (deltaTime > 500) {
+            const cardInfo = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow.getComponent(CardInfoWindow);
+            cardInfo.card = copyCard(this.data);
+            cardInfo.show();
+          }
+        }
+      });
+      this.node.on(Node.EventType.TOUCH_CANCEL, () => {
+        this.touchStartTime = 0;
+        this.isOnTouch = false;
+      });
+    } else {
+      this.node.on(Node.EventType.MOUSE_ENTER, () => {
+        const cardInfo = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow.getComponent(CardInfoWindow);
+        cardInfo.card = copyCard(this.data);
+        cardInfo.show();
+      });
+      this.node.on(Node.EventType.MOUSE_LEAVE, () => {
+        find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow.active = false;
+      });
+    }
+  }
+
+  onDisable() {
+    if (sys.isMobile) {
+      this.node.off(Node.EventType.TOUCH_START);
+      this.node.off(Node.EventType.TOUCH_END);
+      this.node.off(Node.EventType.TOUCH_CANCEL);
+    } else {
+      this.node.off(Node.EventType.MOUSE_ENTER);
+      this.node.off(Node.EventType.MOUSE_LEAVE);
     }
   }
 
@@ -57,11 +107,11 @@ export class CardObject extends GameObject<Card> {
         colorNodeRight.active = false;
       } else {
         if (card.color.length === 1) {
-          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
-          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
+          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
+          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
         } else {
-          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]])
-          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[1]])
+          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
+          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[1]]);
         }
         colorNodeLeft.active = true;
         colorNodeRight.active = true;

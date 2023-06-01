@@ -7,7 +7,6 @@ export class NoIdentity extends Identity {
     super({
       type: IdentityType.HAS_NO_IDENTITY,
       name: "",
-      color: "",
     });
   }
 }

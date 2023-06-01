@@ -212,8 +212,6 @@ export enum ProcessEvent {
   GET_RECORD_LIST = "get_record_list",
   DISPLAY_RECORD_END = "display_record_end",
   SAVE_RECORD_SUCCESS = "save_record_success",
-  GET_ORDERS = "get_orders",
-  ADD_ORDER_SUCCESS = "add_order_success",
   UPDATE_ONLINE_COUNT = "update_online_count",
   JOIN_ROOM = "join_room",
   LEAVE_ROOM = "leave_room",

@@ -5,10 +5,11 @@ import { Card } from "../Card";
 import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus, CardDirection } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
+import { IdentityType } from "../../Identity/type";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
-  private _drawCardColor: CardColor[];
+  private _drawCardColor: IdentityType[];
 
   get drawCardColor() {
     return this._drawCardColor;

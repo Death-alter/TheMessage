@@ -1,5 +1,6 @@
 import { CardObject } from "../../Game/Card/CardObject";
 import { GamePhase } from "../../GameManager/type";
+import { IdentityType } from "../Identity/type";
 import { Card } from "./Card";
 
 export const enum CardStatus {
@@ -58,7 +59,7 @@ export interface CardDefaultOption {
 export interface ShiTanOption {
   id?: number;
   direction?: CardDirection;
-  drawCardColor?: CardColor[];
+  drawCardColor?: IdentityType[];
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;

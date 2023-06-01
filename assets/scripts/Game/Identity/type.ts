@@ -16,7 +16,6 @@ export const enum SecretTaskType {
 export interface IdentityOption {
   type: IdentityType;
   name: string;
-  color: string;
 }
 
 export interface MysteriousPersonOption {

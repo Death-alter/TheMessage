@@ -46,12 +46,17 @@ export class CardAction extends Component {
   setAction(node: Node, t: Tween<Node>) {
     const action = this.actions[node.uuid];
     if (action) {
-      action.stop();
+      action.call(() => {
+        t.call(() => {
+          delete this.actions[node.uuid];
+        }).start();
+      });
+    } else {
+      t.call(() => {
+        delete this.actions[node.uuid];
+      }).start();
+      this.actions[node.uuid] = t;
     }
-    t.call(() => {
-      delete this.actions[node.uuid];
-    }).start();
-    this.actions[node.uuid] = t;
   }
 
   moveNode({ node, from, to, duration = 0.6 }: MoveNodeParams) {

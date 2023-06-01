@@ -7,7 +7,6 @@ export class Lurker extends Identity {
     super({
       type: IdentityType.RED,
       name: "潜伏战线",
-      color: "#e10602",
     });
   }
 }

@@ -350,9 +350,11 @@ export class GameData extends DataBasic<GameUI> {
     const player = this.playerList[data.playerId];
     this.dyingPlayer = null;
     player.status = PlayerStatus.DEAD;
+    console.log(player);
     GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
   }
 
+  //玩家死亡
   private playerDie(data: ProcessEventType.PlayerDie) {
     const player = this.playerList[data.playerId];
     const handCards = player.removeAllHandCards();

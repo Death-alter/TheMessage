@@ -13,12 +13,6 @@ export class RoomButtons extends Component {
     this.node.getChildByName("RemoveRobot").on(Node.EventType.TOUCH_END, (event) => {
       NetworkEventCenter.emit(NetworkEventToS.REMOVE_ROBOT_TOS);
     });
-    this.node.getChildByName("ViewOrders").on(Node.EventType.TOUCH_END, (event) => {
-      NetworkEventCenter.emit(NetworkEventToS.GET_ORDERS_TOS);
-    });
-    this.node.getChildByName("AddOrder").on(Node.EventType.TOUCH_END, (event) => {
-      NetworkEventCenter.emit(NetworkEventToS.ADD_ORDER_TOS);
-    });
     this.node.getChildByName("AddRoomPostion").on(Node.EventType.TOUCH_END, (event) => {
       NetworkEventCenter.emit(NetworkEventToS.ADD_ONE_POSITION_TOS);
     });

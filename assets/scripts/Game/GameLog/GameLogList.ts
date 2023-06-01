@@ -43,31 +43,17 @@ export class GameLogList extends DataContainer<GameLog> {
   private formatCard(card: Card) {
     let colorStr = "";
     if (card.color && card.color.length) {
-      if (card.color.length === 1) {
-        switch (card.color[0]) {
+      for (let item of card.color) {
+        switch (item) {
           case CardColor.BLACK:
-            colorStr += `<color=#FFFFFF>黑色</color>`;
+            colorStr += `<color=#FFFFFF>黑</color>`;
             break;
           case CardColor.BLUE:
-            colorStr += `<color=${CardObject.colors[card.color[0]]}>蓝色</color>`;
+            colorStr += `<color=${CardObject.colors[item]}>蓝</color>`;
             break;
           case CardColor.RED:
-            colorStr += `<color=${CardObject.colors[card.color[0]]}>红色</color>`;
+            colorStr += `<color=${CardObject.colors[item]}>红</color>`;
             break;
-        }
-      } else {
-        for (let item of card.color) {
-          switch (item) {
-            case CardColor.BLACK:
-              colorStr += `<color=#FFFFFF>黑</color>`;
-              break;
-            case CardColor.BLUE:
-              colorStr += `<color=${CardObject.colors[item]}>蓝</color>`;
-              break;
-            case CardColor.RED:
-              colorStr += `<color=${CardObject.colors[item]}>红</color>`;
-              break;
-          }
         }
       }
     }

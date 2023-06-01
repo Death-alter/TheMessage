@@ -1,9 +1,10 @@
 import { IdentityType, IdentityOption } from "./type";
 
 export class Identity {
+  public static readonly colors = ["#07C160", "#e10602", "#2932e1", ""];
+
   protected _type: IdentityType;
   protected _name: string;
-  protected _color: string;
 
   get type() {
     return this._type;
@@ -14,13 +15,11 @@ export class Identity {
   }
 
   get color() {
-    return this._color;
+    return Identity.colors[this._type];
   }
 
   constructor(option: IdentityOption) {
     this._type = option.type;
     this._name = option.name;
-    this._color = option.color;
   }
 }
-

@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, Sprite, color } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -42,6 +42,8 @@ export class GameUI extends GameObject<GameData> {
   cardActionNode: Node | null = null;
   @property(Node)
   toolTipNode: Node | null = null;
+  @property(Node)
+  cardInfoWindow: Node | null = null;
 
   public cardAction: CardAction;
   public tooltip: Tooltip;
@@ -168,6 +170,17 @@ export class GameUI extends GameObject<GameData> {
   }
 
   init(data: GameEventType.GameInit) {
+    if (sys.isMobile) {
+      //展示卡牌窗口
+      this.node.on(
+        Node.EventType.TOUCH_START,
+        () => {
+          this.cardInfoWindow.active = false;
+        },
+        this
+      );
+    }
+
     //创建自己的UI
     const selfNode = this.node.getChildByPath("Self/Player");
     data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);

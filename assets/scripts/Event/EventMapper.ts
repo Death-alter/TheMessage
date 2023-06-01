@@ -60,12 +60,6 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, (data: ProtobufType.get_record_list_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_RECORD_LIST, { records: data.records });
     });
-    NetworkEventCenter.on(NetworkEventToC.ADD_ORDER_TOC, () => {
-      ProcessEventCenter.emit(ProcessEvent.ADD_ORDER_SUCCESS);
-    });
-    NetworkEventCenter.on(NetworkEventToC.GET_ORDERS_TOC, (data: ProtobufType.get_orders_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.GET_ORDERS, { orders: data.orders });
-    });
     NetworkEventCenter.on(NetworkEventToC.HEART_TOC, (data: ProtobufType.heart_toc) => {
       ProcessEventCenter.emit(ProcessEvent.UPDATE_ONLINE_COUNT, { onlineCount: data.onlineCount });
     });

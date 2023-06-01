@@ -7,7 +7,6 @@ export class Agent extends Identity {
     super({
       type: IdentityType.BLUE,
       name: "特工机关",
-      color: "#2932e1",
     });
   }
 }
