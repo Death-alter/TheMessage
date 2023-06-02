@@ -217,10 +217,7 @@ export class GameData extends DataBasic<GameUI> {
     this.gamePhase = data.currentPhase;
 
     //卡牌结算完成
-    if (
-      (data.currentPhase === GamePhase.MAIN_PHASE || data.currentPhase === GamePhase.FIGHT_PHASE) &&
-      this.cardOnPlay
-    ) {
+    if (this.cardOnPlay) {
       const card = this.cardOnPlay;
       this.cardOnPlay = null;
       GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
@@ -350,7 +347,6 @@ export class GameData extends DataBasic<GameUI> {
     const player = this.playerList[data.playerId];
     this.dyingPlayer = null;
     player.status = PlayerStatus.DEAD;
-    console.log(player);
     GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
   }
 
@@ -418,12 +414,23 @@ export class GameData extends DataBasic<GameUI> {
       }
     }
 
-    this.cardOnPlay = card;
-    const eventData: any = { player: this.playerList[data.userId], card };
-    if (data.targetPlayerId != null) {
-      eventData.targetPlayer = this.playerList[data.targetPlayerId];
+    if (this.cardOnPlay) {
+      GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
+        this.cardOnPlay = card;
+        const eventData: any = { player: this.playerList[data.userId], card };
+        if (data.targetPlayerId != null) {
+          eventData.targetPlayer = this.playerList[data.targetPlayerId];
+        }
+        GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
+      });
+    } else {
+      this.cardOnPlay = card;
+      const eventData: any = { player: this.playerList[data.userId], card };
+      if (data.targetPlayerId != null) {
+        eventData.targetPlayer = this.playerList[data.targetPlayerId];
+      }
+      GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
     }
-    GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
   }
 
   //卡牌效果处理

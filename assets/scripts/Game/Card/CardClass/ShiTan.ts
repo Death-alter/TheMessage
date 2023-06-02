@@ -66,9 +66,40 @@ export class ShiTan extends Card {
   onShow(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     //自己是被试探的目标时展示那张试探牌
     if (targetPlayerId === 0) {
-      const shiTanCard = gameData.createCard(card);
+      const player = gameData.playerList[targetPlayerId];
+      const shiTanCard = <ShiTan>gameData.createCard(card);
       shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
       gameData.cardOnPlay = shiTanCard;
+      const tooltip = gameData.gameObject.tooltip;
+      if (shiTanCard.drawCardColor.indexOf(player.identityList[0].type) !== -1) {
+        //是抽卡的身份
+        NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+          cardId: [],
+          seq: gameData.gameObject.seq,
+        });
+      } else {
+        if (player.handCardCount === 0) {
+          NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+            cardId: [],
+            seq: gameData.gameObject.seq,
+          });
+        } else {
+          gameData.gameObject.handCardList.selectedCards.limit = 1;
+          tooltip.setText(`请选择一张手牌丢弃`);
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+                  cardId: [gameData.gameObject.handCardList.selectedCards.list[0].id],
+                  seq: gameData.gameObject.seq,
+                });
+              },
+              enabled: () => !!gameData.gameObject.handCardList.selectedCards.list.length,
+            },
+          ]);
+        }
+      }
     }
   }
 }

@@ -15,27 +15,6 @@ import GamePools from "../../GameManager/GamePools";
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
 
-    // protected _gameObject: GameObject<GameLog>;
-
-    // get gameObject(): T {
-    //   return this._gameObject;
-    // }
-
-    // set gameObject(object: T | null) {
-    //   if (object == this._gameObject) return;
-    //   if (object) {
-    //     if (this._gameObject) {
-    //       this._gameObject.data = null;
-    //     }
-    //     this._gameObject = object;
-    //     object.data = this;
-    //   } else {
-    //     const oldObject = this._gameObject;
-    //     this._gameObject = null;
-    //     oldObject.data = null;
-    //   }
-    // }
-
   constructor(gameObject?: GameLogContainer | GameLogWindow) {
     super(gameObject);
   }
@@ -43,22 +22,36 @@ export class GameLogList extends DataContainer<GameLog> {
   private formatCard(card: Card) {
     let colorStr = "";
     if (card.color && card.color.length) {
-      for (let item of card.color) {
-        switch (item) {
+      if (card.color.length === 1) {
+        switch (card.color[0]) {
           case CardColor.BLACK:
-            colorStr += `<color=#FFFFFF>黑</color>`;
+            colorStr += `黑色`;
             break;
           case CardColor.BLUE:
-            colorStr += `<color=${CardObject.colors[item]}>蓝</color>`;
+            colorStr += `<color=${CardObject.colors[2].slice(1)}>蓝色</color>`;
             break;
           case CardColor.RED:
-            colorStr += `<color=${CardObject.colors[item]}>红</color>`;
+            colorStr += `<color=${CardObject.colors[1].slice(1)}>红色</color>`;
             break;
+        }
+      } else {
+        for (let item of card.color) {
+          switch (item) {
+            case CardColor.BLACK:
+              colorStr += `黑`;
+              break;
+            case CardColor.BLUE:
+              colorStr += `<color=${CardObject.colors[2].slice(1)}>蓝</color>`;
+              break;
+            case CardColor.RED:
+              colorStr += `<color=${CardObject.colors[1].slice(1)}>红</color>`;
+              break;
+          }
         }
       }
     }
     if (colorStr) {
-      return `【${colorStr}|${card.name}】`;
+      return `【${colorStr} | ${card.name}】`;
     } else {
       return `【${card.name}】`;
     }
@@ -66,7 +59,7 @@ export class GameLogList extends DataContainer<GameLog> {
 
   addData(data: GameLog): void {
     data.gameObject = GamePools.logMessagePool.get();
-    super.addData(data)
+    super.addData(data);
   }
 
   registerEvents() {
@@ -161,7 +154,7 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerRemoveMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
-    let str = `【${player.seatNumber + 1}号】${player.character.name}移除情报情报`;
+    let str = `【${player.seatNumber + 1}号】${player.character.name}移除情报`;
 
     for (let message of messageList) {
       str += this.formatCard(message);

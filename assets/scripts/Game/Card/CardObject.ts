@@ -121,9 +121,13 @@ export class CardObject extends GameObject<Card> {
       if (card.direction != null) {
         arrow.active = true;
         if (card.direction === CardDirection.LEFT) {
-          Quat.fromAngleZ(arrow.rotation, 90);
+          let rotation = new Quat();
+          Quat.fromAngleZ(rotation, 90);
+          arrow.rotation = rotation;
         } else if (card.direction === CardDirection.RIGHT) {
-          Quat.fromAngleZ(arrow.rotation, -90);
+          let rotation = new Quat();
+          Quat.fromAngleZ(rotation, -90);
+          arrow.rotation = rotation;
         }
       } else {
         arrow.active = false;

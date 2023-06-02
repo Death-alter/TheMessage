@@ -278,7 +278,7 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.SHOW_SHI_TAN_TOC, (data: ProtobufType.show_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.playerId,
+        playerId: data.targetPlayerId,
         second: data.waitingSecond,
         type: WaitingType.HNADLER_CARD,
         seq: data.seq,
@@ -525,6 +525,48 @@ export class EventMapper {
         });
       }
     );
+
+    //密令
+    NetworkEventCenter.on(NetworkEventToC.USE_MI_LING_TOC, (data: ProtobufType.use_mi_ling_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        playerId: data.targetPlayerId,
+        second: data.waitingSecond,
+        type: WaitingType.HNADLER_CARD,
+        seq: data.seq,
+      });
+      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+        card: data.card,
+        cardType: CardType.MI_LING,
+        userId: data.playerId,
+        targetPlayerId: data.targetPlayerId,
+      });
+      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+        data: {
+          playerId: data.playerId,
+          targetPlayerId: data.targetPlayerId,
+          secret: data.secret,
+          card: data.card,
+          hasColor: data.hasColor,
+          handCards: data.handCards,
+        },
+      });
+    });
+    NetworkEventCenter.on(NetworkEventToC.MI_LING_CHOOSE_CARD_TOC, (data: ProtobufType.mi_ling_choose_card_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        playerId: data.playerId,
+        second: data.waitingSecond,
+        type: WaitingType.HNADLER_CARD,
+        seq: data.seq,
+      });
+      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+        handler: "onChooseCard",
+        data: {
+          playerId: data.playerId,
+          targetPlayerId: data.targetPlayerId,
+          card: data.card,
+        },
+      });
+    });
 
     //技能
 

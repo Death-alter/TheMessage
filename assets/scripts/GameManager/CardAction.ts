@@ -23,6 +23,7 @@ export class CardAction extends Component {
 
   public transmissionMessageObject: CardObject;
   public actions: { [index: string]: Tween<Node> } = {};
+  public actionQueue: Tween<Node>[] = [];
 
   private getLoaction(location: CardActionLocation, player?: Player) {
     switch (location) {
@@ -46,11 +47,7 @@ export class CardAction extends Component {
   setAction(node: Node, t: Tween<Node>) {
     const action = this.actions[node.uuid];
     if (action) {
-      action.call(() => {
-        t.call(() => {
-          delete this.actions[node.uuid];
-        }).start();
-      });
+      action.then(t).start();
     } else {
       t.call(() => {
         delete this.actions[node.uuid];
@@ -404,9 +401,11 @@ export class CardAction extends Component {
     return new Promise(async (resolve, reject) => {
       if (!message.gameObject) {
         message.gameObject = GamePools.cardPool.get();
-        message.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
+        message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        // message.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
       }
       message.gameObject.node.setParent(this.node);
+      console.log(message.gameObject.node);
       await this.moveNode({
         node: message.gameObject.node,
         to: {

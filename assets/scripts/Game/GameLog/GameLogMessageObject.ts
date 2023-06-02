@@ -14,10 +14,11 @@ export class GameLogMessageObject extends GameObject<GameLog> {
     this.background = this.node.getChildByName("Background");
     this.label = this.node.getChildByName("RichText");
     this._opacityTarget = this.getComponent(UIOpacity);
-    tween(this._opacityTarget).hide().start();
+    // tween(this._opacityTarget).hide().start();
   }
 
   setText(str: string) {
+    console.log(str);
     this.label.getComponent(RichText).string = str;
     this.background.getComponent(UITransform).width = this.label.getComponent(UITransform).width + 20;
   }

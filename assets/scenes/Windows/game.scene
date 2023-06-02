@@ -191,7 +191,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 360,
+    "_orthoHeight": 454.67625899280574,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -3893,7 +3893,7 @@
         "__id__": 141
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 161
@@ -4100,7 +4100,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 260,
-      "height": 150.24
+      "height": 30.240000000000002
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -4119,7 +4119,7 @@
     "_enabled": true,
     "__prefab": null,
     "_lineHeight": 24,
-    "_string": "出牌阶段，指定一名角色，并宣言以下一种卡牌名称：【截获】【误导】【调包】【澄清】。该角色必须从手牌中将一张被宣言的卡牌交给你。若其手牌中没有，则必须让你查看全部手牌。",
+    "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
     "_fontSize": 18,
@@ -4408,7 +4408,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 60,
+      "width": 40,
       "height": 168.32
     },
     "_anchorPoint": {
@@ -4428,7 +4428,7 @@
     "_enabled": true,
     "__prefab": null,
     "_lineHeight": 32,
-    "_string": "澄清<br/><color=red>红</color>黑<br/>上<br/>可锁定<br/>",
+    "_string": "未知<br/>未知<br/>未知<br/>未知<br/>",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_fontSize": 20,
@@ -4688,10 +4688,10 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
+      "r": 0,
       "g": 0,
       "b": 0,
-      "a": 255
+      "a": 0
     },
     "_spriteFrame": {
       "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
@@ -4821,7 +4821,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 16,
+      "width": 0,
       "height": 25.2
     },
     "_anchorPoint": {
@@ -4850,7 +4850,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "-1",
+    "_string": "",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 18,
@@ -4904,10 +4904,10 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 31,
+      "r": 0,
       "g": 0,
-      "b": 255,
-      "a": 255
+      "b": 0,
+      "a": 0
     },
     "_spriteFrame": {
       "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
@@ -5061,9 +5061,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_string": "",
@@ -5120,10 +5120,10 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
-      "g": 255,
-      "b": 255,
-      "a": 255
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0
     },
     "_spriteFrame": {
       "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",

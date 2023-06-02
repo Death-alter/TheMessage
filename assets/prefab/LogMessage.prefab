@@ -263,7 +263,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 0,
+      "width": 387.43,
       "height": 20.16
     },
     "_anchorPoint": {
@@ -289,7 +289,7 @@
       "__id__": 12
     },
     "_lineHeight": 16,
-    "_string": "",
+    "_string": "【2号】未知角色把【<color=#e10602>红色</color> | 截获】加入手牌",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
     "_fontSize": 20,

@@ -40,18 +40,22 @@ export class CardInfoWindow extends Component {
     str = `${this.card.name}<br/>`;
 
     //颜色
-    for (let color of this.card.color) {
-      switch (color) {
-        case CardColor.BLACK:
-          str += `<color=#FFFFFF>黑</color>`;
-          break;
-        case CardColor.BLUE:
-          str += `<color=${CardObject.colors[color]}>蓝</color>`;
-          break;
-        case CardColor.RED:
-          str += `<color=${CardObject.colors[color]}>红</color>`;
-          break;
+    if (this.card.color) {
+      for (let color of this.card.color) {
+        switch (color) {
+          case CardColor.BLACK:
+            str += `<color=#FFFFFF>黑</color>`;
+            break;
+          case CardColor.BLUE:
+            str += `<color=${CardObject.colors[color]}>蓝</color>`;
+            break;
+          case CardColor.RED:
+            str += `<color=${CardObject.colors[color]}>红</color>`;
+            break;
+        }
       }
+    } else {
+      str += "未知";
     }
     str += "<br/>";
 
@@ -66,15 +70,22 @@ export class CardInfoWindow extends Component {
       case CardDirection.UP:
         str += "上";
         break;
+      default:
+        str += "未知";
     }
     str += "<br/>";
 
     //锁定
-    if (this.card.lockable) {
-      str += "可锁定";
+    if (this.card.lockable == null) {
+      str += "未知";
     } else {
-      str += "无";
+      if (this.card.lockable) {
+        str += "可锁定";
+      } else {
+        str += "无";
+      }
     }
+
     str += "<br/>";
 
     this.node.getChildByName("RichText").getComponent(RichText).string = str;
@@ -101,24 +112,27 @@ export class CardInfoWindow extends Component {
         break;
       case CardType.MI_LING:
         str = "传递阶段，指定一名角色代替你传出情报，你将这张牌面朝下递给该角色，并说出以下一个暗号,";
-        const arr = ["东", "西", "静"];
-        for (let i = 0; i < (<MiLing>this.card).secretColor.length; i++) {
-          const secretColor = (<MiLing>this.card).secretColor[i];
-          const label = other.children[i].getComponentInChildren(Label);
-          const c = secretColor === CardColor.BLACK ? color("#FFFFFF") : color(CardObject.colors[secretColor]);
-          other.children[i].getComponent(Sprite).color = c;
-          label.string = arr[i];
-          str += `<color=${c}>${arr[i]}风</color>`;
-          if (i === 2) {
-            str += "，";
-            label.color = color("#000000");
-          } else {
-            str += "、";
+        if ((<MiLing>this.card).secretColor) {
+          const arr = ["东", "西", "静"];
+          for (let i = 0; i < (<MiLing>this.card).secretColor.length; i++) {
+            const secretColor = (<MiLing>this.card).secretColor[i];
+            const label = other.children[i].getComponentInChildren(Label);
+            const c = color(CardObject.colors[secretColor]);
+            other.children[i].getComponent(Sprite).color = c;
+            label.string = arr[i];
+            str += `<color=${CardObject.colors[secretColor]}>${arr[i]}风</color>`;
+            if (i === 2) {
+              str += "，";
+            } else {
+              str += "、";
+            }
           }
+          other.active = true;
+        } else {
+          str += "东风、西风、静风，";
         }
         str += "其必须传出暗号对应颜色的情报。若其没有对应颜色的手牌，则让你查看其手牌，你选择一张由其传出。";
         detail.string = str;
-        other.active = true;
         break;
       case CardType.PING_HENG:
         detail.string = "出牌阶段，你和另一名角色弃置所有手牌，然后由你开始，双方各摸三张牌。";
@@ -128,31 +142,33 @@ export class CardInfoWindow extends Component {
         break;
       case CardType.SHI_TAN:
         str = "出牌阶段，将这张牌面朝下递给另一名角色，其必须根据自己的身份牌如实执行：<br/>";
-        const array = ["神秘人", "潜伏战线", "特工机关"];
-        let drawStr = "";
-        let disCardStr = "";
-        for (let i = 0; i < 3; i++) {
-          const c = color(Identity.colors[i]);
-          other.children[i].getComponent(Sprite).color = c;
-          if ((<ShiTan>this.card).drawCardColor.indexOf(i) === -1) {
-            if (disCardStr.length) {
-              disCardStr += "或";
+        if ((<ShiTan>this.card).drawCardColor) {
+          const array = ["神秘人", "潜伏战线", "特工机关"];
+          let drawStr = "";
+          let disCardStr = "";
+          for (let i = 0; i < 3; i++) {
+            other.children[i].getComponent(Sprite).color = color(Identity.colors[i]);
+            if ((<ShiTan>this.card).drawCardColor.indexOf(i) === -1) {
+              if (disCardStr.length) {
+                disCardStr += "或";
+              }
+              disCardStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
+              other.children[i].getComponentInChildren(Label).string = "-1";
+            } else {
+              if (drawStr.length) {
+                drawStr += "或";
+              }
+              drawStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
+              other.children[i].getComponentInChildren(Label).string = "+1";
             }
-            disCardStr += `<color=${c}>${array[Identity.colors[i]]}</color>`;
-          } else {
-            if (disCardStr.length) {
-              drawStr += "或";
-            }
-            drawStr += `<color=${c}>${array[Identity.colors[i]]}</color>`;
           }
+
+          disCardStr += "：弃置一张手牌。<br/>";
+          drawStr += "：摸一张牌。";
+          str += disCardStr + drawStr;
+          other.active = true;
         }
-
-        drawStr += "：弃置一张手牌。<br/>";
-        disCardStr += "：摸一张牌。";
-        str += disCardStr + drawStr;
-
         detail.string = str;
-        other.active = true;
         break;
       case CardType.WEI_BI:
         detail.string =
@@ -161,6 +177,8 @@ export class CardInfoWindow extends Component {
       case CardType.WU_DAO:
         detail.string = "争夺阶段，将待收情报由当前角色面前移至其相邻角色的面前。";
         break;
+      default:
+        detail.string = "";
     }
   }
 }
