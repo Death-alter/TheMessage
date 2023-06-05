@@ -10,15 +10,13 @@ export class GameLogMessageObject extends GameObject<GameLog> {
   private label: Node = null;
   private background: Node = null;
 
-  init() {
+  onLoad() {
     this.background = this.node.getChildByName("Background");
     this.label = this.node.getChildByName("RichText");
     this._opacityTarget = this.getComponent(UIOpacity);
-    tween(this._opacityTarget).hide().start();
   }
 
   setText(str: string) {
-    console.log(str);
     this.label.getComponent(RichText).string = str;
     this.background.getComponent(UITransform).width = this.label.getComponent(UITransform).width + 20;
   }
@@ -28,7 +26,6 @@ export class GameLogMessageObject extends GameObject<GameLog> {
       if (this._action !== null) this._action.stop();
       this._opacityTarget.opacity = 0;
       this._action = tween(this._opacityTarget)
-        .show()
         .to(0.5, { opacity: 255 }, { easing: "fade" })
         .delay(seconds)
         .to(0.5, { opacity: 0 }, { easing: "fade" })

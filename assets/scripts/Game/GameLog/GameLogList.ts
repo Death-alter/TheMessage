@@ -51,7 +51,7 @@ export class GameLogList extends DataContainer<GameLog> {
       }
     }
     if (colorStr) {
-      return `【${colorStr} | ${card.name}】`;
+      return `【${colorStr}|${card.name}】`;
     } else {
       return `【${card.name}】`;
     }
