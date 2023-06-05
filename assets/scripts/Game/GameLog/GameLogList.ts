@@ -28,10 +28,10 @@ export class GameLogList extends DataContainer<GameLog> {
             colorStr += `黑色`;
             break;
           case CardColor.BLUE:
-            colorStr += `<color=${CardObject.colors[2].slice(1)}>蓝色</color>`;
+            colorStr += `<color=${CardObject.colors[2]}>蓝色</color>`;
             break;
           case CardColor.RED:
-            colorStr += `<color=${CardObject.colors[1].slice(1)}>红色</color>`;
+            colorStr += `<color=${CardObject.colors[1]}>红色</color>`;
             break;
         }
       } else {
@@ -41,10 +41,10 @@ export class GameLogList extends DataContainer<GameLog> {
               colorStr += `黑`;
               break;
             case CardColor.BLUE:
-              colorStr += `<color=${CardObject.colors[2].slice(1)}>蓝</color>`;
+              colorStr += `<color=${CardObject.colors[2]}>蓝</color>`;
               break;
             case CardColor.RED:
-              colorStr += `<color=${CardObject.colors[1].slice(1)}>红</color>`;
+              colorStr += `<color=${CardObject.colors[1]}>红</color>`;
               break;
           }
         }
