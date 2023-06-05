@@ -99,11 +99,7 @@ export class WeiBi extends Card {
         break;
     }
     gameData.gameObject.gameLog.addData(
-      new GameLog(
-        `【${user.seatNumber + 1}号】${user.name}对【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.name
-        }使用威逼，宣言了【${cardTypeText}】`
-      )
+      new GameLog(`【${user.seatNumber + 1}号】${user.name}宣言了【${cardTypeText}】`)
     );
 
     //自己被威逼
