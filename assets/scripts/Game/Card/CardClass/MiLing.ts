@@ -5,6 +5,7 @@ import { Card } from "../Card";
 import { CardColor, CardDirection, CardOnEffectParams, CardType, MiLingOption } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
+import { Player } from "../../Player/Player";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -31,6 +32,9 @@ export class MiLing extends Card {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
     gameData.gameObject.selectedPlayers.limit = 1;
+    gameData.gameObject.setPlayerSelectable((player: Player) => {
+      return player.handCardCount > 0;
+    });
     tooltip.setText(`请选择密令的目标`);
     ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
       tooltip.setText(`请选择一个暗号`);
@@ -58,16 +62,58 @@ export class MiLing extends Card {
   }
 
   onDeselected(gameData: GameData, tooltip: Tooltip) {
+    gameData.gameObject.clearPlayerSelectable();
     gameData.gameObject.resetSelectPlayer();
     gameData.gameObject.selectedPlayers.limit = 0;
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId, hasColor, handCards }: CardOnEffectParams) {
+  onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
     if (hasColor) {
       //自己是目标
       if (targetPlayerId === 0) {
-        gameData.gameObject.promotSendMessage("请选择一张牌作为情报传出");
+        const color: CardColor = card.secretColor[secret];
+        const handCardList = gameData.gameObject.handCardList;
+        const tooltip = gameData.gameObject.tooltip;
+        handCardList.selectedCards.limit = 1;
+        let tooltipText = "密令的暗号为";
+        switch (secret) {
+          case 0:
+            tooltipText += "东风，";
+            break;
+          case 1:
+            tooltipText += "西风，";
+            break;
+          case 2:
+            tooltipText += "静风，";
+            break;
+        }
+        switch (color) {
+          case CardColor.BLACK:
+            tooltipText += "请选择一张黑色情报传出";
+            break;
+          case CardColor.RED:
+            tooltipText += "请选择一张红色情报传出";
+            break;
+          case CardColor.BLUE:
+            tooltipText += "请选择一张蓝色情报传出";
+            break;
+        }
+
+        tooltip.setText(tooltipText);
+        tooltip.buttons.setButtons([
+          {
+            text: "传递情报",
+            onclick: () => {
+              gameData.gameObject.doSendMessage();
+            },
+            enabled: () => {
+              return (
+                handCardList.selectedCards.list[0] && handCardList.selectedCards.list[0].color.indexOf(color) !== -1
+              );
+            },
+          },
+        ]);
       }
     } else {
       //自己是出牌者
@@ -83,7 +129,7 @@ export class MiLing extends Card {
             {
               text: "确定",
               onclick: () => {
-                const card = gameData.gameObject.handCardList.selectedCards.list[0];
+                const card = gameData.gameObject.showCardsWindow.selectedCards.list[0];
                 NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
                   cardId: card.id,
                   seq: gameData.gameObject.seq,
@@ -107,99 +153,7 @@ export class MiLing extends Card {
           handCardList.selectedCards.select(card);
         }
       }
-      const card = handCardList.selectedCards.list[0];
-      const data: any = {
-        cardId: card.id,
-        lockPlayerId: [],
-        cardDir: card.direction,
-        seq: gameData.gameObject.seq,
-      };
-      const tooltip = gameData.gameObject.tooltip;
-
-      await (() => {
-        return new Promise((resolve, reject) => {
-          switch (card.direction) {
-            case CardDirection.LEFT:
-              data.targetPlayerId = gameData.playerList.length - 1;
-              resolve(null);
-              break;
-            case CardDirection.RIGHT:
-              data.targetPlayerId = 1;
-              resolve(null);
-              break;
-            case CardDirection.UP:
-              tooltip.setText("请选择要传递情报的目标");
-              gameData.gameObject.setPlayerSelectable((player) => {
-                return player.id !== 0;
-              });
-              tooltip.buttons.setButtons([]);
-              gameData.gameObject.selectedPlayers.limit = 1;
-              ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
-                data.targetPlayerId = player.id;
-                resolve(null);
-              });
-              break;
-          }
-        });
-      })();
-
-      if (card.lockable) {
-        await (() => {
-          return new Promise((resolve, reject) => {
-            switch (card.direction) {
-              case CardDirection.LEFT:
-              case CardDirection.RIGHT:
-                gameData.gameObject.selectedPlayers.limit = 1;
-                gameData.gameObject.setPlayerSelectable((player) => {
-                  return player.id !== 0;
-                });
-                tooltip.setText("请选择一名角色锁定");
-                break;
-              case CardDirection.UP:
-                gameData.gameObject.setPlayerSelectable((player) => {
-                  return player.id === data.targetPlayerId;
-                });
-                tooltip.setText("是否锁定该角色");
-                break;
-            }
-            tooltip.buttons.setButtons([
-              {
-                text: "锁定",
-                onclick: () => {
-                  switch (card.direction) {
-                    case CardDirection.LEFT:
-                    case CardDirection.RIGHT:
-                      data.lockPlayerId = [gameData.gameObject.selectedPlayers.list[0].id];
-                      break;
-                    case CardDirection.UP:
-                      data.lockPlayerId = [data.targetPlayerId];
-                      break;
-                  }
-                  handCardList.selectedCards.limit = 0;
-                  resolve(null);
-                },
-                enabled: () => {
-                  return gameData.gameObject.selectedPlayers.list.length === 1;
-                },
-              },
-              {
-                text: "不锁定",
-                onclick: () => {
-                  handCardList.selectedCards.limit = 0;
-                  resolve(null);
-                },
-              },
-            ]);
-          });
-        })();
-      }
-
-      NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
-      gameData.gameObject.scheduleOnce(() => {
-        gameData.gameObject.clearPlayerSelectable();
-        gameData.gameObject.resetSelectPlayer();
-        gameData.gameObject.selectedPlayers.limit = 0;
-      }, 0);
+      gameData.gameObject.doSendMessage();
     }
   }
 

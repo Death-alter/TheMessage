@@ -17,6 +17,7 @@ import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
+import { GameLogList } from "../../../Game/GameLog/GameLogList";
 
 const { ccclass, property } = _decorator;
 
@@ -47,6 +48,7 @@ export class GameUI extends GameObject<GameData> {
 
   public cardAction: CardAction;
   public tooltip: Tooltip;
+  public gameLog: GameLogList;
   public handCardList: HandCardList;
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
@@ -486,103 +488,6 @@ export class GameUI extends GameObject<GameData> {
   promotSendMessage(tooltipText) {
     this.handCardList.selectedCards.limit = 1;
     this.tooltip.setText(tooltipText);
-    const sendMessageButtonConfig = {
-      text: "传递情报",
-      onclick: async () => {
-        const card = this.handCardList.selectedCards.list[0];
-        const data: any = {
-          cardId: card.id,
-          lockPlayerId: [],
-          cardDir: card.direction,
-          seq: this.seq,
-        };
-
-        await (() => {
-          return new Promise((resolve, reject) => {
-            switch (card.direction) {
-              case CardDirection.LEFT:
-                data.targetPlayerId = this.data.playerList.length - 1;
-                resolve(null);
-                break;
-              case CardDirection.RIGHT:
-                data.targetPlayerId = 1;
-                resolve(null);
-                break;
-              case CardDirection.UP:
-                this.tooltip.setText("请选择要传递情报的目标");
-                this.setPlayerSelectable((player) => {
-                  return player.id !== 0;
-                });
-                this.tooltip.buttons.setButtons([]);
-                this.selectedPlayers.limit = 1;
-                ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
-                  data.targetPlayerId = player.id;
-                  resolve(null);
-                });
-                break;
-            }
-          });
-        })();
-
-        if (card.lockable) {
-          await (() => {
-            return new Promise((resolve, reject) => {
-              switch (card.direction) {
-                case CardDirection.LEFT:
-                case CardDirection.RIGHT:
-                  this.selectedPlayers.limit = 1;
-                  this.setPlayerSelectable((player) => {
-                    return player.id !== 0;
-                  });
-                  this.tooltip.setText("请选择一名角色锁定");
-                  break;
-                case CardDirection.UP:
-                  this.setPlayerSelectable((player) => {
-                    return player.id === data.targetPlayerId;
-                  });
-                  this.tooltip.setText("是否锁定该角色");
-                  break;
-              }
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "锁定",
-                  onclick: () => {
-                    switch (card.direction) {
-                      case CardDirection.LEFT:
-                      case CardDirection.RIGHT:
-                        data.lockPlayerId = [this.selectedPlayers.list[0].id];
-                        break;
-                      case CardDirection.UP:
-                        data.lockPlayerId = [data.targetPlayerId];
-                        break;
-                    }
-                    this.handCardList.selectedCards.limit = 0;
-                    resolve(null);
-                  },
-                  enabled: () => {
-                    return this.selectedPlayers.list.length === 1;
-                  },
-                },
-                {
-                  text: "不锁定",
-                  onclick: () => {
-                    this.handCardList.selectedCards.limit = 0;
-                    resolve(null);
-                  },
-                },
-              ]);
-            });
-          })();
-        }
-
-        NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
-        this.scheduleOnce(() => {
-          this.clearPlayerSelectable();
-          this.resetSelectPlayer();
-          this.selectedPlayers.limit = 0;
-        }, 0);
-      },
-    };
 
     ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
       this.tooltip.setText("请选择一项操作");
@@ -594,10 +499,22 @@ export class GameUI extends GameObject<GameData> {
               card.onSelectedToPlay(this.data, this.tooltip);
             },
           },
-          sendMessageButtonConfig,
+          {
+            text: "传递情报",
+            onclick: () => {
+              this.doSendMessage();
+            },
+          },
         ]);
       } else {
-        this.tooltip.buttons.setButtons([sendMessageButtonConfig]);
+        this.tooltip.buttons.setButtons([
+          {
+            text: "传递情报",
+            onclick: () => {
+              this.doSendMessage();
+            },
+          },
+        ]);
       }
     });
     ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
@@ -653,5 +570,100 @@ export class GameUI extends GameObject<GameData> {
         card.onDeselected(this.data, this.tooltip);
       }
     });
+  }
+
+  async doSendMessage() {
+    const card = this.handCardList.selectedCards.list[0];
+    const data: any = {
+      cardId: card.id,
+      lockPlayerId: [],
+      cardDir: card.direction,
+      seq: this.seq,
+    };
+
+    await (() => {
+      return new Promise((resolve, reject) => {
+        switch (card.direction) {
+          case CardDirection.LEFT:
+            data.targetPlayerId = this.data.playerList.length - 1;
+            resolve(null);
+            break;
+          case CardDirection.RIGHT:
+            data.targetPlayerId = 1;
+            resolve(null);
+            break;
+          case CardDirection.UP:
+            this.tooltip.setText("请选择要传递情报的目标");
+            this.setPlayerSelectable((player) => {
+              return player.id !== 0;
+            });
+            this.tooltip.buttons.setButtons([]);
+            this.selectedPlayers.limit = 1;
+            ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
+              data.targetPlayerId = player.id;
+              resolve(null);
+            });
+            break;
+        }
+      });
+    })();
+
+    if (card.lockable) {
+      await (() => {
+        return new Promise((resolve, reject) => {
+          switch (card.direction) {
+            case CardDirection.LEFT:
+            case CardDirection.RIGHT:
+              this.selectedPlayers.limit = 1;
+              this.setPlayerSelectable((player) => {
+                return player.id !== 0;
+              });
+              this.tooltip.setText("请选择一名角色锁定");
+              break;
+            case CardDirection.UP:
+              this.setPlayerSelectable((player) => {
+                return player.id === data.targetPlayerId;
+              });
+              this.tooltip.setText("是否锁定该角色");
+              break;
+          }
+          this.tooltip.buttons.setButtons([
+            {
+              text: "锁定",
+              onclick: () => {
+                switch (card.direction) {
+                  case CardDirection.LEFT:
+                  case CardDirection.RIGHT:
+                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                    break;
+                  case CardDirection.UP:
+                    data.lockPlayerId = [data.targetPlayerId];
+                    break;
+                }
+                this.handCardList.selectedCards.limit = 0;
+                resolve(null);
+              },
+              enabled: () => {
+                return this.selectedPlayers.list.length === 1;
+              },
+            },
+            {
+              text: "不锁定",
+              onclick: () => {
+                this.handCardList.selectedCards.limit = 0;
+                resolve(null);
+              },
+            },
+          ]);
+        });
+      })();
+    }
+
+    NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
+    this.scheduleOnce(() => {
+      this.clearPlayerSelectable();
+      this.resetSelectPlayer();
+      this.selectedPlayers.limit = 0;
+    }, 0);
   }
 }

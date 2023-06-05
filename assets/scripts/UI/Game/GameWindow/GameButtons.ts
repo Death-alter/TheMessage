@@ -12,16 +12,16 @@ export class GameButtons extends Component {
     autoPlayButton.on(Node.EventType.TOUCH_END, () => {
       if (this._isAutoPlay) {
         NetworkEventCenter.emit(NetworkEventToS.AUTO_PLAY_TOS, { enable: false });
-        ProcessEventCenter.once(ProcessEvent.GET_AUTO_PLAY_STATUS, (data) => {
-          autoPlayButton.getComponentInChildren(Label).string = "托管";
-          this._isAutoPlay = data.enable;
-        });
       } else {
         NetworkEventCenter.emit(NetworkEventToS.AUTO_PLAY_TOS, { enable: true });
-        ProcessEventCenter.once(ProcessEvent.GET_AUTO_PLAY_STATUS, (data) => {
-          autoPlayButton.getComponentInChildren(Label).string = "取消托管";
-          this._isAutoPlay = data.enable;
-        });
+      }
+    });
+    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, (data) => {
+      this._isAutoPlay = data.enable;
+      if (data.enable) {
+        autoPlayButton.getComponentInChildren(Label).string = "取消托管";
+      } else {
+        autoPlayButton.getComponentInChildren(Label).string = "托管";
       }
     });
   }

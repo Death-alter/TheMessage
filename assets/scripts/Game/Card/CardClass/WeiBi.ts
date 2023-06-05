@@ -6,6 +6,7 @@ import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { CardPlayed } from "../../../Event/ProcessEventType";
 import { Tooltip } from "../../../GameManager/Tooltip";
+import { GameLog } from "../../GameLog/GameLog";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -80,28 +81,37 @@ export class WeiBi extends Card {
 
   //有人使用威逼
   onEffect(gameData: GameData, { userId, targetPlayerId, wantType }: CardPlayed) {
+    const user = gameData.playerList[userId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+    let cardTypeText;
+    switch (wantType as CardType) {
+      case CardType.JIE_HUO:
+        cardTypeText = "截获";
+        break;
+      case CardType.WU_DAO:
+        cardTypeText = "误导";
+        break;
+      case CardType.DIAO_BAO:
+        cardTypeText = "调包";
+        break;
+      case CardType.CHENG_QING:
+        cardTypeText = "澄清";
+        break;
+    }
+    gameData.gameObject.gameLog.addData(
+      new GameLog(
+        `【${user.seatNumber + 1}号】${user.name}对【${targetPlayer.seatNumber + 1}号】${
+          targetPlayer.name
+        }使用威逼，宣言了【${cardTypeText}】`
+      )
+    );
+
+    //自己被威逼
     if (targetPlayerId === 0) {
       const handCardList = gameData.gameObject.handCardList;
       const tooltip = gameData.gameObject.tooltip;
-      const user = gameData.playerList[userId];
 
       handCardList.selectedCards.limit = 1;
-
-      let cardTypeText;
-      switch (wantType as CardType) {
-        case CardType.JIE_HUO:
-          cardTypeText = "截获";
-          break;
-        case CardType.WU_DAO:
-          cardTypeText = "误导";
-          break;
-        case CardType.DIAO_BAO:
-          cardTypeText = "调包";
-          break;
-        case CardType.CHENG_QING:
-          cardTypeText = "澄清";
-          break;
-      }
       tooltip.setText(`【${user.seatNumber + 1}号】${user.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
       tooltip.buttons.setButtons([
         {
@@ -121,6 +131,7 @@ export class WeiBi extends Card {
     }
   }
 
+  //威逼给牌
   onGiveCard(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     const user = gameData.playerList[userId];
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -143,13 +154,18 @@ export class WeiBi extends Card {
     });
   }
 
-  onShowHandCard(gameData: GameData, params: CardOnEffectParams) {
-    if (params.userId === 0) {
+  //目标没有宣言的牌，展示手牌
+  onShowHandCard(gameData: GameData, { userId, cards, targetPlayerId }: CardOnEffectParams) {
+    if (userId === 0) {
+      const cardList = cards.map((card) => {
+        return gameData.createCard(card);
+      });
+      const player = gameData.playerList[targetPlayerId];
+      player.removeAllHandCards();
+      player.addHandCard(cardList);
       gameData.gameObject.showCardsWindow.show({
         title: "目标展示手牌",
-        cardList: params.cards.map((card) => {
-          return gameData.createCard(card);
-        }),
+        cardList: player.getHandCardsCopy(),
         limit: 0,
         buttons: [
           {

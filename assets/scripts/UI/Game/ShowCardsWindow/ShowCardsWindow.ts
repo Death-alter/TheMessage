@@ -48,6 +48,8 @@ export class ShowCardsWindow extends Component {
 
   hide() {
     this.node.active = false;
+    this.selectedCards.limit = 0;
+    this.resetSelectCard();
   }
 
   setTitle(text) {

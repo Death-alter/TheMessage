@@ -316,6 +316,7 @@ export class GameData extends DataBasic<GameUI> {
 
   //有人传出情报
   private playerSendMessage(data: ProcessEventType.SendMessage) {
+    console.log(data.cardId);
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
     const card = player.removeHandCard(data.cardId);
@@ -478,7 +479,7 @@ export class GameData extends DataBasic<GameUI> {
         type: (<number>card.cardType) as CardType,
         status,
         direction: (<number>card.cardDir) as CardDirection,
-        drawCardColor: (<number[]>card.whoDrawCard) as CardColor[],
+        drawCardColor: (<number[]>card.whoDrawCard) as IdentityType[],
         secretColor: (<number[]>card.secretColor) as CardColor[],
         lockable: card.canLock,
       });

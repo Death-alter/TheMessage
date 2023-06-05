@@ -16,12 +16,27 @@ export class Tooltip extends Component {
   @property(Node)
   nextPhase: Node | null = null;
 
-  private defaultText: string;
+  private _showButton: boolean = true;
   public buttons: DynamicButtons;
+
+  get showButton() {
+    return this._showButton;
+  }
+
+  set showButton(flag: boolean) {
+    this._showButton = flag;
+    if (!flag) {
+      this.nextPhase.active = false;
+      this.buttonNode.active = false;
+    }
+  }
 
   onLoad() {
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
     this.nextPhase.active = false;
+    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, ({ enable }) => {
+      this.showButton = !enable;
+    });
   }
 
   onEnable() {
@@ -41,30 +56,25 @@ export class Tooltip extends Component {
   }
 
   setText(text?: string) {
-    this.textNode.getComponent(Label).string = text || this.defaultText;
-  }
-
-  setDefaultText(text: string) {
-    this.defaultText = text;
-    this.setText();
+    this.textNode.getComponent(Label).string = text;
   }
 
   show() {
     this.textNode.active = true;
-    this.buttonNode.active = true;
+    if (this.showButton) this.buttonNode.active = true;
   }
 
   hide() {
     this.textNode.active = false;
-    this.buttonNode.active = false;
+    if (this.showButton) this.buttonNode.active = false;
   }
 
   showNextPhaseButton() {
-    this.nextPhase.active = true;
+    if (this.showButton) this.nextPhase.active = true;
   }
 
   hideNextPhaseButton() {
-    this.nextPhase.active = false;
+    if (this.showButton) this.nextPhase.active = false;
   }
 
   setNextPhaseButtonText(text: string) {

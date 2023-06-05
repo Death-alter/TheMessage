@@ -14,13 +14,14 @@ import { CardObject } from "../../Game/Card/CardObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
 import { MiLing } from "./CardClass/MiLing";
+import { IdentityType } from "../Identity/type";
 
 interface createCardOption {
   id?: number;
   type: CardType;
   color?: CardColor[];
   direction?: CardDirection;
-  drawCardColor?: CardColor[];
+  drawCardColor?: IdentityType[];
   secretColor?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;

@@ -277,14 +277,14 @@ export class CardAction extends Component {
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
       const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
       let worldPosition;
-
+      console.log(player);
       if (player.id === 0) {
         worldPosition = message.gameObject.node.worldPosition;
         handCardList.removeData(message);
       } else {
+        console.log(message);
         message.gameObject = GamePools.cardPool.get();
         worldPosition = panting.worldPosition;
-        console.log(message);
       }
 
       message.gameObject.node.setParent(this.node);

@@ -199,7 +199,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.SEND_MESSAGE_CARD_TOC, (data: ProtobufType.send_message_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
         cardId: data.cardId,
-        senderId: data.playerId,
+        senderId: data.senderId,
         targetPlayerId: data.targetPlayerId,
         lockPlayerIds: data.lockPlayerIds,
         direction: data.cardDir,

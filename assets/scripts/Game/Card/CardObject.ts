@@ -21,6 +21,9 @@ import { Card } from "./Card";
 import { GameUI } from "../../UI/Game/GameWindow/GameUI";
 import { CardInfoWindow } from "../../UI/Game/GameWindow/CardInfoWindow";
 import { copyCard } from "./index";
+import { ShiTan } from "./CardClass/ShiTan";
+import { MiLing } from "./CardClass/MiLing";
+import { Identity } from "../Identity/Identity";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")
@@ -87,6 +90,7 @@ export class CardObject extends GameObject<Card> {
     const coverNode = this.node.getChildByPath("Inner/Panting/Cover");
     const imageNode = this.node.getChildByPath("Inner/Panting/Image");
     const detailNode = imageNode.getChildByName("CardDetail");
+    const otherNode = detailNode.getChildByName("Other");
     const sprite = imageNode.getComponent(Sprite);
 
     detailNode.getChildByPath("Name/Label").getComponent(Label).string = card.name;
@@ -148,6 +152,27 @@ export class CardObject extends GameObject<Card> {
         if (card.id) {
           coverNode.getComponent(Animation).play();
         }
+      }
+
+      if (card instanceof ShiTan && card.drawCardColor) {
+        for (let i = 0; i < 3; i++) {
+          otherNode.children[i].getComponent(Sprite).color = color(Identity.colors[i]);
+          if (card.drawCardColor.indexOf(i) === -1) {
+            otherNode.children[i].getComponentInChildren(Label).string = "-1";
+          } else {
+            otherNode.children[i].getComponentInChildren(Label).string = "+1";
+          }
+        }
+        otherNode.active = true;
+      } else if (card instanceof MiLing && card.secretColor) {
+        const arr = ["东", "西", "静"];
+        for (let i = 0; i < card.secretColor.length; i++) {
+          otherNode.children[i].getComponent(Sprite).color = color(CardObject.colors[card.secretColor[i]]);
+          otherNode.children[i].getComponentInChildren(Label).string = arr[i];
+        }
+        otherNode.active = true;
+      } else {
+        otherNode.active = false;
       }
     }
   }

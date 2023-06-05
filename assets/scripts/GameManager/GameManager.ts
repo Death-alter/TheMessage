@@ -54,6 +54,7 @@ export class GameManager extends Component {
 
     this.gameData = new GameData(gameUI);
     this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
+    this.gameData.gameObject.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
   }

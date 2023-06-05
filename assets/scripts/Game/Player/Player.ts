@@ -119,6 +119,7 @@ export class Player extends DataBasic<PlayerObject> {
   removeHandCard(cardId: number): Card;
   removeHandCard(cardIds: number[]): Card[];
   removeHandCard(cardIds: number | number[]): Card | Card[] {
+    if (cardIds == null) return null;
     if (typeof cardIds === "number") {
       let card = null;
       for (let i = 0; i < this._handCards.length; i++) {

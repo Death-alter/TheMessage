@@ -5,7 +5,6 @@ import { ShiTan } from "../../../Game/Card/CardClass/ShiTan";
 import { CardObject } from "../../../Game/Card/CardObject";
 import { CardColor, CardDirection, CardType } from "../../../Game/Card/type";
 import { Identity } from "../../../Game/Identity/Identity";
-import { IdentityType } from "../../../Game/Identity/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardInfoWindow")
