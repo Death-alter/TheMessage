@@ -1,7 +1,8 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
-import { Skill } from "../../../Data/Skills/Skill";
 import { CharacterObject } from "../CharacterObject";
+import { ZhiYin } from "../../Skill/SkillClass/ZhiYin";
+import { JingMeng } from "../../Skill/SkillClass/JingMeng";
 
 export class ChengXiaoDie extends Character {
   constructor(gameObject?: CharacterObject) {
@@ -11,7 +12,7 @@ export class ChengXiaoDie extends Character {
       sprite: "images/characters/ChengXiaoDie",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [] as Skill[],
+      skills: [new ZhiYin(), new JingMeng()],
       gameObject: gameObject,
     });
   }

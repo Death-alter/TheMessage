@@ -1,6 +1,6 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
-import { Skill } from "../../../Data/Skills/Skill";
+import { Skill } from "../../Skill/Skill";
 import { CharacterObject } from "../CharacterObject";
 
 export class UnknownCharacter extends Character {

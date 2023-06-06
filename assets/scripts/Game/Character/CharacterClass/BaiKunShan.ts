@@ -1,7 +1,7 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
-import { Skill } from "../../../Data/Skills/Skill";
 import { CharacterObject } from "../CharacterObject";
+import { DuJi } from "../../Skill/SkillClass/DuJi";
 
 export class BaiKunShan extends Character {
   constructor(gameObject?: CharacterObject) {
@@ -11,7 +11,7 @@ export class BaiKunShan extends Character {
       sprite: "images/characters/BaiKunShan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [] as Skill[],
+      skills: [new DuJi()],
       gameObject: gameObject,
     });
   }
