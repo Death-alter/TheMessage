@@ -190,13 +190,17 @@ export class GameData extends DataBasic<GameUI> {
 
     //创建所有角色
     for (let item of data.players) {
-      this.playerList.push(
-        new Player({
-          id: item.id,
-          name: item.name,
-          character: createCharacterById(item.characterId),
-        })
-      );
+      const player = new Player({
+        id: item.id,
+        name: item.name,
+        character: createCharacterById(item.characterId),
+      });
+      this.playerList.push(player);
+
+      //加载角色技能
+      for (let skill of player.character.skills) {
+        skill.init(this);
+      }
     }
 
     //自己的角色设置身份
@@ -391,6 +395,11 @@ export class GameData extends DataBasic<GameUI> {
         };
       }),
     });
+    for (let player of this.playerList) {
+      for (let skill of player.character.skills) {
+        skill.dispose();
+      }
+    }
   }
 
   //打出卡牌

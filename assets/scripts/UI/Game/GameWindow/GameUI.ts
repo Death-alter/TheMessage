@@ -18,6 +18,7 @@ import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
 import { GameLogList } from "../../../Game/GameLog/GameLogList";
+import { TriggerSkill } from "../../../Game/Skill/Skill";
 
 const { ccclass, property } = _decorator;
 
@@ -311,6 +312,15 @@ export class GameUI extends GameObject<GameData> {
           break;
         case WaitingType.PLAYER_DYING:
           this.promotUseCengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
+          break;
+        case WaitingType.USE_SKILL:
+          console.log(data);
+          const player = this.data.playerList[data.playerId];
+          for (let skill of player.character.skills) {
+            if (skill instanceof TriggerSkill) {
+              skill.onTrigger(this.data, data.params);
+            }
+          }
           break;
       }
     } else {

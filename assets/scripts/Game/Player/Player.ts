@@ -175,24 +175,32 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //从情报区移除情报
-  removeMessage(messageIds: number | number[]): Card[] {
+  removeMessage(messageId: number): Card;
+  removeMessage(messageIds: number[]): Card[];
+  removeMessage(messageIds: number | number[]): Card | Card[] {
     if (typeof messageIds === "number") {
-      messageIds = [messageIds];
-    }
-    const arr = [];
-    for (let messageId of messageIds) {
+      let message = null;
       for (let i = 0; i < this._messages.length; i++) {
-        if (messageId === this._messages[i].id) {
-          arr.push(this._messages.splice(i, 1)[0]);
+        if (messageIds === this._messages[i].id) {
+          message = this._messages.splice(i, 1)[0];
           break;
         }
       }
+      this.gameObject.refreshMessageCount();
+      return message;
+    } else {
+      const arr = [];
+      for (let messageId of messageIds) {
+        for (let i = 0; i < this._messages.length; i++) {
+          if (messageId === this._messages[i].id) {
+            arr.push(this._messages.splice(i, 1)[0]);
+            break;
+          }
+        }
+      }
+      this.gameObject.refreshMessageCount();
+      return arr;
     }
-    if (this.messageCounts.black < 3 && this.status === PlayerStatus.DYING) {
-      this.status = PlayerStatus.ALIVE;
-    }
-    this.gameObject.refreshMessageCount();
-    return arr;
   }
 
   //移除所有情报

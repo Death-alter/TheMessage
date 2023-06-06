@@ -171,30 +171,39 @@ export class EventMapper {
         messageDirection: data.messageCardDir,
         messageInTransmit: data.messageCard,
         senderId: data.senderId,
-        needWaiting: data.waitingSecond !== 0,
+        needWaiting: data.waitingSecond > 0,
       });
-      let type;
-      switch (data.currentPhase) {
-        case ProtobufType.phase.Main_Phase:
-        case ProtobufType.phase.Fight_Phase:
-          type = WaitingType.PLAY_CARD;
-          break;
-        case ProtobufType.phase.Send_Start_Phase:
-          type = WaitingType.SEND_MESSAGE;
-          break;
-        case ProtobufType.phase.Send_Phase:
-          type = WaitingType.RECEIVE_MESSAGE;
-          break;
-        default:
-          type = WaitingType.UNKNOWN;
-      }
 
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.waitingPlayerId,
-        second: data.waitingSecond,
-        type,
-        seq: data.seq,
-      });
+      if (data.waitingSecond > 0) {
+        let type;
+        switch (data.currentPhase) {
+          case ProtobufType.phase.Main_Phase:
+          case ProtobufType.phase.Fight_Phase:
+            type = WaitingType.PLAY_CARD;
+            break;
+          case ProtobufType.phase.Send_Start_Phase:
+            type = WaitingType.SEND_MESSAGE;
+            break;
+          case ProtobufType.phase.Send_Phase:
+            type = WaitingType.RECEIVE_MESSAGE;
+            break;
+          case ProtobufType.phase.Receive_Phase:
+            type = WaitingType.USE_SKILL;
+            break;
+          default:
+            type = WaitingType.UNKNOWN;
+        }
+
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.waitingPlayerId,
+          second: data.waitingSecond,
+          type,
+          seq: data.seq,
+          params: {
+            messageInTransmit: data.messageCard,
+          },
+        });
+      }
     });
     NetworkEventCenter.on(NetworkEventToC.SEND_MESSAGE_CARD_TOC, (data: ProtobufType.send_message_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
@@ -528,12 +537,22 @@ export class EventMapper {
 
     //密令
     NetworkEventCenter.on(NetworkEventToC.USE_MI_LING_TOC, (data: ProtobufType.use_mi_ling_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.targetPlayerId,
-        second: data.waitingSecond,
-        type: WaitingType.HNADLER_CARD,
-        seq: data.seq,
-      });
+      if (data.hasColor) {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.targetPlayerId,
+          second: data.waitingSecond,
+          type: WaitingType.HNADLER_CARD,
+          seq: data.seq,
+        });
+      } else {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.playerId,
+          second: data.waitingSecond,
+          type: WaitingType.HNADLER_CARD,
+          seq: data.seq,
+        });
+      }
+
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.MI_LING,
@@ -553,7 +572,7 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.MI_LING_CHOOSE_CARD_TOC, (data: ProtobufType.mi_ling_choose_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.playerId,
+        playerId: data.targetPlayerId,
         second: data.waitingSecond,
         type: WaitingType.HNADLER_CARD,
         seq: data.seq,

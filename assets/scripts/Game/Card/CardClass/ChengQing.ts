@@ -73,7 +73,7 @@ export class ChengQing extends Card {
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const message = targetPlayer.removeMessage(targetCardId)[0];
+    const message = targetPlayer.removeMessage(targetCardId);
     GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
       player: targetPlayer,
       messageList: [message],

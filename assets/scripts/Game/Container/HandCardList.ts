@@ -11,12 +11,12 @@ export class HandCardList extends DataContainer<Card> {
   }
 
   removeData(data: Card) {
-    super.removeData(data);
     this.selectedCards.deselect(data);
+    super.removeData(data);
   }
 
   removeAllData() {
-    super.removeAllData();
     this.selectedCards.clear();
+    super.removeAllData();
   }
 }

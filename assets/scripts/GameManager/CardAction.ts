@@ -405,7 +405,6 @@ export class CardAction extends Component {
         // message.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
       }
       message.gameObject.node.setParent(this.node);
-      console.log(message.gameObject.node);
       await this.moveNode({
         node: message.gameObject.node,
         to: {

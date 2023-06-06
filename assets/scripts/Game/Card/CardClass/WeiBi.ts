@@ -153,15 +153,11 @@ export class WeiBi extends Card {
   //目标没有宣言的牌，展示手牌
   onShowHandCard(gameData: GameData, { userId, cards, targetPlayerId }: CardOnEffectParams) {
     if (userId === 0) {
-      const cardList = cards.map((card) => {
-        return gameData.createCard(card);
-      });
-      const player = gameData.playerList[targetPlayerId];
-      player.removeAllHandCards();
-      player.addHandCard(cardList);
       gameData.gameObject.showCardsWindow.show({
         title: "目标展示手牌",
-        cardList: player.getHandCardsCopy(),
+        cardList: cards.map((card) => {
+          return gameData.createCard(card);
+        }),
         limit: 0,
         buttons: [
           {

@@ -147,7 +147,7 @@ export class MiLing extends Card {
   async onChooseCard(gameData: GameData, { playerId, targetPlayerId, cardId }: CardOnEffectParams) {
     if (targetPlayerId === 0) {
       const handCardList = gameData.gameObject.handCardList;
-      handCardList.selectedCards.limit = 0;
+      handCardList.selectedCards.limit = 1;
       for (let card of handCardList.list) {
         if (card.id === cardId) {
           handCardList.selectedCards.select(card);

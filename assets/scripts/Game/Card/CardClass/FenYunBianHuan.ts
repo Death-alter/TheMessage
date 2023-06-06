@@ -62,7 +62,7 @@ export class FenYunBianHuan extends Card {
     const showCardsWindow = gameData.gameObject.showCardsWindow;
     if (playerId !== 0) {
       gameData.gameObject.showCardsWindow.show();
-      showCardsWindow.setTitle(`等待${player.seatNumber}号玩家选择一张牌`);
+      showCardsWindow.setTitle(`等待${player.seatNumber + 1}号玩家选择一张牌`);
       showCardsWindow.buttons.setButtons([]);
     } else {
       gameData.gameObject.showCardsWindow.setTitle(`请选择一张牌`);
