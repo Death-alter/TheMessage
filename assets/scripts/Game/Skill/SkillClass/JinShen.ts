@@ -4,7 +4,8 @@ import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { TriggerSkill } from "../Skill";
 import GamePools from "../../../GameManager/GamePools";
-import { CardActionLocation } from "../../../GameManager/type";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 
 export class JinShen extends TriggerSkill {
   private receivedMessageId: number;
@@ -16,7 +17,7 @@ export class JinShen extends TriggerSkill {
     });
   }
 
-  init(gameData: GameData) {
+  init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIN_SHEN_TOC,
       (data) => {
@@ -70,6 +71,7 @@ export class JinShen extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, card }: skill_jin_shen_toc) {
     const player = gameData.playerList[playerId];
+    const gameLog = gameData.gameObject.gameLog;
     let handCard = player.removeHandCard(card.cardId);
     if (!handCard) {
       player.removeHandCard(0);
@@ -78,12 +80,20 @@ export class JinShen extends TriggerSkill {
     const message = player.removeMessage(this.receivedMessageId);
     player.addHandCard(message);
     player.addMessage(handCard);
-    console.log(handCard, message);
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【谨慎】`));
+    gameLog.addData(
+      new GameLog(
+        `【${player.seatNumber + 1}号】${player.character.name}将手牌${gameLog.formatCard(
+          handCard
+        )}和情报${gameLog.formatCard(message)}互换`
+      )
+    );
 
     if (playerId === 0) {
       message.gameObject = GamePools.cardPool.get();
       gameData.gameObject.handCardList.removeData(handCard);
-      gameData.gameObject.handCardList.addData(message);
+      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message }, gameData.gameObject.handCardList);
+      // gameData.gameObject.handCardList.addData(message);
     }
   }
 }

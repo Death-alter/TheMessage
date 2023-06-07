@@ -73,7 +73,7 @@ export class CardAction extends Component {
   }
 
   addCardToHandCard(
-    { player, cards, from }: { player: Player; cards: Card; from?: CardActionLocation },
+    { player, card, from }: { player: Player; card: Card; from?: CardActionLocation },
     handCardList: HandCardList
   );
   addCardToHandCard(
@@ -81,19 +81,19 @@ export class CardAction extends Component {
     handCardList: HandCardList
   );
   addCardToHandCard(
-    { player, cards, from }: { player: Player; cards: Card | Card[]; from?: CardActionLocation },
+    data: { player: Player; card?: Card; cards?: Card[]; from?: CardActionLocation },
     handCardList: HandCardList
   ) {
+    const { player, cards, from, card } = data;
     return new Promise((resolve, reject) => {
-      let cardGroup;
-      if (cards instanceof Card) {
-        if (!cards.gameObject) {
-          cards.gameObject = GamePools.cardPool.get();
+      let cardGroup = new DataContainer<Card>();
+      cardGroup.gameObject = GamePools.cardGroupPool.get();
+      if (card) {
+        if (!card.gameObject) {
+          card.gameObject = GamePools.cardPool.get();
         }
-        cardGroup = cards;
+        cardGroup.addData(card);
       } else {
-        cardGroup = new DataContainer<Card>();
-        cardGroup.gameObject = GamePools.cardGroupPool.get();
         for (let card of cards) {
           card.gameObject = GamePools.cardPool.get();
           card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
@@ -277,12 +277,10 @@ export class CardAction extends Component {
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
       const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
       let worldPosition;
-      console.log(player);
       if (player.id === 0) {
         worldPosition = message.gameObject.node.worldPosition;
         handCardList.removeData(message);
       } else {
-        console.log(message);
         message.gameObject = GamePools.cardPool.get();
         worldPosition = panting.worldPosition;
       }
@@ -486,23 +484,6 @@ export class CardAction extends Component {
             resolve(null);
           })
       );
-    });
-  }
-
-  liYouShowCard(card: Card) {
-    return new Promise((resolve, reject) => {
-      if (!card.gameObject) {
-        card.gameObject = GamePools.cardPool.get();
-      }
-      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      this.moveNode({
-        node: card.gameObject.node,
-        from: { location: CardActionLocation.DECK },
-        to: { location: CardActionLocation.CENTER },
-        duration: 0.5,
-      }).then(() => {
-        resolve(null);
-      });
     });
   }
 }

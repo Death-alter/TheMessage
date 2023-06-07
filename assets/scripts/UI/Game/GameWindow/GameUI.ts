@@ -19,6 +19,7 @@ import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
 import { GameLogList } from "../../../Game/GameLog/GameLogList";
 import { TriggerSkill } from "../../../Game/Skill/Skill";
+import { SkillButtons } from "./SkillButtons";
 
 const { ccclass, property } = _decorator;
 
@@ -46,6 +47,8 @@ export class GameUI extends GameObject<GameData> {
   toolTipNode: Node | null = null;
   @property(Node)
   cardInfoWindow: Node | null = null;
+  @property(Node)
+  skillButtons: Node | null = null;
 
   public cardAction: CardAction;
   public tooltip: Tooltip;
@@ -188,6 +191,7 @@ export class GameUI extends GameObject<GameData> {
     const selfNode = this.node.getChildByPath("Self/Player");
     data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
     this.playerObjectList.push(data.playerList[0].gameObject);
+    this.skillButtons.getComponent(SkillButtons).init(this.data.selfPlayer.character.skills);
 
     //初始化手牌UI
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));

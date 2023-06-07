@@ -99,7 +99,7 @@ export class WeiBi extends Card {
         break;
     }
     gameData.gameObject.gameLog.addData(
-      new GameLog(`【${user.seatNumber + 1}号】${user.name}宣言了【${cardTypeText}】`)
+      new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
     );
 
     //自己被威逼
@@ -108,7 +108,7 @@ export class WeiBi extends Card {
       const tooltip = gameData.gameObject.tooltip;
 
       handCardList.selectedCards.limit = 1;
-      tooltip.setText(`【${user.seatNumber + 1}号】${user.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
+      tooltip.setText(`【${user.seatNumber + 1}号】${user.character.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
       tooltip.buttons.setButtons([
         {
           text: "确定",

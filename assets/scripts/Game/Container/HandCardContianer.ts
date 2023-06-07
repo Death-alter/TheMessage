@@ -101,7 +101,6 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
           node.setPosition(new Vec3(node.position.x, 0, 0));
           data.list[i].gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
-        console.log(node, x, node.position.x);
         if (x !== node.position.x) {
           tween(node)
             .to(0.5, { position: new Vec3(x, node.position.y, 0) })

@@ -199,7 +199,7 @@ export class GameData extends DataBasic<GameUI> {
 
       //加载角色技能
       for (let skill of player.character.skills) {
-        skill.init(this);
+        skill.init(this, player);
       }
     }
 

@@ -1,5 +1,6 @@
 import { GamePhase } from "../../GameManager/type";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
+import { Player } from "../Player/Player";
 import { ActiveSkillOption, SkillOption } from "./type";
 
 export abstract class Skill {
@@ -19,7 +20,8 @@ export abstract class Skill {
     this._description = option.description;
   }
 
-  abstract init(gameData: GameData): void;
+  //player是拥有该技能的角色
+  abstract init(gameData: GameData, player: Player): void;
 
   abstract dispose(): void;
 }
@@ -35,6 +37,8 @@ export abstract class ActiveSkill extends Skill {
     super(option);
     this._useablePhase = option.useablePhase;
   }
+
+  abstract onUse(gameData: GameData);
 }
 
 export abstract class TriggerSkill extends Skill {
