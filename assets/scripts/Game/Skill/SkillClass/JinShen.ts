@@ -34,7 +34,7 @@ export class JinShen extends TriggerSkill {
   onTrigger(gameData: GameData, params): void {
     this.receivedMessageId = params.messageInTransmit.cardId;
     const tooltip = gameData.gameObject.tooltip;
-    tooltip.setText(`你接收了双色情报，是否使用谨慎？`);
+    tooltip.setText(`你接收了双色情报，是否使用【谨慎】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",

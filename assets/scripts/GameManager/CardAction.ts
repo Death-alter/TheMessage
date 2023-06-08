@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3, Sprite, UITransform, Tween } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Tween } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -7,7 +7,6 @@ import * as GameEventType from "../Event/GameEventType";
 import { CardObject } from "../Game/Card/CardObject";
 import { HandCardList } from "../Game/Container/HandCardList";
 import { Player } from "../Game/Player/Player";
-import { CardGroupObject } from "../Game/Container/CardGroupObject";
 import { CardActionLocation, MoveNodeParams } from "./type";
 
 const { ccclass, property } = _decorator;
@@ -18,8 +17,6 @@ export class CardAction extends Component {
   deckNode: Node | null = null;
   @property(Node)
   discardPileNode: Node | null = null;
-  @property(Node)
-  cardInProcessNode: Node | null = null;
 
   public transmissionMessageObject: CardObject;
   public actions: { [index: string]: Tween<Node> } = {};

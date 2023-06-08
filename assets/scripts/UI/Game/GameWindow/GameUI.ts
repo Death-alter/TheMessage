@@ -18,7 +18,7 @@ import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
 import { GameLogList } from "../../../Game/GameLog/GameLogList";
-import { TriggerSkill } from "../../../Game/Skill/Skill";
+import { ActiveSkill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 
 const { ccclass, property } = _decorator;
@@ -58,6 +58,8 @@ export class GameUI extends GameObject<GameData> {
   public seq: number;
   public showCardsWindow: ShowCardsWindow;
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
+
+  private procedureQueue: Promise<any>[] = [];
 
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
@@ -191,7 +193,7 @@ export class GameUI extends GameObject<GameData> {
     const selfNode = this.node.getChildByPath("Self/Player");
     data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
     this.playerObjectList.push(data.playerList[0].gameObject);
-    this.skillButtons.getComponent(SkillButtons).init(this.data.selfPlayer.character.skills);
+    this.skillButtons.getComponent(SkillButtons).init(this.data, this.data.selfPlayer.character.skills);
 
     //初始化手牌UI
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
@@ -318,7 +320,6 @@ export class GameUI extends GameObject<GameData> {
           this.promotUseCengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
           break;
         case WaitingType.USE_SKILL:
-          console.log(data);
           const player = this.data.playerList[data.playerId];
           for (let skill of player.character.skills) {
             if (skill instanceof TriggerSkill) {
@@ -327,6 +328,22 @@ export class GameUI extends GameObject<GameData> {
           }
           break;
       }
+      const buttons = this.skillButtons.getComponent(SkillButtons);
+      this.data.selfPlayer.character.skills.forEach((skill, index) => {
+        if (skill instanceof ActiveSkill) {
+          if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && this.data.turnPlayerId === 0) {
+            buttons.list[index].useable = true;
+          } else {
+            buttons.list[index].useable = false;
+          }
+        } else if (skill instanceof TriggerSkill) {
+          if (data.type === WaitingType.USE_SKILL) {
+            buttons.list[index].useable = true;
+          } else {
+            buttons.list[index].useable = false;
+          }
+        }
+      });
     } else {
       this.playerObjectList[data.playerId].startCoundDown(data.second);
     }

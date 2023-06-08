@@ -1,9 +1,11 @@
+import { DataBasic } from "../../DataBasic";
 import { GamePhase } from "../../GameManager/type";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { Player } from "../Player/Player";
+import { SkillButton } from "./SkillButton";
 import { ActiveSkillOption, SkillOption } from "./type";
 
-export abstract class Skill {
+export abstract class Skill extends DataBasic<SkillButton> {
   protected _name: string;
   protected _description: string;
 
@@ -16,8 +18,12 @@ export abstract class Skill {
   }
 
   constructor(option: SkillOption) {
+    super();
     this._name = option.name;
     this._description = option.description;
+    if (option.gameObject) {
+      this.gameObject = option.gameObject;
+    }
   }
 
   //player是拥有该技能的角色
@@ -28,6 +34,8 @@ export abstract class Skill {
 
 export abstract class ActiveSkill extends Skill {
   protected _useablePhase: GamePhase[];
+
+  abstract get useable(): boolean;
 
   get useablePhase() {
     return this._useablePhase;

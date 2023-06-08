@@ -64,7 +64,9 @@ export class XinSiChao extends ActiveSkill {
       },
       {
         text: "取消",
-        onclick: () => {},
+        onclick: () => {
+          gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+        },
       },
     ]);
   }
