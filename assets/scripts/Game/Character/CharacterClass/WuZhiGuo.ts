@@ -11,8 +11,8 @@ export class WuZhiGuo extends Character {
       sprite: "images/characters/WuZhiGuo",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JianRen()],
       gameObject: gameObject,
     });
+    this.setSkills( [new JianRen(this)]);
   }
 }

@@ -12,8 +12,8 @@ export class BaiFeiFei extends Character {
       sprite: "images/characters/BaiFeiFei",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new LianMin(), new FuHei()],
       gameObject: gameObject,
     });
+    this.setSkills([new LianMin(this), new FuHei(this)]);
   }
 }

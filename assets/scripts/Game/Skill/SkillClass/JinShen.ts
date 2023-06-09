@@ -6,13 +6,15 @@ import { TriggerSkill } from "../Skill";
 import GamePools from "../../../GameManager/GamePools";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { Character } from "../../Character/Character";
 
 export class JinShen extends TriggerSkill {
   private receivedMessageId: number;
 
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "谨慎",
+      character,
       description: "你接收双色情报后，可以用一张手牌与该情报面朝上互换。",
     });
   }

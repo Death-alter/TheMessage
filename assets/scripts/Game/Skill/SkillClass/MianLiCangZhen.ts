@@ -1,17 +1,18 @@
-import { skill_jin_shen_toc, skill_mian_li_cang_zhen_toc } from "../../../../protobuf/proto";
+import { skill_mian_li_cang_zhen_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
-import GamePools from "../../../GameManager/GamePools";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardColor } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
+import { Character } from "../../Character/Character";
 
 export class MianLiCangZhen extends TriggerSkill {
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "绵里藏针",
+      character,
       description: "你传出的情报被接收后，可以将一张黑色手牌置入接收者的情报区，然后摸一张牌。",
     });
   }

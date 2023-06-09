@@ -13,8 +13,8 @@ export class GuXiaoMeng extends Character {
       sprite: "images/characters/GuXiaoMeng",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new JiZhi(), new ChengZhi(), new WeiSheng()],
       gameObject: gameObject,
     });
+    this.setSkills([new JiZhi(this), new ChengZhi(this), new WeiSheng(this)]);
   }
 }

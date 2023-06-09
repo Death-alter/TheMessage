@@ -11,8 +11,8 @@ export class XiaoJiu extends Character {
       sprite: "images/characters/XiaoJiu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [new GuangFaBao()],
       gameObject: gameObject,
     });
+    this.setSkills( [new GuangFaBao(this)]);
   }
 }

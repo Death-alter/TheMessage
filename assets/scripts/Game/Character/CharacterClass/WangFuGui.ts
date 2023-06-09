@@ -11,8 +11,8 @@ export class WangFuGui extends Character {
       sprite: "images/characters/WangFuGui",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JiangHuLing()],
       gameObject: gameObject,
     });
+    this.setSkills([new JiangHuLing(this)]);
   }
 }

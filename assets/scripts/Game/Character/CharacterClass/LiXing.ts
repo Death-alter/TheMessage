@@ -11,8 +11,8 @@ export class LiXing extends Character {
       sprite: "images/characters/LiXing",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [new SouJi()],
       gameObject: gameObject,
     });
+    this.setSkills([new SouJi(this)]);
   }
 }

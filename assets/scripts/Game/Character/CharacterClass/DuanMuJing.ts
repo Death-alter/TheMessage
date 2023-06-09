@@ -11,8 +11,8 @@ export class DuanMuJing extends Character {
       sprite: "images/characters/DuanMuJing",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new XinSiChao()],
       gameObject: gameObject,
     });
+    this.setSkills([new XinSiChao(this)]);
   }
 }

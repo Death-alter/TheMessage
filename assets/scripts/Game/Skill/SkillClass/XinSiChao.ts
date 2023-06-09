@@ -6,6 +6,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
+import { Character } from "../../Character/Character";
 
 export class XinSiChao extends ActiveSkill {
   private usageCount: number = 0;
@@ -14,9 +15,10 @@ export class XinSiChao extends ActiveSkill {
     return this.usageCount === 0;
   }
 
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "新思潮",
+      character,
       description: "出牌阶段限一次，你可以弃置一张手牌，然后摸两张牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
@@ -76,5 +78,6 @@ export class XinSiChao extends ActiveSkill {
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
     ++this.usageCount;
+    this.gameObject.isOn = false;
   }
 }

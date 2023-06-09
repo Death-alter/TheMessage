@@ -12,8 +12,8 @@ export class LaoBie extends Character {
       sprite: "images/characters/LaoBie",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new LianLuo(), new MingEr()],
       gameObject: gameObject,
     });
+    this.setSkills([new LianLuo(this), new MingEr(this)]);
   }
 }

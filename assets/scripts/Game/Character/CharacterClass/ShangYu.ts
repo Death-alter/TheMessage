@@ -11,8 +11,8 @@ export class ShangYu extends Character {
       sprite: "images/characters/ShangYu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new JieDaoShaRen()],
       gameObject: gameObject,
     });
+    this.setSkills([new JieDaoShaRen(this)]);
   }
 }

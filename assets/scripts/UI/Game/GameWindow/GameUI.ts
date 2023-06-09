@@ -59,6 +59,10 @@ export class GameUI extends GameObject<GameData> {
   public showCardsWindow: ShowCardsWindow;
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
 
+  get selectedHandCards() {
+    return this.handCardList.selectedCards;
+  }
+
   private procedureQueue: Promise<any>[] = [];
 
   onLoad() {
@@ -82,12 +86,10 @@ export class GameUI extends GameObject<GameData> {
           });
           break;
       }
-      this.selectedPlayers.limit = 0;
-      ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-      this.resetSelectPlayer();
-      this.clearPlayerSelectable();
-      this.handCardList.selectedCards.limit = 0;
-      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+      this.stopSelectPlayer();
+      this.clearSelectedPlayers();
+      this.stopSelectHandCard();
+      this.clearSelectedHandCards();
       this.tooltip.hideNextPhaseButton();
     });
   }
@@ -262,18 +264,6 @@ export class GameUI extends GameObject<GameData> {
     this.refreshPlayerSelectedState();
   }
 
-  setPlayerSelectable(filter: (player: Player) => boolean) {
-    for (let player of this.playerObjectList) {
-      player.selectable = filter(player.data);
-    }
-  }
-
-  clearPlayerSelectable() {
-    for (let player of this.playerObjectList) {
-      player.selectable = true;
-    }
-  }
-
   resetSelectPlayer() {
     this.selectedPlayers.clear();
     this.refreshPlayerSelectedState();
@@ -293,8 +283,7 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     if (data.playerId === 0) {
       this.tooltip.startCoundDown(data.second);
-      ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+      this.stopSelectHandCard();
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {
@@ -430,14 +419,11 @@ export class GameUI extends GameObject<GameData> {
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     if (data.player.id === 0) {
       this.handCardList.selectedCards.limit = 0;
-      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
     }
     this.cardAction.playerPlayCard(data, this.handCardList);
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
-    this.selectedPlayers.limit = 0;
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
     const flag = data.card.onFinish(this.data);
     if (flag !== false) {
       this.cardAction.afterPlayerPlayCard(data);
@@ -447,26 +433,30 @@ export class GameUI extends GameObject<GameData> {
   promotUseHandCard(tooltipText) {
     this.tooltip.setText(tooltipText);
     this.tooltip.buttons.setButtons([]);
-    this.handCardList.selectedCards.limit = 1;
-    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        card.onSelectedToPlay(this.data, this.tooltip);
-      } else {
-        this.tooltip.setText("现在不能使用这张卡");
-      }
-    });
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
-      this.tooltip.setText(tooltipText);
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        card.onDeselected(this.data, this.tooltip);
-      }
+    this.startSelectHandCard({
+      num: 1,
+      onSelect: (card: Card) => {
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          card.onSelectedToPlay(this.data, this.tooltip);
+        } else {
+          this.tooltip.setText("现在不能使用这张卡");
+        }
+      },
+      onDeselect: (card: Card) => {
+        this.tooltip.setText(tooltipText);
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          card.onDeselected(this.data);
+        }
+      },
     });
   }
 
   promotUseCengQing(tooltipText, playerId) {
-    const player = this.data.playerList[playerId];
-    this.handCardList.selectedCards.limit = 1;
     this.tooltip.setText(tooltipText);
+    const player = this.data.playerList[playerId];
+    this.startSelectHandCard({
+      num: 1,
+    });
     this.tooltip.buttons.setButtons([
       {
         text: "澄清",
@@ -486,7 +476,6 @@ export class GameUI extends GameObject<GameData> {
                     seq: this.seq,
                   });
                   this.showCardsWindow.hide();
-                  ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
                 },
               },
               {
@@ -517,46 +506,44 @@ export class GameUI extends GameObject<GameData> {
   }
 
   promotSendMessage(tooltipText) {
-    this.handCardList.selectedCards.limit = 1;
     this.tooltip.setText(tooltipText);
-
-    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      this.tooltip.setText("请选择一项操作");
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        this.tooltip.buttons.setButtons([
-          {
-            text: card.name,
-            onclick: () => {
-              card.onSelectedToPlay(this.data, this.tooltip);
+    this.startSelectHandCard({
+      num: 1,
+      onSelect: (card: Card) => {
+        this.tooltip.setText("请选择一项操作");
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          this.tooltip.buttons.setButtons([
+            {
+              text: card.name,
+              onclick: () => {
+                card.onSelectedToPlay(this.data, this.tooltip);
+              },
             },
-          },
-          {
-            text: "传递情报",
-            onclick: () => {
-              this.doSendMessage();
+            {
+              text: "传递情报",
+              onclick: () => {
+                this.doSendMessage();
+              },
             },
-          },
-        ]);
-      } else {
-        this.tooltip.buttons.setButtons([
-          {
-            text: "传递情报",
-            onclick: () => {
-              this.doSendMessage();
+          ]);
+        } else {
+          this.tooltip.buttons.setButtons([
+            {
+              text: "传递情报",
+              onclick: () => {
+                this.doSendMessage();
+              },
             },
-          },
-        ]);
-      }
-    });
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
-      this.tooltip.setText(tooltipText);
-      this.selectedPlayers.limit = 0;
-      this.clearPlayerSelectable();
-      this.resetSelectPlayer();
-      this.tooltip.buttons.setButtons([]);
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        card.onDeselected(this.data, this.tooltip);
-      }
+          ]);
+        }
+      },
+      onDeselect: (card: Card) => {
+        this.tooltip.setText(tooltipText);
+        this.tooltip.buttons.setButtons([]);
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          card.onDeselected(this.data);
+        }
+      },
     });
   }
 
@@ -587,19 +574,21 @@ export class GameUI extends GameObject<GameData> {
     };
 
     setTooltip();
-    this.handCardList.selectedCards.limit = 1;
-    ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, (card: Card) => {
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        card.onSelectedToPlay(this.data, this.tooltip);
-      } else {
-        this.tooltip.setText("现在不能使用这张卡");
-      }
-    });
-    ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, (card: Card) => {
-      setTooltip();
-      if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-        card.onDeselected(this.data, this.tooltip);
-      }
+    this.startSelectHandCard({
+      num: 1,
+      onSelect: (card: Card) => {
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          card.onSelectedToPlay(this.data, this.tooltip);
+        } else {
+          this.tooltip.setText("现在不能使用这张卡");
+        }
+      },
+      onDeselect: (card: Card) => {
+        setTooltip();
+        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+          card.onDeselected(this.data);
+        }
+      },
     });
   }
 
@@ -625,14 +614,16 @@ export class GameUI extends GameObject<GameData> {
             break;
           case CardDirection.UP:
             this.tooltip.setText("请选择要传递情报的目标");
-            this.setPlayerSelectable((player) => {
-              return player.id !== 0;
-            });
             this.tooltip.buttons.setButtons([]);
-            this.selectedPlayers.limit = 1;
-            ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
-              data.targetPlayerId = player.id;
-              resolve(null);
+            this.startSelectPlayer({
+              num: 1,
+              filter: (player) => {
+                return player.id !== 0;
+              },
+              onSelect: (player) => {
+                data.targetPlayerId = player.id;
+                resolve(null);
+              },
             });
             break;
         }
@@ -645,16 +636,15 @@ export class GameUI extends GameObject<GameData> {
           switch (card.direction) {
             case CardDirection.LEFT:
             case CardDirection.RIGHT:
-              this.selectedPlayers.limit = 1;
-              this.setPlayerSelectable((player) => {
-                return player.id !== 0;
-              });
               this.tooltip.setText("请选择一名角色锁定");
+              this.startSelectPlayer({
+                num: 1,
+                filter: (player) => {
+                  return player.id !== 0;
+                },
+              });
               break;
             case CardDirection.UP:
-              this.setPlayerSelectable((player) => {
-                return player.id === data.targetPlayerId;
-              });
               this.tooltip.setText("是否锁定该角色");
               break;
           }
@@ -692,9 +682,75 @@ export class GameUI extends GameObject<GameData> {
 
     NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
     this.scheduleOnce(() => {
-      this.clearPlayerSelectable();
-      this.resetSelectPlayer();
-      this.selectedPlayers.limit = 0;
+      this.stopSelectPlayer();
+      this.clearSelectedPlayers();
     }, 0);
+  }
+
+  //选择角色
+  startSelectPlayer(option: {
+    num?: number;
+    filter?: (player: Player) => boolean;
+    onSelect?: (player: Player) => void;
+    onDeselect?: (player: Player) => void;
+  }) {
+    const { num, filter, onSelect, onDeselect } = option;
+    this.selectedPlayers.limit = num || 1;
+    if (filter) {
+      for (let player of this.playerObjectList) {
+        player.selectable = filter(player.data);
+      }
+    }
+    if (onSelect) {
+      ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onSelect);
+    }
+    if (onDeselect) {
+      ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onDeselect);
+    }
+  }
+
+  stopSelectPlayer() {
+    this.selectedPlayers.limit = 0;
+    for (let player of this.playerObjectList) {
+      player.selectable = true;
+    }
+    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
+  }
+
+  clearSelectedPlayers() {
+    this.selectedPlayers.clear();
+    this.refreshPlayerSelectedState();
+  }
+
+  //选择手牌
+  startSelectHandCard(option: {
+    num?: number;
+    filter?: (card: Card) => boolean;
+    onSelect?: (card: Card) => void;
+    onDeselect?: (card: Card) => void;
+  }) {
+    const { num, filter, onSelect, onDeselect } = option;
+    this.selectedHandCards.limit = num || 1;
+    // if (filter) {
+    //   for (let card of this.handCardList.list) {
+    //   }
+    // }
+    if (onSelect) {
+      ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, onSelect);
+    }
+    if (onDeselect) {
+      ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
+    }
+  }
+
+  stopSelectHandCard() {
+    ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+  }
+
+  clearSelectedHandCards() {
+    this.selectedHandCards.limit = 0;
+    (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
   }
 }

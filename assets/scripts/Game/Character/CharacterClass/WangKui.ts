@@ -1,7 +1,7 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { Yiyahuanya } from "../../Skill/SkillClass/Yiyahuanya";
+import { YiYaHuanYa } from "../../Skill/SkillClass/YiYaHuanYa";
 
 export class WangKui extends Character {
   constructor(gameObject?: CharacterObject) {
@@ -11,8 +11,8 @@ export class WangKui extends Character {
       sprite: "images/characters/WangKui",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new Yiyahuanya()],
       gameObject: gameObject,
     });
+    this.setSkills([new YiYaHuanYa(this)]);
   }
 }

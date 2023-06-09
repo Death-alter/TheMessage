@@ -1,14 +1,16 @@
-import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
-import { ProcessEvent, NetworkEventToS } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardDirection } from "../../Card/type";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
+import { Character } from "../../Character/Character";
 
 export class LianLuo extends PassiveSkill {
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "联络",
+      character,
       description: "你传出情报时，可以将情报牌上的箭头视作任意方向。",
     });
   }
@@ -56,7 +58,7 @@ export class LianLuo extends PassiveSkill {
 
         await (() => {
           return new Promise((resolve, reject) => {
-            switch (data.cardDir) {
+            switch (card.direction) {
               case CardDirection.LEFT:
                 data.targetPlayerId = this.data.playerList.length - 1;
                 resolve(null);
@@ -67,14 +69,16 @@ export class LianLuo extends PassiveSkill {
                 break;
               case CardDirection.UP:
                 this.tooltip.setText("请选择要传递情报的目标");
-                this.setPlayerSelectable((player) => {
-                  return player.id !== 0;
-                });
                 this.tooltip.buttons.setButtons([]);
-                this.selectedPlayers.limit = 1;
-                ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player) => {
-                  data.targetPlayerId = player.id;
-                  resolve(null);
+                this.startSelectPlayer({
+                  num: 1,
+                  filter: (player) => {
+                    return player.id !== 0;
+                  },
+                  onSelect: (player) => {
+                    data.targetPlayerId = player.id;
+                    resolve(null);
+                  },
                 });
                 break;
             }
@@ -84,19 +88,18 @@ export class LianLuo extends PassiveSkill {
         if (card.lockable) {
           await (() => {
             return new Promise((resolve, reject) => {
-              switch (data.cardDir) {
+              switch (card.direction) {
                 case CardDirection.LEFT:
                 case CardDirection.RIGHT:
-                  this.selectedPlayers.limit = 1;
-                  this.setPlayerSelectable((player) => {
-                    return player.id !== 0;
-                  });
                   this.tooltip.setText("请选择一名角色锁定");
+                  this.startSelectPlayer({
+                    num: 1,
+                    filter: (player) => {
+                      return player.id !== 0;
+                    },
+                  });
                   break;
                 case CardDirection.UP:
-                  this.setPlayerSelectable((player) => {
-                    return player.id === data.targetPlayerId;
-                  });
                   this.tooltip.setText("是否锁定该角色");
                   break;
               }
@@ -104,7 +107,7 @@ export class LianLuo extends PassiveSkill {
                 {
                   text: "锁定",
                   onclick: () => {
-                    switch (data.cardDir) {
+                    switch (card.direction) {
                       case CardDirection.LEFT:
                       case CardDirection.RIGHT:
                         data.lockPlayerId = [this.selectedPlayers.list[0].id];
@@ -134,9 +137,8 @@ export class LianLuo extends PassiveSkill {
 
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
         this.scheduleOnce(() => {
-          this.clearPlayerSelectable();
-          this.resetSelectPlayer();
-          this.selectedPlayers.limit = 0;
+          this.stopSelectPlayer();
+          this.clearSelectedPlayers();
         }, 0);
       }.bind(gameData.gameObject);
     }

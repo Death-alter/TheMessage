@@ -12,8 +12,8 @@ export class ChengXiaoDie extends Character {
       sprite: "images/characters/ChengXiaoDie",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new ZhiYin(), new JingMeng()],
       gameObject: gameObject,
     });
+    this.setSkills([new ZhiYin(this), new JingMeng(this)]);
   }
 }

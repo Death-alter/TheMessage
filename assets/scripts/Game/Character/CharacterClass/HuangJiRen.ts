@@ -11,8 +11,8 @@ export class HuangJiRen extends Character {
       sprite: "images/characters/HuangJiRen",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [new DuiZhengXiaoYao()],
       gameObject: gameObject,
     });
+    this.setSkills([new DuiZhengXiaoYao(this)]);
   }
 }

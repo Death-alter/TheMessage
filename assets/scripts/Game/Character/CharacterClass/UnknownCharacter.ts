@@ -11,7 +11,6 @@ export class UnknownCharacter extends Character {
       sprite: "images/characters/Unknown",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.UNKNOWN,
-      skills: [] as Skill[],
       gameObject: gameObject,
     });
   }

@@ -54,6 +54,7 @@ export class GameData extends DataBasic<GameUI> {
         GameEventCenter.emit(GameEvent.FIGHT_PHASE_END);
         break;
       case GamePhase.RECEIVE_PHASE:
+        this._senderId = -1;
         GameEventCenter.emit(GameEvent.RECEIVE_PHASE_END);
         break;
     }
@@ -248,8 +249,6 @@ export class GameData extends DataBasic<GameUI> {
           player,
           message: this.messageInTransmit,
         });
-        this.messagePlayerId = -1;
-        this._senderId = -1;
         this.messageInTransmit = null;
       }
     }
@@ -405,15 +404,25 @@ export class GameData extends DataBasic<GameUI> {
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: Card;
+    let cardId: number;
     const user = this.playerList[data.userId];
-    if (data.card) {
-      card = user.removeHandCard(data.card.cardId);
+
+    if (data.card != null) {
+      cardId = data.card.cardId;
+    } else if (data.cardId != null) {
+      cardId = data.cardId;
     } else {
-      card = user.removeHandCard(data.cardId);
+      cardId = null;
     }
 
-    if (!card) {
-      user.removeHandCard(0);
+    if (cardId !== null) {
+      if (user.id === 0) {
+        //自己
+        card = user.removeHandCard(cardId);
+      } else {
+        //其他人
+        card = user.removeHandCard(0);
+      }
     }
 
     if (!card || card.type === CardType.UNKNOWN) {

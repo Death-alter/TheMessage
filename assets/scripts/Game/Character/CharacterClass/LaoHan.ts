@@ -12,8 +12,8 @@ export class LaoHan extends Character {
       sprite: "images/characters/LaoHan",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new ShiSi(), new RuGui()],
       gameObject: gameObject,
     });
+    this.setSkills([new ShiSi(this), new RuGui(this)]);
   }
 }

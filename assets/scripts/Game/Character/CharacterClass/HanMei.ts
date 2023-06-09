@@ -11,8 +11,8 @@ export class HanMei extends Character {
       sprite: "images/characters/HanMei",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new YiHuaJieMu()],
       gameObject: gameObject,
     });
+    this.setSkills([new YiHuaJieMu(this)]);
   }
 }

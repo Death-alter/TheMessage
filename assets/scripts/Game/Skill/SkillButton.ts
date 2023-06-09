@@ -1,16 +1,15 @@
-import { _decorator, Component, Node, Label, Sprite, color } from "cc";
+import { _decorator, Node, Label, Sprite, color } from "cc";
 import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
-import { HandCardContianer } from "../Container/HandCardContianer";
-import { ProcessEventCenter } from "../../Event/EventTarget";
-import { ProcessEvent } from "../../Event/type";
 import { GameObject } from "../../GameObject";
+import { GamePhase } from "../../GameManager/type";
 
 const { ccclass } = _decorator;
 
 @ccclass("SkillButton")
 export class SkillButton extends GameObject<Skill> {
   private _useable: boolean = false;
+  public isOn: boolean = false;
 
   set useable(flag) {
     flag = (<ActiveSkill>this.data).useable && flag;
@@ -36,15 +35,26 @@ export class SkillButton extends GameObject<Skill> {
     } else if (skill instanceof ActiveSkill) {
       this.useable = false;
       this.onClick(() => {
-        gameData.gameObject.resetSelectPlayer();
-        gameData.gameObject.selectedPlayers.limit = 0;
-        gameData.gameObject.clearPlayerSelectable();
-        gameData.gameObject.handCardList.selectedCards.limit = 0;
-        (<HandCardContianer>gameData.gameObject.handCardList.gameObject).resetSelectCard();
-        ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-        ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
-        skill.onUse(gameData);
+        gameData.gameObject.stopSelectPlayer();
+        gameData.gameObject.clearSelectedPlayers();
+        gameData.gameObject.stopSelectHandCard();
+        gameData.gameObject.clearSelectedHandCards();
+        if (this.isOn) {
+          this.isOn = false;
+          switch (gameData.gamePhase) {
+            case GamePhase.MAIN_PHASE:
+              gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+              break;
+            case GamePhase.FIGHT_PHASE:
+              gameData.gameObject.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
+              break;
+          }
+        } else {
+          this.isOn = true;
+          skill.onUse(gameData);
+        }
       });
+
     } else {
       this.useable = false;
     }

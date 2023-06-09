@@ -24,41 +24,39 @@ export class WuDao extends Card {
   }
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
-    gameData.gameObject.selectedPlayers.limit = 1;
-    const neighbors = gameData.getPlayerNeighbors(gameData.messagePlayerId);
-    gameData.gameObject.setPlayerSelectable((player) => {
-      return neighbors.indexOf(player) !== -1;
-    });
     tooltip.setText(`请选择误导的目标`);
-    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
-      tooltip.setText(`是否使用误导？`);
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            const card = gameData.gameObject.handCardList.selectedCards.list[0];
-            const player = gameData.gameObject.selectedPlayers.list[0];
-            NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
-              cardId: card.id,
-              targetPlayerId: player.id,
-              seq: gameData.gameObject.seq,
-            });
-            this.onDeselected(gameData, tooltip);
+    const neighbors = gameData.getPlayerNeighbors(gameData.messagePlayerId);
+    gameData.gameObject.startSelectPlayer({
+      num: 1,
+      filter: (player) => {
+        return neighbors.indexOf(player) !== -1;
+      },
+      onSelect: (player) => {
+        tooltip.setText(`是否使用误导？`);
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              const card = gameData.gameObject.handCardList.selectedCards.list[0];
+              NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
+                cardId: card.id,
+                targetPlayerId: player.id,
+                seq: gameData.gameObject.seq,
+              });
+              this.onDeselected(gameData);
+            },
           },
-        },
-      ]);
+        ]);
+      },
     });
   }
 
-  onDeselected(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.resetSelectPlayer();
-    gameData.gameObject.selectedPlayers.limit = 0;
-    gameData.gameObject.clearPlayerSelectable();
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+  onDeselected(gameData: GameData) {
+    gameData.gameObject.stopSelectPlayer();
+    gameData.gameObject.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {
     gameData.messagePlayerId = targetPlayerId;
   }
-
 }

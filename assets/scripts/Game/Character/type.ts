@@ -54,6 +54,5 @@ export interface CharacterOptions {
   sprite: string;
   status?: CharacterStatus;
   sex: Sex;
-  skills: Skill[];
   gameObject?: CharacterObject;
 }

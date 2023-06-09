@@ -11,8 +11,8 @@ export class LianYuan extends Character {
       sprite: "images/characters/LianYuan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new MiaoBiQiaoBian()],
       gameObject: gameObject,
     });
+    this.setSkills([new MiaoBiQiaoBian(this)]);
   }
 }

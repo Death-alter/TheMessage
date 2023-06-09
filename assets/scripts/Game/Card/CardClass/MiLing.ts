@@ -6,6 +6,7 @@ import { CardColor, CardDirection, CardOnEffectParams, CardType, MiLingOption } 
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { Player } from "../../Player/Player";
+import { HandCardContianer } from "../../Container/HandCardContianer";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -31,41 +32,41 @@ export class MiLing extends Card {
   }
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
-    gameData.gameObject.selectedPlayers.limit = 1;
-    gameData.gameObject.setPlayerSelectable((player: Player) => {
-      return player.handCardCount > 0;
-    });
     tooltip.setText(`请选择密令的目标`);
-    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
-      tooltip.setText(`请选择一个暗号`);
-      tooltip.buttons.setButtons([
-        {
-          text: "东风",
-          onclick: () => {
-            this.secretButtonClicked(gameData, tooltip, 0);
+    gameData.gameObject.startSelectPlayer({
+      num: 1,
+      filter: (player: Player) => {
+        return player.handCardCount > 0 && player.id !== 0;
+      },
+      onSelect: () => {
+        tooltip.setText(`请选择一个暗号`);
+        tooltip.buttons.setButtons([
+          {
+            text: "东风",
+            onclick: () => {
+              this.secretButtonClicked(gameData, 0);
+            },
           },
-        },
-        {
-          text: "西风",
-          onclick: () => {
-            this.secretButtonClicked(gameData, tooltip, 1);
+          {
+            text: "西风",
+            onclick: () => {
+              this.secretButtonClicked(gameData, 1);
+            },
           },
-        },
-        {
-          text: "静风",
-          onclick: () => {
-            this.secretButtonClicked(gameData, tooltip, 2);
+          {
+            text: "静风",
+            onclick: () => {
+              this.secretButtonClicked(gameData, 2);
+            },
           },
-        },
-      ]);
+        ]);
+      },
     });
   }
 
-  onDeselected(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.clearPlayerSelectable();
-    gameData.gameObject.resetSelectPlayer();
-    gameData.gameObject.selectedPlayers.limit = 0;
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+  onDeselected(gameData: GameData) {
+    gameData.gameObject.stopSelectPlayer();
+    gameData.gameObject.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
@@ -150,14 +151,16 @@ export class MiLing extends Card {
       handCardList.selectedCards.limit = 1;
       for (let item of handCardList.list) {
         if (item.id === card.cardId) {
-          handCardList.selectedCards.select(item);
+          (<HandCardContianer>handCardList.gameObject).selectCard(item);
+          break;
         }
       }
+      handCardList.selectedCards.limit = 0;
       gameData.gameObject.doSendMessage();
     }
   }
 
-  secretButtonClicked(gameData: GameData, tooltip: Tooltip, secret: number) {
+  secretButtonClicked(gameData: GameData, secret: number) {
     const card = gameData.gameObject.handCardList.selectedCards.list[0];
     const player = gameData.gameObject.selectedPlayers.list[0];
     NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
@@ -166,6 +169,6 @@ export class MiLing extends Card {
       secret,
       seq: gameData.gameObject.seq,
     });
-    this.onDeselected(gameData, tooltip);
+    this.onDeselected(gameData);
   }
 }

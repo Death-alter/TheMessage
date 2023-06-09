@@ -1,6 +1,7 @@
 import { DataBasic } from "../../DataBasic";
 import { GamePhase } from "../../GameManager/type";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
+import { Character } from "../Character/Character";
 import { Player } from "../Player/Player";
 import { SkillButton } from "./SkillButton";
 import { ActiveSkillOption, SkillOption } from "./type";
@@ -8,6 +9,7 @@ import { ActiveSkillOption, SkillOption } from "./type";
 export abstract class Skill extends DataBasic<SkillButton> {
   protected _name: string;
   protected _description: string;
+  protected _character: Character;
 
   get name() {
     return this._name;
@@ -21,6 +23,7 @@ export abstract class Skill extends DataBasic<SkillButton> {
     super();
     this._name = option.name;
     this._description = option.description;
+    this._character = option.character;
     if (option.gameObject) {
       this.gameObject = option.gameObject;
     }

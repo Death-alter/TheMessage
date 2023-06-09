@@ -41,8 +41,6 @@ export class JieHuo extends Card {
     ]);
   }
 
-  onDeselected(gameData: GameData, tooltip: Tooltip): void {}
-
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {
     gameData.messagePlayerId = targetPlayerId;
   }

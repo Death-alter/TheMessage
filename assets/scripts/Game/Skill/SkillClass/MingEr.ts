@@ -5,11 +5,13 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
+import { Character } from "../../Character/Character";
 
 export class MingEr extends PassiveSkill {
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "明饵",
+      character,
       description: "你传出的红色或蓝色情报被接收后，你和接收者各摸一张牌。",
     });
   }

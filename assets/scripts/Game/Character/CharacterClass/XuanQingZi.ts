@@ -11,8 +11,8 @@ export class XuanQingZi extends Character {
       sprite: "images/characters/XuanQingZi",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JinKouYiKai()],
       gameObject: gameObject,
     });
+    this.setSkills([new JinKouYiKai(this)]);
   }
 }

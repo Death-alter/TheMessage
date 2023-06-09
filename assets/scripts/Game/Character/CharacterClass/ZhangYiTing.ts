@@ -11,8 +11,8 @@ export class ZhangYiTing extends Character {
       sprite: "images/characters/ZhangYiTing",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new QiangLing()],
       gameObject: gameObject,
     });
+    this.setSkills([new QiangLing(this)]);
   }
 }

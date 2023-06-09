@@ -11,8 +11,8 @@ export class GuiJiao extends Character {
       sprite: "images/characters/GuiJiao",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JiSong()],
       gameObject: gameObject,
     });
+    this.setSkills([new JiSong(this)]);
   }
 }

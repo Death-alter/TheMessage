@@ -186,28 +186,21 @@ export class CardAction extends Component {
   playerPlayCard(data: GameEventType.PlayerPlayCard, handCardList: HandCardList) {
     const { card, player } = data;
 
-    if (player.id === 0) {
+    if (player.id === 0 && card.id) {
       handCardList.removeData(card);
-      card.gameObject.node.setParent(this.node);
-      this.setAction(
-        card.gameObject.node,
-        tween(card.gameObject.node).to(0.6, {
-          scale: new Vec3(0.6, 0.6, 1),
-          worldPosition: this.discardPileNode.worldPosition,
-        })
-      );
-    } else {
-      card.gameObject = GamePools.cardPool.get();
-      card.gameObject.node.setParent(this.node);
-      card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
-      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      this.setAction(
-        card.gameObject.node,
-        tween(card.gameObject.node).to(0.6, {
-          worldPosition: this.discardPileNode.worldPosition,
-        })
-      );
     }
+    if (!card.gameObject) {
+      card.gameObject = GamePools.cardPool.get();
+    }
+    card.gameObject.node.setParent(this.node);
+    card.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
+    card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+    this.setAction(
+      card.gameObject.node,
+      tween(card.gameObject.node).to(0.6, {
+        worldPosition: this.discardPileNode.worldPosition,
+      })
+    );
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {

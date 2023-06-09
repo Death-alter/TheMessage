@@ -24,39 +24,36 @@ export class PingHeng extends Card {
   }
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
-    gameData.gameObject.selectedPlayers.limit = 1;
-    gameData.gameObject.setPlayerSelectable((player) => {
-      return player.id !== 0;
-    });
     tooltip.setText(`请选择平衡的目标`);
-    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, () => {
-      tooltip.setText(`是否使用平衡？`);
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            const card = gameData.gameObject.handCardList.selectedCards.list[0];
-            const player = gameData.gameObject.selectedPlayers.list[0];
-            NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
-              cardId: card.id,
-              playerId: player.id,
-              seq: gameData.gameObject.seq,
-            });
-            gameData.gameObject.resetSelectPlayer();
-            gameData.gameObject.clearPlayerSelectable();
-            gameData.gameObject.selectedPlayers.limit = 0;
-            ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+    gameData.gameObject.startSelectPlayer({
+      num: 1,
+      filter: (player) => {
+        return player.id !== 0;
+      },
+      onSelect: () => {
+        tooltip.setText(`是否使用平衡？`);
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              const card = gameData.gameObject.handCardList.selectedCards.list[0];
+              const player = gameData.gameObject.selectedPlayers.list[0];
+              NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
+                cardId: card.id,
+                playerId: player.id,
+                seq: gameData.gameObject.seq,
+              });
+              this.onDeselected(gameData);
+            },
           },
-        },
-      ]);
+        ]);
+      },
     });
   }
 
-  onDeselected(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.resetSelectPlayer();
-    gameData.gameObject.clearPlayerSelectable();
-    gameData.gameObject.selectedPlayers.limit = 0;
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+  onDeselected(gameData: GameData) {
+    gameData.gameObject.stopSelectPlayer();
+    gameData.gameObject.clearSelectedPlayers();
   }
 
   onEffect(): void {}

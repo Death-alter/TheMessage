@@ -40,10 +40,6 @@ export class FenYunBianHuan extends Card {
     ]);
   }
 
-  onDeselected() {}
-
-  onEffect(gameData: GameData, params: CardOnEffectParams) {}
-
   onShowCards(gameData: GameData, { cards }: CardOnEffectParams) {
     const list = [];
     for (let card of cards) {

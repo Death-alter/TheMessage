@@ -11,8 +11,8 @@ export class PeiLing extends Character {
       sprite: "images/characters/PeiLing",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new JiaoJi()],
       gameObject: gameObject,
     });
+    this.setSkills( [new JiaoJi(this)]);
   }
 }

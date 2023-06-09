@@ -11,8 +11,8 @@ export class ShaoXiu extends Character {
       sprite: "images/characters/ShaoXiu",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new MianLiCangZhen()],
       gameObject: gameObject,
     });
+    this.setSkills([new MianLiCangZhen(this)]);
   }
 }

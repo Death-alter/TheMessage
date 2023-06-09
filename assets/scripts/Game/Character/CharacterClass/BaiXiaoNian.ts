@@ -11,8 +11,8 @@ export class BaiXiaoNian extends Character {
       sprite: "images/characters/BaiXiaoNian",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new ZhuanJiao()],
       gameObject: gameObject,
     });
+    this.setSkills([new ZhuanJiao(this)]);
   }
 }

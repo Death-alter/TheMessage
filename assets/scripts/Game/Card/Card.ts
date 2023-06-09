@@ -76,7 +76,7 @@ export abstract class Card extends DataBasic<CardObject> {
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
 
-  onDeselected(gameData: GameData, tooltip: Tooltip): void {}
+  onDeselected(gameData: GameData): void {}
 
   onEffect(gameData: GameData, params: CardOnEffectParams): boolean | void {
     return true;

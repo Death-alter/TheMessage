@@ -11,8 +11,8 @@ export class BaiCangLang extends Character {
       sprite: "images/characters/BaiCangLang",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new BoAi()],
       gameObject: gameObject,
     });
+    this.setSkills([new BoAi(this)]);
   }
 }

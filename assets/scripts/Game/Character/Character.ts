@@ -9,7 +9,7 @@ export class Character extends DataBasic<CharacterObject> {
   protected _sprite: string;
   protected _status: CharacterStatus;
   protected _sex: Sex;
-  protected _skills: Skill[];
+  protected _skills: Skill[] = [];
 
   public static readonly backSprite: string = "images/characters/Unknown";
 
@@ -56,7 +56,6 @@ export class Character extends DataBasic<CharacterObject> {
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._sex = option.sex;
-    this._skills = option.skills;
     if (option.gameObject) {
       this.gameObject = option.gameObject;
     }
@@ -76,5 +75,9 @@ export class Character extends DataBasic<CharacterObject> {
     if (index >= this._skills.length) {
       return;
     }
+  }
+
+  setSkills(skills: Skill[]) {
+    this._skills = skills;
   }
 }

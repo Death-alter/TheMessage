@@ -11,8 +11,8 @@ export class WangTianXiang extends Character {
       sprite: "images/characters/WangTianXiang",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JinBi()],
       gameObject: gameObject,
     });
+    this.setSkills([new JinBi(this)]);
   }
 }

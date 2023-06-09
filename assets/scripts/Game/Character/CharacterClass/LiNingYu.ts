@@ -13,8 +13,8 @@ export class LiNingYu extends Character {
       sprite: "images/characters/LiNingYu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new JiuJi(), new ChengFu(), new YiXin()],
       gameObject: gameObject,
     });
+    this.setSkills([new JiuJi(this), new ChengFu(this), new YiXin(this)]);
   }
 }

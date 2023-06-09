@@ -6,11 +6,13 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
+import { Character } from "../../Character/Character";
 
 export class QiHuoKeJu extends TriggerSkill {
-  constructor() {
+  constructor(character: Character) {
     super({
       name: "奇货可居",
+      character,
       description: "你接收双色情报后，可以从你的情报区选择一张情报加入你的手牌。",
     });
   }

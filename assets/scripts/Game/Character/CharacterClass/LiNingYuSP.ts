@@ -12,8 +12,8 @@ export class LiNingYuSP extends Character {
       sprite: "images/characters/LiNingYuSP",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new YingBian(), new YouDao()],
       gameObject: gameObject,
     });
+    this.setSkills([new YingBian(this), new YouDao(this)]);
   }
 }

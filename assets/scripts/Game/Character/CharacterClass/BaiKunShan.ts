@@ -11,8 +11,8 @@ export class BaiKunShan extends Character {
       sprite: "images/characters/BaiKunShan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [new DuJi()],
       gameObject: gameObject,
     });
+    this.setSkills([new DuJi(this)]);
   }
 }

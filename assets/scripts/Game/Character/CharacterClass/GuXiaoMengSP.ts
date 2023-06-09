@@ -11,8 +11,8 @@ export class GuXiaoMengSP extends Character {
       sprite: "images/characters/GuXiaoMengSP",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
-      skills: [new JiBan()],
       gameObject: gameObject,
     });
+    this.setSkills([new JiBan(this)]);
   }
 }

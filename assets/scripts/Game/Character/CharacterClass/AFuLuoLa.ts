@@ -11,8 +11,8 @@ export class AFuLuoLa extends Character {
       sprite: "images/characters/AFuLuoLa",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
-      skills: [new MiaoShou()],
       gameObject: gameObject,
     });
+    this.setSkills([new MiaoShou(this)]);
   }
 }

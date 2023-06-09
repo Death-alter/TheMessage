@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
@@ -25,50 +25,48 @@ export class ChengQing extends Card {
   }
 
   onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.selectedPlayers.limit = 1;
-    gameData.gameObject.setPlayerSelectable((player) => {
-      return player.messageCounts.total !== 0;
-    });
     tooltip.setText(`请选择要澄清的目标`);
-    ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, (player: Player) => {
-      gameData.gameObject.showCardsWindow.show({
-        title: "选择一张情报弃置",
-        cardList: player.getMessagesCopy(),
-        limit: 1,
-        buttons: [
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
-                cardId: gameData.gameObject.handCardList.selectedCards.list[0].id,
-                playerId: gameData.gameObject.selectedPlayers.list[0],
-                targetCardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
-                seq: gameData.gameObject.seq,
-              });
-              gameData.gameObject.resetSelectPlayer();
-              gameData.gameObject.selectedPlayers.limit = 0;
-              gameData.gameObject.clearPlayerSelectable();
-              gameData.gameObject.showCardsWindow.hide();
-              ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+    gameData.gameObject.startSelectPlayer({
+      num: 1,
+      filter: (player) => {
+        return player.messageCounts.total !== 0;
+      },
+      onSelect: async (player: Player) => {
+        gameData.gameObject.showCardsWindow.show({
+          title: "选择一张情报弃置",
+          cardList: player.getMessagesCopy(),
+          limit: 1,
+          buttons: [
+            {
+              text: "确定",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
+                  cardId: gameData.gameObject.handCardList.selectedCards.list[0].id,
+                  playerId: gameData.gameObject.selectedPlayers.list[0],
+                  targetCardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
+                  seq: gameData.gameObject.seq,
+                });
+                gameData.gameObject.showCardsWindow.hide();
+                this.onDeselected(gameData);
+              },
+              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
             },
-            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
-          },
-          {
-            text: "取消",
-            onclick: () => {
-              gameData.gameObject.showCardsWindow.hide();
-              gameData.gameObject.resetSelectPlayer();
+            {
+              text: "取消",
+              onclick: () => {
+                gameData.gameObject.showCardsWindow.hide();
+                gameData.gameObject.clearSelectedPlayers();
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      },
     });
   }
 
-  onDeselected(gameData: GameData, tooltip: Tooltip) {
-    gameData.gameObject.selectedPlayers.limit = 0;
-    gameData.gameObject.clearPlayerSelectable();
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+  onDeselected(gameData: GameData) {
+    gameData.gameObject.stopSelectPlayer();
+    gameData.gameObject.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {

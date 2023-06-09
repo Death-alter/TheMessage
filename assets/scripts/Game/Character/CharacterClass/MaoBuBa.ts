@@ -11,8 +11,8 @@ export class MaoBuBa extends Character {
       sprite: "images/characters/MaoBuBa",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new QiHuoKeJu()],
       gameObject: gameObject,
     });
+    this.setSkills([new QiHuoKeJu(this)]);
   }
 }

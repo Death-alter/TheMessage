@@ -12,8 +12,8 @@ export class ZhengWenXian extends Character {
       sprite: "images/characters/ZhengWenXian",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
-      skills: [new TouTian(), new HuanRi()],
       gameObject: gameObject,
     });
+    this.setSkills([new TouTian(this), new HuanRi(this)]);
   }
 }

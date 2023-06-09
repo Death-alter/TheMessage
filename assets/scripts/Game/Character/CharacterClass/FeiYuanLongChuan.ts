@@ -11,8 +11,8 @@ export class FeiYuanLongChuan extends Character {
       sprite: "images/characters/FeiYuanLongChuan",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new GuiZha()],
       gameObject: gameObject,
     });
+    this.setSkills([new GuiZha(this)]);
   }
 }

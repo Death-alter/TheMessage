@@ -11,8 +11,8 @@ export class JinShengHuo extends Character {
       sprite: "images/characters/JinShengHuo",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
-      skills: [new JinShen()],
       gameObject: gameObject,
     });
+    this.setSkills([new JinShen(this)]);
   }
 }

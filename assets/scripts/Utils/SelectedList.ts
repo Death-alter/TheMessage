@@ -1,6 +1,7 @@
 export class SelectedList<T> {
   private _list: T[] = [];
   private _limit: number = 0;
+  private _locked: boolean = false;
 
   get list() {
     return this._list;
@@ -12,9 +13,6 @@ export class SelectedList<T> {
 
   set limit(num: number) {
     this._limit = num;
-    if (this._list.length > num) {
-      this.clear();
-    }
   }
 
   constructor(limit?: number) {
@@ -28,6 +26,7 @@ export class SelectedList<T> {
   }
 
   select(item: T) {
+    if (this._locked) return false;
     if (this._list.length < this._limit) {
       this._list.push(item);
       return true;
@@ -37,6 +36,7 @@ export class SelectedList<T> {
   }
 
   deselect(item: T): boolean {
+    if (this._locked) return false;
     const index = this._list.indexOf(item);
     if (index === -1) {
       return false;
@@ -48,5 +48,13 @@ export class SelectedList<T> {
 
   clear() {
     this._list = [];
+  }
+
+  lock() {
+    this._locked = true;
+  }
+
+  unlock() {
+    this._locked = false;
   }
 }

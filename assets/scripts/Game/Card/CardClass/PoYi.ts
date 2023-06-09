@@ -75,8 +75,6 @@ export class PoYi extends Card {
           },
         ]);
       } else {
-        // gameData.gameObject.tooltip.setText("");
-        // gameData.gameObject.tooltip.buttons.setButtons([]);
         NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
           show: false,
           seq: gameData.gameObject.seq,
