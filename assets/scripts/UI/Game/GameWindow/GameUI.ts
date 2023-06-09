@@ -320,7 +320,7 @@ export class GameUI extends GameObject<GameData> {
       const buttons = this.skillButtons.getComponent(SkillButtons);
       this.data.selfPlayer.character.skills.forEach((skill, index) => {
         if (skill instanceof ActiveSkill) {
-          if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && this.data.turnPlayerId === 0) {
+          if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && data.playerId === 0) {
             buttons.list[index].useable = true;
           } else {
             buttons.list[index].useable = false;
@@ -362,7 +362,7 @@ export class GameUI extends GameObject<GameData> {
       {
         player: data.player,
         cards: [data.card],
-        from: data.from,
+        from: { location: data.from },
       },
       this.handCardList
     );

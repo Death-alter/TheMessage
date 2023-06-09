@@ -1,10 +1,10 @@
-import { skill_gui_zha_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
+import { skill_tou_tian_toc } from "../../../../protobuf/proto";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
-import { CardType } from "../../Card/type";
 import { Character } from "../../Character/Character";
+import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
@@ -20,7 +20,7 @@ export class TouTian extends ActiveSkill {
   }
 
   get useable() {
-    return true;
+    return this.character.status === CharacterStatus.FACE_DOWN;
   }
 
   init(gameData: GameData, player: Player) {
@@ -39,82 +39,35 @@ export class TouTian extends ActiveSkill {
 
   onUse(gameData: GameData) {
     const tooltip = gameData.gameObject.tooltip;
-    tooltip.setText(`请选择一名角色`);
-    gameData.gameObject.startSelectPlayer({
-      num: 1,
-      onSelect: () => {
-        tooltip.setText(`请选择要执行的操作`);
-        tooltip.buttons.setButtons([
-          {
-            text: "威逼",
-            onclick: () => {
-              gameData.gameObject.showCardsWindow.show({
-                title: "选择目标交给你的卡牌种类",
-                cardList: [
-                  gameData.createCardByType(CardType.JIE_HUO),
-                  gameData.createCardByType(CardType.WU_DAO),
-                  gameData.createCardByType(CardType.DIAO_BAO),
-                  gameData.createCardByType(CardType.CHENG_QING),
-                ],
-                limit: 1,
-                buttons: [
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                        targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-                        cardType: CardType.WEI_BI,
-                        wantType: gameData.gameObject.showCardsWindow.selectedCards.list[0].type,
-                        seq: gameData.gameObject.seq,
-                      });
-                      gameData.gameObject.showCardsWindow.hide();
-                      gameData.gameObject.stopSelectPlayer();
-                      gameData.gameObject.clearSelectedPlayers();
-                    },
-                    enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      gameData.gameObject.showCardsWindow.hide();
-                      gameData.gameObject.clearSelectedPlayers();
-                    },
-                  },
-                ],
-              });
-            },
-          },
-          {
-            text: "利诱",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-                cardType: CardType.LI_YOU,
-                seq: gameData.gameObject.seq,
-              });
-              gameData.gameObject.stopSelectPlayer();
-              gameData.gameObject.clearSelectedPlayers();
-            },
-          },
-        ]);
+    if (gameData.messagePlayerId === 0) {
+      tooltip.setText(`情报在你面前，不能使用【偷天】`);
+    } else {
+      tooltip.setText(`是否使用【偷天】？`);
+    }
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
+            seq: gameData.gameObject.seq,
+          });
+          this.gameObject.isOn = false;
+        },
+        enabled: gameData.messagePlayerId !== 0,
       },
-      onDeselect: () => {
-        tooltip.setText(`请选择一名角色`);
+      {
+        text: "取消",
+        onclick: () => {
+          gameData.gameObject.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
+          this.gameObject.isOn = false;
+        },
       },
-    });
+    ]);
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId, cardType }: skill_gui_zha_toc) {
+  onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
     const gameLog = gameData.gameObject.gameLog;
     const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
-    gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}对【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }使用技能【诡诈】`
-      )
-    );
-    this.gameObject.isOn = false;
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【偷天】`));
   }
 }

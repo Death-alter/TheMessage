@@ -7,7 +7,7 @@ import * as GameEventType from "../Event/GameEventType";
 import { CardObject } from "../Game/Card/CardObject";
 import { HandCardList } from "../Game/Container/HandCardList";
 import { Player } from "../Game/Player/Player";
-import { CardActionLocation, MoveNodeParams } from "./type";
+import { ActionLocation, CardActionLocation, MoveNodeParams } from "./type";
 
 const { ccclass, property } = _decorator;
 
@@ -70,15 +70,15 @@ export class CardAction extends Component {
   }
 
   addCardToHandCard(
-    { player, card, from }: { player: Player; card: Card; from?: CardActionLocation },
+    { player, card, from }: { player: Player; card: Card; from?: ActionLocation },
     handCardList: HandCardList
   );
   addCardToHandCard(
-    { player, cards, from }: { player: Player; cards: Card[]; from?: CardActionLocation },
+    { player, cards, from }: { player: Player; cards: Card[]; from?: ActionLocation },
     handCardList: HandCardList
   );
   addCardToHandCard(
-    data: { player: Player; card?: Card; cards?: Card[]; from?: CardActionLocation },
+    data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation },
     handCardList: HandCardList
   ) {
     const { player, cards, from, card } = data;
@@ -100,7 +100,7 @@ export class CardAction extends Component {
       this.node.addChild(cardGroup.gameObject.node);
       this.moveNode({
         node: cardGroup.gameObject.node,
-        from: { location: from },
+        from,
         to: { location: CardActionLocation.PLAYER_HAND_CARD, player },
       }).then(() => {
         for (let card of cardGroup.list) {
@@ -126,7 +126,7 @@ export class CardAction extends Component {
       {
         player,
         cards: cardList,
-        from: CardActionLocation.DECK,
+        from: { location: CardActionLocation.DECK },
       },
       handCardList
     );

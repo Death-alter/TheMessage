@@ -19,6 +19,10 @@ export abstract class Skill extends DataBasic<SkillButton> {
     return this._description;
   }
 
+  get character() {
+    return this._character;
+  }
+
   constructor(option: SkillOption) {
     super();
     this._name = option.name;
