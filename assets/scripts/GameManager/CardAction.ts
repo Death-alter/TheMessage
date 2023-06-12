@@ -21,6 +21,7 @@ export class CardAction extends Component {
   public transmissionMessageObject: CardObject;
   public actions: { [index: string]: Tween<Node> } = {};
   public actionQueue: Tween<Node>[] = [];
+  public handCardList: HandCardList;
 
   private getLoaction(location: CardActionLocation, player?: Player) {
     switch (location) {
@@ -69,18 +70,9 @@ export class CardAction extends Component {
     });
   }
 
-  addCardToHandCard(
-    { player, card, from }: { player: Player; card: Card; from?: ActionLocation },
-    handCardList: HandCardList
-  );
-  addCardToHandCard(
-    { player, cards, from }: { player: Player; cards: Card[]; from?: ActionLocation },
-    handCardList: HandCardList
-  );
-  addCardToHandCard(
-    data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation },
-    handCardList: HandCardList
-  ) {
+  addCardToHandCard({ player, card, from }: { player: Player; card: Card; from?: ActionLocation });
+  addCardToHandCard({ player, cards, from }: { player: Player; cards: Card[]; from?: ActionLocation });
+  addCardToHandCard(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
     const { player, cards, from, card } = data;
     return new Promise((resolve, reject) => {
       let cardGroup = new DataContainer<Card>();
@@ -106,7 +98,7 @@ export class CardAction extends Component {
         for (let card of cardGroup.list) {
           if (player.id === 0) {
             card.gameObject.node.scale = new Vec3(1, 1, 1);
-            handCardList.addData(card);
+            this.handCardList.addData(card);
           } else {
             GamePools.cardPool.put(card.gameObject);
             card.gameObject = null;
@@ -120,24 +112,49 @@ export class CardAction extends Component {
     });
   }
 
+  addCardToMessageZone({ player, card, from }: { player: Player; card: Card; from?: ActionLocation }) {
+    return new Promise((resolve, reject) => {
+      if (!card.gameObject) {
+        card.gameObject = GamePools.cardPool.get();
+      }
+      this.node.addChild(card.gameObject.node);
+      this.moveNode({
+        node: card.gameObject.node,
+        from,
+        to: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+      }).then(() => {
+        this.setAction(
+          card.gameObject.node,
+          tween(card.gameObject.node)
+            .to(0.5, {
+              worldPosition: this.getLoaction(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
+              scale: new Vec3(0, 0, 1),
+            })
+            .call(() => {
+              GamePools.cardPool.put(card.gameObject);
+              card.gameObject = null;
+              resolve(null);
+            })
+        );
+      });
+    });
+  }
+
   //抽牌动画
-  drawCards({ player, cardList }: GameEventType.PlayerDrawCard, handCardList: HandCardList) {
-    return this.addCardToHandCard(
-      {
-        player,
-        cards: cardList,
-        from: { location: CardActionLocation.DECK },
-      },
-      handCardList
-    );
+  drawCards({ player, cardList }: GameEventType.PlayerDrawCard) {
+    return this.addCardToHandCard({
+      player,
+      cards: cardList,
+      from: { location: CardActionLocation.DECK },
+    });
   }
 
   //弃牌动画
-  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard, handCardList: HandCardList) {
+  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard) {
     return new Promise((resolve, reject) => {
       if (player.id === 0) {
         cardList.forEach((card) => {
-          handCardList.removeData(card);
+          this.handCardList.removeData(card);
           card.gameObject.node.setParent(this.node);
           this.setAction(
             card.gameObject.node,
@@ -183,11 +200,11 @@ export class CardAction extends Component {
   }
 
   //打出卡牌动画，播放声音
-  playerPlayCard(data: GameEventType.PlayerPlayCard, handCardList: HandCardList) {
+  playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
 
     if (player.id === 0 && card.id) {
-      handCardList.removeData(card);
+      this.handCardList.removeData(card);
     }
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
@@ -223,14 +240,14 @@ export class CardAction extends Component {
     }
   }
 
-  giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard, handCardList: HandCardList) {
+  giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
     return new Promise((resolve, reject) => {
       const cardGroup = new DataContainer<Card>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
 
       cardList.forEach((card) => {
         if (player.id === 0) {
-          handCardList.removeData(card);
+          this.handCardList.removeData(card);
         } else {
           card.gameObject = GamePools.cardPool.get();
         }
@@ -248,7 +265,7 @@ export class CardAction extends Component {
         for (let card of cardGroup.list) {
           if (targetPlayer.id === 0) {
             card.gameObject.node.scale = new Vec3(1, 1, 1);
-            handCardList.addData(card);
+            this.handCardList.addData(card);
           } else {
             GamePools.cardPool.put(card.gameObject);
             card.gameObject = null;
@@ -262,14 +279,14 @@ export class CardAction extends Component {
     });
   }
 
-  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage, handCardList: HandCardList) {
+  playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
     return new Promise(async (resolve, reject) => {
       const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
       const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
       let worldPosition;
       if (player.id === 0) {
         worldPosition = message.gameObject.node.worldPosition;
-        handCardList.removeData(message);
+        this.handCardList.removeData(message);
       } else {
         message.gameObject = GamePools.cardPool.get();
         worldPosition = panting.worldPosition;

@@ -82,7 +82,7 @@ export class QiHuoKeJu extends TriggerSkill {
 
     if (playerId === 0) {
       message.gameObject = GamePools.cardPool.get();
-      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message }, gameData.gameObject.handCardList);
+      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
     }
   }
 }

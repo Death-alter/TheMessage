@@ -63,8 +63,6 @@ export class GameUI extends GameObject<GameData> {
     return this.handCardList.selectedCards;
   }
 
-  private procedureQueue: Promise<any>[] = [];
-
   onLoad() {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
@@ -200,6 +198,7 @@ export class GameUI extends GameObject<GameData> {
     //初始化手牌UI
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
     this.handCardList.gameObject.init();
+    this.cardAction.handCardList = this.handCardList;
 
     //创建其他人UI
     const othersCount = data.playerList.length - 1;
@@ -350,11 +349,11 @@ export class GameUI extends GameObject<GameData> {
   }
 
   drawCards(data: GameEventType.PlayerDrawCard) {
-    this.cardAction.drawCards(data, this.handCardList);
+    this.cardAction.drawCards(data);
   }
 
   discardCards(data: GameEventType.PlayerDiscardCard) {
-    this.cardAction.discardCards(data, this.handCardList);
+    this.cardAction.discardCards(data);
   }
 
   cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
@@ -363,8 +362,7 @@ export class GameUI extends GameObject<GameData> {
         player: data.player,
         cards: [data.card],
         from: { location: data.from },
-      },
-      this.handCardList
+      }
     );
   }
 
@@ -373,7 +371,7 @@ export class GameUI extends GameObject<GameData> {
       this.handCardList.selectedCards.limit = 0;
       (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
     }
-    this.cardAction.playerSendMessage(data, this.handCardList);
+    this.cardAction.playerSendMessage(data);
   }
 
   transmitMessage(data: GameEventType.MessageTransmission) {
@@ -404,7 +402,7 @@ export class GameUI extends GameObject<GameData> {
 
   playerDie(data: GameEventType.PlayerDie) {
     const { player, handCards, messages } = data;
-    this.cardAction.discardCards({ player, cardList: handCards }, this.handCardList);
+    this.cardAction.discardCards({ player, cardList: handCards });
     this.cardAction.removeMessage({ player, messageList: messages });
   }
 
@@ -413,14 +411,14 @@ export class GameUI extends GameObject<GameData> {
     //   this.handCardList.selectedCards.limit = 0;
     //   (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
     // }
-    this.cardAction.giveCards(data, this.handCardList);
+    this.cardAction.giveCards(data);
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     if (data.player.id === 0) {
       this.handCardList.selectedCards.limit = 0;
     }
-    this.cardAction.playerPlayCard(data, this.handCardList);
+    this.cardAction.playerPlayCard(data);
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {

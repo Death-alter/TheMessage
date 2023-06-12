@@ -103,6 +103,7 @@ export class GameManager extends Component {
 
   gameOver(data: GameEventType.GameOver) {
     this.gameWindow.active = false;
+    this.showCardsWindow.active = false;
     this.gameResultWindow.getComponent(Winner).init(data.players);
     this.gameResultWindow.active = true;
   }

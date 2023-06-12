@@ -94,8 +94,7 @@ export class JinShen extends TriggerSkill {
     if (playerId === 0) {
       message.gameObject = GamePools.cardPool.get();
       gameData.gameObject.handCardList.removeData(handCard);
-      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message }, gameData.gameObject.handCardList);
-      // gameData.gameObject.handCardList.addData(message);
+      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
     }
   }
 }

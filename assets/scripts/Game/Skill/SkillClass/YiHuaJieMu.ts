@@ -1,6 +1,6 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
-import { skill_tou_tian_toc, skill_yi_hua_jie_mu_toc } from "../../../../protobuf/proto";
+import { skill_yi_hua_jie_mu_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { CardActionLocation, GamePhase } from "../../../GameManager/type";
@@ -8,7 +8,6 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
-import { Card } from "../../Card/Card";
 
 export class YiHuaJieMu extends ActiveSkill {
   constructor(character: Character) {
@@ -66,11 +65,13 @@ export class YiHuaJieMu extends ActiveSkill {
             {
               text: "确定",
               onclick: () => {
+                const id = gameData.gameObject.showCardsWindow.selectedCards.list[0].id;
                 gameData.gameObject.showCardsWindow.hide();
                 gameData.gameObject.selectedPlayers.unlock();
                 gameData.gameObject.clearSelectedPlayers();
-                resolve(gameData.gameObject.showCardsWindow.selectedCards.list[0].id);
+                resolve(id);
               },
+              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
             },
           ],
         });
@@ -124,10 +125,11 @@ export class YiHuaJieMu extends ActiveSkill {
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【移花接木】`));
     if (joinIntoHand) {
       player.addHandCard(message);
-      gameData.gameObject.cardAction.addCardToHandCard(
-        { player, card: message, from: { location: CardActionLocation.PLAYER, player: fromPlayer } },
-        gameData.gameObject.handCardList
-      );
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+      });
       gameLog.addData(
         new GameLog(
           `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
@@ -137,6 +139,11 @@ export class YiHuaJieMu extends ActiveSkill {
       );
     } else {
       toPlayer.addMessage(message);
+      gameData.gameObject.cardAction.addCardToMessageZone({
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+      });
       gameLog.addData(
         new GameLog(
           `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
