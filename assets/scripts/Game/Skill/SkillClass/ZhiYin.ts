@@ -1,7 +1,13 @@
-import { Skill } from "../Skill";
+import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { skill_zhi_yin_toc } from "../../../../protobuf/proto";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC } from "../../../Event/type";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 
-export class ZhiYin extends Skill {
+export class ZhiYin extends PassiveSkill {
   constructor(character: Character) {
     super({
       name: "知音",
@@ -10,7 +16,24 @@ export class ZhiYin extends Skill {
     });
   }
 
-  init() {}
+  init(gameData: GameData, player: Player) {
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_ZHI_YIN_TOC,
+      (data) => {
+        this.onEffect(gameData, data);
+      },
+      this
+    );
+  }
 
-  dispose() {}
+  dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_ZHI_YIN_TOC);
+  }
+
+  onEffect(gameData: GameData, { playerId }: skill_zhi_yin_toc) {
+    const player = gameData.playerList[playerId];
+    const gameLog = gameData.gameObject.gameLog;
+
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【知音】`));
+  }
 }

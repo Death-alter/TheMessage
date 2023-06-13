@@ -25,7 +25,7 @@ export class TouTian extends ActiveSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_GUI_ZHA_TOC,
+      NetworkEventToC.SKILL_TOU_TIAN_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -34,7 +34,7 @@ export class TouTian extends ActiveSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_GUI_ZHA_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_TOU_TIAN_TOC);
   }
 
   onUse(gameData: GameData) {

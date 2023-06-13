@@ -46,28 +46,31 @@ export class XinSiChao extends ActiveSkill {
 
   onUse(gameData: GameData) {
     const tooltip = gameData.gameObject.tooltip;
-    const handCardList = gameData.gameObject.handCardList;
 
     tooltip.setText(`请选择一张手牌丢弃`);
-    handCardList.selectedCards.limit = 1;
+    gameData.gameObject.startSelectHandCard({
+      num: 1,
+    });
 
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_SI_CHAO_TOS, {
-            cardId: handCardList.selectedCards.list[0].id,
+            cardId: gameData.gameObject.selectedHandCards.list[0].id,
             seq: gameData.gameObject.seq,
           });
+          this.gameObject.isOn = false;
         },
         enabled: () => {
-          return handCardList.selectedCards.list.length === 1;
+          return gameData.gameObject.selectedHandCards.list.length === 1;
         },
       },
       {
         text: "取消",
         onclick: () => {
           gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+          this.gameObject.isOn = false;
         },
       },
     ]);
@@ -78,6 +81,5 @@ export class XinSiChao extends ActiveSkill {
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
     ++this.usageCount;
-    this.gameObject.isOn = false;
   }
 }

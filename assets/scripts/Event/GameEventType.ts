@@ -125,5 +125,5 @@ export interface PlayerPlayCard {
 
 export interface AfterPlayerPlayCard {
   card: Card;
-  flag: boolean;
+  flag?: boolean;
 }

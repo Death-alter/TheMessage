@@ -29,7 +29,7 @@ export class RuGui extends TriggerSkill {
       NetworkEventToC.SKILL_WAIT_FOR_RU_GUI_TOC,
       (data) => {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-          playerId: data.waitingPlayerId,
+          playerId: data.playerId,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,

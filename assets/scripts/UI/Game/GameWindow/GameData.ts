@@ -225,7 +225,9 @@ export class GameData extends DataBasic<GameUI> {
     if (this.cardOnPlay) {
       const card = this.cardOnPlay;
       this.cardOnPlay = null;
-      GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
+      if (card) {
+        GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
+      }
     }
 
     //如果有传递的情报
@@ -506,7 +508,7 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
-  createCardByType(type) {
+  createCardByType(type: CardType) {
     return createCard({ type });
   }
 

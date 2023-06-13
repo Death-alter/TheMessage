@@ -84,10 +84,6 @@ export class GameUI extends GameObject<GameData> {
           });
           break;
       }
-      this.stopSelectPlayer();
-      this.clearSelectedPlayers();
-      this.stopSelectHandCard();
-      this.clearSelectedHandCards();
       this.tooltip.hideNextPhaseButton();
     });
   }
@@ -282,7 +278,6 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     if (data.playerId === 0) {
       this.tooltip.startCoundDown(data.second);
-      this.stopSelectHandCard();
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.data.gamePhase) {
@@ -306,6 +301,9 @@ export class GameUI extends GameObject<GameData> {
           break;
         case WaitingType.PLAYER_DYING:
           this.promotUseCengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
+          break;
+        case WaitingType.GIVE_CARD:
+          this.promotDieGiveCard("你已死亡，请选择最多三张手牌交给其他角色");
           break;
         case WaitingType.USE_SKILL:
           const player = this.data.playerList[data.playerId];
@@ -341,6 +339,10 @@ export class GameUI extends GameObject<GameData> {
   onStopCountDown() {
     this.tooltip.hide();
     this.tooltip.hideNextPhaseButton();
+    this.stopSelectPlayer();
+    this.clearSelectedPlayers();
+    this.stopSelectHandCard();
+    this.clearSelectedHandCards();
     (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
   }
 
@@ -357,13 +359,11 @@ export class GameUI extends GameObject<GameData> {
   }
 
   cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
-    this.cardAction.addCardToHandCard(
-      {
-        player: data.player,
-        cards: [data.card],
-        from: { location: data.from },
-      }
-    );
+    this.cardAction.addCardToHandCard({
+      player: data.player,
+      cards: [data.card],
+      from: { location: data.from },
+    });
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
@@ -422,7 +422,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
-    const flag = data.card.onFinish(this.data);
+    const flag = data.card.onFinish(this.data) && data.flag !== false;
     if (flag !== false) {
       this.cardAction.afterPlayerPlayCard(data);
     }
@@ -501,6 +501,45 @@ export class GameUI extends GameObject<GameData> {
         },
       },
     ]);
+  }
+
+  async promotDieGiveCard(tooltipText) {
+    this.tooltip.setText(tooltipText);
+    this.startSelectHandCard({
+      num: 3,
+    });
+    this.startSelectPlayer({
+      num: 1,
+      filter: (player) => player.id !== 0,
+    });
+    await (() =>
+      new Promise((resolve, reject) => {
+        this.tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+                targetPlayerId: this.selectedPlayers.list[0].id,
+                cardId: this.selectedHandCards.list.map((card) => card.id),
+                seq: this.seq,
+              });
+              resolve(null);
+            },
+            enabled: () => this.selectedHandCards.list.length > 0 && this.selectedPlayers.list.length > 0,
+          },
+          {
+            text: "取消",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+                targetPlayerId: 0,
+                cardId: [],
+                seq: this.seq,
+              });
+              resolve(null);
+            },
+          },
+        ]);
+      }))();
   }
 
   promotSendMessage(tooltipText) {

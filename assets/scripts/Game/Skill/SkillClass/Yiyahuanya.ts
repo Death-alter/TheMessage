@@ -59,10 +59,6 @@ export class YiYaHuanYa extends TriggerSkill {
                   targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
                   seq: gameData.gameObject.seq,
                 });
-                gameData.gameObject.stopSelectPlayer();
-                gameData.gameObject.clearSelectedPlayers();
-                gameData.gameObject.stopSelectHandCard();
-                gameData.gameObject.clearSelectedHandCards();
               },
               enabled: () => {
                 return (

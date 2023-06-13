@@ -59,9 +59,6 @@ export class LianMin extends TriggerSkill {
                         cardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
                         seq: gameData.gameObject.seq,
                       });
-                      gameData.gameObject.stopSelectPlayer();
-                      gameData.gameObject.clearSelectedPlayers();
-                      gameData.gameObject.showCardsWindow.hide();
                     },
                     enabled: () =>
                       gameData.gameObject.showCardsWindow.selectedCards.list[0] &&
