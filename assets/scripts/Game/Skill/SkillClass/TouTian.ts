@@ -51,7 +51,6 @@ export class TouTian extends ActiveSkill {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
         },
         enabled: gameData.messagePlayerId !== 0,
       },
@@ -69,5 +68,9 @@ export class TouTian extends ActiveSkill {
     const gameLog = gameData.gameObject.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【偷天】`));
+
+    if (playerId === 0) {
+      this.gameObject.isOn = false;
+    }
   }
 }

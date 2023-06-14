@@ -35,11 +35,11 @@ export interface MoveNodeParams {
 export const enum WaitingType {
   UNKNOWN = 0,
   PLAY_CARD = 1,
-  HNADLE_CARD = 2,
+  HANDLE_CARD = 2,
   GIVE_CARD = 3,
   PLAYER_DYING = 4,
   USE_SKILL = 5,
-  HNADLE_SKILL = 6,
+  HANDLE_SKILL = 6,
   SEND_MESSAGE = 7,
   RECEIVE_MESSAGE = 8,
 }

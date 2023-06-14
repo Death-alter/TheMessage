@@ -288,7 +288,10 @@
     "__prefab": {
       "__id__": 12
     },
-    "_customMaterial": null,
+    "_customMaterial": {
+      "__uuid__": "383a1446-3ddb-4cbf-b539-3f618a881708",
+      "__expectedType__": "cc.Material"
+    },
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
     "_color": {

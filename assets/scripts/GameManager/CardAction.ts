@@ -20,7 +20,6 @@ export class CardAction extends Component {
 
   public transmissionMessageObject: CardObject;
   public actions: { [index: string]: Tween<Node> } = {};
-  public actionQueue: Tween<Node>[] = [];
   public handCardList: HandCardList;
 
   private getLoaction(location: CardActionLocation, player?: Player) {
@@ -138,6 +137,14 @@ export class CardAction extends Component {
         );
       });
     });
+  }
+
+  showDeckTopCard(card: Card) {
+    if (!card.gameObject) {
+      card.gameObject = GamePools.cardPool.get();
+    }
+    this.node.addChild(card.gameObject.node);
+    card.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
   }
 
   //抽牌动画

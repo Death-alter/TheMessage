@@ -314,25 +314,42 @@ export class GameUI extends GameObject<GameData> {
           }
           break;
       }
-      const buttons = this.skillButtons.getComponent(SkillButtons);
-      this.data.selfPlayer.character.skills.forEach((skill, index) => {
-        if (skill instanceof ActiveSkill) {
-          if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && data.playerId === 0) {
-            buttons.list[index].useable = true;
-          } else {
-            buttons.list[index].useable = false;
-          }
-        } else if (skill instanceof TriggerSkill) {
-          if (data.type === WaitingType.USE_SKILL) {
-            buttons.list[index].useable = true;
-          } else {
-            buttons.list[index].useable = false;
-          }
-        }
-      });
     } else {
       this.playerObjectList[data.playerId].startCoundDown(data.second);
     }
+
+    const buttons = this.skillButtons.getComponent(SkillButtons);
+    this.data.selfPlayer.character.skills.forEach((skill, index) => {
+      if (skill instanceof ActiveSkill) {
+        if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1) {
+          switch (this.data.gamePhase) {
+            case GamePhase.MAIN_PHASE:
+              if (this.data.turnPlayerId === 0) {
+                buttons.list[index].useable = true;
+              } else {
+                buttons.list[index].useable = false;
+              }
+              break;
+            case GamePhase.FIGHT_PHASE:
+              if (data.playerId === 0) {
+                buttons.list[index].useable = true;
+              } else {
+                buttons.list[index].useable = false;
+              }
+              break;
+          }
+        } else {
+          buttons.list[index].useable = false;
+        }
+      } else if (skill instanceof TriggerSkill) {
+        if (data.type === WaitingType.USE_SKILL) {
+          buttons.list[index].useable = true;
+        } else {
+          buttons.list[index].useable = false;
+        }
+      }
+    });
+
     this.seq = data.seq;
   }
 
@@ -547,6 +564,7 @@ export class GameUI extends GameObject<GameData> {
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
+        console.log(1);
         this.tooltip.setText("请选择一项操作");
         if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
           this.tooltip.buttons.setButtons([
@@ -577,6 +595,8 @@ export class GameUI extends GameObject<GameData> {
       onDeselect: (card: Card) => {
         this.tooltip.setText(tooltipText);
         this.tooltip.buttons.setButtons([]);
+        this.stopSelectPlayer();
+        this.clearSelectedPlayers();
         if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
           card.onDeselected(this.data);
         }
@@ -718,7 +738,11 @@ export class GameUI extends GameObject<GameData> {
     }
 
     NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
+
     this.scheduleOnce(() => {
+      this.selectedPlayers.unlock();
+      this.stopSelectHandCard();
+      this.clearSelectedHandCards();
       this.stopSelectPlayer();
       this.clearSelectedPlayers();
     }, 0);

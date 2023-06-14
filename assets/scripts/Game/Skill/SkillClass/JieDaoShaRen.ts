@@ -61,7 +61,6 @@ export class JieDaoShaRen extends ActiveSkill {
             targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
         },
         enabled: () => !!gameData.gameObject.selectedPlayers.list.length,
       },
@@ -83,45 +82,48 @@ export class JieDaoShaRen extends ActiveSkill {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
-        type: WaitingType.HNADLE_SKILL,
+        type: WaitingType.HANDLE_SKILL,
         seq: seq,
       });
 
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText("是否将抽到的牌置入一名角色的情报区？");
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            tooltip.setText("请选择一名角色");
-            gameData.gameObject.startSelectPlayer({
-              num: 1,
-            });
-            tooltip.buttons.setButtons([
-              {
-                text: "确定",
-                onclick: () => {
-                  NetworkEventCenter.emit(NetworkEventToS.SKILL_JIE_DAO_SHA_REN_B_TOS, {
-                    enable: true,
-                    targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-                    seq,
-                  });
+      if (playerId === 0) {
+        this.gameObject?.lock();
+        const tooltip = gameData.gameObject.tooltip;
+        tooltip.setText("是否将抽到的牌置入一名角色的情报区？");
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              tooltip.setText("请选择一名角色");
+              gameData.gameObject.startSelectPlayer({
+                num: 1,
+              });
+              tooltip.buttons.setButtons([
+                {
+                  text: "确定",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.SKILL_JIE_DAO_SHA_REN_B_TOS, {
+                      enable: true,
+                      targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
+                      seq,
+                    });
+                  },
+                  enabled: () => !!gameData.gameObject.selectedPlayers.list.length,
                 },
-                enabled: () => !!gameData.gameObject.selectedPlayers.list.length,
-              },
-            ]);
+              ]);
+            },
           },
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIE_DAO_SHA_REN_B_TOS, {
-              enable: false,
-              seq,
-            });
+          {
+            text: "取消",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.SKILL_JIE_DAO_SHA_REN_B_TOS, {
+                enable: false,
+                seq,
+              });
+            },
           },
-        },
-      ]);
+        ]);
+      }
     }
 
     let handCard = targetPlayer.removeHandCard(card.id);
@@ -186,5 +188,10 @@ export class JieDaoShaRen extends ActiveSkill {
         }号】${targetPlayer.character.name}的情报区`
       )
     );
+
+    if (playerId === 0) {
+      this.gameObject?.unlock();
+      this.gameObject.isOn = false;
+    }
   }
 }

@@ -124,6 +124,8 @@ export class GuiZha extends ActiveSkill {
       )
     );
     ++this.usageCount;
-    this.gameObject.isOn = false;
+    if (playerId === 0) {
+      this.gameObject.isOn = false;
+    }
   }
 }

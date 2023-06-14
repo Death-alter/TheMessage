@@ -68,7 +68,6 @@ export class JiaoJi extends ActiveSkill {
             targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
         },
         enabled: () => {
           return !!gameData.gameObject.selectedPlayers.list.length;
@@ -96,7 +95,7 @@ export class JiaoJi extends ActiveSkill {
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
-      type: WaitingType.HNADLE_SKILL,
+      type: WaitingType.HANDLE_SKILL,
       seq: seq,
     });
 
@@ -121,28 +120,31 @@ export class JiaoJi extends ActiveSkill {
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
     });
 
-    let num = handCards.length;
-    if (player.messageCounts.black === 0) {
-      tooltip.setText(`请选择${num}张手牌交给该角色`);
-    } else {
-      num = handCards.length - player.messageCounts.black;
-      tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
-    }
-    gameData.gameObject.startSelectHandCard({
-      num: handCards.length,
-    });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
-            cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
-            seq,
-          });
+    if (playerId === 0) {
+      this.gameObject?.lock();
+      let num = handCards.length;
+      if (player.messageCounts.black === 0) {
+        tooltip.setText(`请选择${num}张手牌交给该角色`);
+      } else {
+        num = handCards.length - player.messageCounts.black;
+        tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
+      }
+      gameData.gameObject.startSelectHandCard({
+        num: handCards.length,
+      });
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
+              cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
+              seq,
+            });
+          },
+          enabled: () => gameData.gameObject.selectedHandCards.list.length >= num,
         },
-        enabled: () => gameData.gameObject.selectedHandCards.list.length >= num,
-      },
-    ]);
+      ]);
+    }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【交际】`));
     gameLog.addData(
@@ -152,7 +154,6 @@ export class JiaoJi extends ActiveSkill {
         }${handCards.length}张手牌`
       )
     );
-    ++this.usageCount;
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_jiao_ji_b_toc) {
@@ -187,6 +188,10 @@ export class JiaoJi extends ActiveSkill {
       )
     );
 
-    this.gameObject.isOn = false;
+    if (playerId === 0) {
+      this.gameObject?.unlock();
+      this.gameObject.isOn = false;
+    }
+    ++this.usageCount;
   }
 }

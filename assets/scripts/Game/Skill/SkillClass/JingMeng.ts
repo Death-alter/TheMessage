@@ -86,7 +86,7 @@ export class JingMeng extends TriggerSkill {
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
-      type: WaitingType.HNADLE_SKILL,
+      type: WaitingType.HANDLE_SKILL,
       seq: seq,
     });
 

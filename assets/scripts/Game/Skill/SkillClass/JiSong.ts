@@ -1,7 +1,7 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../GameManager/type";
-import { skill_xin_si_chao_toc } from "../../../../protobuf/proto";
+import { skill_ji_song_toc, skill_xin_si_chao_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
@@ -53,6 +53,7 @@ export class JiSong extends ActiveSkill {
       num: 1,
       filter: (player) => player.id !== gameData.messagePlayerId,
       onSelect: (player) => {
+        const showCardsWindow = gameData.gameObject.showCardsWindow;
         gameData.gameObject.stopSelectPlayer();
         tooltip.setText("请选择一项");
         tooltip.buttons.setButtons([
@@ -72,17 +73,17 @@ export class JiSong extends ActiveSkill {
                       targetPlayerId: player.id,
                       seq: gameData.gameObject.seq,
                     });
-                    this.gameObject.isOn = false;
                   },
                   enabled: () => gameData.gameObject.selectedHandCards.list.length === 2,
                 },
               ]);
             },
+            enabled: () => gameData.selfPlayer.handCardCount > 1,
           },
           {
             text: "弃置情报",
             onclick: () => {
-              gameData.gameObject.showCardsWindow.show({
+              showCardsWindow.show({
                 title: "请选择一张非黑色情报弃置",
                 limit: 1,
                 cardList: gameData.selfPlayer.getMessagesCopy(),
@@ -91,28 +92,48 @@ export class JiSong extends ActiveSkill {
                     text: "确定",
                     onclick: () => {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_SONG_TOS, {
-                        messageCard: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
+                        messageCard: showCardsWindow.selectedCards.list[0].id,
                         targetPlayerId: player.id,
                         seq: gameData.gameObject.seq,
                       });
-                      this.gameObject.isOn = false;
+                      showCardsWindow.hide();
                     },
                     enabled: () =>
-                      gameData.gameObject.showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) === -1,
+                      showCardsWindow.selectedCards.list.length &&
+                      showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) === -1,
                   },
                 ],
               });
             },
+            enabled: () => gameData.selfPlayer.messageCounts.black < gameData.selfPlayer.messageCounts.total,
           },
         ]);
       },
     });
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_xin_si_chao_toc) {
+  onEffect(gameData: GameData, { playerId, messageCard, targetPlayerId }: skill_ji_song_toc) {
     const gameLog = gameData.gameObject.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
+    const targetPlayer = gameData.playerList[targetPlayerId];
+
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【急送】`));
+
+    if (messageCard) {
+      const message = player.removeMessage(messageCard.cardId);
+      gameData.gameObject.cardAction.removeMessage({ player, messageList: [message] });
+      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃置情报${gameLog.formatCard(message)}`);
+    }
+
+    gameData.gameObject.cardAction.transmitMessage({
+      messagePlayer: targetPlayer,
+      message: gameData.messageInTransmit,
+    });
+
     ++this.usageCount;
+
+    if (playerId === 0) {
+      this.gameObject.isOn = false;
+    }
   }
 }

@@ -60,7 +60,6 @@ export class XinSiChao extends ActiveSkill {
             cardId: gameData.gameObject.selectedHandCards.list[0].id,
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
         },
         enabled: () => {
           return gameData.gameObject.selectedHandCards.list.length === 1;
@@ -81,5 +80,8 @@ export class XinSiChao extends ActiveSkill {
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
     ++this.usageCount;
+    if (playerId === 0) {
+      this.gameObject.isOn = false;
+    }
   }
 }

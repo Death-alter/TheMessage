@@ -155,7 +155,7 @@ export class MiLing extends Card {
           break;
         }
       }
-      handCardList.selectedCards.limit = 0;
+      handCardList.selectedCards.lock();
       gameData.gameObject.doSendMessage();
     }
   }

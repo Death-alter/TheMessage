@@ -100,7 +100,6 @@ export class YiHuaJieMu extends ActiveSkill {
             toPlayerId: toPlayer.id,
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
         },
         enabled: () => {
           return !!gameData.gameObject.selectedPlayers.list.length;
@@ -151,6 +150,10 @@ export class YiHuaJieMu extends ActiveSkill {
           )}】置入【${toPlayer.seatNumber + 1}号】${toPlayer.character.name}的情报区`
         )
       );
+    }
+    
+    if (playerId === 0) {
+      this.gameObject.isOn = false;
     }
   }
 }
