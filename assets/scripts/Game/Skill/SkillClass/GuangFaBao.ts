@@ -59,6 +59,7 @@ export class GuangFaBao extends ActiveSkill {
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_GUANG_FA_BAO_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_GUANG_FA_BAO_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_GUANG_FA_BAO_B_TOC);
   }
 
   onUse(gameData: GameData) {

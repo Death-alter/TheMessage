@@ -158,6 +158,22 @@ export class CardAction extends Component {
     });
   }
 
+  moveCard({ card, from, to }: { card: Card; from?: ActionLocation; to: ActionLocation }) {
+    return new Promise((resolve, reject) => {
+      if (!card.gameObject) {
+        card.gameObject = GamePools.cardPool.get();
+      }
+      this.node.addChild(card.gameObject.node);
+      this.moveNode({
+        node: card.gameObject.node,
+        from,
+        to,
+      }).then(() => {
+        resolve(null);
+      });
+    });
+  }
+
   showDeckTopCard(card: Card) {
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
@@ -463,18 +479,25 @@ export class CardAction extends Component {
     });
   }
 
+  discardMessage(message) {
+    return new Promise(async (resolve, reject) => {
+      await message.flip();
+      await this.moveNode({
+        node: message.gameObject.node,
+        to: { location: CardActionLocation.DISCARD_PILE },
+        duration: 0.3,
+      });
+      GamePools.cardPool.put(message.gameObject);
+      message.gameObject = null;
+      resolve(null);
+    });
+  }
+
   replaceMessage({ message, oldMessage }: GameEventType.MessageReplaced) {
     return new Promise(async (resolve, reject) => {
       this.transmissionMessageObject = message.gameObject;
       const worldPosition = new Vec3(oldMessage.gameObject.node.worldPosition);
-      await oldMessage.flip();
-      await this.moveNode({
-        node: oldMessage.gameObject.node,
-        to: { location: CardActionLocation.DISCARD_PILE },
-        duration: 0.3,
-      });
-      GamePools.cardPool.put(oldMessage.gameObject);
-      oldMessage.gameObject = null;
+      await this.discardMessage(oldMessage);
       await message.flip();
       await this.moveNode({
         node: message.gameObject.node,

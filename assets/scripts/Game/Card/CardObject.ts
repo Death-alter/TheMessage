@@ -13,6 +13,7 @@ import {
   UIOpacity,
   find,
   sys,
+  quat,
 } from "cc";
 import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";
@@ -125,13 +126,11 @@ export class CardObject extends GameObject<Card> {
       if (card.direction != null) {
         arrow.active = true;
         if (card.direction === CardDirection.LEFT) {
-          let rotation = new Quat();
-          Quat.fromAngleZ(rotation, 90);
-          arrow.rotation = rotation;
+          arrow.angle = 90;
         } else if (card.direction === CardDirection.RIGHT) {
-          let rotation = new Quat();
-          Quat.fromAngleZ(rotation, -90);
-          arrow.rotation = rotation;
+          arrow.angle = -90;
+        } else {
+          arrow.angle = 0;
         }
       } else {
         arrow.active = false;
