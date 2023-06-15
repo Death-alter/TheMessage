@@ -1,7 +1,7 @@
-import { skill_xin_si_chao_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
-import { GamePhase } from "../../../GameManager/type";
+import { skill_bo_ai_a_toc, skill_bo_ai_b_toc } from "../../../../protobuf/proto";
+import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
@@ -29,14 +29,14 @@ export class BoAi extends ActiveSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_BO_AI_A_TOC,
       (data) => {
-        this.onEffect(gameData, data);
+        this.onEffectA(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_BO_AI_B_TOC,
       (data) => {
-        this.onEffect(gameData, data);
+        this.onEffectB(gameData, data);
       },
       this
     );
@@ -61,14 +61,9 @@ export class BoAi extends ActiveSkill {
       {
         text: "确定",
         onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_SI_CHAO_TOS, {
-            cardId: gameData.gameObject.selectedHandCards.list[0].id,
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_A_TOS, {
             seq: gameData.gameObject.seq,
           });
-          this.gameObject.isOn = false;
-        },
-        enabled: () => {
-          return gameData.gameObject.selectedHandCards.list.length === 1;
         },
       },
       {
@@ -81,10 +76,87 @@ export class BoAi extends ActiveSkill {
     ]);
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_xin_si_chao_toc) {
+  onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_bo_ai_a_toc) {
     const gameLog = gameData.gameObject.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
+
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId: playerId,
+      second: waitingSecond,
+      type: WaitingType.HANDLE_SKILL,
+      seq: seq,
+    });
+
+    if (playerId === 0) {
+      this.gameObject?.lock();
+      const tooltip = gameData.gameObject.tooltip;
+      tooltip.setText("请选择一张手牌交给另一名角色");
+      gameData.gameObject.startSelectHandCard({
+        num: 1,
+      });
+      gameData.gameObject.startSelectPlayer({
+        num: 1,
+        filter: (player) => player.id !== 0,
+      });
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
+              targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
+              cardId: gameData.gameObject.selectedHandCards.list[0].id,
+              seq,
+            });
+          },
+          enabled: () =>
+            gameData.gameObject.selectedPlayers.list.length === 1 &&
+            gameData.gameObject.selectedHandCards.list.length === 1,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
+              cardId: 0,
+              seq,
+            });
+          },
+        },
+      ]);
+    }
+
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【博爱】`));
+  }
+
+  onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_bo_ai_b_toc) {
+    const gameLog = gameData.gameObject.gameLog;
+    const player = gameData.playerList[playerId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+
+    let handCard = player.removeHandCard(card.cardId);
+    if (!handCard) {
+      player.removeHandCard(0);
+      handCard = gameData.createCard(card);
+    }
+    targetPlayer.addHandCard(handCard);
+
+    if (playerId === 0) {
+      gameData.gameObject.handCardList.removeData(handCard);
+    }
+
+    gameData.gameObject.cardAction.giveCards({ player, targetPlayer, cardList: [handCard] });
+
+    gameLog.addData(
+      new GameLog(
+        `【${player.seatNumber + 1}号】${player.character.name}把一张牌交给【${targetPlayer.seatNumber + 1}号】${
+          targetPlayer.character.name
+        }`
+      )
+    );
+
+    if (playerId === 0) {
+      this.gameObject?.unlock();
+      this.gameObject.isOn = false;
+    }
     ++this.usageCount;
   }
 }

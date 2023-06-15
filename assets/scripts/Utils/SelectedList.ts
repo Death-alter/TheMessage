@@ -15,6 +15,10 @@ export class SelectedList<T> {
     this._limit = num;
   }
 
+  get locked() {
+    return this._locked;
+  }
+
   constructor(limit?: number) {
     if (limit != null) {
       this._limit = limit;

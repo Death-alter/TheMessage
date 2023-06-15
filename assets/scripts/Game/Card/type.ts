@@ -20,7 +20,7 @@ export const enum CardType {
   DIAO_BAO = 7, // 调包
   WU_DAO = 8, // 误导
   FENG_YUN_BIAN_HUAN = 9, // 风云变幻
-  MI_LING = 10, // 风云变幻
+  MI_LING = 10, // 密令
 }
 
 export const enum CardColor {

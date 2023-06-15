@@ -112,7 +112,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
 
   selectCard(card: Card) {
     const data = <HandCardList>this.data;
-    if (data.selectedCards.limit <= 0) return;
+    if (data.selectedCards.limit <= 0 || data.selectedCards.locked) return;
     if (data.selectedCards.isSelected(card)) {
       data.selectedCards.deselect(card);
       ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_HAND_CARD, card);

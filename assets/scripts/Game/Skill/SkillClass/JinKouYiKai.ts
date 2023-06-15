@@ -106,7 +106,7 @@ export class JinKouYiKai extends ActiveSkill {
       tooltip.setText(`请选择一项`);
       tooltip.buttons.setButtons([
         {
-          text: "抽一张牌",
+          text: "摸一张牌",
           onclick: () => {
             NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_B_TOS, {
               exchange: false,

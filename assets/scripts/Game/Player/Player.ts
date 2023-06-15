@@ -107,6 +107,8 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //抽牌
+  addHandCard(card: Card);
+  addHandCard(cards: Card[]);
   addHandCard(cards: Card | Card[]) {
     if (!(cards instanceof Array)) {
       cards = [cards];
@@ -159,6 +161,8 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //情报置入情报区
+  addMessage(message: Card);
+  addMessage(messages: Card[]);
   addMessage(messages: Card | Card[]) {
     if (!(messages instanceof Array)) {
       messages = [messages];

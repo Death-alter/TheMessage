@@ -1,6 +1,6 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
-import { skill_ru_gui_toc, skill_yi_xin_toc } from "../../../../protobuf/proto";
+import { skill_yi_xin_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, ProcessEvent, NetworkEventToS } from "../../../Event/type";
 import { WaitingType, CardActionLocation } from "../../../GameManager/type";

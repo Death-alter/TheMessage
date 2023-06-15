@@ -7,6 +7,7 @@ import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { CardType } from "../../Card/type";
 
 export class JinBi extends ActiveSkill {
   private usageCount: number = 0;
@@ -146,9 +147,11 @@ export class JinBi extends ActiveSkill {
 
     if (unknownCardCount === 0 && cards.length === 0) {
       if (targetPlayerId === 0) {
-        gameData.gameObject.selectedHandCards.lock();
+        gameData.selfBanned = true;
+        gameData.bannedCardTypes = [CardType.PO_YI];
         GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-          gameData.gameObject.selectedHandCards.unlock();
+          gameData.selfBanned = false;
+          gameData.bannedCardTypes = [];
         });
       }
       gameLog.addData(new GameLog(`【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}被【禁闭】`));
@@ -164,7 +167,7 @@ export class JinBi extends ActiveSkill {
         handCards = cards.map((card) => gameData.createCard(card));
       } else {
         handCards = targetPlayer.removeHandCard(new Array(unknownCardCount).fill(0));
-      };
+      }
 
       player.addHandCard(handCards);
       gameData.gameObject.cardAction.addCardToHandCard({

@@ -111,27 +111,46 @@ export class CardAction extends Component {
     });
   }
 
-  addCardToMessageZone({ player, card, from }: { player: Player; card: Card; from?: ActionLocation }) {
+  addCardToMessageZone({ player, card, from }: { player: Player; card: Card; from?: ActionLocation });
+  addCardToMessageZone({ player, cards, from }: { player: Player; cards: Card[]; from?: ActionLocation });
+  addCardToMessageZone(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
+    const { player, cards, from, card } = data;
     return new Promise((resolve, reject) => {
-      if (!card.gameObject) {
-        card.gameObject = GamePools.cardPool.get();
+      let cardGroup = new DataContainer<Card>();
+      cardGroup.gameObject = GamePools.cardGroupPool.get();
+      if (card) {
+        if (!card.gameObject) {
+          card.gameObject = GamePools.cardPool.get();
+        }
+        cardGroup.addData(card);
+      } else {
+        for (let card of cards) {
+          card.gameObject = GamePools.cardPool.get();
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+          cardGroup.addData(card);
+        }
       }
-      this.node.addChild(card.gameObject.node);
+      this.node.addChild(cardGroup.gameObject.node);
       this.moveNode({
-        node: card.gameObject.node,
+        node: cardGroup.gameObject.node,
         from,
-        to: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+        to: { location: CardActionLocation.PLAYER, player },
       }).then(() => {
         this.setAction(
-          card.gameObject.node,
-          tween(card.gameObject.node)
+          cardGroup.gameObject.node,
+          tween(cardGroup.gameObject.node)
             .to(0.5, {
               worldPosition: this.getLoaction(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
               scale: new Vec3(0, 0, 1),
             })
             .call(() => {
-              GamePools.cardPool.put(card.gameObject);
-              card.gameObject = null;
+              for (let card of cardGroup.list) {
+                GamePools.cardPool.put(card.gameObject);
+                card.gameObject = null;
+              }
+              cardGroup.removeAllData();
+              GamePools.cardGroupPool.put(cardGroup.gameObject);
+              cardGroup.gameObject = null;
               resolve(null);
             })
         );
@@ -142,6 +161,7 @@ export class CardAction extends Component {
   showDeckTopCard(card: Card) {
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
     this.node.addChild(card.gameObject.node);
     card.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);

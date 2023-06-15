@@ -300,7 +300,7 @@ export class GameUI extends GameObject<GameData> {
           this.promotReceiveMessage("情报传递到你面前，是否接收情报？");
           break;
         case WaitingType.PLAYER_DYING:
-          this.promotUseCengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
+          this.promotUseChengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
           break;
         case WaitingType.GIVE_CARD:
           this.promotDieGiveCard("你已死亡，请选择最多三张手牌交给其他角色");
@@ -445,13 +445,20 @@ export class GameUI extends GameObject<GameData> {
     }
   }
 
+  cardCanPlayed(card) {
+    return (
+      card.availablePhases.indexOf(this.data.gamePhase) !== -1 &&
+      (!this.data.selfBanned || this.data.bannedCardTypes.indexOf(card.type) === -1)
+    );
+  }
+
   promotUseHandCard(tooltipText) {
     this.tooltip.setText(tooltipText);
     this.tooltip.buttons.setButtons([]);
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
-        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        if (this.cardCanPlayed(card)) {
           card.onSelectedToPlay(this.data, this.tooltip);
         } else {
           this.tooltip.setText("现在不能使用这张卡");
@@ -459,14 +466,14 @@ export class GameUI extends GameObject<GameData> {
       },
       onDeselect: (card: Card) => {
         this.tooltip.setText(tooltipText);
-        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        if (this.cardCanPlayed(card)) {
           card.onDeselected(this.data);
         }
       },
     });
   }
 
-  promotUseCengQing(tooltipText, playerId) {
+  promotUseChengQing(tooltipText, playerId) {
     this.tooltip.setText(tooltipText);
     const player = this.data.playerList[playerId];
     this.startSelectHandCard({
@@ -504,7 +511,8 @@ export class GameUI extends GameObject<GameData> {
         },
         enabled: () =>
           this.handCardList.selectedCards.list[0] &&
-          this.handCardList.selectedCards.list[0].type === CardType.CHENG_QING,
+          this.handCardList.selectedCards.list[0].type === CardType.CHENG_QING &&
+          this.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
       },
       {
         text: "取消",
@@ -564,9 +572,8 @@ export class GameUI extends GameObject<GameData> {
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
-        console.log(1);
         this.tooltip.setText("请选择一项操作");
-        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        if (this.cardCanPlayed(card)) {
           this.tooltip.buttons.setButtons([
             {
               text: card.name,
@@ -634,7 +641,7 @@ export class GameUI extends GameObject<GameData> {
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
-        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        if (this.cardCanPlayed(card)) {
           card.onSelectedToPlay(this.data, this.tooltip);
         } else {
           this.tooltip.setText("现在不能使用这张卡");
@@ -642,7 +649,7 @@ export class GameUI extends GameObject<GameData> {
       },
       onDeselect: (card: Card) => {
         setTooltip();
-        if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
+        if (this.cardCanPlayed(card)) {
           card.onDeselected(this.data);
         }
       },
@@ -766,7 +773,7 @@ export class GameUI extends GameObject<GameData> {
       ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onSelect);
     }
     if (onDeselect) {
-      ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onDeselect);
+      ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_PLAYER, onDeselect);
     }
   }
 

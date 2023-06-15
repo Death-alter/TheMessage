@@ -18,6 +18,7 @@ import { GameUI } from "./GameUI";
 
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
+  public selfBanned: boolean = false;
   public identity: Identity;
   public playerCount: number;
   public playerList: Player[];
@@ -28,6 +29,7 @@ export class GameData extends DataBasic<GameUI> {
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
   public dyingPlayer: Player = null; //等待澄清的玩家
+  public bannedCardTypes: CardType[];
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
