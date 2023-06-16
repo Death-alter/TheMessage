@@ -59,20 +59,13 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   get messageCounts() {
-    const data = { black: 0, red: 0, blue: 0, total: this._messages.length };
+    const data: any = { total: this._messages.length };
+    data[CardColor.BLACK] = 0;
+    data[CardColor.RED] = 0;
+    data[CardColor.BLUE] = 0;
     for (let message of this._messages) {
       for (let color of message.color) {
-        switch (color) {
-          case CardColor.BLACK:
-            ++data.black;
-            break;
-          case CardColor.RED:
-            ++data.red;
-            break;
-          case CardColor.BLUE:
-            ++data.blue;
-            break;
-        }
+        ++data[color];
       }
     }
     return data;
@@ -172,7 +165,7 @@ export class Player extends DataBasic<PlayerObject> {
     });
 
     this._messages = [...this._messages, ...messages];
-    if (this.messageCounts.black >= 3) {
+    if (this.messageCounts[CardColor.BLACK] >= 3) {
       this.status = PlayerStatus.DYING;
     }
     this.gameObject.refreshMessageCount();

@@ -32,9 +32,8 @@ export class PoYi extends Card {
         {
           text: "确定",
           onclick: () => {
-            const card = gameData.gameObject.handCardList.selectedCards.list[0];
             NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-              cardId: card.id,
+              cardId: this.id,
               seq: gameData.gameObject.seq,
             });
           },

@@ -20,6 +20,8 @@ import { OuterGlow } from "../../../Utils/OuterGlow";
 import { GameLogList } from "../../../Game/GameLog/GameLogList";
 import { ActiveSkill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
+import { CharacterInfoWindow } from "./CharacterInfoWindow";
+import { CharacterObject } from "../../../Game/Character/CharacterObject";
 
 const { ccclass, property } = _decorator;
 
@@ -47,6 +49,8 @@ export class GameUI extends GameObject<GameData> {
   toolTipNode: Node | null = null;
   @property(Node)
   cardInfoWindow: Node | null = null;
+  @property(Node)
+  characterInfoWindow: Node | null = null;
   @property(Node)
   skillButtons: Node | null = null;
 
@@ -184,6 +188,7 @@ export class GameUI extends GameObject<GameData> {
         this
       );
     }
+    this.characterInfoWindow.getComponent(CharacterInfoWindow).init();
 
     //创建自己的UI
     const selfNode = this.node.getChildByPath("Self/Player");
@@ -234,6 +239,28 @@ export class GameUI extends GameObject<GameData> {
         },
         this
       );
+
+      const charcaterNode = this.playerObjectList[i].node.getChildByPath("Border/CharacterPanting");
+
+      charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
+        this.characterInfoWindow.active = true;
+        const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+        let str = character.name;
+        for (let skill of character.skills) {
+          str += "\n" + skill.name;
+          str += "\n" + skill.description;
+        }
+        this.characterInfoWindow.getComponent(CharacterInfoWindow).setText(str);
+      });
+      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
+      charcaterNode.on(
+        Node.EventType.MOUSE_MOVE,
+        characterInfoWindowComponent.onMouseMove,
+        characterInfoWindowComponent
+      );
+      charcaterNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+        this.characterInfoWindow.active = false;
+      });
     }
   }
 
@@ -404,9 +431,8 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
-    this.cardAction.receiveMessage(data).then(() => {
-      data.player.addMessage(data.message);
-    });
+    data.player.addMessage(data.message);
+    this.cardAction.receiveMessage(data);
   }
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
@@ -664,6 +690,7 @@ export class GameUI extends GameObject<GameData> {
       cardDir: card.direction,
       seq: this.seq,
     };
+    this.selectedHandCards.lock();
 
     await (() => {
       return new Promise((resolve, reject) => {
@@ -748,6 +775,7 @@ export class GameUI extends GameObject<GameData> {
 
     this.scheduleOnce(() => {
       this.selectedPlayers.unlock();
+      this.selectedHandCards.unlock();
       this.stopSelectHandCard();
       this.clearSelectedHandCards();
       this.stopSelectPlayer();

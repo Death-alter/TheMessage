@@ -114,7 +114,7 @@ export class WeiBi extends Card {
           text: "确定",
           onclick: () => {
             NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
-              cardId: handCardList.selectedCards.list[0].id,
+              cardId: this.id,
               seq: gameData.gameObject.seq,
             });
           },

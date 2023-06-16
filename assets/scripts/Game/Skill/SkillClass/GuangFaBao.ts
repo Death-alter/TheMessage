@@ -116,17 +116,7 @@ export class GuangFaBao extends ActiveSkill {
             const colorCounts = targetPlayer.messageCounts;
             for (let card of gameData.gameObject.selectedHandCards.list) {
               for (let color of card.color) {
-                switch (color) {
-                  case CardColor.BLACK:
-                    ++colorCounts.black;
-                    break;
-                  case CardColor.RED:
-                    ++colorCounts.red;
-                    break;
-                  case CardColor.BLUE:
-                    ++colorCounts.blue;
-                    break;
-                }
+                ++colorCounts[color];
               }
             }
             if (colorCounts.black < 3 && colorCounts.blue < 3 && colorCounts.red < 3) {
@@ -173,7 +163,8 @@ export class GuangFaBao extends ActiveSkill {
           gameData.gameObject.handCardList.removeData(card);
         }
       } else {
-        handCards = player.removeHandCard(new Array(cards.length).fill(0));
+        player.removeHandCard(new Array(cards.length).fill(0));
+        handCards = cards.map((card) => gameData.createCard(card));
       }
 
       targetPlayer.addMessage(handCards);

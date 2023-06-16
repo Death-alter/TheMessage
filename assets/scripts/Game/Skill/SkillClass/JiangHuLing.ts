@@ -1,9 +1,8 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import {
-  skill_jian_ren_a_toc,
-  skill_jian_ren_b_toc,
   skill_jiang_hu_ling_a_toc,
+  skill_jiang_hu_ling_b_toc,
   skill_wait_for_jiang_hu_ling_b_toc,
 } from "../../../../protobuf/proto";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
@@ -13,6 +12,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardColor } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { getCardColorText } from "../../../Utils";
 
 export class JiangHuLing extends TriggerSkill {
   constructor(character: Character) {
@@ -135,7 +135,29 @@ export class JiangHuLing extends TriggerSkill {
       tooltip.buttons.setButtons([
         {
           text: "确定",
-          onclick: () => {},
+          onclick: () => {
+            const showCardsWindow = gameData.gameObject.showCardsWindow;
+            showCardsWindow.show({
+              title: `请选择一张${getCardColorText(<number>color)}色情报弃置`,
+              limit: 1,
+              cardList: gameData.playerList[gameData.messagePlayerId].getMessagesCopy(),
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_B_TOS, {
+                      cardId: showCardsWindow.selectedCards.list[0].id,
+                      seq,
+                    });
+                    showCardsWindow.hide();
+                  },
+                  enabled: () =>
+                    showCardsWindow.selectedCards.list.length &&
+                    showCardsWindow.selectedCards.list[0].color.indexOf(<number>color) !== -1,
+                },
+              ],
+            });
+          },
         },
         {
           text: "取消",
@@ -153,33 +175,24 @@ export class JiangHuLing extends TriggerSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameObject.gameLog;
 
-    let str = `【${player.seatNumber + 1}号】${player.character.name}使用技能【江湖令】，宣言`;
-    switch (<number>color) {
-      case CardColor.BLACK:
-        str += "黑色";
-        break;
-      case CardColor.RED:
-        str += "红色";
-        break;
-      case CardColor.BLUE:
-        str += "蓝色";
-        break;
-    }
+    let str = `【${player.seatNumber + 1}号】${player.character.name}使用技能【江湖令】，宣言${getCardColorText(
+      <number>color
+    )}色`;
     gameLog.addData(new GameLog(str));
   }
 
-  onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_jian_ren_b_toc) {
+  onEffectB(gameData: GameData, { playerId, cardId }: skill_jiang_hu_ling_b_toc) {
     const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameObject.gameLog;
+    const messagePlayer = gameData.playerList[gameData.messagePlayerId];
 
-    const message = targetPlayer.removeMessage(cardId);
-    gameData.gameObject.cardAction.removeMessage({ player: targetPlayer, messageList: [message] });
+    const message = messagePlayer.removeMessage(cardId);
+    gameData.gameObject.cardAction.removeMessage({ player: messagePlayer, messageList: [message] });
 
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}从【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
+        `【${player.seatNumber + 1}号】${player.character.name}从【${messagePlayer.seatNumber + 1}号】${
+          messagePlayer.character.name
         }的情报区弃置${gameLog.formatCard(message)}`
       )
     );

@@ -30,9 +30,8 @@ export class JieHuo extends Card {
       {
         text: "确定",
         onclick: () => {
-          const card = gameData.gameObject.handCardList.selectedCards.list[0];
           NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
-            cardId: card.id,
+            cardId: this.id,
             seq: gameData.gameObject.seq,
           });
         },

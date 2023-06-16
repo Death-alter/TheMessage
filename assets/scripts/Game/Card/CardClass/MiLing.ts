@@ -1,12 +1,13 @@
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDirection, CardOnEffectParams, CardType, MiLingOption } from "../type";
+import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { Player } from "../../Player/Player";
 import { HandCardContianer } from "../../Container/HandCardContianer";
+import { getCardColorText } from "../../../Utils";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -76,7 +77,6 @@ export class MiLing extends Card {
         const color: CardColor = card.secretColor[secret];
         const handCardList = gameData.gameObject.handCardList;
         const tooltip = gameData.gameObject.tooltip;
-        handCardList.selectedCards.limit = 1;
         let tooltipText = "密令的暗号为";
         switch (secret) {
           case 0:
@@ -89,19 +89,11 @@ export class MiLing extends Card {
             tooltipText += "静风，";
             break;
         }
-        switch (color) {
-          case CardColor.BLACK:
-            tooltipText += "请选择一张黑色情报传出";
-            break;
-          case CardColor.RED:
-            tooltipText += "请选择一张红色情报传出";
-            break;
-          case CardColor.BLUE:
-            tooltipText += "请选择一张蓝色情报传出";
-            break;
-        }
-
+        tooltipText += `请选择一张${getCardColorText(color)}色情报传出`;
         tooltip.setText(tooltipText);
+        gameData.gameObject.startSelectHandCard({
+          num: 1,
+        });
         tooltip.buttons.setButtons([
           {
             text: "传递情报",
@@ -116,32 +108,29 @@ export class MiLing extends Card {
           },
         ]);
       }
-    } else {
+    } else if (playerId === 0) {
       //自己是出牌者
-      if (playerId === 0) {
-        const handCardList = handCards.map((card) => {
-          return gameData.createCard(card);
-        });
-        gameData.gameObject.showCardsWindow.show({
-          title: "选择一张情报由目标传出",
-          cardList: handCardList,
-          limit: 1,
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                const card = gameData.gameObject.showCardsWindow.selectedCards.list[0];
-                NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-                  cardId: card.id,
-                  seq: gameData.gameObject.seq,
-                });
-                gameData.gameObject.showCardsWindow.hide();
-              },
-              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+      const handCardList = handCards.map((card) => {
+        return gameData.createCard(card);
+      });
+      gameData.gameObject.showCardsWindow.show({
+        title: "选择一张情报由目标传出",
+        cardList: handCardList,
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
+                cardId: this.id,
+                seq: gameData.gameObject.seq,
+              });
+              gameData.gameObject.showCardsWindow.hide();
             },
-          ],
-        });
-      }
+            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+          },
+        ],
+      });
     }
   }
 

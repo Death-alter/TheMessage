@@ -43,7 +43,7 @@ export class LianMin extends TriggerSkill {
           gameData.gameObject.startSelectPlayer({
             num: 1,
             filter: (player) => {
-              return (player.id === 0 || player.id === gameData.messagePlayerId) && player.messageCounts.black > 0;
+              return (player.id === 0 || player.id === gameData.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0;
             },
             onSelect: (player) => {
               gameData.gameObject.showCardsWindow.show({

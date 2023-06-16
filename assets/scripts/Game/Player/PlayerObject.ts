@@ -4,6 +4,7 @@ import { Player } from "./Player";
 import { ProgressControl } from "../../UI/Game/ProgressControl";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
+import { CardColor } from "../Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -82,10 +83,10 @@ export class PlayerObject extends GameObject<Player> {
 
   refreshMessageCount() {
     this.messageCounts.getChildByPath("Black/Label").getComponent(Label).string =
-      this.data.messageCounts.black.toString();
-    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts.red.toString();
+      this.data.messageCounts[CardColor.BLACK].toString();
+    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts[CardColor.RED].toString();
     this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string =
-      this.data.messageCounts.blue.toString();
+      this.data.messageCounts[CardColor.BLUE].toString();
   }
 
   refreshSelectableState() {

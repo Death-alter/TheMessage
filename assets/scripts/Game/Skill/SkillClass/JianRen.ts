@@ -114,7 +114,7 @@ export class JianRen extends TriggerSkill {
         tooltip.setText("请选择一名角色弃置一张黑色情报");
         gameData.gameObject.startSelectPlayer({
           num: 1,
-          filter: (player) => player.messageCounts.black > 0,
+          filter: (player) => player.messageCounts[CardColor.BLACK] > 0,
           onSelect: (player) => {
             showCardsWindow.show({
               title: "请选择一张黑色情报弃置",

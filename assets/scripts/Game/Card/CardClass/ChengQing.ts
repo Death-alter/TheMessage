@@ -41,7 +41,7 @@ export class ChengQing extends Card {
               text: "确定",
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
-                  cardId: gameData.gameObject.handCardList.selectedCards.list[0].id,
+                  cardId: this.id,
                   playerId: gameData.gameObject.selectedPlayers.list[0],
                   targetCardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
                   seq: gameData.gameObject.seq,

@@ -1,16 +1,47 @@
-import { Skill } from "../Skill";
+import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { GamePhase } from "../../../GameManager/type";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { CardType } from "../../Card/type";
+import { createCard } from "../../Card";
 
-export class YingBian extends Skill {
+export class YingBian extends ActiveSkill {
+  get useable() {
+    return true;
+  }
+
   constructor(character: Character) {
     super({
       name: "应变",
       character,
       description: "你的【截获】可以当做【误导】使用。",
+      useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
 
   init() {}
 
   dispose() {}
+
+  onUse(gameData: GameData) {
+    const tooltip = gameData.gameObject.tooltip;
+
+    tooltip.setText(`请选择一张【截获】当做【误导】使用`);
+    gameData.gameObject.startSelectHandCard({
+      num: 1,
+      onSelect: (card) => {
+        if (card.type === CardType.JIE_HUO) {
+          const card = createCard({
+            id: gameData.gameObject.selectedHandCards.list[0].id,
+            type: CardType.WU_DAO,
+          });
+          card.onSelectedToPlay(gameData, tooltip);
+        }
+      },
+      // onDeselect: () => {
+      //   gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+      //   this.gameObject.isOn = false;
+      // },
+    });
+  }
 }

@@ -105,7 +105,7 @@ export class JiSong extends ActiveSkill {
                 ],
               });
             },
-            enabled: () => gameData.selfPlayer.messageCounts.black < gameData.selfPlayer.messageCounts.total,
+            enabled: () => gameData.selfPlayer.messageCounts[CardColor.BLACK] < gameData.selfPlayer.messageCounts.total,
           },
         ]);
       },

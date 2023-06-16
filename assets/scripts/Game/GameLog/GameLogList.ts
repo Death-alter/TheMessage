@@ -24,6 +24,7 @@ export class GameLogList extends DataContainer<GameLog> {
     if (card.color && card.color.length) {
       if (card.color.length === 1) {
         switch (card.color[0]) {
+
           case CardColor.BLACK:
             colorStr += `黑色`;
             break;

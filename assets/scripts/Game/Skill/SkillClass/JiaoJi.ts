@@ -7,6 +7,7 @@ import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { CardColor } from "../../Card/type";
 
 export class JiaoJi extends ActiveSkill {
   private usageCount: number = 0;
@@ -123,10 +124,10 @@ export class JiaoJi extends ActiveSkill {
     if (playerId === 0) {
       this.gameObject?.lock();
       let num = handCards.length;
-      if (player.messageCounts.black === 0) {
+      if (player.messageCounts[CardColor.BLACK] === 0) {
         tooltip.setText(`请选择${num}张手牌交给该角色`);
       } else {
-        num = handCards.length - player.messageCounts.black;
+        num = handCards.length - player.messageCounts[CardColor.BLACK];
         tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
       }
       gameData.gameObject.startSelectHandCard({

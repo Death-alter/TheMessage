@@ -90,7 +90,7 @@ export class ShiTan extends Card {
               text: "确定",
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-                  cardId: [gameData.gameObject.handCardList.selectedCards.list[0].id],
+                  cardId: [this.id],
                   seq: gameData.gameObject.seq,
                 });
               },

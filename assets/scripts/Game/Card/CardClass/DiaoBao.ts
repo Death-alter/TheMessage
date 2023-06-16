@@ -30,9 +30,8 @@ export class DiaoBao extends Card {
       {
         text: "确定",
         onclick: () => {
-          const card = gameData.gameObject.handCardList.selectedCards.list[0];
           NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
-            cardId: card.id,
+            cardId: this.id,
             seq: gameData.gameObject.seq,
           });
         },

@@ -1,7 +1,13 @@
-import { Skill } from "../Skill";
+import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { skill_ming_er_toc } from "../../../../protobuf/proto";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC } from "../../../Event/type";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 
-export class YouDao extends Skill {
+export class YouDao extends PassiveSkill {
   constructor(character: Character) {
     super({
       name: "诱导",
@@ -10,7 +16,23 @@ export class YouDao extends Skill {
     });
   }
 
-  init() {}
+  init(gameData: GameData, player: Player) {
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_YOU_DAO_TOC,
+      (data) => {
+        this.onEffect(gameData, data);
+      },
+      this
+    );
+  }
 
-  dispose() {}
+  dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_YOU_DAO_TOC);
+  }
+
+  onEffect(gameData: GameData, { playerId }: skill_ming_er_toc) {
+    const gameLog = gameData.gameObject.gameLog;
+    const player = gameData.playerList[playerId];
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【诱导】`));
+  }
 }

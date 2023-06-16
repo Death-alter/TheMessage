@@ -41,14 +41,17 @@ export class SkillButton extends GameObject<Skill> {
   }
 
   onLoad() {
-    const borderNode = this.node.getChildByName("SkillBorder");
-    const sprite = borderNode.getComponent(Sprite);
-    const transform = borderNode.getComponent(UITransform);
-    sprite.customMaterial.setProperty("texSize", new Vec2(transform.width, transform.height));
-    sprite.customMaterial.setProperty(
-      "worldPosition",
-      new Vec2(borderNode.worldPosition.x, borderNode.worldPosition.y)
-    );
+    this.scheduleOnce(() => {
+      const borderNode = this.node.getChildByName("SkillBorder");
+      const sprite = borderNode.getComponent(Sprite);
+      const transform = borderNode.getComponent(UITransform);
+      sprite.customMaterial.setProperty("texSize", new Vec2(transform.width, transform.height));
+      console.log(borderNode.worldPosition);
+      sprite.customMaterial.setProperty(
+        "worldPosition",
+        new Vec2(borderNode.worldPosition.x, borderNode.worldPosition.y)
+      );
+    }, 0);
   }
 
   init(gameData: GameData, skill: Skill) {
