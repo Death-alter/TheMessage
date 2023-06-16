@@ -46,10 +46,9 @@ export class WeiBi extends Card {
             {
               text: "确定",
               onclick: () => {
-                const card = gameData.gameObject.handCardList.selectedCards.list[0];
                 const player = gameData.gameObject.selectedPlayers.list[0];
                 NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
-                  cardId: card.id,
+                  cardId: this.id,
                   playerId: player.id,
                   wantType: gameData.gameObject.showCardsWindow.selectedCards.list[0].type,
                   seq: gameData.gameObject.seq,
@@ -113,8 +112,9 @@ export class WeiBi extends Card {
         {
           text: "确定",
           onclick: () => {
+            const card = gameData.gameObject.handCardList.selectedCards.list[0];
             NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
-              cardId: this.id,
+              cardId: card.id,
               seq: gameData.gameObject.seq,
             });
           },

@@ -15,7 +15,7 @@ export class YingBian extends ActiveSkill {
       name: "应变",
       character,
       description: "你的【截获】可以当做【误导】使用。",
-      useablePhase: [GamePhase.MAIN_PHASE],
+      useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }
 
@@ -36,12 +36,12 @@ export class YingBian extends ActiveSkill {
             type: CardType.WU_DAO,
           });
           card.onSelectedToPlay(gameData, tooltip);
+          this.gameObject.isOn = false;
         }
       },
-      // onDeselect: () => {
-      //   gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
-      //   this.gameObject.isOn = false;
-      // },
+      onDeselect: () => {
+        tooltip.setText(`请选择一张【截获】当做【误导】使用`);
+      },
     });
   }
 }

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, color, UITransform, Vec3 } from "cc";
+import { _decorator, Component, Node, Label, Sprite, color, UITransform, Vec3, HorizontalTextAlignment } from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
@@ -27,15 +27,15 @@ export class ShowCardsWindow extends Component {
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
   }
 
-  show(options?: { title?: string; cardList?: Card[]; buttons?: ButtonConfig[]; limit: number }) {
+  show(options?: { title?: string; limit: number; cardList?: Card[]; buttons?: ButtonConfig[]; tags?: string[] }) {
     this.node.active = true;
     if (options) {
-      const { title, cardList, buttons, limit } = options;
+      const { title, cardList, buttons, limit, tags } = options;
       if (title) {
         this.setTitle(title);
       }
       if (cardList && cardList.length) {
-        this.setCardList(cardList);
+        this.setCardList(cardList, tags);
       }
       if (buttons) {
         this.buttons.setButtons(buttons);
@@ -56,11 +56,14 @@ export class ShowCardsWindow extends Component {
     this.title.getComponentInChildren(Label).string = text;
   }
 
-  setCardList(cardList: Card[]) {
+  setCardList(cardList: Card[], tags?: string[]) {
     this.cardList.removeAllData();
-    for (let card of cardList) {
+    cardList.forEach((card, index) => {
       this.addCard(card);
-    }
+      if (tags) {
+        this.addTag(card, tags[index]);
+      }
+    });
   }
 
   addCard(card: Card) {
@@ -74,6 +77,18 @@ export class ShowCardsWindow extends Component {
       this
     );
     this.cardList.addData(card);
+  }
+
+  addTag(card: Card, tag: string) {
+    const label = new Node();
+    label.addComponent(Label);
+    const labelComponent = label.getComponent(Label);
+    labelComponent.string = tag;
+    labelComponent.fontSize = 14;
+    labelComponent.lineHeight = 16;
+    labelComponent.horizontalAlign = HorizontalTextAlignment.CENTER;
+    card.gameObject.node.addChild(label);
+    label.position = new Vec3(0, -40, 0);
   }
 
   removeCard(card: Card) {

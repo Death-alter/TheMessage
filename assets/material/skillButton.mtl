@@ -36,7 +36,7 @@
       "texSize": {
         "__type__": "cc.Vec2",
         "x": 86,
-        "y": 30
+        "y": 36
       },
       "lightColor": {
         "__type__": "cc.Color",
@@ -45,7 +45,7 @@
         "b": 35,
         "a": 255
       },
-      "glowColorSize": 6
+      "glowColorSize": 8
     }
   ]
 }
