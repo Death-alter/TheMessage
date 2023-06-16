@@ -10,6 +10,7 @@ import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 import { copyCard } from "../Card";
+import { IdentityType } from "../Identity/type";
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
   private _name: string;
@@ -209,17 +210,34 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   //确认玩家是某个身份
-  confirmIdentity(identity: Identity) {
-    this._identityList = [identity];
+  confirmIdentity(identityType: IdentityType);
+  confirmIdentity(identity: Identity);
+  confirmIdentity(identity: Identity | IdentityType) {
+    if (identity instanceof Identity) {
+      this._identityList = [identity];
+    } else {
+      for (let item of this._identityList) {
+        if (item.type === identity) {
+          this._identityList = [item];
+        }
+      }
+    }
+
     if (this.gameObject) {
       this.gameObject.refreshIdentityList();
     }
   }
 
   //排除玩家是某个身份
-  ruleOutIdentity(identity) {
+  ruleOutIdentity(identityType: IdentityType);
+  ruleOutIdentity(identity: Identity);
+  ruleOutIdentity(identity: Identity | IdentityType) {
     for (let i = 0; i < this._identityList.length; i++) {
-      if (this._identityList[i].type === identity.type) {
+      if (
+        identity instanceof Identity
+          ? this._identityList[i].type === identity.type
+          : this._identityList[i].type === identity
+      ) {
         this._identityList.splice(i, 1);
         break;
       }

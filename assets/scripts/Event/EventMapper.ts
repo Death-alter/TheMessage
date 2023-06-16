@@ -304,7 +304,7 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.EXECUTE_SHI_TAN_TOC, (data: ProtobufType.execute_shi_tan_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
-          userId: data.playerId,
+          targetPlayerId: data.playerId,
           flag: data.isDrawCard,
         },
       });

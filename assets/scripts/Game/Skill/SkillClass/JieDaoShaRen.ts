@@ -164,6 +164,7 @@ export class JieDaoShaRen extends ActiveSkill {
       )
     );
   }
+  
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_jie_dao_sha_ren_b_toc) {
     const gameLog = gameData.gameObject.gameLog;
     const player = gameData.playerList[playerId];

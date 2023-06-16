@@ -60,7 +60,31 @@ export class ShiTan extends Card {
     gameData.gameObject.clearSelectedPlayers();
   }
 
-  onEffect(gameData: GameData, { userId, flag }: CardOnEffectParams) {}
+  onEffect(gameData: GameData, { targetPlayerId, flag }: CardOnEffectParams) {
+    if (this._drawCardColor && this._drawCardColor.length > 0) {
+      const player = gameData.playerList[targetPlayerId];
+      if (this._drawCardColor.length === 1) {
+        if (flag) {
+          player.confirmIdentity(<number>this._drawCardColor[0]);
+        } else {
+          player.ruleOutIdentity(<number>this._drawCardColor[0]);
+        }
+      } else {
+        const arr = [IdentityType.BLUE, IdentityType.GREEN, IdentityType.RED];
+        for (let i = 0; i < this._drawCardColor.length; i++) {
+          const index = arr.indexOf(this._drawCardColor[i]);
+          if (index !== -1) {
+            arr.splice(index, 1);
+          }
+        }
+        if (flag) {
+          player.ruleOutIdentity(<number>arr[0]);
+        } else {
+          player.confirmIdentity(<number>arr[0]);
+        }
+      }
+    }
+  }
 
   onShow(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     //自己是被试探的目标时展示那张试探牌

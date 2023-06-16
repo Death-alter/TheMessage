@@ -10,6 +10,7 @@ import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/t
 import { GamePhase, WaitingType, CardActionLocation } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../../Card/Card";
+import { CardColor } from "../../Card/type";
 import { Character } from "../../Character/Character";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
@@ -118,7 +119,7 @@ export class GuangFaBao extends ActiveSkill {
                 ++colorCounts[color];
               }
             }
-            if (colorCounts.black < 3 && colorCounts.blue < 3 && colorCounts.red < 3) {
+            if (colorCounts[CardColor.BLACK] < 3 && colorCounts[CardColor.BLUE] < 3 && colorCounts[CardColor.RED] < 3) {
               return true;
             } else {
               return false;
@@ -150,6 +151,7 @@ export class GuangFaBao extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, enable, targetPlayerId, cards }: skill_guang_fa_bao_b_toc) {
+    console.log(enable);
     if (enable) {
       const gameLog = gameData.gameObject.gameLog;
       const player = gameData.playerList[playerId];
@@ -167,7 +169,7 @@ export class GuangFaBao extends ActiveSkill {
       }
 
       targetPlayer.addMessage(handCards);
-
+      console.log(handCards);
       gameData.gameObject.cardAction.addCardToMessageZone({
         player: targetPlayer,
         cards: handCards,
