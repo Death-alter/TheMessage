@@ -9,7 +9,7 @@ import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
-import { copyCard, createCard } from "../Card";
+import { copyCard } from "../Card";
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
   private _name: string;
@@ -211,6 +211,9 @@ export class Player extends DataBasic<PlayerObject> {
   //确认玩家是某个身份
   confirmIdentity(identity: Identity) {
     this._identityList = [identity];
+    if (this.gameObject) {
+      this.gameObject.refreshIdentityList();
+    }
   }
 
   //排除玩家是某个身份
@@ -220,6 +223,9 @@ export class Player extends DataBasic<PlayerObject> {
         this._identityList.splice(i, 1);
         break;
       }
+    }
+    if (this.gameObject) {
+      this.gameObject.refreshIdentityList();
     }
   }
 

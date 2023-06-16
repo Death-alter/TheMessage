@@ -1,7 +1,7 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../GameManager/type";
-import { skill_ji_song_toc, skill_xin_si_chao_toc } from "../../../../protobuf/proto";
+import { skill_ji_song_toc} from "../../../../protobuf/proto";
 import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";

@@ -8,12 +8,10 @@ import {
   Label,
   Vec3,
   color,
-  Quat,
   tween,
   UIOpacity,
   find,
   sys,
-  quat,
 } from "cc";
 import { CardDirection, CardStatus } from "./type";
 import { GameObject } from "../../GameObject";

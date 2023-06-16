@@ -10,7 +10,6 @@ import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/t
 import { GamePhase, WaitingType, CardActionLocation } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../../Card/Card";
-import { CardColor } from "../../Card/type";
 import { Character } from "../../Character/Character";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";

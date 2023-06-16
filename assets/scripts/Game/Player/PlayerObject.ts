@@ -5,6 +5,7 @@ import { ProgressControl } from "../../UI/Game/ProgressControl";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
 import { CardColor } from "../Card/type";
+import { Identity } from "../Identity/Identity";
 
 const { ccclass, property } = _decorator;
 
@@ -20,6 +21,7 @@ export class PlayerObject extends GameObject<Player> {
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
   private _selectable: boolean = true;
   private _locked: boolean = false;
+  private _selectedIdentity: Identity | null = null;
 
   get data() {
     return this._data;
@@ -30,6 +32,7 @@ export class PlayerObject extends GameObject<Player> {
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
+      this.refreshIdentityList();
     }
   }
 
@@ -62,6 +65,20 @@ export class PlayerObject extends GameObject<Player> {
     this.progress.active = false;
   }
 
+  onEnable() {
+    this.node.getChildByPath("Border/Identity").on(
+      Node.EventType.TOUCH_END,
+      () => {
+        this.changeSelectedIdentity();
+      },
+      this
+    );
+  }
+
+  onDisable() {
+    this.node.getChildByPath("Border/Identity").off(Node.EventType.TOUCH_END);
+  }
+
   //设置座位文字
   setSeat(seatNumber: number) {
     this.node.getChildByName("SeatNumber").getComponent(Label).string = PlayerObject.seatNumberText[seatNumber];
@@ -84,7 +101,8 @@ export class PlayerObject extends GameObject<Player> {
   refreshMessageCount() {
     this.messageCounts.getChildByPath("Black/Label").getComponent(Label).string =
       this.data.messageCounts[CardColor.BLACK].toString();
-    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string = this.data.messageCounts[CardColor.RED].toString();
+    this.messageCounts.getChildByPath("Red/Label").getComponent(Label).string =
+      this.data.messageCounts[CardColor.RED].toString();
     this.messageCounts.getChildByPath("Blue/Label").getComponent(Label).string =
       this.data.messageCounts[CardColor.BLUE].toString();
   }
@@ -109,7 +127,6 @@ export class PlayerObject extends GameObject<Player> {
 
   refreshStatus() {
     const statusTextNode = this.node.getChildByPath("Border/StatusText");
-    console.log(statusTextNode)
     switch (this.data.status) {
       case PlayerStatus.DEAD:
         this.node.getChildByPath("Border/CharacterPanting/Mask/Image").getComponent(Sprite).grayscale = true;
@@ -136,6 +153,50 @@ export class PlayerObject extends GameObject<Player> {
       case PlayerStatus.ALIVE:
         statusTextNode.active = false;
         break;
+    }
+  }
+
+  changeSelectedIdentity(identity?: Identity) {
+    if (identity) {
+      this._selectedIdentity = identity;
+    } else if (!this.data) {
+      return;
+    } else {
+      const index = this.data.identityList.indexOf(this._selectedIdentity);
+      if (index === -1) {
+        this._selectedIdentity = this.data.identityList[0];
+      } else {
+        if (this.data.identityList.length === 1) {
+          this._selectedIdentity = this.data.identityList[0];
+        } else if (index === this.data.identityList.length - 1) {
+          this._selectedIdentity = null;
+        } else {
+          this._selectedIdentity = this.data.identityList[index + 1];
+        }
+      }
+    }
+
+    const identityColor = this.node.getChildByPath("Border/Identity/Mask/IdentityColor").getComponent(Sprite);
+    const identityLabel = this.node.getChildByPath("Border/Identity/Mask/Label").getComponent(Label);
+
+    if (!this._selectedIdentity) {
+      identityColor.color = color("#646464");
+      identityLabel.string = "?";
+      identityLabel.fontSize = 28;
+      identityLabel.lineHeight = 22;
+    } else {
+      identityColor.color = color(this._selectedIdentity.color);
+      identityLabel.string = this._selectedIdentity.name[0];
+      identityLabel.fontSize = 18;
+      identityLabel.lineHeight = 20;
+    }
+  }
+
+  refreshIdentityList() {
+    if (this.data.identityList.length === 1) {
+      this.changeSelectedIdentity(this.data.identityList[0]);
+    } else if (this._selectedIdentity && this.data.identityList.indexOf(this._selectedIdentity) === -1) {
+      this.changeSelectedIdentity();
     }
   }
 }

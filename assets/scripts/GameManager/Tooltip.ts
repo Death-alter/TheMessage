@@ -50,8 +50,10 @@ export class Tooltip extends Component {
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide);
   }
 
-  startCoundDown(second: number, callback?: Function) {
-    this.progressBar.getComponent(ProgressControl).startCoundDown(second, callback);
+  startCoundDown(second: number) {
+    this.progressBar.getComponent(ProgressControl).startCoundDown(second, () => {
+      this.hide();
+    });
     this.show();
   }
 

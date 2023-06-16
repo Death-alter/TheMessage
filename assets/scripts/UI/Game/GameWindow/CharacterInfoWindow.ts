@@ -15,12 +15,9 @@ const { ccclass, property } = _decorator;
 @ccclass("CharacterInfoWindow")
 export class CharacterInfoWindow extends Component {
   private size: Size;
-
-  update(deltaTime: number) {}
-
+  
   init() {
     this.size = view.getVisibleSize();
-    console.log(view.getVisibleSize());
   }
 
   setText(text) {

@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -22,6 +22,7 @@ import { ActiveSkill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
+import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 
 const { ccclass, property } = _decorator;
 
@@ -103,7 +104,7 @@ export class GameUI extends GameObject<GameData> {
     //收到游戏开始
     // GameEventCenter.once(GameEvent.GAME_START, (data: GameEventType.GameStart) => {});
 
-    // GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
+    GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
 
     //卡组数量变化
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
@@ -196,6 +197,27 @@ export class GameUI extends GameObject<GameData> {
     this.playerObjectList.push(data.playerList[0].gameObject);
     this.skillButtons.getComponent(SkillButtons).init(this.data, this.data.selfPlayer.character.skills);
 
+    const identityNode = this.node.getChildByPath("Self/Identity");
+    identityNode.getChildByName("Background").getComponent(Sprite).color = color(this.data.identity.color);
+    identityNode.getChildByName("Label").getComponent(Label).string = this.data.identity.name;
+    if (this.data.identity instanceof MysteriousPerson) {
+      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
+      identityNode.on(Node.EventType.MOUSE_ENTER, () => {
+        this.characterInfoWindow.active = true;
+        this.characterInfoWindow
+          .getComponent(CharacterInfoWindow)
+          .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
+      });
+      identityNode.on(
+        Node.EventType.MOUSE_MOVE,
+        characterInfoWindowComponent.onMouseMove,
+        characterInfoWindowComponent
+      );
+      identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+        this.characterInfoWindow.active = false;
+      });
+    }
+
     //初始化手牌UI
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
     this.handCardList.gameObject.init();
@@ -242,6 +264,7 @@ export class GameUI extends GameObject<GameData> {
 
       const charcaterNode = this.playerObjectList[i].node.getChildByPath("Border/CharacterPanting");
 
+      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
         this.characterInfoWindow.active = true;
         const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
@@ -252,7 +275,6 @@ export class GameUI extends GameObject<GameData> {
         }
         this.characterInfoWindow.getComponent(CharacterInfoWindow).setText(str);
       });
-      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       charcaterNode.on(
         Node.EventType.MOUSE_MOVE,
         characterInfoWindowComponent.onMouseMove,
@@ -388,6 +410,15 @@ export class GameUI extends GameObject<GameData> {
     this.stopSelectHandCard();
     this.clearSelectedHandCards();
     (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+  }
+
+  onGameTurnChange(data: GameEventType.GameTurnChange) {
+    this.data.playerList[
+      (data.turnPlayer.id + this.data.playerList.length - 1) % this.data.playerList.length
+    ].gameObject.node
+      .getChildByName("SeatNumber")
+      .getComponent(Label).color = color("#FFFFFF");
+    data.turnPlayer.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
