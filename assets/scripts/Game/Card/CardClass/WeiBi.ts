@@ -33,7 +33,8 @@ export class WeiBi extends Card {
         return player.id !== 0;
       },
       onSelect: () => {
-        gameData.gameObject.showCardsWindow.show({
+        const showCardsWindow = gameData.gameObject.showCardsWindow;
+        showCardsWindow.show({
           title: "选择目标交给你的卡牌种类",
           cardList: [
             gameData.createCardByType(CardType.JIE_HUO),
@@ -50,10 +51,10 @@ export class WeiBi extends Card {
                 NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
                   cardId: this.id,
                   playerId: player.id,
-                  wantType: gameData.gameObject.showCardsWindow.selectedCards.list[0].type,
+                  wantType: showCardsWindow.selectedCards.list[0].type,
                   seq: gameData.gameObject.seq,
                 });
-                gameData.gameObject.showCardsWindow.hide();
+                showCardsWindow.hide();
                 this.onDeselected(gameData);
               },
               enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
@@ -101,25 +102,27 @@ export class WeiBi extends Card {
 
     //自己被威逼
     if (targetPlayerId === 0) {
-      const handCardList = gameData.gameObject.handCardList;
       const tooltip = gameData.gameObject.tooltip;
-
-      handCardList.selectedCards.limit = 1;
       tooltip.setText(
         `【${user.seatNumber + 1}号】${user.character.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`
       );
+      gameData.gameObject.startSelectHandCard({
+        num: 1,
+      });
       tooltip.buttons.setButtons([
         {
           text: "确定",
           onclick: () => {
-            const card = gameData.gameObject.handCardList.selectedCards.list[0];
             NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
-              cardId: card.id,
+              cardId: gameData.gameObject.selectedHandCards.list[0].id,
               seq: gameData.gameObject.seq,
             });
           },
           enabled: () => {
-            return handCardList.selectedCards.list.length === 1 && handCardList.selectedCards.list[0].type === wantType;
+            return (
+              gameData.gameObject.selectedHandCards.list.length === 1 &&
+              gameData.gameObject.selectedHandCards.list[0].type === wantType
+            );
           },
         },
       ]);
@@ -132,15 +135,16 @@ export class WeiBi extends Card {
     const user = gameData.playerList[userId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     let removedCard;
-    if (card) {
+    if (userId === 0) {
+      targetPlayer.removeHandCard(0);
+      removedCard = gameData.createCard(card);
+    } else if (targetPlayerId === 0) {
       removedCard = targetPlayer.removeHandCard(card.cardId);
-    }
-    if (!removedCard) {
+    } else {
       removedCard = targetPlayer.removeHandCard(0);
     }
-    if (user.id === 0) {
-      removedCard = gameData.createCard(card);
-    }
+    console.log(removedCard);
+
     user.addHandCard(removedCard);
 
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {

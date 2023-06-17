@@ -5,7 +5,7 @@ import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Player } from "../../Player/Player";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
 export class ChengQing extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -29,7 +29,7 @@ export class ChengQing extends Card {
     gameData.gameObject.startSelectPlayer({
       num: 1,
       filter: (player) => {
-        return player.messageCounts.total !== 0;
+        return player.messageCounts[CardColor.BLACK] !== 0;
       },
       onSelect: async (player: Player) => {
         gameData.gameObject.showCardsWindow.show({

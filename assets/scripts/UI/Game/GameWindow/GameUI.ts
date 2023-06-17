@@ -23,6 +23,7 @@ import { SkillButtons } from "./SkillButtons";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
+import { NoIdentity } from "../../../Game/Identity/IdentityClass/NoIdentity";
 
 const { ccclass, property } = _decorator;
 
@@ -197,26 +198,7 @@ export class GameUI extends GameObject<GameData> {
     this.playerObjectList.push(data.playerList[0].gameObject);
     this.skillButtons.getComponent(SkillButtons).init(this.data, this.data.selfPlayer.character.skills);
 
-    const identityNode = this.node.getChildByPath("Self/Identity");
-    identityNode.getChildByName("Background").getComponent(Sprite).color = color(this.data.identity.color);
-    identityNode.getChildByName("Label").getComponent(Label).string = this.data.identity.name;
-    if (this.data.identity instanceof MysteriousPerson) {
-      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
-      identityNode.on(Node.EventType.MOUSE_ENTER, () => {
-        this.characterInfoWindow.active = true;
-        this.characterInfoWindow
-          .getComponent(CharacterInfoWindow)
-          .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
-      });
-      identityNode.on(
-        Node.EventType.MOUSE_MOVE,
-        characterInfoWindowComponent.onMouseMove,
-        characterInfoWindowComponent
-      );
-      identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
-        this.characterInfoWindow.active = false;
-      });
-    }
+    this.setSelfIdentityUI();
 
     //初始化手牌UI
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
@@ -283,6 +265,32 @@ export class GameUI extends GameObject<GameData> {
       charcaterNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
         this.characterInfoWindow.active = false;
       });
+    }
+  }
+
+  setSelfIdentityUI() {
+    console.log(this.data.identity);
+    const identityNode = this.node.getChildByPath("Self/Identity");
+    identityNode.getChildByName("Background").getComponent(Sprite).color = color(this.data.identity.color);
+    identityNode.getChildByName("Label").getComponent(Label).string = this.data.identity.name;
+    if (this.data.identity instanceof MysteriousPerson) {
+      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
+      identityNode.on(Node.EventType.MOUSE_ENTER, () => {
+        this.characterInfoWindow.active = true;
+        this.characterInfoWindow
+          .getComponent(CharacterInfoWindow)
+          .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
+      });
+      identityNode.on(
+        Node.EventType.MOUSE_MOVE,
+        characterInfoWindowComponent.onMouseMove,
+        characterInfoWindowComponent
+      );
+      identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+        this.characterInfoWindow.active = false;
+      });
+    } else if (this.data.identity instanceof NoIdentity) {
+      identityNode.active = false;
     }
   }
 
@@ -442,10 +450,6 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
-    if (data.player.id === 0) {
-      this.handCardList.selectedCards.limit = 0;
-      (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
-    }
     this.cardAction.playerSendMessage(data);
   }
 
@@ -481,17 +485,10 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
-    // if (data.player.id === 0) {
-    //   this.handCardList.selectedCards.limit = 0;
-    //   (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
-    // }
     this.cardAction.giveCards(data);
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
-    if (data.player.id === 0) {
-      this.handCardList.selectedCards.limit = 0;
-    }
     this.cardAction.playerPlayCard(data);
   }
 

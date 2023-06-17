@@ -1,7 +1,7 @@
-import { Skill } from "../Skill";
+import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 
-export class WeiSheng extends Skill {
+export class WeiSheng extends PassiveSkill {
   constructor(character: Character) {
     super({
       name: "尾声",
@@ -13,6 +13,4 @@ export class WeiSheng extends Skill {
   init() {}
 
   dispose() {}
-
-  onUse() {}
 }

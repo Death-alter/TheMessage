@@ -247,6 +247,13 @@ export class Player extends DataBasic<PlayerObject> {
     }
   }
 
+  setIdentityList(list: Identity[]) {
+    this._identityList = list;
+    if (this.gameObject) {
+      this.gameObject.refreshIdentityList();
+    }
+  }
+
   getMessagesCopy(): Card[] {
     const arr = [];
     for (let message of this._messages) {

@@ -6,6 +6,7 @@ import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
 import { CardColor } from "../Card/type";
 import { Identity } from "../Identity/Identity";
+import { NoIdentity } from "../Identity/IdentityClass/NoIdentity";
 
 const { ccclass, property } = _decorator;
 
@@ -185,10 +186,15 @@ export class PlayerObject extends GameObject<Player> {
       identityLabel.fontSize = 28;
       identityLabel.lineHeight = 22;
     } else {
-      identityColor.color = color(this._selectedIdentity.color);
-      identityLabel.string = this._selectedIdentity.name[0];
-      identityLabel.fontSize = 18;
-      identityLabel.lineHeight = 20;
+      if (this._selectedIdentity instanceof NoIdentity) {
+        identityColor.color = color("#FFFFFF");
+        identityLabel.string = "";
+      } else {
+        identityColor.color = color(this._selectedIdentity.color);
+        identityLabel.string = this._selectedIdentity.name[0];
+        identityLabel.fontSize = 18;
+        identityLabel.lineHeight = 20;
+      }
     }
   }
 

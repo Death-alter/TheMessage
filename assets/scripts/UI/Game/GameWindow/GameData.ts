@@ -7,7 +7,7 @@ import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
 import { IdentityType, SecretTaskType } from "../../../Game/Identity/type";
 import { GamePhase } from "../../../GameManager/type";
-import { CardColor, CardDirection, CardOnEffectParams, CardStatus, CardType } from "../../../Game/Card/type";
+import { CardColor, CardDirection, CardStatus, CardType } from "../../../Game/Card/type";
 import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
@@ -19,7 +19,6 @@ import { GameUI } from "./GameUI";
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
   public selfBanned: boolean = false;
-  public identity: Identity;
   public playerCount: number;
   public playerList: Player[];
   public messageInTransmit: Card | null = null;
@@ -128,6 +127,10 @@ export class GameData extends DataBasic<GameUI> {
     return this._senderId;
   }
 
+  get identity() {
+    return this.selfPlayer.identityList[0];
+  }
+
   constructor(gameObject?: GameUI) {
     super();
     if (gameObject) {
@@ -208,11 +211,9 @@ export class GameData extends DataBasic<GameUI> {
 
     //自己的角色设置身份
     this.selfPlayer = this.playerList[0];
-    this.identity = createIdentity(
-      (<number>data.identity) as IdentityType,
-      (<number>data.secretTask) as SecretTaskType
+    this.selfPlayer.confirmIdentity(
+      createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
     );
-    this.selfPlayer.confirmIdentity(this.identity);
 
     GameEventCenter.emit(GameEvent.GAME_INIT, { playerList: this.playerList });
   }
@@ -310,6 +311,10 @@ export class GameData extends DataBasic<GameUI> {
       if (this.playerList[data.playerId].character.id === 0) {
         const character = createCharacterById(data.characterId);
         this.playerList[data.playerId].character = character;
+
+        for (let skill of character.skills) {
+          skill.init(this, this.playerList[data.playerId]);
+        }
       }
       this.playerList[data.playerId].character.status = CharacterStatus.FACE_UP;
     } else {
@@ -327,6 +332,7 @@ export class GameData extends DataBasic<GameUI> {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
     const card = player.removeHandCard(data.cardId);
+    console.log(player, card);
     this.messageInTransmit = card;
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
@@ -419,14 +425,12 @@ export class GameData extends DataBasic<GameUI> {
       cardId = null;
     }
 
-    if (cardId !== null) {
-      if (user.id === 0) {
-        //自己
-        card = user.removeHandCard(cardId);
-      } else {
-        //其他人
-        card = user.removeHandCard(0);
-      }
+    if (user.id === 0) {
+      //自己
+      card = user.removeHandCard(cardId);
+    } else {
+      //其他人
+      card = user.removeHandCard(0);
     }
 
     if (!card || card.type === CardType.UNKNOWN) {
