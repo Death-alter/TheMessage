@@ -54,11 +54,12 @@ export class LiYou extends Card {
 
   onEffect(gameData: GameData, { userId, targetPlayerId, targetCard, flag }: CardOnEffectParams): void {
     if (!targetCard) return;
-    const card = gameData.createCard(targetCard);
     const targetPlayer = gameData.playerList[targetPlayerId];
     const user = gameData.playerList[userId];
+
     if (flag) {
-      targetPlayer.addHandCard(card);
+      const card = gameData.createCard(targetCard);
+      user.addHandCard(card);
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player: user,
         card: card,

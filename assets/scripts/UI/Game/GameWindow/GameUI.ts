@@ -236,15 +236,16 @@ export class GameUI extends GameObject<GameData> {
 
     //绑定点击事件
     for (let i = 0; i < data.playerList.length; i++) {
-      this.playerObjectList[i].node.on(
+      const player = data.playerList[i];
+      player.gameObject.node.on(
         Node.EventType.TOUCH_END,
         (event) => {
-          this.selectPlayer(data.playerList[i]);
+          this.selectPlayer(player);
         },
         this
       );
 
-      const charcaterNode = this.playerObjectList[i].node.getChildByPath("Border/CharacterPanting");
+      const charcaterNode = player.gameObject.node.getChildByPath("Border/CharacterPanting");
 
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
@@ -264,6 +265,23 @@ export class GameUI extends GameObject<GameData> {
       );
       charcaterNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
         this.characterInfoWindow.active = false;
+      });
+
+      const messageZone = this.playerObjectList[i].node.getChildByPath("Border/Message");
+      messageZone.on(Node.EventType.TOUCH_END, () => {
+        this.showCardsWindow.show({
+          title: `【${player.seatNumber + 1}号】${player.character.name}的情报区`,
+          limit: 0,
+          cardList: player.getMessagesCopy(),
+          buttons: [
+            {
+              text: "关闭",
+              onclick: () => {
+                this.showCardsWindow.hide();
+              },
+            },
+          ],
+        });
       });
     }
   }

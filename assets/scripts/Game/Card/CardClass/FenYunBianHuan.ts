@@ -69,16 +69,13 @@ export class FenYunBianHuan extends Card {
             gameData.gameObject.showCardsWindow.hide();
             const messages = player.getMessagesCopy();
             //flag为情报区是否有同色情报
-            let flag = (() => {
-              for (let color of card.color) {
-                messages.forEach((message) => {
-                  if (message.color.indexOf(color) !== -1) {
-                    return true;
-                  }
-                });
+            let flag = false;
+            for (let color of card.color) {
+              if (Card.hasColor(messages, color)) {
+                flag = true;
+                break;
               }
-              return false;
-            })();
+            }
             if (flag) {
               NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
                 cardId: card.id,
@@ -134,7 +131,12 @@ export class FenYunBianHuan extends Card {
             message: card,
           });
         } else {
-          player.addHandCard(card);
+          if (playerId === 0) {
+            player.addHandCard(card);
+          } else {
+            player.addHandCard(gameData.createCard());
+          }
+
           GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
             player,
             card,

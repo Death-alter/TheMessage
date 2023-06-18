@@ -2,6 +2,7 @@ import { skill_cheng_fu_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { CardType } from "../../Card/type";
 import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
@@ -34,7 +35,7 @@ export class ChengFu extends PassiveSkill {
     ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
       userId: fromPlayerId,
       card: unknownCardCount > 0 ? null : card,
-      cardType: card.cardType,
+      cardType: unknownCardCount > 0 ? CardType.SHI_TAN : CardType.WEI_BI,
       targetPlayerId: playerId,
     });
 

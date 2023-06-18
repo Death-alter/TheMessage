@@ -1,4 +1,4 @@
-import { skill_mian_li_cang_zhen_toc } from "../../../../protobuf/proto";
+import { card, skill_mian_li_cang_zhen_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
@@ -7,6 +7,8 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { LiNingYuSP } from "../../Character/CharacterClass/LiNingYuSP";
+import { Card } from "../../Card/Card";
 
 export class MianLiCangZhen extends TriggerSkill {
   constructor(character: Character) {
@@ -38,27 +40,27 @@ export class MianLiCangZhen extends TriggerSkill {
       {
         text: "确定",
         onclick: () => {
-          const handCardList = gameData.gameObject.handCardList;
-          handCardList.selectedCards.limit = 1;
           tooltip.setText(`请选择一张黑色手牌`);
+          gameData.gameObject.startSelectHandCard({ num: 1 });
           tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAN_LI_CANG_ZHEN_TOS, {
-                  cardId: handCardList.selectedCards.list[0].id,
+                  cardId: gameData.gameObject.selectedHandCards.list[0].id,
                   seq: gameData.gameObject.seq,
                 });
               },
               enabled: () => {
                 return (
-                  handCardList.selectedCards.list.length &&
-                  handCardList.selectedCards.list[0].color.indexOf(CardColor.BLACK) !== -1
+                  gameData.gameObject.selectedHandCards.list.length &&
+                  Card.hasColor(gameData.gameObject.selectedHandCards.list[0], CardColor.BLACK)
                 );
               },
             },
           ]);
         },
+        enabled: () => Card.hasColor(gameData.gameObject.handCardList.list, CardColor.BLACK),
       },
       {
         text: "取消",

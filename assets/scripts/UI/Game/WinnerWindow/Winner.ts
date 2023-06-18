@@ -10,9 +10,11 @@ import {
   RichText,
   Sprite,
   color,
+  find,
 } from "cc";
 import { GameOver } from "../../../Event/GameEventType";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
+import { NetworkManager } from "../../../Network/NetworkManager";
 const { ccclass, property } = _decorator;
 
 @ccclass("Winner")
@@ -23,9 +25,13 @@ export class Winner extends Component {
   buttons: Node | null = null;
 
   onLoad() {
-    this.buttons.getChildByName("Play").on(NodeEventType.TOUCH_END, () => {});
+    this.buttons.getChildByName("Play").on(NodeEventType.TOUCH_END, () => {
+      director.loadScene("login", () => {
+        find("Resident").getComponent(NetworkManager).reconnect();
+      });
+    });
     this.buttons.getChildByName("Exit").on(NodeEventType.TOUCH_END, () => {
-      director.loadScene("login");
+      director.end();
     });
   }
 
@@ -38,15 +44,15 @@ export class Winner extends Component {
       })`;
       const identityLabel = item.getChildByPath("Identity/Label").getComponent(Label);
       identityLabel.string = data.identity.name;
-      identityLabel.color = color(data.identity.color)
+      identityLabel.color = color(data.identity.color);
       item.getChildByName("SecretTask").getComponent(RichText).string =
         data.identity instanceof MysteriousPerson ? `<color=black>${data.identity.secretTaskText}</color=black>` : "";
 
       if (data.isWinner) {
-        item.getComponent(Sprite).color = color("#6DFF70")
+        item.getComponent(Sprite).color = color("#6DFF70");
         item.getChildByName("Flag").getComponent(Label).string = "赢";
       } else {
-        item.getComponent(Sprite).color = color("#FF8181")
+        item.getComponent(Sprite).color = color("#FF8181");
         item.getChildByName("Flag").getComponent(Label).string = "输";
       }
       if (data.isDeclarer) {

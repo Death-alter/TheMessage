@@ -50,7 +50,7 @@ export class PoYi extends Card {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
-      if (message.color.indexOf(CardColor.BLACK) !== -1) {
+      if (Card.hasColor(message, CardColor.BLACK)) {
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText(`是否翻开并摸一张牌？`);
         tooltip.buttons.setButtons([

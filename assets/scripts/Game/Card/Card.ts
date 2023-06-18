@@ -97,4 +97,19 @@ export abstract class Card extends DataBasic<CardObject> {
       return this.gameObject.flip();
     }
   }
+
+  static hasColor(card: Card, color: CardColor): boolean;
+  static hasColor(cards: Card[], color: CardColor): boolean;
+  static hasColor(card: Card | Card[], color: CardColor): boolean {
+    if (card instanceof Card) {
+      return card.color.indexOf(color) !== -1;
+    } else {
+      for (let c of card) {
+        if (c.color.indexOf(color) !== -1) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
 }

@@ -1,13 +1,14 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../GameManager/type";
-import { skill_ji_song_toc} from "../../../../protobuf/proto";
+import { skill_ji_song_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
+import { Card } from "../../Card/Card";
 
 export class JiSong extends ActiveSkill {
   private usageCount: number = 0;
@@ -100,7 +101,7 @@ export class JiSong extends ActiveSkill {
                     },
                     enabled: () =>
                       showCardsWindow.selectedCards.list.length &&
-                      showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) === -1,
+                      Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                   },
                 ],
               });

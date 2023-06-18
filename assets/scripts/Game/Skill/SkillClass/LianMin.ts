@@ -8,6 +8,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
 import { CardActionLocation } from "../../../GameManager/type";
+import { Card } from "../../Card/Card";
 
 export class LianMin extends TriggerSkill {
   constructor(character: Character) {
@@ -43,10 +44,13 @@ export class LianMin extends TriggerSkill {
           gameData.gameObject.startSelectPlayer({
             num: 1,
             filter: (player) => {
-              return (player.id === 0 || player.id === gameData.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0;
+              return (
+                (player.id === 0 || player.id === gameData.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0
+              );
             },
             onSelect: (player) => {
-              gameData.gameObject.showCardsWindow.show({
+              const showCardsWindow = gameData.gameObject.showCardsWindow;
+              showCardsWindow.show({
                 title: "请选择一张情报",
                 limit: 1,
                 cardList: player.getMessagesCopy(),
@@ -56,18 +60,18 @@ export class LianMin extends TriggerSkill {
                     onclick: () => {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_LIAN_MIN_TOS, {
                         targetPlayerId: player.id,
-                        cardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
+                        cardId: showCardsWindow.selectedCards.list[0].id,
                         seq: gameData.gameObject.seq,
                       });
                     },
                     enabled: () =>
-                      gameData.gameObject.showCardsWindow.selectedCards.list[0] &&
-                      gameData.gameObject.showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) !== -1,
+                      showCardsWindow.selectedCards.list[0] &&
+                      Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                   },
                   {
                     text: "取消",
                     onclick: () => {
-                      gameData.gameObject.showCardsWindow.hide();
+                      showCardsWindow.hide();
                       gameData.gameObject.clearSelectedPlayers();
                       tooltip.setText(`请选择一名角色`);
                     },

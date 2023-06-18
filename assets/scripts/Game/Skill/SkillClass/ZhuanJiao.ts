@@ -8,6 +8,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
+import { Card } from "../../Card/Card";
 
 export class ZhuanJiao extends TriggerSkill {
   constructor(character: Character) {
@@ -84,7 +85,7 @@ export class ZhuanJiao extends TriggerSkill {
                 },
                 enabled: () =>
                   showCardsWindow.selectedCards.list.length &&
-                  showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) === -1,
+                  Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
               },
             ],
           });

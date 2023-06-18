@@ -8,6 +8,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
+import { Card } from "../../Card/Card";
 
 export class JianRen extends TriggerSkill {
   constructor(character: Character) {
@@ -85,7 +86,7 @@ export class JianRen extends TriggerSkill {
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【坚韧】`));
 
     const handCard = gameData.createCard(card);
-    if (handCard.color.indexOf(CardColor.BLACK) !== -1) {
+    if (Card.hasColor(handCard, CardColor.BLACK)) {
       player.addHandCard(handCard);
 
       gameData.gameObject.cardAction.addCardToHandCard({
@@ -133,7 +134,7 @@ export class JianRen extends TriggerSkill {
                   },
                   enabled: () =>
                     showCardsWindow.selectedCards.list.length &&
-                    showCardsWindow.selectedCards.list[0].color.indexOf(CardColor.BLACK) !== -1,
+                    Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                 },
                 {
                   text: "取消",

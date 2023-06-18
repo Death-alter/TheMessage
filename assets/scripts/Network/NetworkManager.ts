@@ -11,10 +11,7 @@ export class NetworkManager extends Component {
   onLoad() {
     director.addPersistRootNode(this.node);
 
-    ws.createConnection();
-    ws.setHeartBeatFunction(() => {
-      ws.send("heart_tos");
-    });
+    this.createConnection();
 
     for (let eventName in NetworkEventToC) {
       ws.on(NetworkEventToC[eventName], (data) => {
@@ -29,5 +26,20 @@ export class NetworkManager extends Component {
     }
 
     EventMapper.init();
+  }
+
+  createConnection() {
+    ws.createConnection();
+    ws.setHeartBeatFunction(() => {
+      ws.send("heart_tos");
+    });
+  }
+
+  closeConnection() {
+    ws.closeConnection();
+  }
+
+  reconnect() {
+    ws.reconnect();
   }
 }

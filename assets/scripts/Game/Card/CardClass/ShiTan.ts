@@ -1,8 +1,8 @@
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { ShiTanOption, CardType, CardColor, CardOnEffectParams, CardStatus, CardDirection } from "../type";
+import { ShiTanOption, CardType, CardOnEffectParams } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import { IdentityType } from "../../Identity/type";
@@ -34,6 +34,7 @@ export class ShiTan extends Card {
     tooltip.setText(`请选择试探的目标`);
     gameData.gameObject.startSelectPlayer({
       num: 1,
+      filter: (player) => player.id !== 0,
       onSelect: () => {
         tooltip.setText(`是否使用试探？`);
         tooltip.buttons.setButtons([
@@ -107,18 +108,18 @@ export class ShiTan extends Card {
             seq: gameData.gameObject.seq,
           });
         } else {
-          gameData.gameObject.handCardList.selectedCards.limit = 1;
           tooltip.setText(`请选择一张手牌丢弃`);
+          gameData.gameObject.startSelectHandCard({ num: 1 });
           tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-                  cardId: [this.id],
+                  cardId: [gameData.gameObject.selectedHandCards.list[0].id],
                   seq: gameData.gameObject.seq,
                 });
               },
-              enabled: () => !!gameData.gameObject.handCardList.selectedCards.list.length,
+              enabled: () => !!gameData.gameObject.selectedHandCards.list.length,
             },
           ]);
         }

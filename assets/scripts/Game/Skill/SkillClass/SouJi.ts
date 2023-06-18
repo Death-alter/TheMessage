@@ -120,14 +120,7 @@ export class SouJi extends ActiveSkill {
               NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_B_TOS, data);
               showCardsWindow.hide();
             },
-            enabled: () => {
-              for (let card of showCardsWindow.selectedCards.list) {
-                if (card.color.indexOf(CardColor.BLACK) === -1) {
-                  return false;
-                }
-              }
-              return true;
-            },
+            enabled: () => Card.hasColor(showCardsWindow.selectedCards.list, CardColor.BLACK),
           },
         ],
       });

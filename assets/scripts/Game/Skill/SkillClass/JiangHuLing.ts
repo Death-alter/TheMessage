@@ -13,6 +13,7 @@ import { CardColor } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
+import { Card } from "../../Card/Card";
 
 export class JiangHuLing extends TriggerSkill {
   constructor(character: Character) {
@@ -153,7 +154,7 @@ export class JiangHuLing extends TriggerSkill {
                   },
                   enabled: () =>
                     showCardsWindow.selectedCards.list.length &&
-                    showCardsWindow.selectedCards.list[0].color.indexOf(<number>color) !== -1,
+                    Card.hasColor(showCardsWindow.selectedCards.list[0], <number>color),
                 },
               ],
             });

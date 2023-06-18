@@ -102,7 +102,7 @@ export class MiLing extends Card {
             },
             enabled: () => {
               return (
-                handCardList.selectedCards.list[0] && handCardList.selectedCards.list[0].color.indexOf(color) !== -1
+                handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0],color)
               );
             },
           },
@@ -113,7 +113,8 @@ export class MiLing extends Card {
       const handCardList = handCards.map((card) => {
         return gameData.createCard(card);
       });
-      gameData.gameObject.showCardsWindow.show({
+      const showCardsWindow = gameData.gameObject.showCardsWindow;
+      showCardsWindow.show({
         title: "选择一张情报由目标传出",
         cardList: handCardList,
         limit: 1,
@@ -122,12 +123,12 @@ export class MiLing extends Card {
             text: "确定",
             onclick: () => {
               NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-                cardId: this.id,
+                cardId: showCardsWindow.selectedCards.list[0].id,
                 seq: gameData.gameObject.seq,
               });
-              gameData.gameObject.showCardsWindow.hide();
+              showCardsWindow.hide();
             },
-            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+            enabled: () => !!showCardsWindow.selectedCards.list.length,
           },
         ],
       });

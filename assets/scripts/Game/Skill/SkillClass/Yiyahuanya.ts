@@ -7,6 +7,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { Card } from "../../Card/Card";
 
 export class YiYaHuanYa extends TriggerSkill {
   constructor(character: Character) {
@@ -63,13 +64,14 @@ export class YiYaHuanYa extends TriggerSkill {
               enabled: () => {
                 return (
                   selectedHandCards.list.length &&
-                  selectedHandCards.list[0].color.indexOf(CardColor.BLACK) !== -1 &&
+                  Card.hasColor(selectedHandCards.list[0], CardColor.BLACK) &&
                   gameData.gameObject.selectedPlayers.list.length !== 0
                 );
               },
             },
           ]);
         },
+        enabled: Card.hasColor(gameData.gameObject.handCardList.list, CardColor.BLACK),
       },
       {
         text: "取消",
@@ -82,14 +84,6 @@ export class YiYaHuanYa extends TriggerSkill {
           gameData.gameObject.stopSelectHandCard();
           gameData.gameObject.clearSelectedHandCards();
         },
-        enabled: (() => {
-          for (let card of gameData.gameObject.handCardList.list) {
-            if (card.color.indexOf(CardColor.BLACK) !== -1) {
-              return true;
-            }
-          }
-          return false;
-        })(),
       },
     ]);
   }

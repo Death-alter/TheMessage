@@ -9,8 +9,6 @@ import { Player } from "../../Player/Player";
 import { Character } from "../../Character/Character";
 
 export class JinShen extends TriggerSkill {
-  private receivedMessageId: number;
-
   constructor(character: Character) {
     super({
       name: "谨慎",
@@ -34,7 +32,6 @@ export class JinShen extends TriggerSkill {
   }
 
   onTrigger(gameData: GameData, params): void {
-    this.receivedMessageId = params.messageInTransmit.cardId;
     const tooltip = gameData.gameObject.tooltip;
     tooltip.setText(`你接收了双色情报，是否使用【谨慎】？`);
     tooltip.buttons.setButtons([
@@ -79,7 +76,8 @@ export class JinShen extends TriggerSkill {
       player.removeHandCard(0);
       handCard = gameData.createCard(card);
     }
-    const message = player.removeMessage(this.receivedMessageId);
+    const messages = player.getMessagesCopy();
+    const message = player.removeMessage(messages[messages.length - 1].id);
     player.addHandCard(message);
     player.addMessage(handCard);
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【谨慎】`));

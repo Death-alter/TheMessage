@@ -42,7 +42,7 @@ export class ChengQing extends Card {
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
                   cardId: this.id,
-                  playerId: gameData.gameObject.selectedPlayers.list[0],
+                  playerId: gameData.gameObject.selectedPlayers.list[0].id,
                   targetCardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
                   seq: gameData.gameObject.seq,
                 });

@@ -138,7 +138,7 @@ export class DuJi extends ActiveSkill {
 
     let blackCount = 0;
 
-    if (card1.color.indexOf(CardColor.BLACK) === -1) {
+    if (Card.hasColor(card1, CardColor.BLACK)) {
       player.addHandCard(card1);
       gameData.gameObject.cardAction.addCardToHandCard({
         player,
@@ -154,7 +154,7 @@ export class DuJi extends ActiveSkill {
       });
       ++blackCount;
     }
-    if (card2.color.indexOf(CardColor.BLACK) === -1) {
+    if (Card.hasColor(card2, CardColor.BLACK)) {
       player.addHandCard(card2);
       gameData.gameObject.cardAction.addCardToHandCard({
         player: player,
