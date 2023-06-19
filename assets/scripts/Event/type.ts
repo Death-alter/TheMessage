@@ -1,5 +1,6 @@
 //toc协议，ws接收数据
 export enum NetworkEventToC {
+  RECONNECT_TOC = "reconnect_toc",
   ERROR_CODE_TOC = "error_code_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
@@ -207,6 +208,8 @@ export enum NetworkEventToS {
 
 //程序事件，用于程序控制
 export enum ProcessEvent {
+  RECONNECT_SYNC_START = "reconnect_sync_start",
+  RECONNECT_SYNC_END = "reconnect_sync_end",
   NETWORK_ERROR = "network_error",
   RECORD_STATUS_CHANGE = "record_status_change",
   GET_RECORD_LIST = "get_record_list",

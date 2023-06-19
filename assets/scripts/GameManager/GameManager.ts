@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, resources, Prefab, instantiate, NodePool } from "cc";
+import { _decorator, Component, Node, resources, Prefab, instantiate } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";

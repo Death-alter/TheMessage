@@ -92,6 +92,13 @@ export class EventMapper {
         });
       });
     });
+    NetworkEventCenter.on(NetworkEventToC.RECONNECT_TOC, (data: ProtobufType.reconnect_toc) => {
+      if (data.isEnd) {
+        ProcessEventCenter.emit(ProcessEvent.RECONNECT_SYNC_END);
+      } else {
+        ProcessEventCenter.emit(ProcessEvent.RECONNECT_SYNC_START);
+      }
+    });
     NetworkEventCenter.on(NetworkEventToC.JOIN_ROOM_TOC, (data: ProtobufType.join_room_toc) => {
       ProcessEventCenter.emit(ProcessEvent.JOIN_ROOM, {
         name: data.name,

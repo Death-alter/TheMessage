@@ -10,18 +10,18 @@ interface PoolTemplates {
 }
 
 export default class GamePools {
-  public static Initialized: boolean = false;
+  public static initialized: boolean = false;
   public static cardPool: ObjectPool<CardObject>;
   public static cardGroupPool: ObjectPool<CardGroupObject>;
   public static logMessagePool: ObjectPool<GameLogMessageObject>;
 
   public static init(templates: PoolTemplates) {
-    if (!this.Initialized) {
+    if (!this.initialized) {
       const { card, cardGroup, logMessage } = templates;
       GamePools.cardPool = new ObjectPool<CardObject>(card);
       GamePools.cardGroupPool = new ObjectPool<CardGroupObject>(cardGroup);
       GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
-      this.Initialized = true;
+      this.initialized = true;
     }
   }
 }
