@@ -122,7 +122,7 @@ export class FenYunBianHuan extends Card {
     const cardList = gameData.gameObject.showCardsWindow.cardList.list;
     for (let card of cardList) {
       if (card.id === cardId) {
-        card.gameObject.node.getComponentInChildren(OuterGlow).closeOuterGlow();
+        card.gameObject.node?.getComponentInChildren(OuterGlow).closeOuterGlow();
         gameData.gameObject.showCardsWindow.removeCard(card);
         if (asMessageCard) {
           player.addMessage(card);

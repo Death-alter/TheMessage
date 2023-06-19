@@ -95,6 +95,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onEnable() {
+    this.cardAction.node.active = true;
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
@@ -160,26 +161,28 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onDisable() {
-    ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown);
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown);
-    GameEventCenter.off(GameEvent.GAME_INIT, this.init);
+    this.cardAction.node.active = false;
+    ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    GameEventCenter.off(GameEvent.GAME_INIT, this.init, this);
     // GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
-    GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange);
-    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards);
-    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards);
-    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard);
-    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard);
-    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage);
-    GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage);
-    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone);
-    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie);
-    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard);
+    GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
+    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
+    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
+    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
+    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
+    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
+    GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
+    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
+    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
+    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
   }
 
   init(data: GameEventType.GameInit) {
+    console.log(this.gameLog);
     if (sys.isMobile) {
       //展示卡牌窗口
       this.node.on(

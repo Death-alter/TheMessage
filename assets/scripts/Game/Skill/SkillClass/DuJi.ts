@@ -71,8 +71,8 @@ export class DuJi extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_B_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_C_TOC);
-    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount);
-    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange);
+    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
+    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange, this);
   }
 
   resetUsageCount() {

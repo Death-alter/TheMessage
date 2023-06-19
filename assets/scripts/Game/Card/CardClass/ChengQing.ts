@@ -32,7 +32,8 @@ export class ChengQing extends Card {
         return player.messageCounts[CardColor.BLACK] !== 0;
       },
       onSelect: async (player: Player) => {
-        gameData.gameObject.showCardsWindow.show({
+        const showCardsWindow = gameData.gameObject.showCardsWindow
+        showCardsWindow.show({
           title: "选择一张情报弃置",
           cardList: player.getMessagesCopy(),
           limit: 1,
@@ -43,18 +44,18 @@ export class ChengQing extends Card {
                 NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
                   cardId: this.id,
                   playerId: gameData.gameObject.selectedPlayers.list[0].id,
-                  targetCardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
+                  targetCardId: showCardsWindow.selectedCards.list[0].id,
                   seq: gameData.gameObject.seq,
                 });
-                gameData.gameObject.showCardsWindow.hide();
+                showCardsWindow.hide();
                 this.onDeselected(gameData);
               },
-              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+              enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
             {
               text: "取消",
               onclick: () => {
-                gameData.gameObject.showCardsWindow.hide();
+                showCardsWindow.hide();
                 gameData.gameObject.clearSelectedPlayers();
               },
             },

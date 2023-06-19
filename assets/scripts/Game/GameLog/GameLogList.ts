@@ -9,7 +9,6 @@ import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
-import { CardObject } from "../Card/CardObject";
 import GamePools from "../../GameManager/GamePools";
 
 export class GameLogList extends DataContainer<GameLog> {
@@ -24,7 +23,6 @@ export class GameLogList extends DataContainer<GameLog> {
     if (card.color && card.color.length) {
       if (card.color.length === 1) {
         switch (card.color[0]) {
-
           case CardColor.BLACK:
             colorStr += `黑色`;
             break;
@@ -82,17 +80,17 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   unregisterEvents() {
-    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.onPlayerDrawCard);
-    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.onPlayerDiscardCard);
-    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.onPlayerPlayCard);
-    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.onPlayerGiveCard);
-    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage);
-    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage);
-    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage);
-    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission);
-    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard);
-    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone);
+    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.onPlayerDrawCard, this);
+    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.onPlayerDiscardCard, this);
+    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.onPlayerPlayCard, this);
+    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.onPlayerGiveCard, this);
+    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage, this);
+    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
+    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard, this);
+    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone, this);
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {

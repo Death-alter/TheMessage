@@ -46,7 +46,7 @@ export class BoAi extends ActiveSkill {
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_BO_AI_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_BO_AI_B_TOC);
-    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

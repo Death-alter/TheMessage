@@ -47,7 +47,7 @@ export class Tooltip extends Component {
   }
 
   onDisable() {
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   startCoundDown(second: number) {

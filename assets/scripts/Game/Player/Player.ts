@@ -108,7 +108,7 @@ export class Player extends DataBasic<PlayerObject> {
       cards = [cards];
     }
     this._handCards = [...this._handCards, ...cards];
-    this.gameObject.refreshHandCardCount();
+    this.gameObject?.refreshHandCardCount();
   }
 
   //弃牌

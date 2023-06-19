@@ -38,7 +38,7 @@ export class JiZhi extends ActiveSkill {
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JI_ZHI_TOC);
-    NetworkEventCenter.off(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying);
+    NetworkEventCenter.off(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
   }
 
   onPlayerDying(data) {

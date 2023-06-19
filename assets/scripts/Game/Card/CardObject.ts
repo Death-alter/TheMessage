@@ -183,14 +183,14 @@ export class CardObject extends GameObject<Card> {
       } else {
         //翻面动画
         tween(node)
-          .to(0.3, { scale: new Vec3(0, 1, 1) })
+          .to(0.2, { scale: new Vec3(0, 1, 1) })
           .call(() => {
             if (this.data) {
               this.refresh(this.data);
             }
           })
-          .to(0.3, { scale: new Vec3(1, 1, 1) })
-          .delay(0.2)
+          .to(0.2, { scale: new Vec3(1, 1, 1) })
+          .delay(0.1)
           .call(() => {
             reslove(null);
           })

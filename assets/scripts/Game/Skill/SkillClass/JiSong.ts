@@ -40,7 +40,7 @@ export class JiSong extends ActiveSkill {
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JI_SONG_TOC);
-    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

@@ -16,12 +16,12 @@ export default class GamePools {
   public static logMessagePool: ObjectPool<GameLogMessageObject>;
 
   public static init(templates: PoolTemplates) {
-    if (!this.initialized) {
-      const { card, cardGroup, logMessage } = templates;
-      GamePools.cardPool = new ObjectPool<CardObject>(card);
-      GamePools.cardGroupPool = new ObjectPool<CardGroupObject>(cardGroup);
-      GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
-      this.initialized = true;
-    }
+    // if (!this.initialized) {
+    const { card, cardGroup, logMessage } = templates;
+    GamePools.cardPool = new ObjectPool<CardObject>(card);
+    GamePools.cardGroupPool = new ObjectPool<CardGroupObject>(cardGroup);
+    GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
+    //   this.initialized = true;
+    // }
   }
 }

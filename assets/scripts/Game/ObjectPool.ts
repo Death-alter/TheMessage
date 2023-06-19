@@ -23,7 +23,7 @@ export class ObjectPool<T extends GameObject<any>> {
   }
 
   put(gameObject: T) {
-    if (gameObject) {
+    if (gameObject && gameObject.node) {
       this.pool.put(gameObject.node);
     }
   }

@@ -12,7 +12,7 @@ export class ProgressControl extends Component {
   }
 
   onDisable() {
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
   }
 
   //倒计时

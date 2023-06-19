@@ -45,7 +45,7 @@ export class JiBan extends ActiveSkill {
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JI_BAN_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_JI_BAN_B_TOC);
-    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

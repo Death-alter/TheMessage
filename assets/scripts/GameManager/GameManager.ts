@@ -54,6 +54,8 @@ export class GameManager extends Component {
 
     this.gameData = new GameData(gameUI);
     this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
+    console.log(this.logContainer.getComponent(GameLogContainer));
+    console.log(this.gameLog);
     this.gameData.gameObject.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
@@ -77,9 +79,9 @@ export class GameManager extends Component {
 
   onDisable() {
     //移除事件监听
-    ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter);
-    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame);
-    GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver);
+    ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter, this);
+    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame, this);
+    GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver, this);
     this.gameData.unregisterEvents();
     this.gameLog.unregisterEvents();
   }

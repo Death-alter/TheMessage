@@ -47,7 +47,7 @@ export class JiaoJi extends ActiveSkill {
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JIAO_JI_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_JIAO_JI_B_TOC);
-    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

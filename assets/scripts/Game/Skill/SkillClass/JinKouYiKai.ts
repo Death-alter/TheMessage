@@ -51,8 +51,8 @@ export class JinKouYiKai extends ActiveSkill {
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JIN_KOU_YI_KAI_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_JIN_KOU_YI_KAI_B_TOC);
-    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount);
-    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange);
+    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
+    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange, this);
   }
 
   resetUsageCount() {

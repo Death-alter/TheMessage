@@ -93,7 +93,7 @@ export abstract class Card extends DataBasic<CardObject> {
     } else {
       this._status = CardStatus.FACE_UP;
     }
-    if (this.gameObject.flip) {
+    if (this.gameObject) {
       return this.gameObject.flip();
     }
   }

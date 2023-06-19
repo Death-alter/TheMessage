@@ -38,7 +38,7 @@ export class GuiZha extends ActiveSkill {
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_GUI_ZHA_TOC);
-    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

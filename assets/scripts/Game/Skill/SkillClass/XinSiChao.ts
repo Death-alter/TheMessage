@@ -37,7 +37,7 @@ export class XinSiChao extends ActiveSkill {
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_XIN_SI_CHAO_TOC);
-    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount);
+    GameEventCenter.off(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
 
   resetUsageCount() {

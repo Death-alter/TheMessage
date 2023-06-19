@@ -1,7 +1,6 @@
 import { GameEvent, ProcessEvent } from "../../../Event/type";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { Player } from "../../../Game/Player/Player";
-import { Identity } from "../../../Game/Identity/Identity";
 import { createCharacterById } from "../../../Game/Character";
 import { CharacterStatus } from "../../../Game/Character/type";
 import { createIdentity } from "../../../Game/Identity";
@@ -144,6 +143,7 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.once(
       ProcessEvent.DRAW_CARDS,
       (data: ProcessEventType.DrawCards) => {
+        console.log(data, this.playerList);
         //设置座位号
         let i = data.playerId;
         let j = 0;
@@ -173,20 +173,20 @@ export class GameData extends DataBasic<GameUI> {
   }
 
   unregisterEvents() {
-    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init);
-    ProcessEventCenter.off(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData);
-    ProcessEventCenter.off(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber);
-    ProcessEventCenter.off(ProcessEvent.DRAW_CARDS, this.drawCards);
-    ProcessEventCenter.off(ProcessEvent.DISCARD_CARDS, this.discardCards);
-    ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter);
-    ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage);
-    ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver);
-    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed);
-    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess);
+    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init, this);
+    ProcessEventCenter.off(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
+    ProcessEventCenter.off(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
+    ProcessEventCenter.off(ProcessEvent.DRAW_CARDS, this.drawCards, this);
+    ProcessEventCenter.off(ProcessEvent.DISCARD_CARDS, this.discardCards, this);
+    ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
+    ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
+    ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver, this);
+    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
+    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
   }
 
   //初始化游戏

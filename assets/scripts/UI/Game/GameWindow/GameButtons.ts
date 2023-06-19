@@ -7,7 +7,7 @@ const { ccclass, property } = _decorator;
 export class GameButtons extends Component {
   private _isAutoPlay: boolean = false;
 
-  onLoad() {
+  onEnable() {
     const autoPlayButton = this.node.getChildByName("AutoPlay");
     autoPlayButton.on(Node.EventType.TOUCH_END, () => {
       if (this._isAutoPlay) {
@@ -24,5 +24,9 @@ export class GameButtons extends Component {
         autoPlayButton.getComponentInChildren(Label).string = "托管";
       }
     });
+  }
+
+  onDisable() {
+    ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS);
   }
 }
