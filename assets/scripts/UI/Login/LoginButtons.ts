@@ -1,5 +1,6 @@
-import { _decorator, Component, Node, EditBox, resources, ImageAsset, Texture2D, SpriteFrame } from "cc";
+import { _decorator, Component, Node, EditBox } from "cc";
 import { ProcessEventCenter, NetworkEventCenter } from "../../Event/EventTarget";
+import config from "../../config";
 import { NetworkEventToS, ProcessEvent } from "../../Event/type";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
@@ -23,7 +24,7 @@ export class LoginButtons extends Component {
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
       if (this.userName.string) {
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
-          version: 1,
+          version: config.version,
           name: this.userName.string,
           password: md5.Md5.hashStr(this.password.string),
           device: md5.Md5.hashStr(this.userName.string),

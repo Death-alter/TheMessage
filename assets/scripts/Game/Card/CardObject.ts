@@ -27,7 +27,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")
 export class CardObject extends GameObject<Card> {
-  public static readonly colors = ["#222222", "#e10602", "#2932e1"];
   private touchStartTime: number = 0;
   private isOnTouch = false;
 
@@ -36,7 +35,7 @@ export class CardObject extends GameObject<Card> {
   }
 
   set data(data: Card) {
-    super.data = data;
+    super.setData(data)
     if (this._data) {
       this.refresh(this._data);
     }
@@ -52,8 +51,10 @@ export class CardObject extends GameObject<Card> {
         if (this.isOnTouch) {
           const deltaTime = new Date().getTime() - this.touchStartTime;
           if (deltaTime > 500) {
-            const cardInfo = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow.getComponent(CardInfoWindow);
+            const cardInfoWindow = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow;
+            const cardInfo = cardInfoWindow.getComponent(CardInfoWindow);
             cardInfo.card = copyCard(this.data);
+            cardInfo.card.gameObject = cardInfoWindow.getComponentInChildren(CardObject);
             cardInfo.show();
           }
         }
@@ -64,8 +65,10 @@ export class CardObject extends GameObject<Card> {
       });
     } else {
       this.node.on(Node.EventType.MOUSE_ENTER, () => {
-        const cardInfo = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow.getComponent(CardInfoWindow);
+        const cardInfoWindow = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow;
+        const cardInfo = cardInfoWindow.getComponent(CardInfoWindow);
         cardInfo.card = copyCard(this.data);
+        cardInfo.card.gameObject = cardInfoWindow.getComponentInChildren(CardObject);
         cardInfo.show();
       });
       this.node.on(Node.EventType.MOUSE_LEAVE, () => {
@@ -110,11 +113,11 @@ export class CardObject extends GameObject<Card> {
         colorNodeRight.active = false;
       } else {
         if (card.color.length === 1) {
-          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
-          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
+          colorNodeLeft.getComponent(Sprite).color = color(Card.colors[card.color[0]]);
+          colorNodeRight.getComponent(Sprite).color = color(Card.colors[card.color[0]]);
         } else {
-          colorNodeLeft.getComponent(Sprite).color = color(CardObject.colors[card.color[0]]);
-          colorNodeRight.getComponent(Sprite).color = color(CardObject.colors[card.color[1]]);
+          colorNodeLeft.getComponent(Sprite).color = color(Card.colors[card.color[0]]);
+          colorNodeRight.getComponent(Sprite).color = color(Card.colors[card.color[1]]);
         }
         colorNodeLeft.active = true;
         colorNodeRight.active = true;
@@ -164,7 +167,7 @@ export class CardObject extends GameObject<Card> {
       } else if (card instanceof MiLing && card.secretColor) {
         const arr = ["东", "西", "静"];
         for (let i = 0; i < card.secretColor.length; i++) {
-          otherNode.children[i].getComponent(Sprite).color = color(CardObject.colors[card.secretColor[i]]);
+          otherNode.children[i].getComponent(Sprite).color = color(Card.colors[card.secretColor[i]]);
           otherNode.children[i].getComponentInChildren(Label).string = arr[i];
         }
         otherNode.active = true;

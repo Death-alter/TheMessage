@@ -7,6 +7,8 @@ import { Tooltip } from "../../GameManager/Tooltip";
 import { GamePhase } from "../../GameManager/type";
 
 export abstract class Card extends DataBasic<CardObject> {
+  public static readonly colors = ["#222222", "#e10602", "#2932e1"];
+
   protected _id: number;
   protected _name: string;
   protected _type: CardType;

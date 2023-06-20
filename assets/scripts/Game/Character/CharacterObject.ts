@@ -11,7 +11,7 @@ export class CharacterObject extends GameObject<Character> {
   }
 
   set data(data: Character) {
-    super.data = data;
+    super.setData(data)
     if (data) {
       if (data.status === CharacterStatus.FACE_DOWN) {
         this.showCover();

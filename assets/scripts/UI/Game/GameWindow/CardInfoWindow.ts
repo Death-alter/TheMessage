@@ -2,7 +2,6 @@ import { _decorator, Component, RichText, Sprite, color, Label } from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { MiLing } from "../../../Game/Card/CardClass/MiLing";
 import { ShiTan } from "../../../Game/Card/CardClass/ShiTan";
-import { CardObject } from "../../../Game/Card/CardObject";
 import { CardColor, CardDirection, CardType } from "../../../Game/Card/type";
 import { Identity } from "../../../Game/Identity/Identity";
 const { ccclass, property } = _decorator;
@@ -17,7 +16,6 @@ export class CardInfoWindow extends Component {
 
   set card(card: Card) {
     this._card = card;
-    this._card.gameObject = this.getComponentInChildren(CardObject);
     this.refresh();
   }
 
@@ -46,10 +44,10 @@ export class CardInfoWindow extends Component {
             str += `<color=#FFFFFF>黑</color>`;
             break;
           case CardColor.BLUE:
-            str += `<color=${CardObject.colors[color]}>蓝</color>`;
+            str += `<color=${Card.colors[color]}>蓝</color>`;
             break;
           case CardColor.RED:
-            str += `<color=${CardObject.colors[color]}>红</color>`;
+            str += `<color=${Card.colors[color]}>红</color>`;
             break;
         }
       }
@@ -116,10 +114,10 @@ export class CardInfoWindow extends Component {
           for (let i = 0; i < (<MiLing>this.card).secretColor.length; i++) {
             const secretColor = (<MiLing>this.card).secretColor[i];
             const label = other.children[i].getComponentInChildren(Label);
-            const c = color(CardObject.colors[secretColor]);
+            const c = color(Card.colors[secretColor]);
             other.children[i].getComponent(Sprite).color = c;
             label.string = arr[i];
-            str += `<color=${CardObject.colors[secretColor]}>${arr[i]}风</color>`;
+            str += `<color=${Card.colors[secretColor]}>${arr[i]}风</color>`;
             if (i === 2) {
               str += "，";
             } else {

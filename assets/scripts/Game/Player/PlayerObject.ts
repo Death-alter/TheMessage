@@ -29,7 +29,7 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   set data(data: Player) {
-    super.data = data;
+    super.setData(data);
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
