@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color, Vec3 } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -11,13 +11,12 @@ import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
-import { GamePhase, WaitingType } from "../../../GameManager/type";
+import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager/type";
 import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
-import { GameLogList } from "../../../Game/GameLog/GameLogList";
 import { ActiveSkill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
@@ -54,11 +53,12 @@ export class GameUI extends GameObject<GameData> {
   @property(Node)
   characterInfoWindow: Node | null = null;
   @property(Node)
+  showCardWindowNode: Node | null = null;
+  @property(Node)
   skillButtons: Node | null = null;
 
   public cardAction: CardAction;
   public tooltip: Tooltip;
-  public gameLog: GameLogList;
   public handCardList: HandCardList;
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
@@ -70,6 +70,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onLoad() {
+    this.showCardsWindow = this.showCardWindowNode.getComponent(ShowCardsWindow);
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
     this.tooltip.nextPhase.on(Node.EventType.TOUCH_END, () => {
@@ -94,14 +95,14 @@ export class GameUI extends GameObject<GameData> {
     });
   }
 
-  onEnable() {
+  startRender() {
     this.cardAction.node.active = true;
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
 
     //收到初始化
-    GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
+    // GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
 
     //收到游戏开始
     // GameEventCenter.once(GameEvent.GAME_START, (data: GameEventType.GameStart) => {});
@@ -160,11 +161,11 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
   }
 
-  onDisable() {
+  stopRender() {
     this.cardAction.node.active = false;
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    GameEventCenter.off(GameEvent.GAME_INIT, this.init, this);
+    // GameEventCenter.off(GameEvent.GAME_INIT, this.init, this);
     // GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
@@ -181,8 +182,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
   }
 
-  init(data: GameEventType.GameInit) {
-    console.log(this.gameLog);
+  init() {
     if (sys.isMobile) {
       //展示卡牌窗口
       this.node.on(
@@ -197,8 +197,8 @@ export class GameUI extends GameObject<GameData> {
 
     //创建自己的UI
     const selfNode = this.node.getChildByPath("Self/Player");
-    data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
-    this.playerObjectList.push(data.playerList[0].gameObject);
+    this.data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
+    this.playerObjectList.push(this.data.playerList[0].gameObject);
     this.skillButtons.getComponent(SkillButtons).init(this.data, this.data.selfPlayer.character.skills);
 
     this.setSelfIdentityUI();
@@ -207,30 +207,39 @@ export class GameUI extends GameObject<GameData> {
     this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
     this.handCardList.gameObject.init();
     this.cardAction.handCardList = this.handCardList;
+    this.handCardList.removeAllData();
+    if (this.data.selfPlayer.handCardCount > 0) {
+      for (let card of this.data.selfPlayer.handCards) {
+        this.handCardList.addData(card);
+      }
+    }
 
     //创建其他人UI
-    const othersCount = data.playerList.length - 1;
+    const othersCount = this.data.playerList.length - 1;
     const sideLength = Math.floor(othersCount / 3);
+    this.rightPlayerNodeList.removeAllChildren();
+    this.leftPlayerNodeList.removeAllChildren();
+    this.topPlayerNodeList.removeAllChildren();
 
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.playerObjectList.push(data.playerList[i + 1].gameObject);
+      this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.playerObjectList.push(data.playerList[i + 1].gameObject);
+      this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.playerObjectList.push(data.playerList[i + 1].gameObject);
+      this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
     this.rightPlayerNodeList.getComponent(Layout).updateLayout();
@@ -238,8 +247,8 @@ export class GameUI extends GameObject<GameData> {
     this.leftPlayerNodeList.getComponent(Layout).updateLayout();
 
     //绑定点击事件
-    for (let i = 0; i < data.playerList.length; i++) {
-      const player = data.playerList[i];
+    for (let i = 0; i < this.data.playerList.length; i++) {
+      const player = this.data.playerList[i];
       player.gameObject.node.on(
         Node.EventType.TOUCH_END,
         (event) => {
@@ -286,6 +295,15 @@ export class GameUI extends GameObject<GameData> {
           ],
         });
       });
+    }
+
+    //如果有传递中的情报
+    if (this.data.messageInTransmit) {
+      this.cardAction.setCard(this.data.messageInTransmit, {
+        location: CardActionLocation.PLAYER,
+        player: this.data.playerList[this.data.messagePlayerId],
+      });
+      this.cardAction.transmissionMessageObject = this.data.messageInTransmit.gameObject;
     }
   }
 

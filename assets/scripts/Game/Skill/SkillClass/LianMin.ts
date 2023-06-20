@@ -108,14 +108,16 @@ export class LianMin extends TriggerSkill {
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_lian_min_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const message = targetPlayer.removeMessage(cardId);
     player.addHandCard(message);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      card: message,
-      from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
+      });
+    }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【怜悯】`));
     gameLog.addData(

@@ -93,7 +93,7 @@ export class GuangFaBao extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       const player = gameData.playerList[playerId];
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择任意张手牌置入一名角色的情报区");
@@ -140,7 +140,7 @@ export class GuangFaBao extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId }: skill_guang_fa_bao_a_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     if (playerId === 0) {
@@ -153,7 +153,7 @@ export class GuangFaBao extends ActiveSkill {
   onEffectB(gameData: GameData, { playerId, enable, targetPlayerId, cards }: skill_guang_fa_bao_b_toc) {
     console.log(enable);
     if (enable) {
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -169,13 +169,14 @@ export class GuangFaBao extends ActiveSkill {
       }
 
       targetPlayer.addMessage(handCards);
-      console.log(handCards);
-      gameData.gameObject.cardAction.addCardToMessageZone({
-        player: targetPlayer,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-      });
 
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToMessageZone({
+          player: targetPlayer,
+          cards: handCards,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+        });
+      }
       gameLog.addData(
         new GameLog(
           `【${player.seatNumber + 1}号】${player.character.name}把${cards.length}张手牌置入【${

@@ -71,67 +71,67 @@ export class MiLing extends Card {
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
-    if (hasColor) {
-      //自己是目标
-      if (targetPlayerId === 0) {
-        const color: CardColor = card.secretColor[secret];
-        const handCardList = gameData.gameObject.handCardList;
-        const tooltip = gameData.gameObject.tooltip;
-        let tooltipText = "密令的暗号为";
-        switch (secret) {
-          case 0:
-            tooltipText += "东风，";
-            break;
-          case 1:
-            tooltipText += "西风，";
-            break;
-          case 2:
-            tooltipText += "静风，";
-            break;
+    if (gameData.gameObject) {
+      if (hasColor) {
+        //自己是目标
+        if (targetPlayerId === 0) {
+          const color: CardColor = card.secretColor[secret];
+          const handCardList = gameData.gameObject.handCardList;
+          const tooltip = gameData.gameObject.tooltip;
+          let tooltipText = "密令的暗号为";
+          switch (secret) {
+            case 0:
+              tooltipText += "东风，";
+              break;
+            case 1:
+              tooltipText += "西风，";
+              break;
+            case 2:
+              tooltipText += "静风，";
+              break;
+          }
+          tooltipText += `请选择一张${getCardColorText(color)}色情报传出`;
+          tooltip.setText(tooltipText);
+          gameData.gameObject.startSelectHandCard({
+            num: 1,
+          });
+          tooltip.buttons.setButtons([
+            {
+              text: "传递情报",
+              onclick: () => {
+                gameData.gameObject.doSendMessage();
+              },
+              enabled: () => {
+                return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
+              },
+            },
+          ]);
         }
-        tooltipText += `请选择一张${getCardColorText(color)}色情报传出`;
-        tooltip.setText(tooltipText);
-        gameData.gameObject.startSelectHandCard({
-          num: 1,
+      } else if (playerId === 0) {
+        //自己是出牌者
+        const handCardList = handCards.map((card) => {
+          return gameData.createCard(card);
         });
-        tooltip.buttons.setButtons([
-          {
-            text: "传递情报",
-            onclick: () => {
-              gameData.gameObject.doSendMessage();
+        const showCardsWindow = gameData.gameObject.showCardsWindow;
+        showCardsWindow.show({
+          title: "选择一张情报由目标传出",
+          cardList: handCardList,
+          limit: 1,
+          buttons: [
+            {
+              text: "确定",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
+                  cardId: showCardsWindow.selectedCards.list[0].id,
+                  seq: gameData.gameObject.seq,
+                });
+                showCardsWindow.hide();
+              },
+              enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
-            enabled: () => {
-              return (
-                handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0],color)
-              );
-            },
-          },
-        ]);
+          ],
+        });
       }
-    } else if (playerId === 0) {
-      //自己是出牌者
-      const handCardList = handCards.map((card) => {
-        return gameData.createCard(card);
-      });
-      const showCardsWindow = gameData.gameObject.showCardsWindow;
-      showCardsWindow.show({
-        title: "选择一张情报由目标传出",
-        cardList: handCardList,
-        limit: 1,
-        buttons: [
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-                cardId: showCardsWindow.selectedCards.list[0].id,
-                seq: gameData.gameObject.seq,
-              });
-              showCardsWindow.hide();
-            },
-            enabled: () => !!showCardsWindow.selectedCards.list.length,
-          },
-        ],
-      });
     }
   }
 

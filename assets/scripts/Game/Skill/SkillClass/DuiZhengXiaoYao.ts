@@ -90,12 +90,12 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【对症下药】`));
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.lock();
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择两张含有相同颜色的手牌展示");
@@ -146,80 +146,82 @@ export class DuiZhengXiaoYao extends ActiveSkill {
         seq: seq,
       });
 
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
       const player = gameData.playerList[playerId];
       const showCardsWindow = gameData.gameObject.showCardsWindow;
       const cardList = cards.map((card) => gameData.createCard(card));
 
-      if (playerId !== 0) {
-        showCardsWindow.show({
-          title: "【对症下药】展示手牌",
-          limit: 0,
-          cardList,
-          buttons: [
-            {
-              text: "关闭",
-              onclick: () => {
-                showCardsWindow.hide();
-              },
-            },
-          ],
-        });
-      } else {
-        const colorList = [];
-        for (let color0 of cardList[0].color) {
-          for (let color1 of cardList[1].color) {
-            if (color0 === color1) colorList.push(color0);
-          }
-        }
-
-        const tooltip = gameData.gameObject.tooltip;
-        tooltip.setText("请选择一名角色");
-        tooltip.buttons.setButtons([]);
-        gameData.gameObject.startSelectPlayer({
-          num: 1,
-          filter: (player) => {
-            for (let color of colorList) {
-              if (player.messageCounts[color] > 0) return true;
-            }
-            return false;
-          },
-          onSelect: (player) => {
-            let title;
-            if (colorList.length === 1) {
-              title = `选择一张${getCardColorText(colorList[0])}色情报弃置`;
-            } else {
-              title = `选择一张${getCardColorText(colorList[0])}色或${getCardColorText(colorList[1])}色情报弃置`;
-            }
-            showCardsWindow.show({
-              title,
-              limit: 1,
-              cardList: player.getMessagesCopy(),
-              buttons: [
-                {
-                  text: "确定",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_C_TOS, {
-                      targetPlayerId: player.id,
-                      messageCardId: showCardsWindow.selectedCards.list[0].id,
-                      seq,
-                    });
-                    showCardsWindow.hide();
-                  },
-                  enabled: () => {
-                    if (showCardsWindow.selectedCards.list.length === 0) return false;
-                    for (let color of showCardsWindow.selectedCards.list[0].color) {
-                      if (colorList.indexOf(color) !== -1) {
-                        return true;
-                      }
-                    }
-                    return false;
-                  },
+      if (gameData.gameObject) {
+        if (playerId !== 0) {
+          showCardsWindow.show({
+            title: "【对症下药】展示手牌",
+            limit: 0,
+            cardList,
+            buttons: [
+              {
+                text: "关闭",
+                onclick: () => {
+                  showCardsWindow.hide();
                 },
-              ],
-            });
-          },
-        });
+              },
+            ],
+          });
+        } else {
+          const colorList = [];
+          for (let color0 of cardList[0].color) {
+            for (let color1 of cardList[1].color) {
+              if (color0 === color1) colorList.push(color0);
+            }
+          }
+
+          const tooltip = gameData.gameObject.tooltip;
+          tooltip.setText("请选择一名角色");
+          tooltip.buttons.setButtons([]);
+          gameData.gameObject.startSelectPlayer({
+            num: 1,
+            filter: (player) => {
+              for (let color of colorList) {
+                if (player.messageCounts[color] > 0) return true;
+              }
+              return false;
+            },
+            onSelect: (player) => {
+              let title;
+              if (colorList.length === 1) {
+                title = `选择一张${getCardColorText(colorList[0])}色情报弃置`;
+              } else {
+                title = `选择一张${getCardColorText(colorList[0])}色或${getCardColorText(colorList[1])}色情报弃置`;
+              }
+              showCardsWindow.show({
+                title,
+                limit: 1,
+                cardList: player.getMessagesCopy(),
+                buttons: [
+                  {
+                    text: "确定",
+                    onclick: () => {
+                      NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_C_TOS, {
+                        targetPlayerId: player.id,
+                        messageCardId: showCardsWindow.selectedCards.list[0].id,
+                        seq,
+                      });
+                      showCardsWindow.hide();
+                    },
+                    enabled: () => {
+                      if (showCardsWindow.selectedCards.list.length === 0) return false;
+                      for (let color of showCardsWindow.selectedCards.list[0].color) {
+                        if (colorList.indexOf(color) !== -1) {
+                          return true;
+                        }
+                      }
+                      return false;
+                    },
+                  },
+                ],
+              });
+            },
+          });
+        }
       }
 
       gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}展示了两张手牌`));
@@ -227,7 +229,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   }
 
   onEffectC(gameData: GameData, { playerId, targetPlayerId, messageCardId }: skill_dui_zheng_xia_yao_c_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -238,10 +240,12 @@ export class DuiZhengXiaoYao extends ActiveSkill {
     }
 
     const message = targetPlayer.removeMessage(messageCardId);
-    gameData.gameObject.cardAction.removeMessage({
-      player,
-      messageList: [message],
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.removeMessage({
+        player,
+        messageList: [message],
+      });
+    }
 
     gameLog.addData(
       new GameLog(

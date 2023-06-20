@@ -71,6 +71,14 @@ export class CardAction extends Component {
     });
   }
 
+  setCard(card: Card, loaction: ActionLocation) {
+    if (!card.gameObject) {
+      card.gameObject = GamePools.cardPool.get();
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+    }
+    card.gameObject.node.position = this.getLoaction(loaction.location, loaction.player);
+  }
+
   addCardToHandCard({ player, card, from }: { player: Player; card: Card; from?: ActionLocation });
   addCardToHandCard({ player, cards, from }: { player: Player; cards: Card[]; from?: ActionLocation });
   addCardToHandCard(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
@@ -81,6 +89,7 @@ export class CardAction extends Component {
       if (card) {
         if (!card.gameObject) {
           card.gameObject = GamePools.cardPool.get();
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         }
         cardGroup.addData(card);
       } else {

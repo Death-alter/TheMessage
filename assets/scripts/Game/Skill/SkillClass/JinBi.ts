@@ -87,7 +87,7 @@ export class JinBi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, waitingSecond, seq }: skill_jin_bi_a_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -141,7 +141,7 @@ export class JinBi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_jin_bi_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -170,11 +170,13 @@ export class JinBi extends ActiveSkill {
       }
 
       player.addHandCard(handCards);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player,
+          cards: handCards,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+        });
+      }
       gameLog.addData(
         new GameLog(
           `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}交给【${player.seatNumber + 1}号】${

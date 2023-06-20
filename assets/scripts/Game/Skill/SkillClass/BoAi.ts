@@ -77,7 +77,7 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_bo_ai_a_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
@@ -87,7 +87,7 @@ export class BoAi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.lock();
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择一张手牌交给另一名角色");
@@ -128,7 +128,7 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_bo_ai_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -143,7 +143,9 @@ export class BoAi extends ActiveSkill {
       gameData.gameObject.handCardList.removeData(handCard);
     }
 
-    gameData.gameObject.cardAction.giveCards({ player, targetPlayer, cardList: [handCard] });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.giveCards({ player, targetPlayer, cardList: [handCard] });
+    }
 
     gameLog.addData(
       new GameLog(

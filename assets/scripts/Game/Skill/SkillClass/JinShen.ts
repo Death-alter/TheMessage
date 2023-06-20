@@ -70,7 +70,7 @@ export class JinShen extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, card }: skill_jin_shen_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     let handCard = player.removeHandCard(card.cardId);
     if (!handCard) {
       player.removeHandCard(0);
@@ -92,7 +92,9 @@ export class JinShen extends TriggerSkill {
     if (playerId === 0) {
       message.gameObject = GamePools.cardPool.get();
       gameData.gameObject.handCardList.removeData(handCard);
-      gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
+      }
     }
   }
 }

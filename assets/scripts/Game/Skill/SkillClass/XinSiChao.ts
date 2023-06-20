@@ -76,7 +76,7 @@ export class XinSiChao extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_xin_si_chao_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
     ++this.usageCount;

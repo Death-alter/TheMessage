@@ -86,7 +86,7 @@ export class JinKouYiKai extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jin_kou_yi_kai_a_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
@@ -96,12 +96,14 @@ export class JinKouYiKai extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.lock();
       const tooltip = gameData.gameObject.tooltip;
 
       this.topCard = gameData.createCard(card);
-      gameData.gameObject.cardAction.showDeckTopCard(this.topCard);
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.showDeckTopCard(this.topCard);
+      }
 
       tooltip.setText(`请选择一项`);
       tooltip.buttons.setButtons([
@@ -130,22 +132,26 @@ export class JinKouYiKai extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, exchange }: skill_jin_kou_yi_kai_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     if (exchange) {
       if (playerId === 0) {
-        gameData.gameObject.cardAction.replaceMessage({
-          message: this.topCard,
-          oldMessage: gameData.messageInTransmit,
-        });
+        if (gameData.gameObject) {
+          gameData.gameObject.cardAction.replaceMessage({
+            message: this.topCard,
+            oldMessage: gameData.messageInTransmit,
+          });
+        }
       } else {
         const card = gameData.createCard();
-        gameData.gameObject.cardAction.showDeckTopCard(card);
-        gameData.gameObject.cardAction.replaceMessage({
-          message: card,
-          oldMessage: gameData.messageInTransmit,
-        });
+        if (gameData.gameObject) {
+          gameData.gameObject.cardAction.showDeckTopCard(card);
+          gameData.gameObject.cardAction.replaceMessage({
+            message: card,
+            oldMessage: gameData.messageInTransmit,
+          });
+        }
       }
 
       gameLog.addData(

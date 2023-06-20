@@ -43,3 +43,9 @@ export const enum WaitingType {
   SEND_MESSAGE = 7,
   RECEIVE_MESSAGE = 8,
 }
+
+export const enum SyncStatus {
+  NO_SYNC = 0,
+  IS_SYNCING = 1,
+  SYNC_COMPLETE = 2,
+}

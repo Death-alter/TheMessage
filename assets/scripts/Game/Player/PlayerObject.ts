@@ -34,6 +34,10 @@ export class PlayerObject extends GameObject<Player> {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
       this.refreshIdentityList();
+      this.refreshHandCardCount();
+      this.refreshLockState();
+      this.refreshMessageCount();
+      this.refreshStatus();
     }
   }
 

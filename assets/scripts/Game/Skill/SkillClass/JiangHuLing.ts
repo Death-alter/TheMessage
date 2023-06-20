@@ -130,7 +130,7 @@ export class JiangHuLing extends TriggerSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("情报被接收，是否使用【江湖令】？");
       tooltip.buttons.setButtons([
@@ -174,7 +174,7 @@ export class JiangHuLing extends TriggerSkill {
 
   onEffectA(gameData: GameData, { playerId, color }: skill_jiang_hu_ling_a_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     let str = `【${player.seatNumber + 1}号】${player.character.name}使用技能【江湖令】，宣言${getCardColorText(
       <number>color
@@ -184,11 +184,13 @@ export class JiangHuLing extends TriggerSkill {
 
   onEffectB(gameData: GameData, { playerId, cardId }: skill_jiang_hu_ling_b_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const messagePlayer = gameData.playerList[gameData.messagePlayerId];
 
     const message = messagePlayer.removeMessage(cardId);
-    gameData.gameObject.cardAction.removeMessage({ player: messagePlayer, messageList: [message] });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.removeMessage({ player: messagePlayer, messageList: [message] });
+    }
 
     gameLog.addData(
       new GameLog(

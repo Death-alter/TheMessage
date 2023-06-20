@@ -90,8 +90,7 @@ export class JiaoJi extends ActiveSkill {
   ) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
-    const tooltip = gameData.gameObject.tooltip;
+    const gameLog = gameData.gameLog;
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -114,14 +113,15 @@ export class JiaoJi extends ActiveSkill {
     }
 
     player.addHandCard(handCards);
-
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      cards: handCards,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
-
-    if (playerId === 0) {
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        cards: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+    }
+    if (playerId === 0 && gameData.gameObject) {
+      const tooltip = gameData.gameObject.tooltip;
       this.gameObject?.lock();
       let num = handCards.length;
       if (player.messageCounts[CardColor.BLACK] === 0) {
@@ -160,7 +160,7 @@ export class JiaoJi extends ActiveSkill {
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_jiao_ji_b_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     let handCards;
     if (playerId === 0) {

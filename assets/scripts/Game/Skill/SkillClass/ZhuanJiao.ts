@@ -107,16 +107,17 @@ export class ZhuanJiao extends TriggerSkill {
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_zhuan_jiao_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     const message = player.removeMessage(cardId);
     targetPlayer.addMessage(message);
-
-    gameData.gameObject.cardAction.addCardToMessageZone({
-      player: targetPlayer,
-      card: message,
-      from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToMessageZone({
+        player: targetPlayer,
+        card: message,
+        from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
+      });
+    }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【转交】`));
     gameLog.addData(

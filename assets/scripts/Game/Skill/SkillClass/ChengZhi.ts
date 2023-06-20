@@ -51,7 +51,7 @@ export class ChengZhi extends TriggerSkill {
   ) {
     const player = gameData.playerList[playerId];
     const diePlayer = gameData.playerList[diePlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     let handCards;
     if (playerId === 0) {
@@ -67,12 +67,13 @@ export class ChengZhi extends TriggerSkill {
     }
 
     player.addHandCard(handCards);
-
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      cards: handCards,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: diePlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        cards: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: diePlayer },
+      });
+    }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【承志】`));
     gameLog.addData(
@@ -120,7 +121,7 @@ export class ChengZhi extends TriggerSkill {
     if (enable) {
       const player = gameData.playerList[playerId];
       const diePlayer = gameData.playerList[diePlayerId];
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
 
       const noIdentity = createIdentity(IdentityType.HAS_NO_IDENTITY);
       diePlayer.confirmIdentity(noIdentity);

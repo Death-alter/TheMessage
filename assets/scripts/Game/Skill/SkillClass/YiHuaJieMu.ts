@@ -116,7 +116,7 @@ export class YiHuaJieMu extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, fromPlayerId, toPlayerId, cardId, joinIntoHand }: skill_yi_hua_jie_mu_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const fromPlayer = gameData.playerList[fromPlayerId];
     const toPlayer = gameData.playerList[toPlayerId];
@@ -124,11 +124,13 @@ export class YiHuaJieMu extends ActiveSkill {
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【移花接木】`));
     if (joinIntoHand) {
       player.addHandCard(message);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player,
+          card: message,
+          from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+        });
+      }
       gameLog.addData(
         new GameLog(
           `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
@@ -138,11 +140,13 @@ export class YiHuaJieMu extends ActiveSkill {
       );
     } else {
       toPlayer.addMessage(message);
-      gameData.gameObject.cardAction.addCardToMessageZone({
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToMessageZone({
+          player,
+          card: message,
+          from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+        });
+      }
       gameLog.addData(
         new GameLog(
           `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
@@ -151,7 +155,7 @@ export class YiHuaJieMu extends ActiveSkill {
         )
       );
     }
-    
+
     if (playerId === 0) {
       this.gameObject.isOn = false;
     }

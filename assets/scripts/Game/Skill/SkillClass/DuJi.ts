@@ -112,7 +112,7 @@ export class DuJi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerIds, cards }: skill_du_ji_a_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const showCardsWindow = gameData.gameObject.showCardsWindow;
     const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
@@ -140,34 +140,42 @@ export class DuJi extends ActiveSkill {
 
     if (Card.hasColor(card1, CardColor.BLACK)) {
       player.addHandCard(card1);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: card1,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player,
+          card: card1,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
+        });
+      }
     } else {
       targetPlayer2.addHandCard(card1);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player: targetPlayer2,
-        card: card1,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player: targetPlayer2,
+          card: card1,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
+        });
+      }
       ++blackCount;
     }
     if (Card.hasColor(card2, CardColor.BLACK)) {
       player.addHandCard(card2);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player: player,
-        card: card2,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player: player,
+          card: card2,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+        });
+      }
     } else {
       targetPlayer1.addHandCard(card2);
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player: targetPlayer1,
-        card: card2,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player: targetPlayer1,
+          card: card2,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+        });
+      }
       ++blackCount;
     }
 
@@ -212,7 +220,7 @@ export class DuJi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
+    if (playerId === 0  && gameData.gameObject) {
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择一个抽取黑色牌的角色，让他选择一项");
       gameData.gameObject.startSelectPlayer({
@@ -257,11 +265,11 @@ export class DuJi extends ActiveSkill {
         seq: seq,
       });
 
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
       const player = gameData.playerList[playerId];
       const waitingPlayer = gameData.playerList[waitingPlayerId];
 
-      if (waitingPlayerId === 0) {
+      if (waitingPlayerId === 0  && gameData.gameObject) {
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText("请选择将牌置入谁的情报区");
         tooltip.buttons.setButtons([
@@ -297,7 +305,7 @@ export class DuJi extends ActiveSkill {
   }
 
   onEffectC(gameData: GameData, { playerId, waitingPlayerId, targetPlayerId, card }: skill_du_ji_c_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const waitingPlayer = gameData.playerList[waitingPlayerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -312,11 +320,13 @@ export class DuJi extends ActiveSkill {
       gameData.gameObject.handCardList.removeData(handCard);
     }
     targetPlayer.addMessage(handCard);
-    gameData.gameObject.cardAction.addCardToMessageZone({
-      player: targetPlayer,
-      card: handCard,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: waitingPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToMessageZone({
+        player: targetPlayer,
+        card: handCard,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: waitingPlayer },
+      });
+    }
 
     gameLog.addData(
       new GameLog(

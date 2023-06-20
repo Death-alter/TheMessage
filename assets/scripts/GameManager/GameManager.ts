@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, resources, Prefab, instantiate } from "cc";
+import { _decorator, Component, Node, resources, Prefab, instantiate, find } from "cc";
 import { SelectCharacter } from "../UI/Game/SelectCharacterWindow/SelectCharacter";
 import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
 import { GameEvent, ProcessEvent } from "../Event/type";
@@ -17,6 +17,8 @@ import { GameUI } from "../UI/Game/GameWindow/GameUI";
 import { GameLogContainer } from "../Game/GameLog/GameLogContainer";
 import { Winner } from "../UI/Game/WinnerWindow/Winner";
 import { ShowCardsWindow } from "../UI/Game/ShowCardsWindow/ShowCardsWindow";
+import { DataManager } from "./DataManager";
+import { SyncStatus } from "./type";
 
 const { ccclass, property } = _decorator;
 
@@ -35,12 +37,13 @@ export class GameManager extends Component {
   @property(Prefab)
   logPrefab: Prefab | null = null;
   @property(Node)
-  cardGroupNode: Node | null = null;
-  @property(Node)
   showCardsWindow: Node | null = null;
+  @property(Node)
+  cardGroupNode: Node | null;
 
   public gameData: GameData;
   public gameLog: GameLogList;
+  public syncStatus: SyncStatus;
 
   onLoad() {
     //初始化GamePools
@@ -51,14 +54,20 @@ export class GameManager extends Component {
     });
 
     const gameUI = this.gameWindow.getComponent(GameUI);
-
-    this.gameData = new GameData(gameUI);
-    this.gameLog = new GameLogList(this.logContainer.getComponent(GameLogContainer));
-    console.log(this.logContainer.getComponent(GameLogContainer));
-    console.log(this.gameLog);
-    this.gameData.gameObject.gameLog = this.gameLog;
+    const dataManager = find("Resident").getComponent(DataManager);
+    this.gameData = dataManager.gameData;
+    this.gameLog = dataManager.gameLog;
+    this.syncStatus = dataManager.syncStatus;
+    this.gameData.gameObject = gameUI;
+    this.gameLog.gameObject = this.logContainer.getComponent(GameLogContainer);
+    this.gameData.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
+
+    //预加载卡图
+    resources.preloadDir("images/cards");
+    //预加载材质
+    resources.preloadDir("material");
   }
 
   onEnable() {
@@ -72,40 +81,47 @@ export class GameManager extends Component {
 
     //游戏结束
     GameEventCenter.on(GameEvent.GAME_OVER, this.gameOver, this);
-
-    this.gameData.registerEvents();
-    this.gameLog.registerEvents();
   }
 
   onDisable() {
     //移除事件监听
+    ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
+    ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);
     ProcessEventCenter.off(ProcessEvent.START_SELECT_CHARACTER, this.startSelectCharacter, this);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initGame, this);
     GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver, this);
-    this.gameData.unregisterEvents();
-    this.gameLog.unregisterEvents();
   }
 
   startSelectCharacter(data: ProcessEventType.StartSelectCharacter) {
-    this.selectCharacterWindow.getComponent(SelectCharacter).init({
-      identity: createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType),
-      roles: (<number[]>data.characterIdList) as CharacterType[],
-      waitingSecond: data.waitingSecond,
-    });
+    if (this.syncStatus === SyncStatus.NO_SYNC) {
+      this.selectCharacterWindow.getComponent(SelectCharacter).init({
+        identity: createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType),
+        roles: (<number[]>data.characterIdList) as CharacterType[],
+        waitingSecond: data.waitingSecond,
+      });
+    } else {
+      this.gameWindow.active = true;
+      this.gameData.gameObject.init();
+      this.gameData.gameObject.startRender();
+    }
   }
 
   initGame(data: ProcessEventType.InitGame) {
-    this.selectCharacterWindow.getComponent(SelectCharacter).hide();
-    this.gameWindow.active = true;
-    //预加载卡图
-    resources.preloadDir("images/cards");
-    //预加载材质
-    resources.preloadDir("material");
+    if (this.syncStatus === SyncStatus.NO_SYNC) {
+      this.selectCharacterWindow.getComponent(SelectCharacter).hide();
+    }
+
+    if (this.syncStatus !== SyncStatus.IS_SYNCING) {
+      this.gameWindow.active = true;
+      this.gameData.gameObject.init();
+      this.gameData.gameObject.startRender();
+    }
   }
 
   gameOver(data: GameEventType.GameOver) {
+    this.gameData.gameObject.stopRender();
     this.gameWindow.active = false;
-    this.showCardsWindow.active = false;
+    this.gameWindow.getComponent(GameUI).showCardsWindow.node.active = false;
     this.gameResultWindow.getComponent(Winner).init(data.players);
     this.gameResultWindow.active = true;
   }

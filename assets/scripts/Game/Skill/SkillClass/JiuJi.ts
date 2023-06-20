@@ -41,14 +41,14 @@ export class JiuJi extends PassiveSkill {
 
   onEffectA(gameData: GameData, { playerId }: skill_jiu_ji_a_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【就计】`));
   }
 
   onEffectB(gameData: GameData, { playerId, card, unknownCardCount }: skill_jiu_ji_b_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const cardOnPlay = unknownCardCount > 0 ? gameData.createCardByType(card.cardType) : gameData.createCard(card);
     if (!cardOnPlay) {
       return;
@@ -56,10 +56,12 @@ export class JiuJi extends PassiveSkill {
     cardOnPlay.gameObject = gameData.cardOnPlay.gameObject;
     gameData.cardOnPlay = null;
     player.addHandCard(cardOnPlay);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      card: cardOnPlay,
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: cardOnPlay,
+      });
+    }
 
     GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card: cardOnPlay, flag: false });
 

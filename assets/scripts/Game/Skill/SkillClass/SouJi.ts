@@ -87,7 +87,7 @@ export class SouJi extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -137,7 +137,7 @@ export class SouJi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, messageCard }: skill_sou_ji_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const showCardsWindow = gameData.gameObject.showCardsWindow;
@@ -163,10 +163,12 @@ export class SouJi extends ActiveSkill {
       const message = gameData.createCard(messageCard);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = null;
-      gameData.gameObject.cardAction.addCardToHandCard({
-        card: message,
-        player,
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          card: message,
+          player,
+        });
+      }
       cardList.push(message);
     }
 

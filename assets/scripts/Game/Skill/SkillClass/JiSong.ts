@@ -114,7 +114,7 @@ export class JiSong extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, messageCard, targetPlayerId }: skill_ji_song_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -122,14 +122,17 @@ export class JiSong extends ActiveSkill {
 
     if (messageCard) {
       const message = player.removeMessage(messageCard.cardId);
-      gameData.gameObject.cardAction.removeMessage({ player, messageList: [message] });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.removeMessage({ player, messageList: [message] });
+      }
       new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃置情报${gameLog.formatCard(message)}`);
     }
-
-    gameData.gameObject.cardAction.transmitMessage({
-      messagePlayer: targetPlayer,
-      message: gameData.messageInTransmit,
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.transmitMessage({
+        messagePlayer: targetPlayer,
+        message: gameData.messageInTransmit,
+      });
+    }
 
     ++this.usageCount;
 

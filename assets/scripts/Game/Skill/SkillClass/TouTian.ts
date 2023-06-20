@@ -65,7 +65,7 @@ export class TouTian extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【偷天】`));
 

@@ -31,7 +31,7 @@ export class HuanRi extends PassiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_huan_ri_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【换日】`));
   }

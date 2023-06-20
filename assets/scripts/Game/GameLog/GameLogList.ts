@@ -9,7 +9,6 @@ import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
-import GamePools from "../../GameManager/GamePools";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
@@ -58,11 +57,6 @@ export class GameLogList extends DataContainer<GameLog> {
     } else {
       return `【${card.name}】`;
     }
-  }
-
-  addData(data: GameLog): void {
-    data.gameObject = GamePools.logMessagePool.get();
-    super.addData(data);
   }
 
   registerEvents() {

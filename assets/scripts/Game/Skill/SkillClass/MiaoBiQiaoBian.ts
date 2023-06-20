@@ -130,19 +130,21 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const message = targetPlayer.removeMessage(cardId);
     player.addHandCard(message);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      card: message,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+    }
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       const tooltip = gameData.gameObject.tooltip;
       const showCardsWindow = gameData.gameObject.showCardsWindow;
 
@@ -227,7 +229,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -238,11 +240,13 @@ export class MiaoBiQiaoBian extends ActiveSkill {
 
     const message = targetPlayer.removeMessage(cardId);
     player.addHandCard(message);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      card: message,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+    }
 
     gameLog.addData(
       new GameLog(

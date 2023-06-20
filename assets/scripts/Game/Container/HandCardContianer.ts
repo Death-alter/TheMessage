@@ -6,6 +6,7 @@ import { GameObjectContainer } from "./GameObjectContainer";
 import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
 import { OuterGlow } from "../../Utils/OuterGlow";
+import GamePools from "../../GameManager/GamePools";
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardContianer")
@@ -47,7 +48,10 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   }
 
   onDataAdded(card: Card) {
-    if (!card.gameObject) return;
+    if (!card.gameObject) {
+      card.gameObject = GamePools.cardPool.get();
+    }
+    this.node.addChild(card.gameObject.node);
     card.gameObject.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
     card.gameObject.node.on(
       Node.EventType.TOUCH_END,
@@ -61,7 +65,6 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
 
   onDataRemoved(card: Card) {
     card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
-    if (!card.gameObject) return;
     card.gameObject.node.off(Node.EventType.TOUCH_END);
     this.scheduleOnce(this.refresh, 0);
   }

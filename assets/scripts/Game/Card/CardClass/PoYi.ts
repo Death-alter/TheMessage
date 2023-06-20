@@ -45,39 +45,41 @@ export class PoYi extends Card {
   onDeselected(gameData: GameData) {}
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
-    if (userId === 0) {
-      const message = gameData.createMessage(targetCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = message;
-      message.flip();
-      if (Card.hasColor(message, CardColor.BLACK)) {
-        const tooltip = gameData.gameObject.tooltip;
-        tooltip.setText(`是否翻开并摸一张牌？`);
-        tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-                show: true,
-                seq: gameData.gameObject.seq,
-              });
+    if (gameData.gameObject) {
+      if (userId === 0) {
+        const message = gameData.createMessage(targetCard);
+        message.gameObject = gameData.messageInTransmit.gameObject;
+        gameData.messageInTransmit = message;
+        message.flip();
+        if (Card.hasColor(message, CardColor.BLACK)) {
+          const tooltip = gameData.gameObject.tooltip;
+          tooltip.setText(`是否翻开并摸一张牌？`);
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+                  show: true,
+                  seq: gameData.gameObject.seq,
+                });
+              },
             },
-          },
-          {
-            text: "取消",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-                show: false,
-                seq: gameData.gameObject.seq,
-              });
+            {
+              text: "取消",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+                  show: false,
+                  seq: gameData.gameObject.seq,
+                });
+              },
             },
-          },
-        ]);
-      } else {
-        NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-          show: false,
-          seq: gameData.gameObject.seq,
-        });
+          ]);
+        } else {
+          NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+            show: false,
+            seq: gameData.gameObject.seq,
+          });
+        }
       }
     }
   }

@@ -93,7 +93,7 @@ export class QiangLing extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, types }: skill_qiang_ling_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const cards = types.map((type) => gameData.createCardByType(<number>type));
 
     gameData.bannedCardTypes = <number[]>types;

@@ -55,6 +55,10 @@ export class Player extends DataBasic<PlayerObject> {
     this.gameObject?.setSeat(number);
   }
 
+  get handCards() {
+    return this._handCards;
+  }
+
   get handCardCount() {
     return this._handCards.length;
   }
@@ -79,9 +83,7 @@ export class Player extends DataBasic<PlayerObject> {
   set status(status: PlayerStatus) {
     if (status == null || status === this._status) return;
     this._status = status;
-    if (this.gameObject) {
-      this.gameObject.refreshStatus();
-    }
+    this.gameObject?.refreshStatus();
   }
 
   get isAlive() {
@@ -124,7 +126,7 @@ export class Player extends DataBasic<PlayerObject> {
           break;
         }
       }
-      this.gameObject.refreshHandCardCount();
+      this.gameObject?.refreshHandCardCount();
       return card;
     } else {
       const arr = [];
@@ -136,7 +138,7 @@ export class Player extends DataBasic<PlayerObject> {
           }
         }
       }
-      this.gameObject.refreshHandCardCount();
+      this.gameObject?.refreshHandCardCount();
       return arr;
     }
   }
@@ -145,7 +147,7 @@ export class Player extends DataBasic<PlayerObject> {
   removeAllHandCards() {
     const arr = this._handCards;
     this._handCards = [];
-    this.gameObject.refreshHandCardCount();
+    this.gameObject?.refreshHandCardCount();
     return arr;
   }
 
@@ -169,7 +171,7 @@ export class Player extends DataBasic<PlayerObject> {
     if (this.messageCounts[CardColor.BLACK] >= 3) {
       this.status = PlayerStatus.DYING;
     }
-    this.gameObject.refreshMessageCount();
+    this.gameObject?.refreshMessageCount();
   }
 
   //从情报区移除情报
@@ -184,7 +186,7 @@ export class Player extends DataBasic<PlayerObject> {
           break;
         }
       }
-      this.gameObject.refreshMessageCount();
+      this.gameObject?.refreshMessageCount();
       return message;
     } else {
       const arr = [];
@@ -196,7 +198,7 @@ export class Player extends DataBasic<PlayerObject> {
           }
         }
       }
-      this.gameObject.refreshMessageCount();
+      this.gameObject?.refreshMessageCount();
       return arr;
     }
   }
@@ -205,7 +207,7 @@ export class Player extends DataBasic<PlayerObject> {
   removeAllMessage() {
     const arr = this._messages;
     this._messages = [];
-    this.gameObject.refreshMessageCount();
+    this.gameObject?.refreshMessageCount();
     return arr;
   }
 
@@ -223,9 +225,7 @@ export class Player extends DataBasic<PlayerObject> {
       }
     }
 
-    if (this.gameObject) {
-      this.gameObject.refreshIdentityList();
-    }
+    this.gameObject?.refreshIdentityList();
   }
 
   //排除玩家是某个身份
@@ -242,16 +242,12 @@ export class Player extends DataBasic<PlayerObject> {
         break;
       }
     }
-    if (this.gameObject) {
-      this.gameObject.refreshIdentityList();
-    }
+    this.gameObject?.refreshIdentityList();
   }
 
   setIdentityList(list: Identity[]) {
     this._identityList = list;
-    if (this.gameObject) {
-      this.gameObject.refreshIdentityList();
-    }
+    this.gameObject?.refreshIdentityList();
   }
 
   getMessagesCopy(): Card[] {

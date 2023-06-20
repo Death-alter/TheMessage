@@ -32,7 +32,7 @@ export class ShiSi extends PassiveSkill {
 
   onEffect(gameData: GameData, { playerId }: skill_shi_si_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【视死】`));
   }

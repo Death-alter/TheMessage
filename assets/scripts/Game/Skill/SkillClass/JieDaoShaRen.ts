@@ -76,7 +76,7 @@ export class JieDaoShaRen extends ActiveSkill {
   onEffectA(gameData: GameData, { playerId, card, targetPlayerId, waitingSecond, seq }: skill_jie_dao_sha_ren_a_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     if (waitingSecond > 0) {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
@@ -86,7 +86,7 @@ export class JieDaoShaRen extends ActiveSkill {
         seq: seq,
       });
 
-      if (playerId === 0) {
+      if (playerId === 0 && gameData.gameObject) {
         this.gameObject?.lock();
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText("是否将抽到的牌置入一名角色的情报区？");
@@ -149,12 +149,13 @@ export class JieDaoShaRen extends ActiveSkill {
     }
 
     player.addHandCard(card);
-
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player,
-      card: handCard,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        card: handCard,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+    }
 
     gameLog.addData(
       new GameLog(
@@ -164,9 +165,9 @@ export class JieDaoShaRen extends ActiveSkill {
       )
     );
   }
-  
+
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_jie_dao_sha_ren_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     let handCard = player.removeHandCard(card.id);
@@ -175,12 +176,13 @@ export class JieDaoShaRen extends ActiveSkill {
       handCard = gameData.createCard(card);
     }
     targetPlayer.addMessage(handCard);
-
-    gameData.gameObject.cardAction.addCardToMessageZone({
-      player: targetPlayer,
-      card: handCard,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToMessageZone({
+        player: targetPlayer,
+        card: handCard,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+      });
+    }
 
     gameLog.addData(
       new GameLog(

@@ -91,7 +91,7 @@ export class YiYaHuanYa extends TriggerSkill {
   onEffect(gameData: GameData, { playerId, card, targetPlayerId }: skill_yi_ya_huan_ya_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     let handCard = player.removeHandCard(card.cardId);
     if (!handCard) {
       player.removeHandCard(0);
@@ -110,6 +110,8 @@ export class YiYaHuanYa extends TriggerSkill {
     if (playerId === 0) {
       gameData.gameObject.handCardList.removeData(handCard);
     }
-    gameData.gameObject.cardAction.messagePlacedIntoMessageZone({ player: targetPlayer, message: handCard });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.messagePlacedIntoMessageZone({ player: targetPlayer, message: handCard });
+    }
   }
 }

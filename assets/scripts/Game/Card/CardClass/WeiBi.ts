@@ -80,7 +80,6 @@ export class WeiBi extends Card {
   //有人使用威逼
   onEffect(gameData: GameData, { userId, targetPlayerId, wantType }: CardPlayed) {
     const user = gameData.playerList[userId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
     let cardTypeText;
     switch (wantType as CardType) {
       case CardType.JIE_HUO:
@@ -96,12 +95,12 @@ export class WeiBi extends Card {
         cardTypeText = "澄清";
         break;
     }
-    gameData.gameObject.gameLog.addData(
+    gameData.gameLog.addData(
       new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
     );
 
     //自己被威逼
-    if (targetPlayerId === 0) {
+    if (targetPlayerId === 0 && gameData.gameObject) {
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText(
         `【${user.seatNumber + 1}号】${user.character.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`

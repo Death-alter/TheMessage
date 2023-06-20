@@ -18,9 +18,7 @@ export class DataContainer<T extends DataBasic<GameObject<T>>> extends DataBasic
 
   addData(data: T) {
     this._list.push(data);
-    console.log(this.gameObject);
-    if (this.gameObject && data.gameObject) {
-      this.gameObject.node.addChild(data.gameObject.node);
+    if (this.gameObject) {
       this.gameObject.onDataAdded(data);
     }
   }

@@ -1,5 +1,6 @@
 import { GameEvent, ProcessEvent } from "../../../Event/type";
 import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameLogList } from "../../../Game/GameLog/GameLogList";
 import { Player } from "../../../Game/Player/Player";
 import { createCharacterById } from "../../../Game/Character";
 import { CharacterStatus } from "../../../Game/Character/type";
@@ -28,6 +29,7 @@ export class GameData extends DataBasic<GameUI> {
   public banishedCards: Card[] = [];
   public dyingPlayer: Player = null; //等待澄清的玩家
   public bannedCardTypes: CardType[];
+  public gameLog: GameLogList;
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -143,7 +145,6 @@ export class GameData extends DataBasic<GameUI> {
     ProcessEventCenter.once(
       ProcessEvent.DRAW_CARDS,
       (data: ProcessEventType.DrawCards) => {
-        console.log(data, this.playerList);
         //设置座位号
         let i = data.playerId;
         let j = 0;
@@ -214,8 +215,6 @@ export class GameData extends DataBasic<GameUI> {
     this.selfPlayer.confirmIdentity(
       createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
     );
-
-    GameEventCenter.emit(GameEvent.GAME_INIT, { playerList: this.playerList });
   }
 
   //回合改变

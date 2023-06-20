@@ -83,10 +83,10 @@ export class JiBan extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.unlock();
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择至少一张手牌交给一名角色");
@@ -118,7 +118,7 @@ export class JiBan extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_ji_ban_b_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -136,11 +136,13 @@ export class JiBan extends ActiveSkill {
     }
 
     targetPlayer.addHandCard(handCards);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player: targetPlayer,
-      cards: handCards,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player: targetPlayer,
+        cards: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+      });
+    }
 
     gameLog.addData(
       new GameLog(

@@ -81,7 +81,7 @@ export class JingMeng extends TriggerSkill {
   onEffectA(gameData: GameData, { playerId, cards, targetPlayerId, waitingSecond, seq }: skill_jing_meng_a_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -123,7 +123,7 @@ export class JingMeng extends TriggerSkill {
   onEffectB(gameData: GameData, { playerId, targetPlayerId }: skill_jing_meng_b_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     gameLog.addData(
       new GameLog(

@@ -67,7 +67,7 @@ export class JianRen extends TriggerSkill {
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jian_ren_a_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const showCardsWindow = gameData.gameObject.showCardsWindow;
     showCardsWindow.show({
       title: "展示牌堆顶的牌",
@@ -88,12 +88,13 @@ export class JianRen extends TriggerSkill {
     const handCard = gameData.createCard(card);
     if (Card.hasColor(handCard, CardColor.BLACK)) {
       player.addHandCard(handCard);
-
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: handCard,
-        from: { location: CardActionLocation.DECK },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player,
+          card: handCard,
+          from: { location: CardActionLocation.DECK },
+        });
+      }
 
       gameLog.addData(
         new GameLog(
@@ -110,7 +111,7 @@ export class JianRen extends TriggerSkill {
         seq: seq,
       });
 
-      if (playerId === 0) {
+      if (playerId === 0  && gameData.gameObject) {
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText("请选择一名角色弃置一张黑色情报");
         gameData.gameObject.startSelectPlayer({
@@ -154,10 +155,12 @@ export class JianRen extends TriggerSkill {
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_jian_ren_b_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
 
     const message = targetPlayer.removeMessage(cardId);
-    gameData.gameObject.cardAction.removeMessage({ player: targetPlayer, messageList: [message] });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.removeMessage({ player: targetPlayer, messageList: [message] });
+    }
 
     gameLog.addData(
       new GameLog(

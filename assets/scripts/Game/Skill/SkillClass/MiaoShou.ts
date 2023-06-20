@@ -84,22 +84,24 @@ export class MiaoShou extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const tooltip = gameData.gameObject.tooltip;
 
     const message = gameData.createMessage(messageCard);
     message.gameObject = gameData.messageInTransmit.gameObject;
     gameData.messageInTransmit = null;
-    gameData.gameObject.cardAction.discardMessage(message);
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.discardMessage(message);
+    }
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.lock();
       const data: any = {
         seq,
       };
 
+      const tooltip = gameData.gameObject.tooltip;
       const showCardsWindow = gameData.gameObject.showCardsWindow;
       const cardList = [...cards.map((card) => gameData.createCard(card)), ...targetPlayer.getMessagesCopy()];
       showCardsWindow.show({
@@ -143,7 +145,7 @@ export class MiaoShou extends ActiveSkill {
     gameData: GameData,
     { playerId, fromPlayerId, targetPlayerId, card, messageCardId }: skill_miao_shou_b_toc
   ) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const fromPlayer = gameData.playerList[fromPlayerId];
@@ -162,12 +164,13 @@ export class MiaoShou extends ActiveSkill {
     }
 
     gameData.messageInTransmit = message;
-
-    gameData.gameObject.cardAction.moveCard({
-      card: message,
-      from: { location: CardActionLocation.PLAYER, player: fromPlayer },
-      to: { location: CardActionLocation.PLAYER, player: targetPlayer },
-    });
+    if (gameData.gameObject) {
+      gameData.gameObject.cardAction.moveCard({
+        card: message,
+        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+        to: { location: CardActionLocation.PLAYER, player: targetPlayer },
+      });
+    }
 
     gameLog.addData(
       new GameLog(

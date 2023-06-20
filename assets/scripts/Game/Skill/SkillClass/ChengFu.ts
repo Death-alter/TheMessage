@@ -39,7 +39,7 @@ export class ChengFu extends PassiveSkill {
       targetPlayerId: playerId,
     });
 
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[fromPlayerId];
     const cardOnPlay = gameData.createCard(card);
     gameLog.addData(

@@ -113,7 +113,7 @@ export class GuiZha extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, cardType }: skill_gui_zha_toc) {
-    const gameLog = gameData.gameObject.gameLog;
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     gameLog.addData(

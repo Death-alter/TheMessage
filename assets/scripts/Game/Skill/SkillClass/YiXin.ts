@@ -93,7 +93,7 @@ export class YiXin extends TriggerSkill {
     if (enable) {
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
       let handCard = player.removeHandCard(card.cardId);
       if (!handCard) {
         player.removeHandCard(0);
@@ -103,12 +103,13 @@ export class YiXin extends TriggerSkill {
       if (playerId === 0) {
         gameData.gameObject.handCardList.removeData(handCard);
       }
-
-      gameData.gameObject.cardAction.addCardToMessageZone({
-        player: targetPlayer,
-        card: handCard,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToMessageZone({
+          player: targetPlayer,
+          card: handCard,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
+        });
+      }
 
       gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【遗信】`));
       gameLog.addData(

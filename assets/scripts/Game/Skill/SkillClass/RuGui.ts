@@ -89,14 +89,16 @@ export class RuGui extends TriggerSkill {
     if (enable) {
       const player = gameData.playerList[playerId];
       const turnPlayer = gameData.playerList[gameData.turnPlayerId];
-      const gameLog = gameData.gameObject.gameLog;
+      const gameLog = gameData.gameLog;
       const message = player.removeMessage(cardId);
       turnPlayer.addMessage(message);
-      gameData.gameObject.cardAction.addCardToMessageZone({
-        player: turnPlayer,
-        card: message,
-        from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
-      });
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToMessageZone({
+          player: turnPlayer,
+          card: message,
+          from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
+        });
+      }
 
       gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【如归】`));
       gameLog.addData(
