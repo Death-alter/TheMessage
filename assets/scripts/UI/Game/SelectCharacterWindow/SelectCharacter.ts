@@ -1,13 +1,14 @@
-import { _decorator, Component, Node, RichText, Button, instantiate, Sprite, color } from "cc";
+import { _decorator, Component, Node, RichText, Button, instantiate, Sprite, color, sys } from "cc";
 import { createCharacterById } from "../../../Game/Character";
 import { Character } from "../../../Game/Character/Character";
 import { CharacterStatus, CharacterType } from "../../../Game/Character/type";
 import { Identity } from "../../../Game/Identity/Identity";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
-import { ProcessEventCenter ,NetworkEventCenter} from "../../../Event/EventTarget";
+import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { ProgressControl } from "../ProgressControl";
+import { CharacterInfoWindow } from "../GameWindow/CharacterInfoWindow";
 
 const { ccclass, property } = _decorator;
 
@@ -27,6 +28,9 @@ export class SelectCharacter extends Component {
 
   @property(Node)
   charcaterNodeList: Node | null = null;
+
+  @property(Node)
+  characterInfoWindow: Node | null = null;
 
   @property(Button)
   confirmButton: Button | null = null;
@@ -56,6 +60,33 @@ export class SelectCharacter extends Component {
         const node = instantiate(this.charcaterNode);
         character.gameObject = node.getChildByName("CharacterPanting").getComponent(CharacterObject);
         this.charcaterNodeList.addChild(node);
+      }
+      const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
+      if (sys.isMobile) {
+        character.gameObject.node.on("longtap", (event) => {
+          this.characterInfoWindow.active = true;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
+          characterInfoWindowComponent.setPosition(event);
+
+          this.node.once(Node.EventType.TOUCH_START, () => {
+            this.characterInfoWindow.active = false;
+          });
+        });
+      } else {
+        character.gameObject.node.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
+          this.characterInfoWindow.active = true;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
+        });
+        character.gameObject.node.on(
+          Node.EventType.MOUSE_MOVE,
+          characterInfoWindowComponent.setPosition,
+          characterInfoWindowComponent
+        );
+        character.gameObject.node.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+          this.characterInfoWindow.active = false;
+        });
       }
     }
 

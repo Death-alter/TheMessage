@@ -3,7 +3,7 @@ import { Character } from "../../Character/Character";
 import { skill_qiang_ling_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, ProcessEvent, NetworkEventToS, GameEvent } from "../../../Event/type";
-import { WaitingType } from "../../../GameManager/type";
+import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
@@ -48,10 +48,13 @@ export class QiangLing extends TriggerSkill {
 
   onTrigger(gameData: GameData, params): void {
     const tooltip = gameData.gameObject.tooltip;
-    const cardList = [];
-    for (let i = 0; i <= 10; i++) {
-      cardList.push(gameData.createCardByType(i as CardType));
-    }
+    const cardList = [
+      gameData.createCardByType(CardType.CHENG_QING),
+      gameData.createCardByType(CardType.PO_YI),
+      gameData.createCardByType(CardType.JIE_HUO),
+      gameData.createCardByType(CardType.DIAO_BAO),
+      gameData.createCardByType(CardType.WU_DAO),
+    ];
     tooltip.setText(`是否使用【强令】？`);
     tooltip.buttons.setButtons([
       {

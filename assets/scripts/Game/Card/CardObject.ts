@@ -35,7 +35,7 @@ export class CardObject extends GameObject<Card> {
   }
 
   set data(data: Card) {
-    super.setData(data)
+    super.setData(data);
     if (this._data) {
       this.refresh(this._data);
     }
@@ -43,25 +43,15 @@ export class CardObject extends GameObject<Card> {
 
   onEnable() {
     if (sys.isMobile) {
-      this.node.on(Node.EventType.TOUCH_START, () => {
-        this.touchStartTime = new Date().getTime();
-        this.isOnTouch = true;
-      });
-      this.node.on(Node.EventType.TOUCH_END, () => {
-        if (this.isOnTouch) {
-          const deltaTime = new Date().getTime() - this.touchStartTime;
-          if (deltaTime > 500) {
-            const cardInfoWindow = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow;
-            const cardInfo = cardInfoWindow.getComponent(CardInfoWindow);
-            cardInfo.card = copyCard(this.data);
-            cardInfo.card.gameObject = cardInfoWindow.getComponentInChildren(CardObject);
-            cardInfo.show();
-          }
+      this.node.on("longtap", () => {
+        const deltaTime = new Date().getTime() - this.touchStartTime;
+        if (deltaTime > 500) {
+          const cardInfoWindow = find("Canvas/GameUI").getComponent(GameUI).cardInfoWindow;
+          const cardInfo = cardInfoWindow.getComponent(CardInfoWindow);
+          cardInfo.card = copyCard(this.data);
+          cardInfo.card.gameObject = cardInfoWindow.getComponentInChildren(CardObject);
+          cardInfo.show();
         }
-      });
-      this.node.on(Node.EventType.TOUCH_CANCEL, () => {
-        this.touchStartTime = 0;
-        this.isOnTouch = false;
       });
     } else {
       this.node.on(Node.EventType.MOUSE_ENTER, () => {

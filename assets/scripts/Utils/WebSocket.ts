@@ -44,7 +44,7 @@ export class WS {
   }
 
   get connecting() {
-    return this.ws && this.state === this.ws.CONNECTING;
+    return this.ws && this.state === WebSocket.CONNECTING;
   }
 
   createConnection() {
@@ -52,6 +52,7 @@ export class WS {
       if (this.connecting) {
         return;
       }
+      console.log("正在连接到：" + this.url);
       if (this.retryTime >= WS.retryLimit) {
         console.log("无法连接到服务器，请稍检查网络连接并刷新页面重试");
         return;
@@ -146,7 +147,7 @@ export class WS {
 
   setHeartBeatFunction(func: { (): void }) {
     this.heartBeat = func;
-    if (this.ws && this.state === this.ws.OPEN) {
+    if (this.ws && this.state === WebSocket.OPEN) {
       if (this.heartBeatTimer) {
         window.clearInterval(this.heartBeatTimer);
       }

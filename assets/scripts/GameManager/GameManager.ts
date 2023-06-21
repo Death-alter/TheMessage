@@ -19,6 +19,7 @@ import { Winner } from "../UI/Game/WinnerWindow/Winner";
 import { ShowCardsWindow } from "../UI/Game/ShowCardsWindow/ShowCardsWindow";
 import { DataManager } from "./DataManager";
 import { SyncStatus } from "./type";
+import { CharacterInfoWindow } from "../UI/Game/GameWindow/CharacterInfoWindow";
 
 const { ccclass, property } = _decorator;
 
@@ -63,6 +64,7 @@ export class GameManager extends Component {
     this.gameData.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
+    gameUI.characterInfoWindow.getComponent(CharacterInfoWindow).init();
 
     //预加载卡图
     resources.preloadDir("images/cards");

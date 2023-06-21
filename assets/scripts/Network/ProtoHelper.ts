@@ -1,4 +1,5 @@
 import proto from "../../protobuf/proto.js";
+import { sys } from "cc";
 
 class ProtoHelper {
   static encode(protoName: string, data: Object) {
@@ -18,13 +19,11 @@ class ProtoHelper {
     return protoBuffer;
   }
 
-  static decode(data: Blob) {
+  static decode(data: Blob | ArrayBuffer) {
     return new Promise((reslove, reject) => {
       try {
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(data);
-        reader.onload = (e) => {
-          const buffer = reader.result as ArrayBuffer;
+        if (sys.isNative) {
+          const buffer = <ArrayBuffer>data;
           const bufView = new Uint8Array(buffer);
           const length = new Uint16Array(buffer.slice(0, 2))[0];
           let protoName = "";
@@ -36,7 +35,24 @@ class ProtoHelper {
             protoName,
             data: proto[protoName].decode(new Uint8Array(dataBuffer)),
           });
-        };
+        } else {
+          const reader = new FileReader();
+          reader.readAsArrayBuffer(<Blob>data);
+          reader.onload = (e) => {
+            const buffer = reader.result as ArrayBuffer;
+            const bufView = new Uint8Array(buffer);
+            const length = new Uint16Array(buffer.slice(0, 2))[0];
+            let protoName = "";
+            for (let i = 2; i < length + 2; i++) {
+              protoName += String.fromCharCode(bufView[i]);
+            }
+            const dataBuffer = buffer.slice(length + 2);
+            reslove({
+              protoName,
+              data: proto[protoName].decode(new Uint8Array(dataBuffer)),
+            });
+          };
+        }
       } catch (e) {
         reject(e);
       }

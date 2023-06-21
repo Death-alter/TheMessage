@@ -9,7 +9,7 @@ import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
-import { copyCard } from "../Card";
+import { copyCard, createUnknownCard } from "../Card";
 import { IdentityType } from "../Identity/type";
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
@@ -109,7 +109,12 @@ export class Player extends DataBasic<PlayerObject> {
     if (!(cards instanceof Array)) {
       cards = [cards];
     }
-    this._handCards = [...this._handCards, ...cards];
+    if (this.id === 0) {
+      this._handCards = [...this._handCards, ...cards];
+    } else {
+      this._handCards = [...this._handCards, ...cards.map(() => createUnknownCard())];
+    }
+
     this.gameObject?.refreshHandCardCount();
   }
 

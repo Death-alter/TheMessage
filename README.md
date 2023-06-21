@@ -21,3 +21,6 @@
 
 ### 打包
 `npm run build:electron`
+
+## android平台
+根据Cocos Creator官方文档操作

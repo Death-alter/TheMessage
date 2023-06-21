@@ -137,13 +137,19 @@ export class BoAi extends ActiveSkill {
       player.removeHandCard(0);
       handCard = gameData.createCard(card);
     }
-    targetPlayer.addHandCard(handCard);
-
-    if (playerId === 0) {
-      gameData.gameObject.handCardList.removeData(handCard);
+    if (targetPlayerId === 0) {
+      targetPlayer.addHandCard(handCard);
+    } else {
+      targetPlayer.addHandCard(gameData.createCard());
     }
 
     if (gameData.gameObject) {
+      if (playerId === 0) {
+        gameData.gameObject.handCardList.removeData(handCard);
+        this.gameObject?.unlock();
+        this.gameObject.isOn = false;
+      }
+
       gameData.gameObject.cardAction.giveCards({ player, targetPlayer, cardList: [handCard] });
     }
 
@@ -155,10 +161,6 @@ export class BoAi extends ActiveSkill {
       )
     );
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
     ++this.usageCount;
   }
 }

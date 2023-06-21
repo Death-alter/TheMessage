@@ -102,49 +102,51 @@ export class JiaoJi extends ActiveSkill {
     let handCards;
     if (targetPlayerId === 0) {
       handCards = targetPlayer.removeHandCard(cards.map((card) => card.cardId));
-      for (let card of handCards) {
-        gameData.gameObject.handCardList.removeData(card);
-      }
     } else if (playerId === 0) {
       targetPlayer.removeHandCard(cards.map(() => 0));
       handCards = cards.map((card) => gameData.createCard(card));
     } else {
       handCards = targetPlayer.removeHandCard(new Array(unknownCardCount).fill(0));
     }
-
     player.addHandCard(handCards);
+
     if (gameData.gameObject) {
+      for (let card of handCards) {
+        gameData.gameObject.handCardList.removeData(card);
+      }
+
       gameData.gameObject.cardAction.addCardToHandCard({
         player,
         cards: handCards,
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
       });
-    }
-    if (playerId === 0 && gameData.gameObject) {
-      const tooltip = gameData.gameObject.tooltip;
-      this.gameObject?.lock();
-      let num = handCards.length;
-      if (player.messageCounts[CardColor.BLACK] === 0) {
-        tooltip.setText(`请选择${num}张手牌交给该角色`);
-      } else {
-        num = handCards.length - player.messageCounts[CardColor.BLACK];
-        tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
-      }
-      gameData.gameObject.startSelectHandCard({
-        num: handCards.length,
-      });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
-              cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
-              seq,
-            });
+
+      if (playerId === 0) {
+        const tooltip = gameData.gameObject.tooltip;
+        this.gameObject?.lock();
+        let num = handCards.length;
+        if (player.messageCounts[CardColor.BLACK] === 0) {
+          tooltip.setText(`请选择${num}张手牌交给该角色`);
+        } else {
+          num = handCards.length - player.messageCounts[CardColor.BLACK];
+          tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
+        }
+        gameData.gameObject.startSelectHandCard({
+          num: handCards.length,
+        });
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
+                cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
+                seq,
+              });
+            },
+            enabled: () => gameData.gameObject.selectedHandCards.list.length >= num,
           },
-          enabled: () => gameData.gameObject.selectedHandCards.list.length >= num,
-        },
-      ]);
+        ]);
+      }
     }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【交际】`));

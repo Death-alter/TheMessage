@@ -2,9 +2,10 @@ import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../.
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Tooltip } from "../../../GameManager/Tooltip";
+import { GameLog } from "../../GameLog/GameLog";
 
 export class LiYou extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -56,16 +57,17 @@ export class LiYou extends Card {
     if (!targetCard) return;
     const targetPlayer = gameData.playerList[targetPlayerId];
     const user = gameData.playerList[userId];
+    const gameLog = gameData.gameLog;
+    const card = gameData.createCard(targetCard);
+    gameLog.addData(new GameLog(`利诱翻开${gameLog.formatCard(card)}`));
 
     if (flag) {
-      const card = gameData.createCard(targetCard);
-      user.addHandCard(card);
+      user.addHandCard(gameData.createCard());
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player: user,
         card: card,
       });
     } else {
-      const card = gameData.createMessage(targetCard);
       targetPlayer.addMessage(card);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,

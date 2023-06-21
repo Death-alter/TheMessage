@@ -8,6 +8,7 @@ import { Tooltip } from "../../../GameManager/Tooltip";
 import { Player } from "../../Player/Player";
 import { HandCardContianer } from "../../Container/HandCardContianer";
 import { getCardColorText } from "../../../Utils";
+import { GameLog } from "../../GameLog/GameLog";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -72,25 +73,31 @@ export class MiLing extends Card {
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
     if (gameData.gameObject) {
+      let secretText;
+      switch (secret) {
+        case 0:
+          secretText = "东风";
+          break;
+        case 1:
+          secretText = "西风";
+          break;
+        case 2:
+          secretText = "静风";
+          break;
+      }
+
+      const gameLog = gameData.gameLog;
+      const player = gameData.playerList[playerId];
+      gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}宣言了${secretText}`));
+
       if (hasColor) {
         //自己是目标
         if (targetPlayerId === 0) {
           const color: CardColor = card.secretColor[secret];
           const handCardList = gameData.gameObject.handCardList;
           const tooltip = gameData.gameObject.tooltip;
-          let tooltipText = "密令的暗号为";
-          switch (secret) {
-            case 0:
-              tooltipText += "东风，";
-              break;
-            case 1:
-              tooltipText += "西风，";
-              break;
-            case 2:
-              tooltipText += "静风，";
-              break;
-          }
-          tooltipText += `请选择一张${getCardColorText(color)}色情报传出`;
+          let tooltipText = "密令的暗号为" + secretText;
+          tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
           tooltip.setText(tooltipText);
           gameData.gameObject.startSelectHandCard({
             num: 1,
@@ -107,30 +114,40 @@ export class MiLing extends Card {
             },
           ]);
         }
-      } else if (playerId === 0) {
-        //自己是出牌者
-        const handCardList = handCards.map((card) => {
-          return gameData.createCard(card);
-        });
-        const showCardsWindow = gameData.gameObject.showCardsWindow;
-        showCardsWindow.show({
-          title: "选择一张情报由目标传出",
-          cardList: handCardList,
-          limit: 1,
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-                  cardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gameData.gameObject.seq,
-                });
-                showCardsWindow.hide();
+      } else {
+        const targetPlayer = gameData.playerList[targetPlayerId];
+        gameLog.addData(
+          new GameLog(
+            `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有对应颜色的卡牌，由【${
+              player.seatNumber + 1
+            }号】${player.character.name}选择一张牌传出`
+          )
+        );
+        if (playerId === 0) {
+          //自己是出牌者
+          const handCardList = handCards.map((card) => {
+            return gameData.createCard(card);
+          });
+          const showCardsWindow = gameData.gameObject.showCardsWindow;
+          showCardsWindow.show({
+            title: "选择一张情报由目标传出",
+            cardList: handCardList,
+            limit: 1,
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
+                    cardId: showCardsWindow.selectedCards.list[0].id,
+                    seq: gameData.gameObject.seq,
+                  });
+                  showCardsWindow.hide();
+                },
+                enabled: () => !!showCardsWindow.selectedCards.list.length,
               },
-              enabled: () => !!showCardsWindow.selectedCards.list.length,
-            },
-          ],
-        });
+            ],
+          });
+        }
       }
     }
   }

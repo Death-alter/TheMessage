@@ -91,15 +91,27 @@ export class SouJi extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    if (playerId === 0) {
+    if (playerId === 0 && gameData.gameObject) {
       this.gameObject?.lock();
 
       const showCardsWindow = gameData.gameObject.showCardsWindow;
+      const message = gameData.createMessage(messageCard);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+      message.flip();
+
       const cardList = [...cards.map((card) => gameData.createCard(card)), gameData.createCard(messageCard)];
       showCardsWindow.show({
         title: "请选择任意张黑色牌加入手牌",
         limit: cardList.length,
         cardList,
+        tags: cardList.map((card, index) => {
+          if (index === cardList.length - 1) {
+            return "待收情报";
+          } else {
+            return "手牌";
+          }
+        }),
         buttons: [
           {
             text: "确定",
@@ -120,7 +132,14 @@ export class SouJi extends ActiveSkill {
               NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_B_TOS, data);
               showCardsWindow.hide();
             },
-            enabled: () => Card.hasColor(showCardsWindow.selectedCards.list, CardColor.BLACK),
+            enabled: () => {
+              for (let card of showCardsWindow.selectedCards.list) {
+                if (!Card.hasColor(card, CardColor.BLACK)) {
+                  return false;
+                }
+              }
+              return true;
+            },
           },
         ],
       });
@@ -144,57 +163,66 @@ export class SouJi extends ActiveSkill {
 
     let handCards: Card[];
     if (targetPlayerId === 0) {
-      handCards = player.removeHandCard(cards.map((card) => card.cardId));
-      for (let card of handCards) {
-        gameData.gameObject.handCardList.removeData(card);
-      }
+      handCards = targetPlayer.removeHandCard(cards.map((card) => card.cardId));
     } else {
-      player.removeHandCard(new Array(cards.length).fill(0));
+      targetPlayer.removeHandCard(new Array(cards.length).fill(0));
       handCards = cards.map((card) => gameData.createCard(card));
     }
-    gameData.gameObject.cardAction.addCardToHandCard({
-      cards: handCards,
-      player,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
+    player.addHandCard(handCards);
 
-    const cardList = [...handCards];
     if (messageCard) {
-      const message = gameData.createCard(messageCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = null;
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          card: message,
-          player,
-        });
+      player.addHandCard(gameData.messageInTransmit);
+    }
+
+    if (gameData.gameObject) {
+      if (targetPlayerId === 0) {
+        for (let card of handCards) {
+          gameData.gameObject.handCardList.removeData(card);
+        }
       }
-      cardList.push(message);
-    }
 
-    if (playerId !== 0) {
-      showCardsWindow.show({
-        title: "展示【搜缉】拿走的牌",
-        limit: 0,
-        cardList,
-        buttons: [
-          {
-            text: "关闭",
-            onclick: () => {
-              showCardsWindow.hide();
-            },
-          },
-        ],
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player,
+        cards: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
       });
-    }
 
-    gameLog.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${cardList.length}张牌加入手牌`)
-    );
+      const cardList = cards.map((card) => gameData.createCard(card));
+      if (messageCard) {
+        const message = gameData.createCard(messageCard);
+        message.gameObject = gameData.messageInTransmit.gameObject;
+        gameData.messageInTransmit = null;
+        if (gameData.gameObject) {
+          gameData.gameObject.cardAction.addCardToHandCard({
+            card: message,
+            player,
+          });
+        }
+        cardList.push(message);
+      }
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
+      if (playerId !== 0) {
+        showCardsWindow.show({
+          title: "展示【搜缉】拿走的牌",
+          limit: 0,
+          cardList,
+          buttons: [
+            {
+              text: "关闭",
+              onclick: () => {
+                showCardsWindow.hide();
+              },
+            },
+          ],
+        });
+      } else {
+        this.gameObject?.unlock();
+        this.gameObject.isOn = false;
+      }
+
+      gameLog.addData(
+        new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${cardList.length}张牌加入手牌`)
+      );
     }
   }
 }

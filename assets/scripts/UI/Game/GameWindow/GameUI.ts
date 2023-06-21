@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color, Vec3 } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color, Vec3, UITransform } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -193,7 +193,6 @@ export class GameUI extends GameObject<GameData> {
         this
       );
     }
-    this.characterInfoWindow.getComponent(CharacterInfoWindow).init();
 
     //创建自己的UI
     const selfNode = this.node.getChildByPath("Self/Player");
@@ -260,24 +259,32 @@ export class GameUI extends GameObject<GameData> {
       const charcaterNode = player.gameObject.node.getChildByPath("Border/CharacterPanting");
 
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
-      charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
-        this.characterInfoWindow.active = true;
-        const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
-        let str = character.name;
-        for (let skill of character.skills) {
-          str += "\n" + skill.name;
-          str += "\n" + skill.description;
-        }
-        this.characterInfoWindow.getComponent(CharacterInfoWindow).setText(str);
-      });
-      charcaterNode.on(
-        Node.EventType.MOUSE_MOVE,
-        characterInfoWindowComponent.onMouseMove,
-        characterInfoWindowComponent
-      );
-      charcaterNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
-        this.characterInfoWindow.active = false;
-      });
+      if (sys.isMobile) {
+        charcaterNode.on("longtap", (event) => {
+          this.characterInfoWindow.active = true;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
+          characterInfoWindowComponent.setPosition(event);
+
+          this.node.once(Node.EventType.TOUCH_START, () => {
+            this.characterInfoWindow.active = false;
+          });
+        });
+      } else {
+        charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
+          this.characterInfoWindow.active = true;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
+        });
+        charcaterNode.on(
+          Node.EventType.MOUSE_MOVE,
+          characterInfoWindowComponent.setPosition,
+          characterInfoWindowComponent
+        );
+        charcaterNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+          this.characterInfoWindow.active = false;
+        });
+      }
 
       const messageZone = this.playerObjectList[i].node.getChildByPath("Border/Message");
       messageZone.on(Node.EventType.TOUCH_END, () => {
@@ -314,20 +321,33 @@ export class GameUI extends GameObject<GameData> {
     identityNode.getChildByName("Label").getComponent(Label).string = this.data.identity.name;
     if (this.data.identity instanceof MysteriousPerson) {
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
-      identityNode.on(Node.EventType.MOUSE_ENTER, () => {
-        this.characterInfoWindow.active = true;
-        this.characterInfoWindow
-          .getComponent(CharacterInfoWindow)
-          .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
-      });
-      identityNode.on(
-        Node.EventType.MOUSE_MOVE,
-        characterInfoWindowComponent.onMouseMove,
-        characterInfoWindowComponent
-      );
-      identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
-        this.characterInfoWindow.active = false;
-      });
+      if (sys.isMobile) {
+        identityNode.on(Node.EventType.TOUCH_END, (event) => {
+          this.characterInfoWindow.active = true;
+          this.characterInfoWindow
+            .getComponent(CharacterInfoWindow)
+            .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
+          characterInfoWindowComponent.setPosition(event);
+          this.node.once(Node.EventType.TOUCH_START, () => {
+            this.characterInfoWindow.active = false;
+          });
+        });
+      } else {
+        identityNode.on(Node.EventType.MOUSE_ENTER, () => {
+          this.characterInfoWindow.active = true;
+          this.characterInfoWindow
+            .getComponent(CharacterInfoWindow)
+            .setText("机密任务：" + (<MysteriousPerson>this.data.identity).secretTaskText);
+        });
+        identityNode.on(
+          Node.EventType.MOUSE_MOVE,
+          characterInfoWindowComponent.setPosition,
+          characterInfoWindowComponent
+        );
+        identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+          this.characterInfoWindow.active = false;
+        });
+      }
     } else if (this.data.identity instanceof NoIdentity) {
       identityNode.active = false;
     }

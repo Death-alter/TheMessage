@@ -57,7 +57,6 @@ export class ChengZhi extends TriggerSkill {
     if (playerId === 0) {
       diePlayer.removeAllHandCards();
       handCards = cards.map((card) => gameData.createCard(card));
-
       this.identity = createIdentity(identity as number, secretTask as number);
     } else {
       handCards = diePlayer.removeAllHandCards();
@@ -67,6 +66,8 @@ export class ChengZhi extends TriggerSkill {
     }
 
     player.addHandCard(handCards);
+
+
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,

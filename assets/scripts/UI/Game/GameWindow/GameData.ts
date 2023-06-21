@@ -373,19 +373,21 @@ export class GameData extends DataBasic<GameUI> {
 
   //死亡给牌
   private playerDieGiveCard(data: ProcessEventType.PlayerDieGiveCard) {
-    if (data.cards.length || data.unknownCardCount !== 0) {
-      const player = this.playerList[data.playerId];
-      const targetPlayer = this.playerList[data.targetPlayerId];
-      let cards = [];
-      if (data.unknownCardCount) {
-        for (let i = 0; i < data.unknownCardCount; i++) {
-          cards.push(0);
-        }
+    const { cards, unknownCardCount, playerId, targetPlayerId } = data;
+    if (cards.length || unknownCardCount !== 0) {
+      const player = this.playerList[playerId];
+      const targetPlayer = this.playerList[targetPlayerId];
+
+      let cardList;
+      if (targetPlayerId === 0) {
+        player.removeHandCard(cards.map(() => 0));
+        cardList = cards.map((card) => this.createCard(card));
+      } else if (playerId === 0) {
+        cardList = player.removeHandCard(cards.map((card) => card.cardId));
       } else {
-        cards = data.cards.map((item) => item.cardId);
+        cardList = player.removeHandCard(new Array(unknownCardCount).fill(0));
       }
 
-      const cardList = player.removeHandCard(cards);
       targetPlayer.addHandCard(cardList);
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList });
     }

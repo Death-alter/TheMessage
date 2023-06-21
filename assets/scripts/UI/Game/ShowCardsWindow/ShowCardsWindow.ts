@@ -1,4 +1,15 @@
-import { _decorator, Component, Node, Label, Sprite, color, UITransform, Vec3, HorizontalTextAlignment } from "cc";
+import {
+  _decorator,
+  Component,
+  Node,
+  Label,
+  Sprite,
+  color,
+  UITransform,
+  Vec3,
+  HorizontalTextAlignment,
+  LabelOutline,
+} from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
@@ -82,13 +93,18 @@ export class ShowCardsWindow extends Component {
   addTag(card: Card, tag: string) {
     const label = new Node();
     label.addComponent(Label);
+    label.addComponent(LabelOutline);
     const labelComponent = label.getComponent(Label);
+    labelComponent.color = color("#000000");
     labelComponent.string = tag;
     labelComponent.fontSize = 14;
     labelComponent.lineHeight = 16;
     labelComponent.horizontalAlign = HorizontalTextAlignment.CENTER;
     card.gameObject.node.addChild(label);
-    label.position = new Vec3(0, -40, 0);
+    label.position = new Vec3(0, -50, 0);
+    const outerline = label.getComponent(LabelOutline);
+    outerline.color = color("#FFFFFF");
+    outerline.width = 2;
   }
 
   removeCard(card: Card) {
@@ -102,9 +118,9 @@ export class ShowCardsWindow extends Component {
   refresh() {
     for (let card of this.cardList.list) {
       if (this.selectedCards.isSelected(card)) {
-        card.gameObject.getComponentInChildren(OuterGlow).openOuterGlow();
+        card.gameObject?.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+        card.gameObject?.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }

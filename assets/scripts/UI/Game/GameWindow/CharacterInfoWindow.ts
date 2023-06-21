@@ -1,21 +1,11 @@
-import {
-  _decorator,
-  Component,
-  Label,
-  EventTouch,
-  view,
-  EventMouse,
-  sys,
-  Vec3,
-  Size,
-  UITransform,
-} from "cc";
+import { _decorator, Component, Label, view, EventMouse, Vec3, Size, UITransform, EventTouch } from "cc";
+import { Character } from "../../../Game/Character/Character";
 const { ccclass, property } = _decorator;
 
 @ccclass("CharacterInfoWindow")
 export class CharacterInfoWindow extends Component {
   private size: Size;
-  
+
   init() {
     this.size = view.getVisibleSize();
   }
@@ -33,7 +23,16 @@ export class CharacterInfoWindow extends Component {
     }, 0);
   }
 
-  onMouseMove(event: EventMouse) {
+  setCharacterInfo(character: Character) {
+    let str = character.name;
+    for (let skill of character.skills) {
+      str += "\n" + skill.name;
+      str += "\n" + skill.description;
+    }
+    this.setText(str);
+  }
+
+  setPosition(event: EventMouse | EventTouch) {
     const mouseLocation = event.getUILocation();
     const transform = this.node.getComponent(UITransform);
     let x, y;
