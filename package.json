@@ -3,30 +3,34 @@
   "uuid": "b8f2909c-87be-41e7-9da8-754f03378753",
   "description": "fengsheng client",
   "author": "Death-alter",
-  "main": "./electron/index.js",
+  "main": "main.js",
   "version": "1.0.0",
   "creator": {
     "version": "3.7.3"
   },
   "dependencies": {
-    "electron-squirrel-startup": "^1.0.0",
-    "protobufjs": "^7.2.2",
-    "protobufjs-cli": "^1.1.1",
     "ts-md5": "^1.3.1"
   },
   "scripts": {
-    "dev:electron": "electron-forge start",
-    "build:electron": "electron-forge make",
-    "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js",
-    "package:electron": "electron-forge package"
+    "build:electron": "electron-builder",
+    "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.2.1",
-    "@electron-forge/maker-deb": "^6.2.1",
-    "@electron-forge/maker-rpm": "^6.2.1",
-    "@electron-forge/maker-squirrel": "^6.2.1",
-    "@electron-forge/maker-zip": "^6.2.1",
-    "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
-    "electron": "^25.1.1"
+    "electron": "^25.1.1",
+    "electron-builder": "^24.4.0",
+    "protobufjs": "^7.2.3",
+    "protobufjs-cli": "^1.1.1"
+  },
+  "build": {
+    "asar": true,
+    "productName": "fengsheng",
+    "appId": "com.fengsheng.app",
+    "files": [
+      "main.js",
+      "build/web-mobile"
+    ],
+    "directories": {
+      "output": "dist"
+    }
   }
 }

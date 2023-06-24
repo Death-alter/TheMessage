@@ -17,11 +17,8 @@ import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 
 export class DuJi extends ActiveSkill {
-  private usageCount: number = 0;
-  private isSelfTurn: boolean = false;
-
   get useable() {
-    return this.usageCount === 0 && this.isSelfTurn && this.character.status === CharacterStatus.FACE_DOWN;
+    return this.character.status === CharacterStatus.FACE_DOWN;
   }
 
   constructor(character: Character) {
@@ -29,7 +26,7 @@ export class DuJi extends ActiveSkill {
       name: "毒计",
       character,
       description:
-        "你的争夺阶段限一次，你可以翻开此角色牌，然后指定两名其他角色，令他们互相抽取对方的一张手牌并展示之，你将展示的牌加入你的手牌，若展示的是黑色牌，你可以改为令抽取者选择一项：\n♦将其置入自己的情报区。\n♦将其置入对方的情报区。",
+        "争夺阶段，你可以翻开此角色牌，然后指定两名其他角色，令他们互相抽取对方的一张手牌并展示之，你将展示的牌加入你的手牌，若展示的是黑色牌，你可以改为令抽取者选择一项：\n♦将其置入自己的情报区。\n♦将其置入对方的情报区。",
       useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }
@@ -63,24 +60,12 @@ export class DuJi extends ActiveSkill {
       },
       this
     );
-    GameEventCenter.on(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
-    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_A_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_B_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_C_TOC);
-    GameEventCenter.off(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
-    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange, this);
-  }
-
-  resetUsageCount() {
-    this.usageCount = 0;
-  }
-
-  onTurnChange({ turnPlayer }) {
-    this.isSelfTurn = turnPlayer.id === 0;
   }
 
   onUse(gameData: GameData) {
@@ -201,7 +186,6 @@ export class DuJi extends ActiveSkill {
       if (playerId === 0) {
         this.gameObject.isOn = false;
       }
-      ++this.usageCount;
     } else {
       this.gameObject?.lock();
     }
@@ -340,6 +324,5 @@ export class DuJi extends ActiveSkill {
       this.gameObject?.unlock();
       this.gameObject.isOn = false;
     }
-    ++this.usageCount;
   }
 }

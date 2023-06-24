@@ -11,7 +11,7 @@ const createWindow = () => {
 
   win.removeMenu()
   win.setAspectRatio(16 / 9)
-  win.loadFile('./build/web-mobile/index.html')
+  win.loadFile('build/web-mobile/index.html')
 }
 
 app.whenReady().then(() => {

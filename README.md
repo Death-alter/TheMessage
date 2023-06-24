@@ -15,11 +15,7 @@
 ## windows平台
 在Cocos Creator 编辑器按下列顺序执行
 项目 -> 构建发布 -> 新建构建任务 -> web手机端
-
-### 运行
-`npm run dev:electron`
-
-### 打包
+编辑器中构建完成后执行
 `npm run build:electron`
 
 ## android平台
