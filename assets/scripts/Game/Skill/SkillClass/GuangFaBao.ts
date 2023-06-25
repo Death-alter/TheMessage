@@ -157,18 +157,8 @@ export class GuangFaBao extends ActiveSkill {
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
-      let handCards: Card[];
-      if (playerId === 0) {
-        handCards = player.removeHandCard(cards.map((card) => card.cardId));
-        for (let card of handCards) {
-          gameData.gameObject.handCardList.removeData(card);
-        }
-      } else {
-        player.removeHandCard(new Array(cards.length).fill(0));
-        handCards = cards.map((card) => gameData.createCard(card));
-      }
-
-      targetPlayer.addMessage(handCards);
+      const handCards = gameData.playerRemoveHandCard(player, cards);
+      gameData.playerAddHandCard(targetPlayer, handCards);
 
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToMessageZone({

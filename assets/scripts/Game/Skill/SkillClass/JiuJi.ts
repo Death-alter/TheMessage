@@ -55,7 +55,7 @@ export class JiuJi extends PassiveSkill {
     }
     cardOnPlay.gameObject = gameData.cardOnPlay.gameObject;
     gameData.cardOnPlay = null;
-    player.addHandCard(cardOnPlay);
+    gameData.playerAddHandCard(player, cardOnPlay);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,

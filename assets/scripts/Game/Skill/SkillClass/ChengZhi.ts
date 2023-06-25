@@ -61,12 +61,10 @@ export class ChengZhi extends TriggerSkill {
     } else {
       handCards = diePlayer.removeAllHandCards();
       if (diePlayerId === 0) {
-        gameData.gameObject.handCardList.removeAllData();
+        gameData.handCardList.removeAllData();
       }
     }
-
-    player.addHandCard(handCards);
-
+    gameData.playerAddHandCard(player, handCards);
 
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({

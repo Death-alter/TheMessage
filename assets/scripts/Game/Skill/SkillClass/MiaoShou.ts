@@ -104,10 +104,14 @@ export class MiaoShou extends ActiveSkill {
       const tooltip = gameData.gameObject.tooltip;
       const showCardsWindow = gameData.gameObject.showCardsWindow;
       const cardList = [...cards.map((card) => gameData.createCard(card)), ...targetPlayer.getMessagesCopy()];
+      const tags = cards.map(() => "手牌");
+      tags.push("情报区");
+      
       showCardsWindow.show({
         title: "请选择一张牌作为待收情报",
         limit: 1,
         cardList,
+        tags,
         buttons: [
           {
             text: "确定",
@@ -152,19 +156,17 @@ export class MiaoShou extends ActiveSkill {
 
     let message;
     if (card) {
-      if (fromPlayerId === 0) {
-        message = fromPlayer.removeHandCard(card.cardId);
-        gameData.gameObject.handCardList.removeData(message);
-      } else {
-        fromPlayer.removeHandCard(0);
-        message = gameData.createCard(card);
-      }
+      message = gameData.playerRemoveHandCard(fromPlayer, card);
     } else {
       message = fromPlayer.removeMessage(messageCardId);
     }
-
     gameData.messageInTransmit = message;
+
     if (gameData.gameObject) {
+      if (playerId === 0) {
+        gameData.handCardList.removeData(message);
+      }
+
       gameData.gameObject.cardAction.moveCard({
         card: message,
         from: { location: CardActionLocation.PLAYER, player: fromPlayer },

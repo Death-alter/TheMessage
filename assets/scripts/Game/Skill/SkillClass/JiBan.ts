@@ -122,20 +122,12 @@ export class JiBan extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    let handCards;
-    if (playerId === 0) {
-      handCards = player.removeHandCard(cards.map((card) => card.cardId));
-      for (let card of handCards) {
-        gameData.gameObject.handCardList.removeData(card);
-      }
-    } else if (targetPlayerId === 0) {
-      player.removeHandCard(cards.map(() => 0));
-      handCards = cards.map((card) => gameData.createCard(card));
-    } else {
-      handCards = player.removeHandCard(new Array(unknownCardCount).fill(0));
-    }
+    const handCards = gameData.playerRemoveHandCard(
+      player,
+      cards.map((card) => card)
+    );
+    gameData.playerAddHandCard(targetPlayer, handCards);
 
-    targetPlayer.addHandCard(handCards);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player: targetPlayer,

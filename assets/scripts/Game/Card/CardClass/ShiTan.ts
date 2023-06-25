@@ -41,7 +41,7 @@ export class ShiTan extends Card {
           {
             text: "确定",
             onclick: () => {
-              const card = gameData.gameObject.handCardList.selectedCards.list[0];
+              const card = gameData.handCardList.selectedCards.list[0];
               const player = gameData.gameObject.selectedPlayers.list[0];
               NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
                 cardId: card.id,

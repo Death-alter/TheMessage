@@ -156,20 +156,12 @@ export class JinBi extends ActiveSkill {
       }
       gameLog.addData(new GameLog(`【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}被【禁闭】`));
     } else {
-      let handCards;
-      if (targetPlayerId === 0) {
-        handCards = targetPlayer.removeHandCard(cards.map((card) => card.cardId));
-        for (let card of handCards) {
-          gameData.gameObject.handCardList.removeData(card);
-        }
-      } else if (playerId === 0) {
-        targetPlayer.removeHandCard(cards.map(() => 0));
-        handCards = cards.map((card) => gameData.createCard(card));
-      } else {
-        handCards = targetPlayer.removeHandCard(new Array(unknownCardCount).fill(0));
-      }
+      const handCards = gameData.playerRemoveHandCard(
+        targetPlayer,
+        cards.map((card) => card)
+      );
+      gameData.playerAddHandCard(player, handCards);
 
-      player.addHandCard(handCards);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player,

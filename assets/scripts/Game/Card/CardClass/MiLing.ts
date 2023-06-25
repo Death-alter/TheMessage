@@ -94,7 +94,7 @@ export class MiLing extends Card {
         //自己是目标
         if (targetPlayerId === 0) {
           const color: CardColor = card.secretColor[secret];
-          const handCardList = gameData.gameObject.handCardList;
+          const handCardList = gameData.handCardList;
           const tooltip = gameData.gameObject.tooltip;
           let tooltipText = "密令的暗号为" + secretText;
           tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
@@ -154,7 +154,7 @@ export class MiLing extends Card {
 
   async onChooseCard(gameData: GameData, { playerId, targetPlayerId, card }: CardOnEffectParams) {
     if (targetPlayerId === 0) {
-      const handCardList = gameData.gameObject.handCardList;
+      const handCardList = gameData.handCardList;
       handCardList.selectedCards.limit = 1;
       for (let item of handCardList.list) {
         if (item.id === card.cardId) {
@@ -168,7 +168,7 @@ export class MiLing extends Card {
   }
 
   secretButtonClicked(gameData: GameData, secret: number) {
-    const card = gameData.gameObject.handCardList.selectedCards.list[0];
+    const card = gameData.handCardList.selectedCards.list[0];
     const player = gameData.gameObject.selectedPlayers.list[0];
     NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
       cardId: card.id,

@@ -126,35 +126,31 @@ export class JieDaoShaRen extends ActiveSkill {
       }
     }
 
-    let handCard = targetPlayer.removeHandCard(card.id);
-    if (!handCard) {
-      targetPlayer.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
+    const handCard = gameData.playerRemoveHandCard(targetPlayer, card);
+    gameData.playerAddHandCard(player, handCard);
 
-    if (playerId !== 0) {
-      gameData.gameObject.showCardsWindow.show({
-        title: "【借刀杀人】展示抽取的牌",
-        limit: 0,
-        cardList: [gameData.createCard(card)],
-        buttons: [
-          {
-            text: "关闭",
-            onclick: () => {
-              gameData.gameObject.showCardsWindow.hide();
-            },
-          },
-        ],
-      });
-    }
-
-    player.addHandCard(card);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,
         card: handCard,
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
       });
+
+      if (playerId !== 0) {
+        gameData.gameObject.showCardsWindow.show({
+          title: "【借刀杀人】展示抽取的牌",
+          limit: 0,
+          cardList: [gameData.createCard(card)],
+          buttons: [
+            {
+              text: "关闭",
+              onclick: () => {
+                gameData.gameObject.showCardsWindow.hide();
+              },
+            },
+          ],
+        });
+      }
     }
 
     gameLog.addData(
@@ -170,12 +166,10 @@ export class JieDaoShaRen extends ActiveSkill {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    let handCard = player.removeHandCard(card.id);
-    if (!handCard) {
-      player.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
+
+    const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);
+
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToMessageZone({
         player: targetPlayer,

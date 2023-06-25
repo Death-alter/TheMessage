@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color, Vec3, UITransform } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -6,7 +6,6 @@ import { CardAction } from "../../../GameManager/CardAction";
 import { Tooltip } from "../../../GameManager/Tooltip";
 import * as GameEventType from "../../../Event/GameEventType";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
-import { HandCardList } from "../../../Game/Container/HandCardList";
 import { PlayerObject } from "../../../Game/Player/PlayerObject";
 import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
@@ -59,14 +58,14 @@ export class GameUI extends GameObject<GameData> {
 
   public cardAction: CardAction;
   public tooltip: Tooltip;
-  public handCardList: HandCardList;
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
   public showCardsWindow: ShowCardsWindow;
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
+  public handCardContainer: HandCardContianer;
 
   get selectedHandCards() {
-    return this.handCardList.selectedCards;
+    return this.data.handCardList.selectedCards;
   }
 
   onLoad() {
@@ -203,15 +202,10 @@ export class GameUI extends GameObject<GameData> {
     this.setSelfIdentityUI();
 
     //初始化手牌UI
-    this.handCardList = new HandCardList(this.handCardUI.getComponent(HandCardContianer));
-    this.handCardList.gameObject.init();
-    this.cardAction.handCardList = this.handCardList;
-    this.handCardList.removeAllData();
-    if (this.data.selfPlayer.handCardCount > 0) {
-      for (let card of this.data.selfPlayer.handCards) {
-        this.handCardList.addData(card);
-      }
-    }
+    this.handCardContainer = this.handCardUI.getComponent(HandCardContianer);
+    this.data.handCardList.gameObject = this.handCardContainer;
+    this.handCardContainer.init();
+    this.cardAction.handCardList = this.data.handCardList;
 
     //创建其他人UI
     const othersCount = this.data.playerList.length - 1;
@@ -315,7 +309,6 @@ export class GameUI extends GameObject<GameData> {
   }
 
   setSelfIdentityUI() {
-    console.log(this.data.identity);
     const identityNode = this.node.getChildByPath("Self/Identity");
     identityNode.getChildByName("Background").getComponent(Sprite).color = color(this.data.identity.color);
     identityNode.getChildByName("Label").getComponent(Label).string = this.data.identity.name;
@@ -476,7 +469,7 @@ export class GameUI extends GameObject<GameData> {
     this.clearSelectedPlayers();
     this.stopSelectHandCard();
     this.clearSelectedHandCards();
-    (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+    this.handCardContainer.resetSelectCard();
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {
@@ -606,7 +599,7 @@ export class GameUI extends GameObject<GameData> {
                 onclick: () => {
                   NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                     use: true,
-                    cardId: this.handCardList.selectedCards.list[0].id,
+                    cardId: this.selectedHandCards.list[0].id,
                     targetCardId: this.showCardsWindow.selectedCards.list[0].id,
                     seq: this.seq,
                   });
@@ -623,15 +616,15 @@ export class GameUI extends GameObject<GameData> {
           });
         },
         enabled: () =>
-          this.handCardList.selectedCards.list[0] &&
-          this.handCardList.selectedCards.list[0].type === CardType.CHENG_QING &&
+          this.selectedHandCards.list[0] &&
+          this.selectedHandCards.list[0].type === CardType.CHENG_QING &&
           this.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
       },
       {
         text: "取消",
         onclick: () => {
-          this.handCardList.selectedCards.limit = 0;
-          (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+          this.stopSelectHandCard();
+          this.handCardContainer.resetSelectCard();
           NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
             use: false,
             seq: this.seq,
@@ -770,7 +763,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   async doSendMessage() {
-    const card = this.handCardList.selectedCards.list[0];
+    const card = this.selectedHandCards.list[0];
     const data: any = {
       cardId: card.id,
       lockPlayerId: [],
@@ -839,7 +832,6 @@ export class GameUI extends GameObject<GameData> {
                     data.lockPlayerId = [data.targetPlayerId];
                     break;
                 }
-                this.handCardList.selectedCards.limit = 0;
                 resolve(null);
               },
               enabled: () => {
@@ -849,7 +841,6 @@ export class GameUI extends GameObject<GameData> {
             {
               text: "不锁定",
               onclick: () => {
-                this.handCardList.selectedCards.limit = 0;
                 resolve(null);
               },
             },
@@ -934,6 +925,6 @@ export class GameUI extends GameObject<GameData> {
 
   clearSelectedHandCards() {
     this.selectedHandCards.limit = 0;
-    (<HandCardContianer>this.handCardList.gameObject).resetSelectCard();
+    this.handCardContainer.resetSelectCard();
   }
 }

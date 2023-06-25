@@ -12,9 +12,10 @@ import { createCard, createUnknownCard } from "../../../Game/Card";
 import { PlayerStatus } from "../../../Game/Player/type";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
 import { Card } from "../../../Game/Card/Card";
-import { card } from "../../../../protobuf/proto";
+import { card } from "../../../../protobuf/proto.js";
 import { DataBasic } from "../../../DataBasic";
 import { GameUI } from "./GameUI";
+import { HandCardList } from "../../../Game/Container/HandCardList";
 
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
@@ -30,6 +31,7 @@ export class GameData extends DataBasic<GameUI> {
   public dyingPlayer: Player = null; //等待澄清的玩家
   public bannedCardTypes: CardType[];
   public gameLog: GameLogList;
+  public handCardList: HandCardList;
 
   private _gamePhase: GamePhase;
   private _turnPlayerId: number;
@@ -215,6 +217,9 @@ export class GameData extends DataBasic<GameUI> {
     this.selfPlayer.confirmIdentity(
       createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
     );
+
+    //手牌
+    this.handCardList = new HandCardList();
   }
 
   //回合改变
@@ -284,23 +289,18 @@ export class GameData extends DataBasic<GameUI> {
         cardList.push(card);
       }
     }
-    player.addHandCard(cardList);
+    this.playerAddHandCard(player, cardList);
     GameEventCenter.emit(GameEvent.PLAYER_DRAW_CARD, { player, cardList });
   }
 
   //弃牌
   private discardCards(data: ProcessEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
-    const cardList = [];
-    for (const card of data.cards) {
-      const removedCard = player.removeHandCard(card.cardId);
-      if (removedCard) {
-        cardList.push(removedCard);
-      } else {
-        player.removeHandCard(0);
-        cardList.push(this.createCard(card));
-      }
-    }
+    const cardList = this.playerRemoveHandCard(
+      player,
+      data.cards.map((card) => card)
+    );
+
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
 
@@ -327,11 +327,10 @@ export class GameData extends DataBasic<GameUI> {
 
   //有人传出情报
   private playerSendMessage(data: ProcessEventType.SendMessage) {
-    console.log(data.cardId);
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
-    const card = player.removeHandCard(data.cardId);
-    console.log(player, card);
+    const card = this.playerRemoveHandCard(player, data.cardId);
+
     this.messageInTransmit = card;
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
@@ -377,18 +376,11 @@ export class GameData extends DataBasic<GameUI> {
     if (cards.length || unknownCardCount !== 0) {
       const player = this.playerList[playerId];
       const targetPlayer = this.playerList[targetPlayerId];
-
-      let cardList;
-      if (targetPlayerId === 0) {
-        player.removeHandCard(cards.map(() => 0));
-        cardList = cards.map((card) => this.createCard(card));
-      } else if (playerId === 0) {
-        cardList = player.removeHandCard(cards.map((card) => card.cardId));
-      } else {
-        cardList = player.removeHandCard(new Array(unknownCardCount).fill(0));
-      }
-
-      targetPlayer.addHandCard(cardList);
+      const cardList = this.playerRemoveHandCard(
+        player,
+        cards.map((card) => card)
+      );
+      this.playerAddHandCard(targetPlayer, cardList);
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList });
     }
   }
@@ -426,13 +418,7 @@ export class GameData extends DataBasic<GameUI> {
       cardId = null;
     }
 
-    if (user.id === 0) {
-      //自己
-      card = user.removeHandCard(cardId);
-    } else {
-      //其他人
-      card = user.removeHandCard(0);
-    }
+    card = this.playerRemoveHandCard(user, cardId);
 
     if (!card || card.type === CardType.UNKNOWN) {
       if (data.card) {
@@ -521,5 +507,85 @@ export class GameData extends DataBasic<GameUI> {
 
   createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
     return this.createCard(card, CardStatus.FACE_DOWN);
+  }
+
+  playerAddHandCard(playerId: number, handCard: Card);
+  playerAddHandCard(player: Player, handCard: Card);
+  playerAddHandCard(playerId: number, handCards: Card[]);
+  playerAddHandCard(player: Player, handCards: Card[]);
+  playerAddHandCard(player: number | Player, handCard: Card | Card[]) {
+    let p = <Player>player;
+    if (typeof player === "number") {
+      p = this.playerList[player];
+    }
+    if (p.id === 0) {
+      p.addHandCard(<Card>handCard);
+      // if (handCard instanceof Array) {
+      //   handCard.forEach((card) => {
+      //     this.handCardList.addData(card);
+      //   });
+      // } else {
+      //   this.handCardList.addData(<Card>handCard);
+      // }
+    } else {
+      if (handCard instanceof Card) {
+        p.addHandCard(this.createCard());
+      } else {
+        p.addHandCard(handCard.map(() => this.createCard()));
+      }
+    }
+  }
+
+  playerRemoveHandCard(playerId: number, card: card);
+  playerRemoveHandCard(player: Player, card: card);
+  playerRemoveHandCard(playerId: number, cards: card[]);
+  playerRemoveHandCard(player: Player, cards: card[]);
+  playerRemoveHandCard(playerId: number, card: number);
+  playerRemoveHandCard(player: Player, cardId: number);
+  playerRemoveHandCard(playerId: number, cardIds: number[]);
+  playerRemoveHandCard(player: Player, cardIds: number[]);
+  playerRemoveHandCard(player: number | Player, card: number | number[] | card | card[]): Card | Card[] {
+    let p = <Player>player;
+    if (typeof player === "number") {
+      p = this.playerList[player];
+    }
+
+    if (p.id === 0) {
+      if (card instanceof Array) {
+        let arr;
+        if (typeof card[0] === "number") {
+          arr = p.removeHandCard(<number[]>card);
+        } else {
+          arr = p.removeHandCard(card.map((card) => card.cardId));
+        }
+        // arr.forEach((card) => this.handCardList.removeData(card));
+        return arr;
+      } else {
+        let removedCard;
+        if (typeof card === "number") {
+          removedCard = p.removeHandCard(card);
+        } else {
+          removedCard = p.removeHandCard(card.cardId);
+        }
+        // this.handCardList.removeData(removedCard);
+        return removedCard;
+      }
+    } else {
+      if (card instanceof Array) {
+        const arr = p.removeHandCard(new Array(card.length).fill(0));
+        if (typeof card[0] === "number") {
+          return arr;
+        } else {
+          return card.map((card) => this.createCard(card));
+        }
+      } else {
+        const reomvedCard = p.removeHandCard(0);
+        if (typeof card === "number") {
+          return reomvedCard;
+        } else {
+          return this.createCard(card);
+        }
+      }
+    }
   }
 }

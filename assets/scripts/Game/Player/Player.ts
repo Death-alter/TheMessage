@@ -109,12 +109,7 @@ export class Player extends DataBasic<PlayerObject> {
     if (!(cards instanceof Array)) {
       cards = [cards];
     }
-    if (this.id === 0) {
-      this._handCards = [...this._handCards, ...cards];
-    } else {
-      this._handCards = [...this._handCards, ...cards.map(() => createUnknownCard())];
-    }
-
+    this._handCards = [...this._handCards, ...cards];
     this.gameObject?.refreshHandCardCount();
   }
 

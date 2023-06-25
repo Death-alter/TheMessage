@@ -10,9 +10,9 @@ export abstract class GameObjectContainer<T extends GameObject<DataBasic<T>>> ex
 > {
   abstract init(): void;
 
-  abstract onDataAdded(data: DataBasic<T>): void;
+  abstract onDataAdded(data: DataBasic<T> | DataBasic<T>[]): void;
 
-  abstract onDataRemoved(data: DataBasic<T>): void;
+  abstract onDataRemoved(data: DataBasic<T> | DataBasic<T>[]): void;
 
   abstract onAllDataRemoved(): void;
 }

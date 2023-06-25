@@ -62,7 +62,7 @@ export class LiYou extends Card {
     gameLog.addData(new GameLog(`利诱翻开${gameLog.formatCard(card)}`));
 
     if (flag) {
-      user.addHandCard(gameData.createCard());
+      gameData.playerAddHandCard(user, card);
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player: user,
         card: card,

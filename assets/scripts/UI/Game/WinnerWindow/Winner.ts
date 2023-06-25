@@ -11,10 +11,15 @@ import {
   Sprite,
   color,
   find,
+  sys,
 } from "cc";
 import { GameOver } from "../../../Event/GameEventType";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 import { NetworkManager } from "../../../Network/NetworkManager";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
+import config from "../../../config";
+import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
 
 @ccclass("Winner")
@@ -26,12 +31,18 @@ export class Winner extends Component {
 
   onLoad() {
     this.buttons.getChildByName("Play").on(NodeEventType.TOUCH_END, () => {
-      director.loadScene("login", () => {
-        find("Resident").getComponent(NetworkManager).reconnect();
+      const name = sys.localStorage.getItem("userName");
+      NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
+        version: config.version,
+        name,
+        password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
+        device: md5.Md5.hashStr(name),
       });
     });
     this.buttons.getChildByName("Exit").on(NodeEventType.TOUCH_END, () => {
-      director.end();
+      director.loadScene("login", () => {
+        find("Resident").getComponent(NetworkManager).reconnect();
+      });
     });
   }
 
@@ -40,7 +51,7 @@ export class Winner extends Component {
     for (let data of players) {
       const item = instantiate(this.resultItemPrefab);
       item.getChildByName("Player").getComponent(Label).string = `${data.player.seatNumber + 1}号玩家(${
-        data.player.name
+        data.player.character.name
       })`;
       const identityLabel = item.getChildByPath("Identity/Label").getComponent(Label);
       identityLabel.string = data.identity.name;

@@ -135,7 +135,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const message = targetPlayer.removeMessage(cardId);
-    player.addHandCard(message);
+    gameData.playerAddHandCard(player, message);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,
@@ -239,7 +239,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     }
 
     const message = targetPlayer.removeMessage(cardId);
-    player.addHandCard(message);
+    gameData.playerAddHandCard(player, message);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,

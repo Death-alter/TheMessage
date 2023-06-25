@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EditBox } from "cc";
+import { _decorator, Component, Node, EditBox, sys } from "cc";
 import { ProcessEventCenter, NetworkEventCenter } from "../../Event/EventTarget";
 import config from "../../config";
 import { NetworkEventToS, ProcessEvent } from "../../Event/type";
@@ -20,13 +20,23 @@ export class LoginButtons extends Component {
   replyListNode: Node | null = null;
 
   onEnable() {
+    const name = sys.localStorage.getItem("userName");
+    if (name) {
+      this.userName.string = name;
+      this.password.string = sys.localStorage.getItem("password");
+    }
+
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
       if (this.userName.string) {
+        const name = this.userName.string;
+        const password = this.password.string;
+        sys.localStorage.setItem("userName", name);
+        sys.localStorage.setItem("password", password);
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: config.version,
-          name: this.userName.string,
-          password: md5.Md5.hashStr(this.password.string),
+          name,
+          password: md5.Md5.hashStr(password),
           device: md5.Md5.hashStr(this.userName.string),
         });
       } else {

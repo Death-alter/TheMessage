@@ -1153,17 +1153,6 @@
     "_id": "1bqm9GQTRPYKYcS++IMENO"
   },
   {
-    "__type__": "ec511mD3TpBxrEABevC1HIy",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 2
-    },
-    "_enabled": true,
-    "__prefab": null,
-    "_id": "20cM900PJACaLRk3Kvlx/F"
-  },
-  {
     "__type__": "9595fXknuxMe6mISXAGZ2W6",
     "_name": "",
     "_objFlags": 0,
@@ -1173,6 +1162,17 @@
     "_enabled": true,
     "__prefab": null,
     "_id": "d3VmEzNRBHh5M6d9HS0C29"
+  },
+  {
+    "__type__": "ec511mD3TpBxrEABevC1HIy",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 2
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_id": "f5OyYL++NOpYcwy2yq8Qns"
   },
   {
     "__type__": "cc.Node",

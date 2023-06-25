@@ -38,7 +38,7 @@ export class JinShen extends TriggerSkill {
       {
         text: "确定",
         onclick: () => {
-          const handCardList = gameData.gameObject.handCardList;
+          const handCardList = gameData.handCardList;
           handCardList.selectedCards.limit = 1;
           tooltip.setText(`请选择一张手牌与接收的情报互换`);
           tooltip.buttons.setButtons([
@@ -71,14 +71,10 @@ export class JinShen extends TriggerSkill {
   onEffect(gameData: GameData, { playerId, card }: skill_jin_shen_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    let handCard = player.removeHandCard(card.cardId);
-    if (!handCard) {
-      player.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
+    const handCard = gameData.playerRemoveHandCard(player, card);
     const messages = player.getMessagesCopy();
     const message = player.removeMessage(messages[messages.length - 1].id);
-    player.addHandCard(message);
+    gameData.playerAddHandCard(player, message);
     player.addMessage(handCard);
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【谨慎】`));
     gameLog.addData(
@@ -91,7 +87,7 @@ export class JinShen extends TriggerSkill {
 
     if (playerId === 0) {
       message.gameObject = GamePools.cardPool.get();
-      gameData.gameObject.handCardList.removeData(handCard);
+      gameData.handCardList.removeData(handCard);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
       }

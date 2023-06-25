@@ -110,7 +110,7 @@ export class LianMin extends TriggerSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
     const message = targetPlayer.removeMessage(cardId);
-    player.addHandCard(message);
+    gameData.playerAddHandCard(player, message);
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToHandCard({
         player,

@@ -133,16 +133,8 @@ export class WeiBi extends Card {
   onGiveCard(gameData: GameData, { userId, targetPlayerId, card }: CardOnEffectParams) {
     const user = gameData.playerList[userId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    let removedCard;
-    if (userId === 0) {
-      targetPlayer.removeHandCard(0);
-      removedCard = gameData.createCard(card);
-    } else if (targetPlayerId === 0) {
-      removedCard = targetPlayer.removeHandCard(card.cardId);
-    } else {
-      removedCard = targetPlayer.removeHandCard(0);
-    }
-    user.addHandCard(removedCard);
+    const removedCard = gameData.playerRemoveHandCard(targetPlayer, card);
+    gameData.playerAddHandCard(user, removedCard);
 
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, {
       player: targetPlayer,

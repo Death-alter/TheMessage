@@ -132,20 +132,12 @@ export class BoAi extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    let handCard = player.removeHandCard(card.cardId);
-    if (!handCard) {
-      player.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
-    if (targetPlayerId === 0) {
-      targetPlayer.addHandCard(handCard);
-    } else {
-      targetPlayer.addHandCard(gameData.createCard());
-    }
+    const handCard = gameData.playerRemoveHandCard(player, card);
+    gameData.playerAddHandCard(targetPlayer, handCard);
 
     if (gameData.gameObject) {
       if (playerId === 0) {
-        gameData.gameObject.handCardList.removeData(handCard);
+        gameData.handCardList.removeData(handCard);
         this.gameObject?.unlock();
         this.gameObject.isOn = false;
       }

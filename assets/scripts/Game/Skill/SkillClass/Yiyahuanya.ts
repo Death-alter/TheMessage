@@ -71,7 +71,7 @@ export class YiYaHuanYa extends TriggerSkill {
             },
           ]);
         },
-        enabled: Card.hasColor(gameData.gameObject.handCardList.list, CardColor.BLACK),
+        enabled: Card.hasColor(gameData.handCardList.list, CardColor.BLACK),
       },
       {
         text: "取消",
@@ -92,12 +92,10 @@ export class YiYaHuanYa extends TriggerSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
-    let handCard = player.removeHandCard(card.cardId);
-    if (!handCard) {
-      player.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
+
+    const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);
+
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【以牙还牙】`));
     gameLog.addData(
       new GameLog(
@@ -108,7 +106,7 @@ export class YiYaHuanYa extends TriggerSkill {
     );
 
     if (playerId === 0) {
-      gameData.gameObject.handCardList.removeData(handCard);
+      gameData.handCardList.removeData(handCard);
     }
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.messagePlacedIntoMessageZone({ player: targetPlayer, message: handCard });

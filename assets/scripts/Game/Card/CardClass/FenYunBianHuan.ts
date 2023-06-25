@@ -133,11 +133,7 @@ export class FenYunBianHuan extends Card {
             message: card,
           });
         } else {
-          if (playerId === 0) {
-            player.addHandCard(card);
-          } else {
-            player.addHandCard(gameData.createCard());
-          }
+          gameData.playerAddHandCard(player, card);
 
           GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
             player,

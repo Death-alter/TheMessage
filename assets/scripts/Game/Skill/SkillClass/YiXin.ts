@@ -94,16 +94,14 @@ export class YiXin extends TriggerSkill {
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
-      let handCard = player.removeHandCard(card.cardId);
-      if (!handCard) {
-        player.removeHandCard(0);
-        handCard = gameData.createCard(card);
-      }
-      targetPlayer.addMessage(card);
-      if (playerId === 0) {
-        gameData.gameObject.handCardList.removeData(handCard);
-      }
+
+      const handCard = gameData.playerRemoveHandCard(player, card);
+      targetPlayer.addMessage(handCard);
+
       if (gameData.gameObject) {
+        if (playerId === 0) {
+          gameData.handCardList.removeData(handCard);
+        }
         gameData.gameObject.cardAction.addCardToMessageZone({
           player: targetPlayer,
           card: handCard,

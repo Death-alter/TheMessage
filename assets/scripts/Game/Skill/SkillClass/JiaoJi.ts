@@ -99,20 +99,15 @@ export class JiaoJi extends ActiveSkill {
       seq: seq,
     });
 
-    let handCards;
-    if (targetPlayerId === 0) {
-      handCards = targetPlayer.removeHandCard(cards.map((card) => card.cardId));
-    } else if (playerId === 0) {
-      targetPlayer.removeHandCard(cards.map(() => 0));
-      handCards = cards.map((card) => gameData.createCard(card));
-    } else {
-      handCards = targetPlayer.removeHandCard(new Array(unknownCardCount).fill(0));
-    }
-    player.addHandCard(handCards);
+    const handCards = gameData.playerRemoveHandCard(
+      targetPlayer,
+      cards.map((card) => card)
+    );
+    gameData.playerAddHandCard(player, handCards);
 
     if (gameData.gameObject) {
       for (let card of handCards) {
-        gameData.gameObject.handCardList.removeData(card);
+        gameData.handCardList.removeData(card);
       }
 
       gameData.gameObject.cardAction.addCardToHandCard({
@@ -164,25 +159,23 @@ export class JiaoJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
 
-    let handCards;
-    if (playerId === 0) {
-      handCards = player.removeHandCard(cards.map((card) => card.cardId));
+    const handCards = gameData.playerAddHandCard(
+      player,
+      cards.map((card) => card)
+    );
+    gameData.playerAddHandCard(targetPlayer, handCards);
+    
+    if (gameData.gameObject) {
       for (let card of handCards) {
-        gameData.gameObject.handCardList.removeData(card);
+        gameData.handCardList.removeData(card);
       }
-    } else if (targetPlayerId === 0) {
-      player.removeHandCard(cards.map(() => 0));
-      handCards = cards.map((card) => gameData.createCard(card));
-    } else {
-      handCards = player.removeHandCard(new Array(unknownCardCount).fill(0));
+      gameData.gameObject.cardAction.addCardToHandCard({
+        player: targetPlayer,
+        cards: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+      });
     }
 
-    targetPlayer.addHandCard(handCards);
-    gameData.gameObject.cardAction.addCardToHandCard({
-      player: targetPlayer,
-      cards: handCards,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-    });
     gameLog.addData(
       new GameLog(
         `【${player.seatNumber + 1}号】${player.character.name}交给了【${targetPlayer.seatNumber + 1}号】${

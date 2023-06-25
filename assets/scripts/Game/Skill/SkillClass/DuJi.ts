@@ -103,28 +103,13 @@ export class DuJi extends ActiveSkill {
     const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
     const targetPlayer2 = gameData.playerList[targetPlayerIds[1]];
 
-    let card1: Card, card2: Card;
-    if (targetPlayerIds[0] === 0) {
-      card2 = targetPlayer1.removeHandCard(cards[1]);
-      targetPlayer2.removeHandCard(cards[0]);
-      card1 = gameData.createCard(cards[0]);
-      gameData.gameObject.handCardList.removeData(card2);
-    } else if (targetPlayerIds[1] === 0) {
-      card1 = targetPlayer1.removeHandCard(cards[0]);
-      targetPlayer2.removeHandCard(cards[1]);
-      card2 = gameData.createCard(cards[1]);
-      gameData.gameObject.handCardList.removeData(card1);
-    } else {
-      targetPlayer1.removeHandCard(0);
-      targetPlayer2.removeHandCard(0);
-      card1 = gameData.createCard(cards[0]);
-      card2 = gameData.createCard(cards[1]);
-    }
+    const card1 = gameData.playerRemoveHandCard(targetPlayer1, cards[0]);
+    const card2 = gameData.playerRemoveHandCard(targetPlayer2, cards[1]);
 
     let blackCount = 0;
 
     if (Card.hasColor(card1, CardColor.BLACK)) {
-      player.addHandCard(card1);
+      gameData.playerAddHandCard(player, card1);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player,
@@ -133,7 +118,7 @@ export class DuJi extends ActiveSkill {
         });
       }
     } else {
-      targetPlayer2.addHandCard(card1);
+      gameData.playerAddHandCard(targetPlayer2, card1);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player: targetPlayer2,
@@ -144,7 +129,7 @@ export class DuJi extends ActiveSkill {
       ++blackCount;
     }
     if (Card.hasColor(card2, CardColor.BLACK)) {
-      player.addHandCard(card2);
+      gameData.playerAddHandCard(player, card2);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player: player,
@@ -153,7 +138,7 @@ export class DuJi extends ActiveSkill {
         });
       }
     } else {
-      targetPlayer1.addHandCard(card2);
+      gameData.playerAddHandCard(targetPlayer1, card2);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player: targetPlayer1,
@@ -204,7 +189,7 @@ export class DuJi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0  && gameData.gameObject) {
+    if (playerId === 0 && gameData.gameObject) {
       const tooltip = gameData.gameObject.tooltip;
       tooltip.setText("请选择一个抽取黑色牌的角色，让他选择一项");
       gameData.gameObject.startSelectPlayer({
@@ -253,7 +238,7 @@ export class DuJi extends ActiveSkill {
       const player = gameData.playerList[playerId];
       const waitingPlayer = gameData.playerList[waitingPlayerId];
 
-      if (waitingPlayerId === 0  && gameData.gameObject) {
+      if (waitingPlayerId === 0 && gameData.gameObject) {
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText("请选择将牌置入谁的情报区");
         tooltip.buttons.setButtons([
@@ -290,18 +275,13 @@ export class DuJi extends ActiveSkill {
 
   onEffectC(gameData: GameData, { playerId, waitingPlayerId, targetPlayerId, card }: skill_du_ji_c_toc) {
     const gameLog = gameData.gameLog;
-    const player = gameData.playerList[playerId];
     const waitingPlayer = gameData.playerList[waitingPlayerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    let handCard = waitingPlayer.removeHandCard(card.id);
-    if (!handCard) {
-      waitingPlayer.removeHandCard(0);
-      handCard = gameData.createCard(card);
-    }
+    const handCard = gameData.playerRemoveHandCard(waitingPlayer, card);
 
     if (waitingPlayerId === 0) {
-      gameData.gameObject.handCardList.removeData(handCard);
+      gameData.handCardList.removeData(handCard);
     }
     targetPlayer.addMessage(handCard);
     if (gameData.gameObject) {

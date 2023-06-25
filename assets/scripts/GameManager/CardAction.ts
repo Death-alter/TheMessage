@@ -380,26 +380,27 @@ export class CardAction extends Component {
 
   //接收情报动画
   receiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
       const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
       if (message.status === CardStatus.FACE_DOWN) {
-        await message.flip();
-        this.setAction(
-          message.gameObject.node,
-          tween(message.gameObject.node)
-            .to(0.5, {
-              worldPosition: messageContainer.worldPosition,
-              scale: new Vec3(0, 0, 1),
-            })
-            .call(() => {
-              GamePools.cardPool.put(message.gameObject);
-              message.gameObject = null;
-              resolve(null);
-            })
-        );
+        message.flip().then(() => {
+          this.setAction(
+            message.gameObject.node,
+            tween(message.gameObject.node)
+              .to(0.5, {
+                worldPosition: messageContainer.worldPosition,
+                scale: new Vec3(0, 0, 1),
+              })
+              .call(() => {
+                GamePools.cardPool.put(message.gameObject);
+                message.gameObject = null;
+                resolve(null);
+              })
+          );
+        });
       } else {
         this.setAction(
           message.gameObject.node,

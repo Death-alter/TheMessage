@@ -161,23 +161,20 @@ export class SouJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
     const showCardsWindow = gameData.gameObject.showCardsWindow;
 
-    let handCards: Card[];
-    if (targetPlayerId === 0) {
-      handCards = targetPlayer.removeHandCard(cards.map((card) => card.cardId));
-    } else {
-      targetPlayer.removeHandCard(new Array(cards.length).fill(0));
-      handCards = cards.map((card) => gameData.createCard(card));
-    }
-    player.addHandCard(handCards);
+    const handCards = gameData.playerRemoveHandCard(
+      targetPlayer,
+      cards.map((card) => card)
+    );
+    gameData.playerAddHandCard(player, handCards);
 
     if (messageCard) {
-      player.addHandCard(gameData.messageInTransmit);
+      gameData.playerAddHandCard(player, gameData.messageInTransmit);
     }
 
     if (gameData.gameObject) {
       if (targetPlayerId === 0) {
         for (let card of handCards) {
-          gameData.gameObject.handCardList.removeData(card);
+          gameData.handCardList.removeData(card);
         }
       }
 

@@ -72,7 +72,7 @@ export class QiHuoKeJu extends TriggerSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     const message = player.removeMessage(cardId);
-    player.addHandCard(message);
+    gameData.playerAddHandCard(player, message);
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【奇货可居】`));
     gameLog.addData(
       new GameLog(

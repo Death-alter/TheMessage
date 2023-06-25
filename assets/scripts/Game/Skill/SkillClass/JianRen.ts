@@ -87,7 +87,7 @@ export class JianRen extends TriggerSkill {
 
     const handCard = gameData.createCard(card);
     if (Card.hasColor(handCard, CardColor.BLACK)) {
-      player.addHandCard(handCard);
+      gameData.playerAddHandCard(player, handCard);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
           player,
@@ -111,7 +111,7 @@ export class JianRen extends TriggerSkill {
         seq: seq,
       });
 
-      if (playerId === 0  && gameData.gameObject) {
+      if (playerId === 0 && gameData.gameObject) {
         const tooltip = gameData.gameObject.tooltip;
         tooltip.setText("请选择一名角色弃置一张黑色情报");
         gameData.gameObject.startSelectPlayer({
