@@ -20,6 +20,7 @@ import { ShowCardsWindow } from "../UI/Game/ShowCardsWindow/ShowCardsWindow";
 import { DataManager } from "./DataManager";
 import { SyncStatus } from "./type";
 import { CharacterInfoWindow } from "../UI/Game/GameWindow/CharacterInfoWindow";
+import { GameLogWindow } from "../Game/GameLog/GameLogWindow";
 
 const { ccclass, property } = _decorator;
 
@@ -33,6 +34,8 @@ export class GameManager extends Component {
   gameResultWindow: Node | null = null;
   @property(Node)
   logContainer: Node | null = null;
+  @property(Node)
+  logHistory: Node | null = null;
   @property(Prefab)
   cardPrefab: Prefab | null = null;
   @property(Prefab)
@@ -61,6 +64,8 @@ export class GameManager extends Component {
     this.syncStatus = dataManager.syncStatus;
     this.gameData.gameObject = gameUI;
     this.gameLog.gameObject = this.logContainer.getComponent(GameLogContainer);
+    this.gameLog.logHistory.gameObject = this.logHistory.getComponent(GameLogWindow);
+    this.gameLog.logHistory.gameObject.init();
     this.gameData.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);

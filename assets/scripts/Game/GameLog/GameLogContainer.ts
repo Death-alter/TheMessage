@@ -3,6 +3,7 @@ import { GameLog } from "./GameLog";
 import { GameObjectContainer } from "../Container/GameObjectContainer";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import GamePools from "../../GameManager/GamePools";
+import { GameLogList } from "./GameLogList";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
@@ -15,10 +16,13 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
     this.node.addChild(data.gameObject.node);
     data.gameObject.setText(data.text);
     data.gameObject.show(3).then(() => {
-      GamePools.logMessagePool.put(data.gameObject);
-      data.gameObject = null;
+      this.data.removeData(data);
+      (<GameLogList>this.data).logHistory.addData(data);
     });
   }
-  onDataRemoved(data: GameLog): void {}
+  onDataRemoved(data: GameLog): void {
+    GamePools.logMessagePool.put(data.gameObject);
+    data.gameObject = null;
+  }
   onAllDataRemoved(): void {}
 }

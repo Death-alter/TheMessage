@@ -152,7 +152,7 @@ export class MiLing extends Card {
     }
   }
 
-  async onChooseCard(gameData: GameData, { playerId, targetPlayerId, card }: CardOnEffectParams) {
+  onChooseCard(gameData: GameData, { playerId, targetPlayerId, card }: CardOnEffectParams) {
     if (targetPlayerId === 0) {
       const handCardList = gameData.handCardList;
       handCardList.selectedCards.limit = 1;

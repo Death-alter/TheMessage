@@ -70,7 +70,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.REMOVE_ROOM_POSITION, { position: data.position });
     });
     NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, () => {
-      ProcessEventCenter.emit(ProcessEvent.DISPLAY_RECORD_END);
+      director.loadScene("login");
     });
     NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: ProtobufType.save_record_success_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SAVE_RECORD_SUCCESS, { recordId: data.recordId });

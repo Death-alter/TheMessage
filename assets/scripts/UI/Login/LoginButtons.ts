@@ -56,7 +56,9 @@ export class LoginButtons extends Component {
     }
 
     //reply按钮
-    this.node.getChildByName("Reply").on(Node.EventType.TOUCH_END, (event) => {});
+    this.node.getChildByName("Reply").on(Node.EventType.TOUCH_END, (event) => {
+      this.replyListNode.active = true;
+    });
   }
 
   onDisable() {}

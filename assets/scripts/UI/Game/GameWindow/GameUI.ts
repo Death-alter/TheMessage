@@ -22,6 +22,7 @@ import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Game/Identity/IdentityClass/NoIdentity";
+import { PlayerAction } from "../../PlayerAction";
 
 const { ccclass, property } = _decorator;
 
@@ -63,6 +64,8 @@ export class GameUI extends GameObject<GameData> {
   public showCardsWindow: ShowCardsWindow;
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
   public handCardContainer: HandCardContianer;
+  private oldPlayerAction: PlayerAction;
+  public playerAction: PlayerAction;
 
   get selectedHandCards() {
     return this.data.handCardList.selectedCards;
@@ -558,119 +561,184 @@ export class GameUI extends GameObject<GameData> {
     );
   }
 
+  savePlayerAction() {
+    this.oldPlayerAction = this.playerAction;
+    this.playerAction = null;
+  }
+
+  restorePlayerAction() {
+    this.playerAction = this.oldPlayerAction;
+    this.oldPlayerAction = null;
+    this.playerAction.handleAction();
+  }
+
   promotUseHandCard(tooltipText) {
-    this.tooltip.setText(tooltipText);
-    this.tooltip.buttons.setButtons([]);
+    this.playerAction = new PlayerAction({
+      actions: [
+        {
+          name: "setText",
+          handler: () =>
+            new Promise(() => {
+              this.tooltip.setText(tooltipText);
+              this.tooltip.buttons.setButtons([]);
+            }),
+        },
+        {
+          name: "playCard",
+          handler: (card: Card) =>
+            new Promise(() => {
+              if (this.cardCanPlayed(card)) {
+                card.onSelectedToPlay(this.data, this.tooltip);
+              } else {
+                this.tooltip.setText("现在不能使用这张卡");
+              }
+            }),
+        },
+      ],
+    });
+
+    this.playerAction.start();
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
-        if (this.cardCanPlayed(card)) {
-          card.onSelectedToPlay(this.data, this.tooltip);
-        } else {
-          this.tooltip.setText("现在不能使用这张卡");
-        }
+        this.playerAction.next(card);
       },
       onDeselect: (card: Card) => {
-        this.tooltip.setText(tooltipText);
-        if (this.cardCanPlayed(card)) {
-          card.onDeselected(this.data);
-        }
+        card.onDeselected(this.data);
+        this.playerAction.prev();
       },
     });
   }
 
   promotUseChengQing(tooltipText, playerId) {
-    this.tooltip.setText(tooltipText);
-    const player = this.data.playerList[playerId];
-    this.startSelectHandCard({
-      num: 1,
+    this.playerAction = new PlayerAction({
+      actions: [
+        {
+          name: "setTooltip",
+          handler: () =>
+            new Promise((resolve, reject) => {
+              this.tooltip.setText(tooltipText);
+              this.startSelectHandCard({
+                num: 1,
+              });
+              this.tooltip.buttons.setButtons([
+                {
+                  text: "澄清",
+                  onclick: () => {
+                    resolve(null);
+                  },
+                  enabled: () =>
+                    this.selectedHandCards.list[0] &&
+                    this.selectedHandCards.list[0].type === CardType.CHENG_QING &&
+                    this.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    reject(null);
+                  },
+                },
+              ]);
+            }),
+        },
+        {
+          name: "showCards",
+          handler: () =>
+            new Promise((resolve, reject) => {
+              const player = this.data.playerList[playerId];
+              this.showCardsWindow.show({
+                title: "选择一张情报弃置",
+                cardList: player.getMessagesCopy(),
+                limit: 1,
+                buttons: [
+                  {
+                    text: "确定",
+                    onclick: () => {
+                      this.showCardsWindow.hide();
+                      resolve(null);
+                    },
+                  },
+                  {
+                    text: "取消",
+                    onclick: () => {
+                      this.showCardsWindow.hide();
+                      reject(null);
+                    },
+                  },
+                ],
+              });
+            }),
+        },
+      ],
+      complete: () => {
+        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+          use: true,
+          cardId: this.selectedHandCards.list[0].id,
+          targetCardId: this.showCardsWindow.selectedCards.list[0].id,
+          seq: this.seq,
+        });
+      },
+      cancel: () => {
+        this.stopSelectHandCard();
+        this.handCardContainer.resetSelectCard();
+        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+          use: false,
+          seq: this.seq,
+        });
+      },
     });
-    this.tooltip.buttons.setButtons([
-      {
-        text: "澄清",
-        onclick: () => {
-          this.showCardsWindow.show({
-            title: "选择一张情报弃置",
-            cardList: player.getMessagesCopy(),
-            limit: 1,
-            buttons: [
-              {
-                text: "确定",
-                onclick: () => {
-                  NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-                    use: true,
-                    cardId: this.selectedHandCards.list[0].id,
-                    targetCardId: this.showCardsWindow.selectedCards.list[0].id,
-                    seq: this.seq,
-                  });
-                  this.showCardsWindow.hide();
-                },
-              },
-              {
-                text: "取消",
-                onclick: () => {
-                  this.showCardsWindow.hide();
-                },
-              },
-            ],
-          });
-        },
-        enabled: () =>
-          this.selectedHandCards.list[0] &&
-          this.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-          this.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          this.stopSelectHandCard();
-          this.handCardContainer.resetSelectCard();
-          NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-            use: false,
-            seq: this.seq,
-          });
-        },
-      },
-    ]);
+    this.playerAction.start();
   }
 
-  async promotDieGiveCard(tooltipText) {
-    this.tooltip.setText(tooltipText);
-    this.startSelectHandCard({
-      num: 3,
-    });
-    this.startSelectPlayer({
-      num: 1,
-      filter: (player) => player.id !== 0,
-    });
-    await (() =>
-      new Promise((resolve, reject) => {
-        this.tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
-                targetPlayerId: this.selectedPlayers.list[0].id,
-                cardId: this.selectedHandCards.list.map((card) => card.id),
-                seq: this.seq,
+  promotDieGiveCard(tooltipText) {
+    this.playerAction = new PlayerAction({
+      actions: [
+        {
+          name: "setTooltip",
+          handler: () =>
+            new Promise((resolve, reject) => {
+              this.tooltip.setText(tooltipText);
+              this.startSelectHandCard({
+                num: 3,
               });
-              resolve(null);
-            },
-            enabled: () => this.selectedHandCards.list.length > 0 && this.selectedPlayers.list.length > 0,
-          },
-          {
-            text: "取消",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
-                targetPlayerId: 0,
-                cardId: [],
-                seq: this.seq,
+              this.startSelectPlayer({
+                num: 1,
+                filter: (player) => player.id !== 0,
               });
-              resolve(null);
-            },
-          },
-        ]);
-      }))();
+              this.tooltip.buttons.setButtons([
+                {
+                  text: "确定",
+                  onclick: () => {
+                    resolve(null);
+                  },
+                  enabled: () => this.selectedHandCards.list.length > 0 && this.selectedPlayers.list.length > 0,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    reject(null);
+                  },
+                },
+              ]);
+            }),
+        },
+      ],
+      complete: () => {
+        NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+          targetPlayerId: this.selectedPlayers.list[0].id,
+          cardId: this.selectedHandCards.list.map((card) => card.id),
+          seq: this.seq,
+        });
+      },
+      cancel: () => {
+        NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+          targetPlayerId: 0,
+          cardId: [],
+          seq: this.seq,
+        });
+      },
+    });
+    this.playerAction.start();
   }
 
   promotSendMessage(tooltipText) {
@@ -762,7 +830,7 @@ export class GameUI extends GameObject<GameData> {
     });
   }
 
-  async doSendMessage() {
+  doSendMessage() {
     const card = this.selectedHandCards.list[0];
     const data: any = {
       cardId: card.id,
@@ -772,93 +840,105 @@ export class GameUI extends GameObject<GameData> {
     };
     this.selectedHandCards.lock();
 
-    await (() => {
-      return new Promise((resolve, reject) => {
-        switch (card.direction) {
-          case CardDirection.LEFT:
-            data.targetPlayerId = this.data.playerList.length - 1;
-            resolve(null);
-            break;
-          case CardDirection.RIGHT:
-            data.targetPlayerId = 1;
-            resolve(null);
-            break;
-          case CardDirection.UP:
-            this.tooltip.setText("请选择要传递情报的目标");
-            this.tooltip.buttons.setButtons([]);
-            this.startSelectPlayer({
-              num: 1,
-              filter: (player) => {
-                return player.id !== 0;
-              },
-              onSelect: (player) => {
-                data.targetPlayerId = player.id;
+    const actions = [
+      {
+        name: "selectTarget",
+        handler: () =>
+          new Promise((resolve, reject) => {
+            switch (card.direction) {
+              case CardDirection.LEFT:
+                data.targetPlayerId = this.data.playerList.length - 1;
                 resolve(null);
-              },
-            });
-            break;
-        }
-      });
-    })();
-
+                break;
+              case CardDirection.RIGHT:
+                data.targetPlayerId = 1;
+                resolve(null);
+                break;
+              case CardDirection.UP:
+                this.tooltip.setText("请选择要传递情报的目标");
+                this.tooltip.buttons.setButtons([]);
+                this.startSelectPlayer({
+                  num: 1,
+                  filter: (player) => {
+                    return player.id !== 0;
+                  },
+                  onSelect: (player) => {
+                    data.targetPlayerId = player.id;
+                    resolve(null);
+                  },
+                });
+                break;
+            }
+          }),
+      },
+    ];
     if (card.lockable) {
-      await (() => {
-        return new Promise((resolve, reject) => {
-          switch (card.direction) {
-            case CardDirection.LEFT:
-            case CardDirection.RIGHT:
-              this.tooltip.setText("请选择一名角色锁定");
-              this.startSelectPlayer({
-                num: 1,
-                filter: (player) => {
-                  return player.id !== 0;
+      actions.push({
+        name: "confirmLock",
+        handler: () =>
+          new Promise((resolve, reject) => {
+            switch (card.direction) {
+              case CardDirection.LEFT:
+              case CardDirection.RIGHT:
+                this.tooltip.setText("请选择一名角色锁定");
+                this.startSelectPlayer({
+                  num: 1,
+                  filter: (player) => {
+                    return player.id !== 0;
+                  },
+                });
+                break;
+              case CardDirection.UP:
+                this.tooltip.setText("是否锁定该角色");
+                break;
+            }
+            this.tooltip.buttons.setButtons([
+              {
+                text: "锁定",
+                onclick: () => {
+                  switch (card.direction) {
+                    case CardDirection.LEFT:
+                    case CardDirection.RIGHT:
+                      data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                      break;
+                    case CardDirection.UP:
+                      data.lockPlayerId = [data.targetPlayerId];
+                      break;
+                  }
+                  resolve(null);
                 },
-              });
-              break;
-            case CardDirection.UP:
-              this.tooltip.setText("是否锁定该角色");
-              break;
-          }
-          this.tooltip.buttons.setButtons([
-            {
-              text: "锁定",
-              onclick: () => {
-                switch (card.direction) {
-                  case CardDirection.LEFT:
-                  case CardDirection.RIGHT:
-                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
-                    break;
-                  case CardDirection.UP:
-                    data.lockPlayerId = [data.targetPlayerId];
-                    break;
-                }
-                resolve(null);
+                enabled: () => {
+                  return this.selectedPlayers.list.length === 1;
+                },
               },
-              enabled: () => {
-                return this.selectedPlayers.list.length === 1;
+              {
+                text: "不锁定",
+                onclick: () => {
+                  resolve(null);
+                },
               },
-            },
-            {
-              text: "不锁定",
-              onclick: () => {
-                resolve(null);
-              },
-            },
-          ]);
-        });
-      })();
+            ]);
+          }),
+      });
     }
 
-    NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
+    this.playerAction = new PlayerAction({
+      actions,
+      complete: () => {
+        NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
 
-    this.scheduleOnce(() => {
-      this.selectedPlayers.unlock();
-      this.selectedHandCards.unlock();
-      this.stopSelectHandCard();
-      this.clearSelectedHandCards();
-      this.stopSelectPlayer();
-      this.clearSelectedPlayers();
-    }, 0);
+        this.scheduleOnce(() => {
+          this.selectedPlayers.unlock();
+          this.selectedHandCards.unlock();
+          this.stopSelectHandCard();
+          this.clearSelectedHandCards();
+          this.stopSelectPlayer();
+          this.clearSelectedPlayers();
+        }, 0);
+      },
+    });
+
+    this.playerAction.start();
   }
 
   //选择角色

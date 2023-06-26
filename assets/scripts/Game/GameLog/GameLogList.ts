@@ -3,18 +3,28 @@ import { GameEvent } from "../../Event/type";
 import { DataContainer } from "../Container/DataContainer";
 import { GameLog } from "./GameLog";
 import { GameLogContainer } from "./GameLogContainer";
-import { GameLogWindow } from "./GameLogWindow";
 import * as GameEventType from "../../Event/GameEventType";
 import { ObjectPool } from "../ObjectPool";
 import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
+import { GameLogHistory } from "./GameLogHistory";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
+  logHistory: GameLogHistory;
 
-  constructor(gameObject?: GameLogContainer | GameLogWindow) {
+  constructor(gameObject?: GameLogContainer) {
     super(gameObject);
+  }
+
+  addData(data: GameLog) {
+    if (this.gameObject) {
+      this._list.push(data);
+      this.gameObject.onDataAdded(data);
+    } else {
+      this.logHistory.addData(data);
+    }
   }
 
   formatCard(card: Card) {
