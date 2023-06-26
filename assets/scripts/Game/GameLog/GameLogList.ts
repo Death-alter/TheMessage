@@ -177,7 +177,7 @@ export class GameLogList extends DataContainer<GameLog> {
 
   onMessagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
     this.addData(
-      new GameLog(`情报${this.formatCard(message)}被置入【${player.seatNumber + 1}号】${player.character.name}`)
+      new GameLog(`情报${this.formatCard(message)}被置入【${player.seatNumber + 1}号】${player.character.name}的情报区`)
     );
   }
 }
