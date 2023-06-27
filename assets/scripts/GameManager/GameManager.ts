@@ -106,10 +106,6 @@ export class GameManager extends Component {
         roles: (<number[]>data.characterIdList) as CharacterType[],
         waitingSecond: data.waitingSecond,
       });
-    } else {
-      this.gameWindow.active = true;
-      this.gameData.gameObject.init();
-      this.gameData.gameObject.startRender();
     }
   }
 

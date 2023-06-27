@@ -1,6 +1,6 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label } from "cc";
-import { NetworkEventCenter } from "../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS } from "../../Event/type";
+import { _decorator, Component, Node, Prefab, instantiate, Label, director } from "cc";
+import { NetworkEventCenter, ProcessEventCenter } from "../../Event/EventTarget";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../Event/type";
 import config from "../../config";
 const { ccclass, property } = _decorator;
 
@@ -18,9 +18,12 @@ export class LoginButtons extends Component {
         const replay = instantiate(this.replayPrefab);
         replay.getChildByName("Label").getComponent(Label).string = item.slice(0, -7);
         replay.on(Node.EventType.TOUCH_END, () => {
-          NetworkEventCenter.emit(NetworkEventToS.DISPLAY_RECORD_TOS, {
-            version: config.version,
-            recordId,
+          ProcessEventCenter.emit(ProcessEvent.START_LOAD_GAME_SCENE);
+          director.loadScene("game", (e) => {
+            NetworkEventCenter.emit(NetworkEventToS.DISPLAY_RECORD_TOS, {
+              version: config.version,
+              recordId,
+            });
           });
         });
         viewContent.addChild(replay);

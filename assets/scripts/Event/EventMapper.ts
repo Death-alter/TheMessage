@@ -111,6 +111,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.LEAVE_ROOM, { position: data.position });
     });
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: ProtobufType.wait_for_select_role_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.START_LOAD_GAME_SCENE);
       director.loadScene("game", (e) => {
         ProcessEventCenter.emit(ProcessEvent.START_SELECT_CHARACTER, {
           playerCount: data.playerCount,

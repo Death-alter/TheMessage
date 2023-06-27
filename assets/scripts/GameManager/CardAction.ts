@@ -11,6 +11,11 @@ import { ActionLocation, CardActionLocation, MoveNodeParams } from "./type";
 
 const { ccclass, property } = _decorator;
 
+export interface CardActionItem {
+  node: Node;
+  action: Tween<Node>;
+}
+
 @ccclass("CardAction")
 export class CardAction extends Component {
   @property(Node)
@@ -22,7 +27,9 @@ export class CardAction extends Component {
   public actions: { [index: string]: Tween<Node> } = {};
   public handCardList: HandCardList;
 
-  private getLoaction(location: CardActionLocation, player?: Player) {
+  public items: { [index: string]: CardActionItem } = {};
+
+  private getLocation(location: CardActionLocation, player?: Player) {
     switch (location) {
       case CardActionLocation.DECK:
         return this.deckNode.worldPosition;
@@ -57,13 +64,13 @@ export class CardAction extends Component {
 
   moveNode({ node, from, to, duration = 0.6 }: MoveNodeParams) {
     return new Promise((resolve, reject) => {
-      if (from) {
-        node.worldPosition = this.getLoaction(from.location, from.player);
+      if (from && this.actions[node.uuid]) {
+        node.worldPosition = this.getLocation(from.location, from.player);
       }
       this.setAction(
         node,
         tween(node)
-          .to(duration, { worldPosition: to.position || this.getLoaction(to.location, to.player) })
+          .to(duration, { worldPosition: to.position || this.getLocation(to.location, to.player) })
           .call(() => {
             resolve(null);
           })
@@ -71,12 +78,43 @@ export class CardAction extends Component {
     });
   }
 
+  addCardNode(card: Card, loaction?: ActionLocation);
+  addCardNode(cards: Card[], loaction?: ActionLocation);
+  addCardNode(card: Card | Card[], loaction?: ActionLocation) {
+    let node;
+    if (card instanceof Array) {
+      const cardGroup = new DataContainer<Card>();
+      cardGroup.gameObject = GamePools.cardGroupPool.get();
+      for (let c of card) {
+        if (!c.gameObject) {
+          c.gameObject = GamePools.cardPool.get();
+        }
+        c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        cardGroup.addData(c);
+      }
+      node = cardGroup.gameObject.node;
+    } else {
+      if (!card.gameObject) {
+        card.gameObject = GamePools.cardPool.get();
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      }
+      node = card.gameObject.node;
+    }
+    if (loaction) {
+      node.position = this.getLocation(loaction.location, loaction.player);
+    }
+  }
+
+  removeCardNode(node: Node) {
+    
+  }
+
   setCard(card: Card, loaction: ActionLocation) {
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
-    card.gameObject.node.position = this.getLoaction(loaction.location, loaction.player);
+    card.gameObject.node.position = this.getLocation(loaction.location, loaction.player);
   }
 
   addCardToHandCard({ player, card, from }: { player: Player; card: Card; from?: ActionLocation });
@@ -151,7 +189,7 @@ export class CardAction extends Component {
           cardGroup.gameObject.node,
           tween(cardGroup.gameObject.node)
             .to(0.5, {
-              worldPosition: this.getLoaction(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
+              worldPosition: this.getLocation(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
               scale: new Vec3(0, 0, 1),
             })
             .call(() => {
@@ -191,7 +229,7 @@ export class CardAction extends Component {
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
     this.node.addChild(card.gameObject.node);
-    card.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
+    card.gameObject.node.worldPosition = this.getLocation(CardActionLocation.DECK);
   }
 
   //抽牌动画
@@ -424,7 +462,7 @@ export class CardAction extends Component {
       if (!message.gameObject) {
         message.gameObject = GamePools.cardPool.get();
         message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        // message.gameObject.node.worldPosition = this.getLoaction(CardActionLocation.DECK);
+        // message.gameObject.node.worldPosition = this.getLocation(CardActionLocation.DECK);
       }
       message.gameObject.node.setParent(this.node);
       await this.moveNode({
@@ -441,7 +479,7 @@ export class CardAction extends Component {
         message.gameObject.node,
         tween(message.gameObject.node)
           .to(0.5, {
-            worldPosition: this.getLoaction(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
+            worldPosition: this.getLocation(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
             scale: new Vec3(0, 0, 1),
           })
           .call(() => {

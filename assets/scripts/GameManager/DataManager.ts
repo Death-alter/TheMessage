@@ -15,7 +15,7 @@ export class DataManager extends Component {
   public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
 
   onLoad(): void {
-    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, () => {
+    ProcessEventCenter.on(ProcessEvent.START_LOAD_GAME_SCENE, () => {
       this.gameData = new GameData();
       this.gameLog = new GameLogList();
       this.logHistory = new GameLogHistory();
@@ -24,7 +24,7 @@ export class DataManager extends Component {
       this.gameLog.registerEvents();
     });
 
-    NetworkEventCenter.on(NetworkEventToC.NOTIFY_WINNER_TOC, () => {
+    ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, () => {
       this.gameData.unregisterEvents();
       this.gameLog.unregisterEvents();
       this.gameData = null;
