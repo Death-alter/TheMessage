@@ -15,6 +15,7 @@ export class BGMSwitchButton extends Component {
     const audioSource = this.node.getComponent(AudioSource);
     assert(audioSource);
     this._audioSource = audioSource;
+    this._audioSource.play();
     this.node.on(Node.EventType.TOUCH_END, (event) => {
       if (this._audioSource.playing) {
         this._audioSource.stop();

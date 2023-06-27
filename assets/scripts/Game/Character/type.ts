@@ -9,7 +9,7 @@ export const enum CharacterType {
   MAO_BU_BA = 4, // 毛不拔
   ZHANG_YI_TING = 5, // 张一挺
   BAI_CANG_LANG = 6, // 白沧浪
-  FEI_YUAN_LONG_CHUAN = 7, // 肥圆龙川
+  FEI_YUAN_LONG_CHUAN = 7, // 肥原龙川
   PEI_LING = 8, // 裴玲
   HUANG_JI_REN = 9, // 黄济仁
   WANG_TIAN_XIANG = 10, // 王田香

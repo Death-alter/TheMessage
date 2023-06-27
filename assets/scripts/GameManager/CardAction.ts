@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3, Tween, UITransform } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Tween } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -25,10 +25,8 @@ export class CardAction extends Component {
   discardPileNode: Node | null = null;
 
   public transmissionMessageObject: CardObject;
-  public actions: { [index: string]: Tween<Node> } = {};
-  public handCardList: HandCardList;
-
   public items: { [index: string]: CardActionItem } = {};
+  public handCardList: HandCardList;
 
   private getLocation(location: CardActionLocation, player?: Player) {
     switch (location) {
@@ -49,23 +47,32 @@ export class CardAction extends Component {
     }
   }
 
-  private setAction(node: Node, t: Tween<Node>) {
-    if (this.node.active) {
-      const action = this.items[node.uuid].action;
+  private getActionItem(node: Node) {
+    return this.items[node.uuid];
+  }
+
+  private setAction(node: Node, t: Tween<Node>, mixin: boolean = true) {
+    if (this.node.active && node) {
+      const action = this.items[node.uuid] && this.items[node.uuid].action;
       if (action) {
-        action.parallel(t).start();
+        if (mixin) {
+          tween(node).parallel(action, t).start();
+        } else {
+          tween(node).sequence(action, t).start();
+        }
       } else {
-        t.call(() => {
-          this.items[node.uuid].action = null;
-        }).start();
         this.items[node.uuid].action = t;
+        t.call(() => {
+          if (this.items[node.uuid]) this.items[node.uuid].action = null;
+        }).start();
       }
     }
   }
 
   private moveNode({ node, from, to, duration = 0.6 }: MoveNodeParams) {
     return new Promise((resolve, reject) => {
-      if (from && !this.actions[node.uuid]) {
+      if (!this.getActionItem(node)) reject(null);
+      if (from && !this.items[node.uuid]) {
         node.worldPosition = this.getLocation(from.location, from.player);
       }
       this.setAction(
@@ -81,6 +88,7 @@ export class CardAction extends Component {
 
   private scaleNode({ node, scale, duration = 0.6 }: { node: Node; scale: Vec3; duration?: number }) {
     return new Promise((resolve, reject) => {
+      if (!this.getActionItem(node)) reject(null);
       this.setAction(
         node,
         tween(node)
@@ -117,10 +125,10 @@ export class CardAction extends Component {
       node = card.gameObject.node;
       obj.data = card;
     }
-    if (loaction) {
-      node.position = this.getLocation(loaction.location, loaction.player);
-    }
     this.node.addChild(node);
+    if (loaction) {
+      node.worldPosition = this.getLocation(loaction.location, loaction.player);
+    }
     obj.node = node;
     this.items[node.uuid] = obj;
     return node;
@@ -157,6 +165,17 @@ export class CardAction extends Component {
     const card = data.card || data.cards;
     let node;
     return new Promise((resolve, reject) => {
+      if (from && from.player && from.player.id === 0) {
+        if (card instanceof Array) {
+          for (let c of card) {
+            this.handCardList.removeData(c);
+            c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+          }
+        } else {
+          this.handCardList.removeData(card);
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        }
+      }
       node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
@@ -211,12 +230,9 @@ export class CardAction extends Component {
 
   moveCard({ card, from, to }: { card: Card; from?: ActionLocation; to: ActionLocation }) {
     return new Promise((resolve, reject) => {
-      if (!card.gameObject) {
-        card.gameObject = GamePools.cardPool.get();
-      }
-      this.node.addChild(card.gameObject.node);
+      const node = this.addCard(<Card>card, from);
       this.moveNode({
-        node: card.gameObject.node,
+        node,
         from,
         to,
       }).then(() => {
@@ -244,44 +260,23 @@ export class CardAction extends Component {
       if (player.id === 0) {
         cardList.forEach((card) => {
           this.handCardList.removeData(card);
-          card.gameObject.node.setParent(this.node);
-          this.setAction(
-            card.gameObject.node,
-            tween(card.gameObject.node)
-              .to(0.6, {
-                scale: new Vec3(0.6, 0.6, 1),
-                worldPosition: this.discardPileNode.worldPosition,
-              })
-              .call(() => {
-                GamePools.cardPool.put(card.gameObject);
-                card.gameObject = null;
-              })
-          );
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+          const node = this.addCard(card);
+          this.moveNode({
+            node,
+            to: { location: CardActionLocation.DISCARD_PILE },
+          }).then(() => {
+            this.removeCardNode(node);
+            resolve(null);
+          });
         });
       } else {
-        const cardGroup = new DataContainer<Card>();
-        cardGroup.gameObject = GamePools.cardGroupPool.get();
-        cardList.forEach((card) => {
-          if (!card.gameObject) {
-            card.gameObject = GamePools.cardPool.get();
-          }
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-          cardGroup.addData(card);
-        });
-        this.node.addChild(cardGroup.gameObject.node);
-        cardGroup.gameObject.node.worldPosition = player.gameObject.node.worldPosition;
+        const node = this.addCard(cardList, { location: CardActionLocation.PLAYER_HAND_CARD, player });
         this.moveNode({
-          node: cardGroup.gameObject.node,
+          node,
           to: { location: CardActionLocation.DISCARD_PILE },
-          duration: 0.6,
         }).then(() => {
-          for (let card of cardGroup.list) {
-            GamePools.cardPool.put(card.gameObject);
-            card.gameObject = null;
-          }
-          cardGroup.removeAllData();
-          GamePools.cardGroupPool.put(cardGroup.gameObject);
-          cardGroup.gameObject = null;
+          this.removeCardNode(node);
           resolve(null);
         });
       }
@@ -294,33 +289,24 @@ export class CardAction extends Component {
 
     if (player.id === 0) {
       this.handCardList.removeData(card);
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
-    this.addCard(card);
-    this.setAction(
-      card.gameObject.node,
-      tween(card.gameObject.node).to(0.6, {
-        worldPosition: this.discardPileNode.worldPosition,
-      })
-    );
+    const node = this.addCard(card, { location: CardActionLocation.PLAYER, player });
+    this.moveNode({ node, to: { location: CardActionLocation.DISCARD_PILE }, duration: 0.8 });
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     const { card, flag } = data;
     if (!flag) {
-      if (card.action) {
-        card.action
-          .delay(0.5)
+      this.setAction(
+        card.gameObject.node,
+        tween(card.gameObject.node)
+          .delay(1)
           .call(() => {
-            GamePools.cardPool.put(card.gameObject);
-            card.gameObject = null;
-          })
-          .start();
-      } else {
-        card.gameObject.scheduleOnce(() => {
-          GamePools.cardPool.put(card.gameObject);
-          card.gameObject = null;
-        }, 0.5);
-      }
+            this.removeCardNode(card.gameObject.node);
+          }),
+        false
+      );
     }
   }
 
@@ -329,6 +315,7 @@ export class CardAction extends Component {
       if (player.id === 0) {
         cardList.forEach((card) => {
           this.handCardList.removeData(card);
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         });
       }
       this.addCardToHandCard({
@@ -343,34 +330,20 @@ export class CardAction extends Component {
 
   playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
     return new Promise(async (resolve, reject) => {
-      const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
-      const targetPanting = targetPlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
       if (player.id === 0) {
         this.handCardList.removeData(message);
-      }
-
-      if (!message.gameObject) {
-        message.gameObject = GamePools.cardPool.get();
-      }
-
-      message.gameObject.node.setParent(this.node);
-      message.gameObject.node.worldPosition = panting.worldPosition;
-      this.transmissionMessageObject = message.gameObject;
-
-      if (player.id === 0) {
         message.status = CardStatus.FACE_DOWN;
+        message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       }
-      message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      this.setAction(
-        message.gameObject.node,
-        tween(message.gameObject.node)
-          .to(0.5, {
-            worldPosition: targetPanting.worldPosition,
-          })
-          .call(() => {
-            resolve(null);
-          })
-      );
+
+      const node = this.addCard(message, { location: CardActionLocation.PLAYER, player });
+      this.transmissionMessageObject = message.gameObject;
+      this.moveNode({
+        node,
+        to: { location: CardActionLocation.PLAYER, player: targetPlayer },
+      }).then(() => {
+        resolve(null);
+      });
     });
   }
 
@@ -380,17 +353,12 @@ export class CardAction extends Component {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
-      const panting = messagePlayer.gameObject.node.getChildByPath("Border/CharacterPanting");
-      this.setAction(
-        message.gameObject.node,
-        tween(message.gameObject.node)
-          .to(0.5, {
-            worldPosition: panting.worldPosition,
-          })
-          .call(() => {
-            resolve(null);
-          })
-      );
+      this.moveNode({
+        node: message.gameObject.node,
+        to: { location: CardActionLocation.PLAYER, player: messagePlayer },
+      }).then(() => {
+        resolve(null);
+      });
     });
   }
 
@@ -414,85 +382,56 @@ export class CardAction extends Component {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
-      const messageContainer = player.gameObject.node.getChildByPath("Border/Message");
       if (message.status === CardStatus.FACE_DOWN) {
         message.flip().then(() => {
-          this.setAction(
-            message.gameObject.node,
-            tween(message.gameObject.node)
-              .to(0.5, {
-                worldPosition: messageContainer.worldPosition,
-                scale: new Vec3(0, 0, 1),
-              })
-              .call(() => {
-                GamePools.cardPool.put(message.gameObject);
-                message.gameObject = null;
-                resolve(null);
-              })
-          );
+          this.moveNode({
+            node: message.gameObject.node,
+            to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+          });
+          this.scaleNode({
+            node: message.gameObject.node,
+            scale: new Vec3(0, 0, 1),
+          }).then(() => {
+            this.removeCardNode(message.gameObject.node);
+            resolve(null);
+          });
         });
       } else {
-        this.setAction(
-          message.gameObject.node,
-          tween(message.gameObject.node)
-            .to(0.5, {
-              worldPosition: messageContainer.worldPosition,
-              scale: new Vec3(0, 0, 1),
-            })
-            .call(() => {
-              GamePools.cardPool.put(message.gameObject);
-              message.gameObject = null;
-              resolve(null);
-            })
-        );
+        this.moveNode({
+          node: message.gameObject.node,
+          to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+        });
+        this.scaleNode({
+          node: message.gameObject.node,
+          scale: new Vec3(0, 0, 1),
+        }).then(() => {
+          this.removeCardNode(message.gameObject.node);
+          resolve(null);
+        });
       }
     });
   }
 
   messagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
-    return new Promise(async (resolve, reject) => {
-      if (!message.gameObject) {
-        message.gameObject = GamePools.cardPool.get();
-        message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        // message.gameObject.node.worldPosition = this.getLocation(CardActionLocation.DECK);
-      }
-      message.gameObject.node.setParent(this.node);
-      await this.moveNode({
-        node: message.gameObject.node,
-        to: {
-          location: CardActionLocation.PLAYER,
-          player,
-        },
-        from: {
-          location: CardActionLocation.DECK,
-        },
-      });
-      this.setAction(
-        message.gameObject.node,
-        tween(message.gameObject.node)
-          .to(0.5, {
-            worldPosition: this.getLocation(CardActionLocation.PLAYER_MESSAGE_ZONE, player),
-            scale: new Vec3(0, 0, 1),
-          })
-          .call(() => {
-            GamePools.cardPool.put(message.gameObject);
-            message.gameObject = null;
-            resolve(null);
-          })
-      );
+    return this.addCardToMessageZone({
+      player,
+      card: message,
+      from: { location: CardActionLocation.DECK },
     });
   }
 
   discardMessage(message) {
     return new Promise(async (resolve, reject) => {
+      if (!message.gameObject) {
+        message.gameObject = this.transmissionMessageObject;
+      }
       await message.flip();
       await this.moveNode({
         node: message.gameObject.node,
         to: { location: CardActionLocation.DISCARD_PILE },
         duration: 0.3,
       });
-      GamePools.cardPool.put(message.gameObject);
-      message.gameObject = null;
+      this.removeCardNode(message.gameObject.node);
       resolve(null);
     });
   }
@@ -514,37 +453,14 @@ export class CardAction extends Component {
 
   removeMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
     return new Promise((resolve, reject) => {
-      const cardGroup = new DataContainer<Card>();
-      cardGroup.gameObject = GamePools.cardGroupPool.get();
-      const panting = player.gameObject.node.getChildByPath("Border/CharacterPanting");
-
-      messageList.forEach((card) => {
-        if (!card.gameObject) {
-          card.gameObject = GamePools.cardPool.get();
-        }
-        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        cardGroup.addData(card);
+      const node = this.addCard(messageList, { location: CardActionLocation.PLAYER, player });
+      this.moveNode({
+        node,
+        to: { location: CardActionLocation.DISCARD_PILE },
+      }).then(() => {
+        this.removeCardNode(node);
+        resolve(null);
       });
-
-      this.node.addChild(cardGroup.gameObject.node);
-      cardGroup.gameObject.node.worldPosition = panting.worldPosition;
-      this.setAction(
-        cardGroup.gameObject.node,
-        tween(cardGroup.gameObject.node)
-          .to(0.8, {
-            worldPosition: this.discardPileNode.worldPosition,
-          })
-          .call(() => {
-            for (let card of cardGroup.list) {
-              GamePools.cardPool.put(card.gameObject);
-              card.gameObject = null;
-            }
-            cardGroup.removeAllData();
-            GamePools.cardGroupPool.put(cardGroup.gameObject);
-            cardGroup.gameObject = null;
-            resolve(null);
-          })
-      );
     });
   }
 }

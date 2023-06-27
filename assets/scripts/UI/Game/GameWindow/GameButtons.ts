@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, find } from "cc";
+import { _decorator, Component, Node, Label} from "cc";
 import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 const { ccclass, property } = _decorator;

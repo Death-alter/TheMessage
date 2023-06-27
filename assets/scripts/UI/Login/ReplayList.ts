@@ -10,9 +10,9 @@ export class LoginButtons extends Component {
   replayPrefab: Prefab | null = null;
 
   onLoad(): void {
-    const viewContent = this.node.getChildByPath("ScrollView/view/content");
-
     NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, ({ records }) => {
+      const viewContent = this.node.getChildByPath("ScrollView/view/content");
+      viewContent.removeAllChildren();
       for (let item of records) {
         const recordId = item.slice(item.length - 6);
         const replay = instantiate(this.replayPrefab);

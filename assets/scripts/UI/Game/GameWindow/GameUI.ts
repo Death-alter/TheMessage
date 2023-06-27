@@ -521,8 +521,8 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
-    data.player.addMessage(data.message);
     this.cardAction.receiveMessage(data);
+    data.player.addMessage(data.message);
   }
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
