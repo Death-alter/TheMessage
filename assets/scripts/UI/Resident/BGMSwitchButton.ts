@@ -7,7 +7,6 @@ export class BGMSwitchButton extends Component {
   onSprite: SpriteFrame = null;
   @property(SpriteFrame)
   offSprite: SpriteFrame = null;
-
   @property(AudioSource)
   private _audioSource: AudioSource = null;
 

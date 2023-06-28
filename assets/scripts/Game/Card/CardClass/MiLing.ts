@@ -23,7 +23,7 @@ export class MiLing extends Card {
       id: option.id,
       name: "密令",
       type: CardType.MI_LING,
-      sprite: "images/cards/MiLing",
+      src: "MiLing",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3, Tween } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Tween, UITransform, Vec2 } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -8,13 +8,14 @@ import { CardObject } from "../Game/Card/CardObject";
 import { HandCardList } from "../Game/Container/HandCardList";
 import { Player } from "../Game/Player/Player";
 import { ActionLocation, CardActionLocation, MoveNodeParams } from "./type";
+import { OuterGlow } from "../Utils/OuterGlow";
 
 const { ccclass, property } = _decorator;
 
 export interface CardActionItem {
   node: Node;
   data: Card | DataContainer<Card>;
-  action?: Tween<Node>;
+  action?: Tween<any>;
 }
 
 @ccclass("CardAction")
@@ -23,10 +24,17 @@ export class CardAction extends Component {
   deckNode: Node | null = null;
   @property(Node)
   discardPileNode: Node | null = null;
+  @property(Node)
+  line: Node | null = null;
 
   public transmissionMessageObject: CardObject;
   public items: { [index: string]: CardActionItem } = {};
   public handCardList: HandCardList;
+
+  onLoad() {
+    this.line.getComponent(OuterGlow).openOuterGlow();
+    this.items[this.line.uuid] = { node: this.line, data: null };
+  }
 
   private getLocation(location: CardActionLocation, player?: Player) {
     switch (location) {
@@ -51,7 +59,7 @@ export class CardAction extends Component {
     return this.items[node.uuid];
   }
 
-  private setAction(node: Node, t: Tween<Node>, mixin: boolean = true) {
+  private setAction(node: Node, t: Tween<any>, mixin: boolean = true) {
     if (this.node.active && node) {
       const action = this.items[node.uuid] && this.items[node.uuid].action;
       if (action) {
@@ -152,6 +160,31 @@ export class CardAction extends Component {
       item.data.gameObject = null;
       delete this.items[node.uuid];
     }
+  }
+
+  showIndicantLine({ from, to, duration = 0.6 }: { from: ActionLocation; to: ActionLocation; duration?: number }) {
+    const fromPosition = this.getLocation(from.location, from.player);
+    const toPosition = this.getLocation(to.location, to.player);
+    const dx = toPosition.x - fromPosition.x;
+    const dy = toPosition.y - fromPosition.y;
+
+    this.line.worldPosition = fromPosition;
+    const transform = this.line.getComponent(UITransform);
+    transform.width = 0;
+    const dir = new Vec2(-dy, dx);
+    const degree = (dir.signAngle(new Vec2(1, 0)) / Math.PI) * 180;
+    this.line.angle = degree;
+    this.line.active = true;
+    this.setAction(
+      this.line,
+      tween(transform)
+        .to(duration, { width: Math.sqrt(dx * dx + dy * dy) })
+        .delay(1)
+        .call(() => {
+          this.line.active = false;
+        })
+    );
+    this.setAction(this.line, tween(this.line).to(duration, { worldPosition: new Vec3(dx / 2, dy / 2, 0) }));
   }
 
   setCard(card: Card, loaction: ActionLocation) {
@@ -286,7 +319,6 @@ export class CardAction extends Component {
   //打出卡牌动画，播放声音
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
-
     if (player.id === 0) {
       this.handCardList.removeData(card);
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);

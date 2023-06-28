@@ -15,7 +15,7 @@ export class LiYou extends Card {
       id: option.id,
       name: "利诱",
       type: CardType.LI_YOU,
-      sprite: "images/cards/LiYou",
+      src: "LiYou",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,
