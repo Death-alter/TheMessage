@@ -23,6 +23,8 @@ import { CharacterObject } from "../../../Game/Character/CharacterObject";
 import { MysteriousPerson } from "../../../Game/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Game/Identity/IdentityClass/NoIdentity";
 import { PlayerAction } from "../../PlayerAction";
+import { AudioMgr } from "../../Resident/AudioMgr";
+import { Sex } from "../../../Game/Character/type";
 
 const { ccclass, property } = _decorator;
 
@@ -66,6 +68,7 @@ export class GameUI extends GameObject<GameData> {
   public handCardContainer: HandCardContianer;
   private oldPlayerAction: PlayerAction;
   public playerAction: PlayerAction;
+  public audioManager: AudioMgr;
 
   get selectedHandCards() {
     return this.data.handCardList.selectedCards;
@@ -75,6 +78,7 @@ export class GameUI extends GameObject<GameData> {
     this.showCardsWindow = this.showCardWindowNode.getComponent(ShowCardsWindow);
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
+    this.audioManager = new AudioMgr();
     this.tooltip.nextPhase.on(Node.EventType.TOUCH_END, () => {
       switch (this.data.gamePhase) {
         case GamePhase.MAIN_PHASE:
@@ -544,6 +548,18 @@ export class GameUI extends GameObject<GameData> {
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
+    if (data.player.character.sex === Sex.FAMALE) {
+      this.audioManager.playOneShot(`audio/cards/${data.card.src}_man`, 2);
+    } else {
+      this.audioManager.playOneShot(`audio/cards/${data.card.src}_woman`, 2);
+    }
+    if (data.targetPlayer) {
+      this.cardAction.showIndicantLine({
+        from: { location: CardActionLocation.PLAYER, player: data.player },
+        to: { location: CardActionLocation.PLAYER, player: data.targetPlayer },
+      });
+    }
+
     this.cardAction.playerPlayCard(data);
   }
 

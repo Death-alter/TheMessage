@@ -30,10 +30,13 @@ export class OuterGlow extends Component {
       const transform = this.node.getComponent(UITransform);
       material.setProperty("texSize", new Vec2(transform.width, transform.height));
       material.setProperty("glowColorSize", parseFloat(this.glowWidth.toFixed(1)));
+      const sprite = this.node.getComponent(Sprite);
+      sprite.customMaterial = material;
       if (c) {
-        material.setProperty("lightColor", color(c));
+        sprite.material.setProperty("lightColor", color(c));
+      } else {
+        sprite.material.setProperty("lightColor", this.color);
       }
-      this.node.getComponent(Sprite).customMaterial = material;
       this.showOuterGlow = true;
     });
   }

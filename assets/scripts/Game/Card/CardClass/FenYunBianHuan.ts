@@ -15,7 +15,7 @@ export class FenYunBianHuan extends Card {
       id: option.id,
       name: "风云变幻",
       type: CardType.FENG_YUN_BIAN_HUAN,
-      sprite: "images/cards/FengYunBianHuan",
+      src: "FengYunBianHuan",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

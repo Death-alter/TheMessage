@@ -15,7 +15,7 @@ export class ChengQing extends Card {
       id: option.id,
       name: "澄清",
       type: CardType.CHENG_QING,
-      sprite: "images/cards/ChengQing",
+      src: "ChengQing",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

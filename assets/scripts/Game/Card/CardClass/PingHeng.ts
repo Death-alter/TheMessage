@@ -14,7 +14,7 @@ export class PingHeng extends Card {
       id: option.id,
       name: "平衡",
       type: CardType.PING_HENG,
-      sprite: "images/cards/PingHeng",
+      src: "PingHeng",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

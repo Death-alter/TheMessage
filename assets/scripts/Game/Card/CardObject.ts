@@ -92,7 +92,7 @@ export class CardObject extends GameObject<Card> {
       coverNode.active = true;
     } else {
       imageNode.active = true;
-      resources.load(card.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
+      resources.load(`images/cards/${card.src}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
 

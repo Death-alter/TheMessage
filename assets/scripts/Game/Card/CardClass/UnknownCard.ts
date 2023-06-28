@@ -9,7 +9,7 @@ export class UnknownCard extends Card {
       id: 0,
       name: "未知卡牌",
       type: CardType.UNKNOWN,
-      sprite: "images/cards/CardBack",
+      src: "CardBack",
       direction: null,
       color: [],
       lockable: false,

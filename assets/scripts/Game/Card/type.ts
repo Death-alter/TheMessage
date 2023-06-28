@@ -39,7 +39,7 @@ export interface CardOption {
   id?: number;
   name: string;
   type: CardType;
-  sprite: string;
+  src: string;
   status?: CardStatus;
   color?: CardColor[];
   direction?: CardDirection;
