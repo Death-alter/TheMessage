@@ -248,7 +248,6 @@ export class GameData extends DataBasic<GameUI> {
       if (data.messageInTransmit) {
         if (!this.messageInTransmit || data.messageInTransmit.cardId !== this.messageInTransmit.id) {
           this.messageInTransmit = this.createMessage(data.messageInTransmit);
-          console.log(this.messageInTransmit.status)
         }
       }
 

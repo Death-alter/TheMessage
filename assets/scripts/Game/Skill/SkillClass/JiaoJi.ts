@@ -101,7 +101,7 @@ export class JiaoJi extends ActiveSkill {
 
     const handCards = gameData.playerRemoveHandCard(
       targetPlayer,
-      cards.map((card) => card)
+      unknownCardCount ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
     );
     gameData.playerAddHandCard(player, handCards);
 
@@ -159,12 +159,12 @@ export class JiaoJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
 
-    const handCards = gameData.playerAddHandCard(
+    const handCards = gameData.playerRemoveHandCard(
       player,
-      cards.map((card) => card)
+      unknownCardCount ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
     );
     gameData.playerAddHandCard(targetPlayer, handCards);
-    
+
     if (gameData.gameObject) {
       for (let card of handCards) {
         gameData.handCardList.removeData(card);

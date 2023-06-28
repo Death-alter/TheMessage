@@ -124,7 +124,7 @@ export class JiBan extends ActiveSkill {
 
     const handCards = gameData.playerRemoveHandCard(
       player,
-      cards.map((card) => card)
+      unknownCardCount ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
     );
     gameData.playerAddHandCard(targetPlayer, handCards);
 

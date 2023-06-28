@@ -109,15 +109,6 @@ export class DuJi extends ActiveSkill {
     let blackCount = 0;
 
     if (Card.hasColor(card1, CardColor.BLACK)) {
-      gameData.playerAddHandCard(player, card1);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player,
-          card: card1,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-        });
-      }
-    } else {
       gameData.playerAddHandCard(targetPlayer2, card1);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
@@ -127,17 +118,17 @@ export class DuJi extends ActiveSkill {
         });
       }
       ++blackCount;
-    }
-    if (Card.hasColor(card2, CardColor.BLACK)) {
-      gameData.playerAddHandCard(player, card2);
+    } else {
+      gameData.playerAddHandCard(player, card1);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
-          player: player,
-          card: card2,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+          player,
+          card: card1,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
         });
       }
-    } else {
+    }
+    if (Card.hasColor(card2, CardColor.BLACK)) {
       gameData.playerAddHandCard(targetPlayer1, card2);
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToHandCard({
@@ -147,6 +138,15 @@ export class DuJi extends ActiveSkill {
         });
       }
       ++blackCount;
+    } else {
+      gameData.playerAddHandCard(player, card2);
+      if (gameData.gameObject) {
+        gameData.gameObject.cardAction.addCardToHandCard({
+          player: player,
+          card: card2,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+        });
+      }
     }
 
     showCardsWindow.show({
@@ -279,11 +279,8 @@ export class DuJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const handCard = gameData.playerRemoveHandCard(waitingPlayer, card);
-
-    if (waitingPlayerId === 0) {
-      gameData.handCardList.removeData(handCard);
-    }
     targetPlayer.addMessage(handCard);
+    
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.addCardToMessageZone({
         player: targetPlayer,

@@ -549,10 +549,11 @@ export class GameUI extends GameObject<GameData> {
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     if (data.player.character.sex === Sex.FAMALE) {
-      this.audioManager.playOneShot(`audio/cards/${data.card.src}_man`, 2);
-    } else {
       this.audioManager.playOneShot(`audio/cards/${data.card.src}_woman`, 2);
+    } else {
+      this.audioManager.playOneShot(`audio/cards/${data.card.src}_man`, 2);
     }
+    console.log(data.targetPlayer);
     if (data.targetPlayer) {
       this.cardAction.showIndicantLine({
         from: { location: CardActionLocation.PLAYER, player: data.player },

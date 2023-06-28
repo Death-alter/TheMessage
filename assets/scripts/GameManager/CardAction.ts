@@ -32,7 +32,6 @@ export class CardAction extends Component {
   public handCardList: HandCardList;
 
   onLoad() {
-    this.line.getComponent(OuterGlow).openOuterGlow();
     this.items[this.line.uuid] = { node: this.line, data: null };
   }
 
@@ -59,14 +58,19 @@ export class CardAction extends Component {
     return this.items[node.uuid];
   }
 
-  private setAction(node: Node, t: Tween<any>, mixin: boolean = true) {
+  private setAction(node: Node, t: Tween<any>, mixin?: boolean) {
+    if (mixin !== false) mixin = true;
     if (this.node.active && node) {
       const action = this.items[node.uuid] && this.items[node.uuid].action;
       if (action) {
         if (mixin) {
           tween(node).parallel(action, t).start();
         } else {
-          tween(node).sequence(action, t).start();
+          action
+            .call(() => {
+              t.start();
+            })
+            .start();
         }
       } else {
         this.items[node.uuid].action = t;
@@ -171,7 +175,7 @@ export class CardAction extends Component {
     this.line.worldPosition = fromPosition;
     const transform = this.line.getComponent(UITransform);
     transform.width = 0;
-    const dir = new Vec2(-dy, dx);
+    const dir = new Vec2(dx, -dy);
     const degree = (dir.signAngle(new Vec2(1, 0)) / Math.PI) * 180;
     this.line.angle = degree;
     this.line.active = true;
@@ -182,9 +186,9 @@ export class CardAction extends Component {
         .delay(1)
         .call(() => {
           this.line.active = false;
-        })
+        }),
+      false
     );
-    this.setAction(this.line, tween(this.line).to(duration, { worldPosition: new Vec3(dx / 2, dy / 2, 0) }));
   }
 
   setCard(card: Card, loaction: ActionLocation) {
@@ -240,6 +244,17 @@ export class CardAction extends Component {
     const card = data.card || data.cards;
     let node;
     return new Promise((resolve, reject) => {
+      if (from && from.player && from.player.id === 0) {
+        if (card instanceof Array) {
+          for (let c of card) {
+            this.handCardList.removeData(c);
+            c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+          }
+        } else {
+          this.handCardList.removeData(card);
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        }
+      }
       node = this.addCard(<Card>card, from);
       this.moveNode({
         node,

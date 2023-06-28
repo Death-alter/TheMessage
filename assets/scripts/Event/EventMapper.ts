@@ -433,6 +433,7 @@ export class EventMapper {
         card: data.card,
         cardType: CardType.WU_DAO,
         userId: data.playerId,
+        targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
@@ -455,6 +456,7 @@ export class EventMapper {
           card: data.card,
           cardType: CardType.WEI_BI,
           userId: data.playerId,
+          targetPlayerId: data.targetPlayerId,
         });
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
           data: {
