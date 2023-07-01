@@ -151,14 +151,13 @@ export class GuangFaBao extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, enable, targetPlayerId, cards }: skill_guang_fa_bao_b_toc) {
-    console.log(enable);
     if (enable) {
       const gameLog = gameData.gameLog;
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
       const handCards = gameData.playerRemoveHandCard(player, cards);
-      gameData.playerAddHandCard(targetPlayer, handCards);
+      targetPlayer.addMessage(handCards);
 
       if (gameData.gameObject) {
         gameData.gameObject.cardAction.addCardToMessageZone({
@@ -167,11 +166,15 @@ export class GuangFaBao extends ActiveSkill {
           from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
         });
       }
+      let str = "";
+      for (let card of handCards) {
+        str += gameLog.formatCard(card);
+      }
       gameLog.addData(
         new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}把${cards.length}张手牌置入【${
-            targetPlayer.seatNumber + 1
-          }号】${targetPlayer.character.name}的情报区`
+          `【${player.seatNumber + 1}号】${player.character.name}把${str}置入【${targetPlayer.seatNumber + 1}号】${
+            targetPlayer.character.name
+          }的情报区`
         )
       );
     } else {

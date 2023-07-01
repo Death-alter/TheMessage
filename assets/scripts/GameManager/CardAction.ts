@@ -8,7 +8,6 @@ import { CardObject } from "../Game/Card/CardObject";
 import { HandCardList } from "../Game/Container/HandCardList";
 import { Player } from "../Game/Player/Player";
 import { ActionLocation, CardActionLocation, MoveNodeParams } from "./type";
-import { OuterGlow } from "../Utils/OuterGlow";
 
 const { ccclass, property } = _decorator;
 
@@ -64,11 +63,18 @@ export class CardAction extends Component {
       const action = this.items[node.uuid] && this.items[node.uuid].action;
       if (action) {
         if (mixin) {
-          tween(node).parallel(action, t).start();
+          tween(node)
+            .parallel(action, t)
+            .call(() => {
+              if (this.items[node.uuid]) this.items[node.uuid].action = null;
+            })
+            .start();
         } else {
           action
             .call(() => {
-              t.start();
+              t.call(() => {
+                if (this.items[node.uuid]) this.items[node.uuid].action = null;
+              }).start();
             })
             .start();
         }
@@ -334,7 +340,8 @@ export class CardAction extends Component {
   //打出卡牌动画，播放声音
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
-    if (player.id === 0) {
+    console.log(card);
+    if (player.id === 0 && card.id != null) {
       this.handCardList.removeData(card);
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
@@ -365,6 +372,7 @@ export class CardAction extends Component {
           card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         });
       }
+      console.log(cardList);
       this.addCardToHandCard({
         player: targetPlayer,
         cards: cardList,

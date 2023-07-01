@@ -468,13 +468,14 @@ export class EventMapper {
       }
     );
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_GIVE_CARD_TOC, (data: ProtobufType.wei_bi_give_card_toc) => {
+      const params: any = { userId: data.playerId, targetPlayerId: data.targetPlayerId };
+      if (data.card) {
+        params.card = data.card;
+      }
+
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         handler: "onGiveCard",
-        data: {
-          card: data.card,
-          userId: data.playerId,
-          targetPlayerId: data.targetPlayerId,
-        },
+        data: params,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.WEI_BI_SHOW_HAND_CARD_TOC, (data: ProtobufType.wei_bi_show_hand_card_toc) => {

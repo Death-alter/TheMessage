@@ -409,22 +409,20 @@ export class GameData extends DataBasic<GameUI> {
     let card: Card;
     let cardId: number;
     const user = this.playerList[data.userId];
-
-    if (data.card != null) {
-      cardId = data.card.cardId;
-    } else if (data.cardId != null) {
-      cardId = data.cardId;
-    } else {
-      cardId = null;
-    }
-
-    card = this.playerRemoveHandCard(user, cardId);
-
-    if (!card || card.type === CardType.UNKNOWN) {
-      if (data.card) {
-        card = this.createCard(data.card);
-      } else {
+    console.log(data);
+    if (data.hasOwnProperty("card")) {
+      console.log(data.card);
+      if (data.card == null) {
         card = this.createCardByType(data.cardType);
+      } else {
+        card = this.playerRemoveHandCard(user, data.card);
+      }
+    } else if (data.hasOwnProperty("cardId")) {
+      console.log(data.cardId);
+      if (cardId == null) {
+        card = this.createCardByType(data.cardType);
+      } else {
+        card = this.playerRemoveHandCard(user, cardId);
       }
     }
 
