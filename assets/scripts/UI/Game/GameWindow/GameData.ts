@@ -407,22 +407,18 @@ export class GameData extends DataBasic<GameUI> {
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: Card;
-    let cardId: number;
     const user = this.playerList[data.userId];
-    console.log(data);
     if (data.hasOwnProperty("card")) {
-      console.log(data.card);
       if (data.card == null) {
         card = this.createCardByType(data.cardType);
       } else {
         card = this.playerRemoveHandCard(user, data.card);
       }
     } else if (data.hasOwnProperty("cardId")) {
-      console.log(data.cardId);
-      if (cardId == null) {
+      if (data.cardId === 0) {
         card = this.createCardByType(data.cardType);
       } else {
-        card = this.playerRemoveHandCard(user, cardId);
+        card = this.playerRemoveHandCard(user, data.cardId);
       }
     }
 
@@ -451,6 +447,7 @@ export class GameData extends DataBasic<GameUI> {
       return;
     }
     const handlerName = data.handler || "onEffect";
+    console.log(this.cardOnPlay);
     this.cardOnPlay[handlerName](this, data.data);
   }
 

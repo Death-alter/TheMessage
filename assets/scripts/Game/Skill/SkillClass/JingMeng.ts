@@ -106,6 +106,7 @@ export class JingMeng extends TriggerSkill {
               });
               gameData.gameObject.showCardsWindow.hide();
             },
+            enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
           },
         ],
       });
