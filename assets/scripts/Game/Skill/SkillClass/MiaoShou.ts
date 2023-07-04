@@ -93,50 +93,53 @@ export class MiaoShou extends ActiveSkill {
     gameData.messageInTransmit = null;
     if (gameData.gameObject) {
       gameData.gameObject.cardAction.discardMessage(message);
-    }
 
-    if (playerId === 0 && gameData.gameObject) {
-      this.gameObject?.lock();
-      const data: any = {
-        seq,
-      };
+      if (playerId === 0) {
+        this.gameObject?.lock();
+        const data: any = {
+          seq,
+        };
 
-      const tooltip = gameData.gameObject.tooltip;
-      const showCardsWindow = gameData.gameObject.showCardsWindow;
-      const cardList = [...cards.map((card) => gameData.createCard(card)), ...targetPlayer.getMessagesCopy()];
-      const tags = cards.map(() => "手牌");
-      tags.push("情报区");
-      
-      showCardsWindow.show({
-        title: "请选择一张牌作为待收情报",
-        limit: 1,
-        cardList,
-        tags,
-        buttons: [
-          {
-            text: "确定",
-            onclick: () => {
-              const selectedCard = showCardsWindow.selectedCards.list[0];
-              if (cardList.indexOf(selectedCard) < cards.length) {
-                data.cardId = selectedCard.id;
-              } else {
-                data.messageCardId = selectedCard.id;
-              }
-              showCardsWindow.hide();
+        const tooltip = gameData.gameObject.tooltip;
+        const showCardsWindow = gameData.gameObject.showCardsWindow;
+        const messages = targetPlayer.getMessagesCopy();
+        const cardList = [...cards.map((card) => gameData.createCard(card)), ...messages];
+        const tags = cards.map(() => "手牌");
+        messages.forEach(() => {
+          tags.push("情报区");
+        });
+
+        showCardsWindow.show({
+          title: "请选择一张牌作为待收情报",
+          limit: 1,
+          cardList,
+          tags,
+          buttons: [
+            {
+              text: "确定",
+              onclick: () => {
+                const selectedCard = showCardsWindow.selectedCards.list[0];
+                if (cardList.indexOf(selectedCard) < cards.length) {
+                  data.cardId = selectedCard.id;
+                } else {
+                  data.messageCardId = selectedCard.id;
+                }
+                showCardsWindow.hide();
+              },
+              enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
-            enabled: () => !!showCardsWindow.selectedCards.list.length,
-          },
-        ],
-      });
+          ],
+        });
 
-      tooltip.setText("请选择一名角色");
-      gameData.gameObject.startSelectPlayer({
-        num: 1,
-        onSelect: (player) => {
-          data.targetPlayerId = player.id;
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_B_TOS, data);
-        },
-      });
+        tooltip.setText("请选择一名角色");
+        gameData.gameObject.startSelectPlayer({
+          num: 1,
+          onSelect: (player) => {
+            data.targetPlayerId = player.id;
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_B_TOS, data);
+          },
+        });
+      }
     }
 
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【妙手】`));
@@ -153,6 +156,9 @@ export class MiaoShou extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const fromPlayer = gameData.playerList[fromPlayerId];
+    if (gameData.gameObject) {
+      gameData.gameObject.showCardsWindow.hide();
+    }
 
     let message;
     if (card) {
