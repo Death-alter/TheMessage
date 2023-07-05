@@ -290,6 +290,7 @@ export class EventMapper {
         userId: data.playerId,
         cardId: data.cardId,
         cardType: CardType.SHI_TAN,
+        isActual: true,
         targetPlayerId: data.targetPlayerId,
       });
     });
@@ -324,6 +325,7 @@ export class EventMapper {
         card: data.liYouCard,
         cardType: CardType.LI_YOU,
         userId: data.playerId,
+        isActual: data.liYouCard !== null,
         targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -341,6 +343,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.pingHengCard,
         cardType: CardType.PING_HENG,
+        isActual: data.pingHengCard !== null,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
@@ -358,6 +361,7 @@ export class EventMapper {
         card: data.card,
         cardType: CardType.CHENG_QING,
         userId: data.playerId,
+        isActual: data.card !== null,
         targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -379,6 +383,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.PO_YI,
+        isActual: data.card !== null,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -407,6 +412,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.JIE_HUO,
+        isActual: data.card !== null,
         userId: data.playerId,
       });
     });
@@ -416,6 +422,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         cardId: data.cardId,
         cardType: CardType.DIAO_BAO,
+        isActual: true,
         userId: data.playerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -428,10 +435,10 @@ export class EventMapper {
 
     //误导
     NetworkEventCenter.on(NetworkEventToC.USE_WU_DAO_TOC, (data: ProtobufType.use_wu_dao_toc) => {
-      console.log(data.targetPlayerId);
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.WU_DAO,
+        isActual: data.card !== null,
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
@@ -456,6 +463,7 @@ export class EventMapper {
           card: data.card,
           cardType: CardType.WEI_BI,
           userId: data.playerId,
+          isActual: data.card !== null,
           targetPlayerId: data.targetPlayerId,
         });
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -483,6 +491,7 @@ export class EventMapper {
         card: data.card,
         cardType: CardType.WEI_BI,
         userId: data.playerId,
+        isActual: data.card !== null,
         targetPlayerId: data.targetPlayerId,
         wantType: data.wantType,
       });
@@ -505,6 +514,7 @@ export class EventMapper {
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
           card: data.card,
           cardType: CardType.FENG_YUN_BIAN_HUAN,
+          isActual: data.card !== null,
           userId: data.playerId,
         });
         ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
@@ -568,6 +578,7 @@ export class EventMapper {
         card: data.card,
         cardType: CardType.MI_LING,
         userId: data.playerId,
+        isActual: true,
         targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {

@@ -408,18 +408,20 @@ export class GameData extends DataBasic<GameUI> {
   private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: Card;
     const user = this.playerList[data.userId];
-    if (data.hasOwnProperty("card")) {
-      if (data.card == null) {
-        card = this.createCardByType(data.cardType);
-      } else {
+    if (data.isActual) {
+      if (data.hasOwnProperty("card")) {
         card = this.playerRemoveHandCard(user, data.card);
-      }
-    } else if (data.hasOwnProperty("cardId")) {
-      if (data.cardId === 0) {
-        card = this.createCardByType(data.cardType);
-      } else {
+        if (data.card === null) {
+          card = this.createCardByType(data.cardType);
+        }
+      } else if (data.hasOwnProperty("cardId")) {
         card = this.playerRemoveHandCard(user, data.cardId);
+        if (data.cardId === 0) {
+          card = this.createCardByType(data.cardType);
+        }
       }
+    } else {
+      card = this.createCardByType(data.cardType);
     }
 
     if (this.cardOnPlay) {

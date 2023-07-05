@@ -161,6 +161,7 @@ export interface CardPlayed {
   cardType: CardType;
   cardId?: number;
   card?: card;
+  isActual: boolean;
   targetPlayerId?: number;
   [index: string]: any;
 }

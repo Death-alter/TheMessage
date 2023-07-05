@@ -124,7 +124,7 @@ export class MiaoShou extends ActiveSkill {
                 } else {
                   data.messageCardId = selectedCard.id;
                 }
-                showCardsWindow.hide();
+                gameData.gameObject.showCardsWindow.hide();
               },
               enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
@@ -169,7 +169,7 @@ export class MiaoShou extends ActiveSkill {
     gameData.messageInTransmit = message;
 
     if (gameData.gameObject) {
-      if (playerId === 0) {
+      if (playerId === 0 && card) {
         gameData.handCardList.removeData(message);
       }
 
