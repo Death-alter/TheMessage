@@ -439,13 +439,14 @@ export class GameUI extends GameObject<GameData> {
       if (skill instanceof ActiveSkill) {
         if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1) {
           switch (this.data.gamePhase) {
-            case GamePhase.MAIN_PHASE:
+            case GamePhase.SEND_PHASE_START:
               if (this.data.turnPlayerId === 0) {
                 buttons.list[index].useable = true;
               } else {
                 buttons.list[index].useable = false;
               }
               break;
+            case GamePhase.MAIN_PHASE:
             case GamePhase.FIGHT_PHASE:
               if (data.playerId === 0) {
                 buttons.list[index].useable = true;
@@ -759,6 +760,7 @@ export class GameUI extends GameObject<GameData> {
 
   promotSendMessage(tooltipText) {
     this.tooltip.setText(tooltipText);
+    this.tooltip.buttons.setButtons([]);
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
@@ -846,12 +848,12 @@ export class GameUI extends GameObject<GameData> {
     });
   }
 
-  doSendMessage() {
+  doSendMessage(direction?: CardDirection) {
     const card = this.selectedHandCards.list[0];
     const data: any = {
       cardId: card.id,
       lockPlayerId: [],
-      cardDir: card.direction,
+      cardDir: direction == null ? card.direction : direction,
       seq: this.seq,
     };
     this.selectedHandCards.lock();
@@ -861,7 +863,7 @@ export class GameUI extends GameObject<GameData> {
         name: "selectTarget",
         handler: () =>
           new Promise((resolve, reject) => {
-            switch (card.direction) {
+            switch (data.cardDir) {
               case CardDirection.LEFT:
                 data.targetPlayerId = this.data.playerList.length - 1;
                 resolve(null);

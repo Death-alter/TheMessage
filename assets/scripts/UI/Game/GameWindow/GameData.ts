@@ -449,7 +449,6 @@ export class GameData extends DataBasic<GameUI> {
       return;
     }
     const handlerName = data.handler || "onEffect";
-    console.log(this.cardOnPlay);
     this.cardOnPlay[handlerName](this, data.data);
   }
 

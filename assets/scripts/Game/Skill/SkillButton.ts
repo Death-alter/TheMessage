@@ -70,6 +70,9 @@ export class SkillButton extends GameObject<Skill> {
               case GamePhase.MAIN_PHASE:
                 gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
                 break;
+              case GamePhase.SEND_PHASE_START:
+                gameData.gameObject.promotSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+                break;
               case GamePhase.FIGHT_PHASE:
                 gameData.gameObject.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
                 break;

@@ -6,8 +6,8 @@ export interface metaAction {
 export class PlayerAction {
   private actions: metaAction[];
   private index: number = 0;
-  private complete: () => void;
-  private cancel: () => void;
+  private complete: (params?) => void;
+  private cancel: (params?) => void;
 
   get steps() {
     return this.actions.length;
@@ -17,7 +17,7 @@ export class PlayerAction {
     return this.index;
   }
 
-  constructor(option: { actions: metaAction[]; complete?: () => void; cancel?: () => void }) {
+  constructor(option: { actions: metaAction[]; complete?: (params?) => void; cancel?: (params?) => void }) {
     this.actions = option.actions;
     if (option.complete) {
       this.complete = option.complete;
@@ -53,7 +53,7 @@ export class PlayerAction {
       this.handleAction(params);
     } else {
       if (this.complete) {
-        this.complete();
+        this.complete(params);
       }
     }
   }
