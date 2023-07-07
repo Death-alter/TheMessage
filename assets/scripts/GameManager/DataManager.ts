@@ -15,22 +15,9 @@ export class DataManager extends Component {
   public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
 
   onLoad(): void {
-    ProcessEventCenter.on(ProcessEvent.START_LOAD_GAME_SCENE, () => {
-      this.gameData = new GameData();
-      this.gameLog = new GameLogList();
-      this.logHistory = new GameLogHistory();
-      this.gameLog.logHistory = this.logHistory;
-      this.gameData.registerEvents();
-      this.gameLog.registerEvents();
-    });
+    ProcessEventCenter.on(ProcessEvent.START_LOAD_GAME_SCENE, this.createData, this);
 
-    GameEventCenter.on(GameEvent.GAME_OVER, () => {
-      this.gameData.unregisterEvents();
-      this.gameLog.unregisterEvents();
-      this.gameData = null;
-      this.gameLog = null;
-      this.logHistory = null;
-    });
+    GameEventCenter.on(GameEvent.GAME_OVER, this.clearData, this);
 
     ProcessEventCenter.on(ProcessEvent.RECONNECT_SYNC_START, () => {
       this.syncStatus = SyncStatus.IS_SYNCING;
@@ -39,5 +26,27 @@ export class DataManager extends Component {
     ProcessEventCenter.on(ProcessEvent.RECONNECT_SYNC_END, () => {
       this.syncStatus = SyncStatus.SYNC_COMPLETE;
     });
+  }
+
+  createData() {
+    this.gameData = new GameData();
+    this.gameLog = new GameLogList();
+    this.logHistory = new GameLogHistory();
+    this.gameLog.logHistory = this.logHistory;
+    this.gameData.registerEvents();
+    this.gameLog.registerEvents();
+  }
+
+  clearData() {
+    this.gameData.unregisterEvents();
+    this.gameLog.unregisterEvents();
+    this.gameData = null;
+    this.gameLog = null;
+    this.logHistory = null;
+  }
+
+  resetData() {
+    this.clearData();
+    this.createData();
   }
 }

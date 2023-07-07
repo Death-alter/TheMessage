@@ -170,9 +170,8 @@ export class CardObject extends GameObject<Card> {
   flip() {
     return new Promise((reslove, reject) => {
       const node = this.node.getChildByName("Inner");
-      //未知卡牌不能翻面
       if (!this.data || this.data instanceof UnknownCard) {
-        reject("未知卡牌不能翻面");
+        reslove(null);
       } else {
         //翻面动画
         tween(node)

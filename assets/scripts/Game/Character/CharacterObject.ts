@@ -11,7 +11,7 @@ export class CharacterObject extends GameObject<Character> {
   }
 
   set data(data: Character) {
-    super.setData(data)
+    super.setData(data);
     if (data) {
       if (data.status === CharacterStatus.FACE_DOWN) {
         this.showCover();
@@ -33,7 +33,7 @@ export class CharacterObject extends GameObject<Character> {
 
   loadSprite() {
     resources.load(this._data.sprite + "/spriteFrame", SpriteFrame, (err, spriteFrame) => {
-      if (!err && spriteFrame) {
+      if (!err && spriteFrame && this.node) {
         spriteFrame.addRef(); // 计数加1
         this.node.getChildByPath("Mask/Image").getComponent(Sprite).spriteFrame = spriteFrame;
       }
