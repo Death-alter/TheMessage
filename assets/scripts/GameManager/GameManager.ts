@@ -66,7 +66,6 @@ export class GameManager extends Component {
     this.gameLog.gameObject = this.logContainer.getComponent(GameLogContainer);
     this.gameLog.logHistory.gameObject = this.logHistory.getComponent(GameLogWindow);
     this.gameLog.logHistory.gameObject.init();
-    this.gameData.gameLog = this.gameLog;
 
     gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
     gameUI.characterInfoWindow.getComponent(CharacterInfoWindow).init();
@@ -109,7 +108,7 @@ export class GameManager extends Component {
     }
   }
 
-  initGame(data: ProcessEventType.InitGame) {
+  initGame() {
     if (this.syncStatus === SyncStatus.NO_SYNC) {
       this.selectCharacterWindow.getComponent(SelectCharacter).hide();
     }

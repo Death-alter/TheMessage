@@ -144,7 +144,32 @@ export class WeiBi extends Card {
   }
 
   //目标没有宣言的牌，展示手牌
-  onShowHandCard(gameData: GameData, { userId, cards, targetPlayerId }: CardOnEffectParams) {
+  onShowHandCard(gameData: GameData, { userId, cards, targetPlayerId, wantType }: CardOnEffectParams) {
+    const user = gameData.playerList[userId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+
+    let cardTypeText;
+    switch (wantType as CardType) {
+      case CardType.JIE_HUO:
+        cardTypeText = "截获";
+        break;
+      case CardType.WU_DAO:
+        cardTypeText = "误导";
+        break;
+      case CardType.DIAO_BAO:
+        cardTypeText = "调包";
+        break;
+      case CardType.CHENG_QING:
+        cardTypeText = "澄清";
+        break;
+    }
+    gameData.gameLog.addData(
+      new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
+    );
+    gameData.gameLog.addData(
+      new GameLog(`【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有宣言的牌，对【${user.seatNumber + 1}号】${user.character.name}展示手牌`)
+    );
+
     if (userId === 0) {
       gameData.gameObject.showCardsWindow.show({
         title: "目标展示手牌",

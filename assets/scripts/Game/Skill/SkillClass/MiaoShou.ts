@@ -8,6 +8,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { Vec3 } from "cc";
 
 export class MiaoShou extends ActiveSkill {
   constructor(character: Character) {
@@ -89,9 +90,10 @@ export class MiaoShou extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const message = gameData.createMessage(messageCard);
-    message.gameObject = gameData.messageInTransmit.gameObject;
-    gameData.messageInTransmit = null;
+    gameData.messageInTransmit = message;
+
     if (gameData.gameObject) {
+      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.gameObject.cardAction.discardMessage(message);
 
       if (playerId === 0) {
@@ -137,6 +139,8 @@ export class MiaoShou extends ActiveSkill {
           onSelect: (player) => {
             data.targetPlayerId = player.id;
             NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_B_TOS, data);
+            gameData.gameObject.stopSelectHandCard();
+            gameData.gameObject.clearSelectedPlayers();
           },
         });
       }
@@ -163,13 +167,17 @@ export class MiaoShou extends ActiveSkill {
     let message;
     if (card) {
       message = gameData.playerRemoveHandCard(fromPlayer, card);
+      if (fromPlayerId !== 0) {
+        message = gameData.createCard(card);
+      }
     } else {
       message = fromPlayer.removeMessage(messageCardId);
     }
+
     gameData.messageInTransmit = message;
 
     if (gameData.gameObject) {
-      if (playerId === 0 && card) {
+      if (fromPlayerId === 0 && card) {
         gameData.handCardList.removeData(message);
       }
 
@@ -178,6 +186,11 @@ export class MiaoShou extends ActiveSkill {
         from: { location: CardActionLocation.PLAYER, player: fromPlayer },
         to: { location: CardActionLocation.PLAYER, player: targetPlayer },
       });
+
+      if (playerId === 0) {
+        this.gameObject?.unlock();
+        this.gameObject.isOn = false;
+      }
     }
 
     gameLog.addData(
@@ -187,10 +200,5 @@ export class MiaoShou extends ActiveSkill {
         }号】${targetPlayer.character.name}面前`
       )
     );
-
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
   }
 }

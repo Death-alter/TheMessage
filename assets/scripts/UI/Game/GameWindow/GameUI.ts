@@ -213,6 +213,9 @@ export class GameUI extends GameObject<GameData> {
     this.data.handCardList.gameObject = this.handCardContainer;
     this.handCardContainer.init();
     this.cardAction.handCardList = this.data.handCardList;
+    for (let card of this.data.selfPlayer.handCards) {
+      this.data.handCardList.addData(card);
+    }
 
     //创建其他人UI
     const othersCount = this.data.playerList.length - 1;

@@ -127,7 +127,7 @@ export class CardAction extends Component {
       const cardGroup = new DataContainer<Card>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
       for (let c of card) {
-        if (!c.gameObject) {
+        if (!(c.gameObject && c.gameObject.node)) {
           c.gameObject = GamePools.cardPool.get();
         }
         c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
@@ -136,10 +136,10 @@ export class CardAction extends Component {
       node = cardGroup.gameObject.node;
       obj.data = cardGroup;
     } else {
-      if (!card.gameObject) {
+      if (!(card.gameObject && card.gameObject.node)) {
         card.gameObject = GamePools.cardPool.get();
-        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       }
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       node = card.gameObject.node;
       obj.data = card;
     }

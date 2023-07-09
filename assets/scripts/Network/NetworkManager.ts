@@ -3,6 +3,8 @@ import ws from "../Utils/WebSocket";
 import { EventMapper } from "../Event/EventMapper";
 import { NetworkEventCenter } from "../Event/EventTarget";
 import { NetworkEventToS, NetworkEventToC } from "../Event/type";
+import config from "../config";
+import md5 from "ts-md5";
 import { EDITOR } from "cc/env";
 import { DataManager } from "../GameManager/DataManager";
 
@@ -31,32 +33,41 @@ export class NetworkManager extends Component {
 
     EventMapper.init();
 
-    if (!EDITOR) {
-      game.on(Game.EVENT_HIDE, () => {
-        if (director.getScene().name === "game") {
-          this.timer = setTimeout(this.closeConnection, 10 * 1000);
-        }
-      });
+    // if (!EDITOR) {
+    //   game.on(Game.EVENT_HIDE, () => {
+    //     if (director.getScene().name === "game") {
+    //       this.timer = setTimeout(this.closeConnection, 30 * 1000);
+    //     }
+    //   });
 
-      game.on(Game.EVENT_SHOW, () => {
-        if (director.getScene().name === "game") {
-          if (ws.state !== WebSocket.OPEN) {
-            this.node.getComponent(DataManager).clearData();
-            director.loadScene("login", () => {
-              this.createConnection();
-            });
-          } else {
-            clearTimeout(this.timer);
-          }
-        }
-      });
-    }
+    //   game.on(Game.EVENT_SHOW, () => {
+    //     if (director.getScene().name === "game") {
+    //       if (ws.state !== WebSocket.OPEN) {
+    //         this.node.getComponent(DataManager).clearData();
+    //         director.loadScene("login", () => {
+    //           this.createConnection();
+    //         });
+    //       } else {
+    //         clearTimeout(this.timer);
+    //       }
+    //     }
+    //   });
+    // }
   }
 
   createConnection() {
     ws.createConnection();
     ws.setHeartBeatFunction(() => {
       ws.send("heart_tos");
+    });
+    ws.on("reconnect", () => {
+      const name = sys.localStorage.getItem("userName");
+      NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
+        version: config.version,
+        name,
+        password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
+        device: md5.Md5.hashStr(name),
+      });
     });
   }
 
