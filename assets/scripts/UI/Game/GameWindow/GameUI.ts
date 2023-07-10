@@ -11,12 +11,12 @@ import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager/type";
-import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
+import { ShowCardsOptions, ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
-import { ActiveSkill, TriggerSkill } from "../../../Game/Skill/Skill";
+import { ActiveSkill, Skill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
@@ -72,6 +72,10 @@ export class GameUI extends GameObject<GameData> {
 
   get selectedHandCards() {
     return this.data.handCardList.selectedCards;
+  }
+
+  private showCards(data: ShowCardsOptions) {
+    this.showCardsWindow.show(data);
   }
 
   onLoad() {
@@ -133,8 +137,17 @@ export class GameUI extends GameObject<GameData> {
     //打出卡牌
     GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
 
+    //卡牌结算
+    GameEventCenter.on(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
+
     //卡牌结算完
     GameEventCenter.on(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
+
+    //技能结算
+    GameEventCenter.on(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
+
+    //技能结算完
+    GameEventCenter.on(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
 
     //玩家开始传递情报
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
@@ -165,6 +178,8 @@ export class GameUI extends GameObject<GameData> {
 
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
+
+    GameEventCenter.on(GameEvent.SHOW_CARDS, this.showCards, this);
   }
 
   stopRender() {
@@ -175,8 +190,11 @@ export class GameUI extends GameObject<GameData> {
     // GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
+    GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
+    GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
+    GameEventCenter.off(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
     GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
@@ -186,6 +204,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
+    GameEventCenter.off(GameEvent.SHOW_CARDS, this.showCards, this);
   }
 
   init() {
@@ -403,26 +422,26 @@ export class GameUI extends GameObject<GameData> {
             case GamePhase.MAIN_PHASE:
               this.tooltip.setNextPhaseButtonText("传递阶段");
               this.tooltip.showNextPhaseButton();
-              this.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+              this.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
               break;
             case GamePhase.FIGHT_PHASE:
               this.tooltip.setNextPhaseButtonText("跳过");
               this.tooltip.showNextPhaseButton();
-              this.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
+              this.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
               break;
           }
           break;
         case WaitingType.SEND_MESSAGE:
-          this.promotSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+          this.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          this.promotReceiveMessage("情报传递到你面前，是否接收情报？");
+          this.promptReceiveMessage("情报传递到你面前，是否接收情报？");
           break;
         case WaitingType.PLAYER_DYING:
-          this.promotUseChengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
+          this.promptUseChengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
           break;
         case WaitingType.GIVE_CARD:
-          this.promotDieGiveCard("你已死亡，请选择最多三张手牌交给其他角色");
+          this.promptDieGiveCard("你已死亡，请选择最多三张手牌交给其他角色");
           break;
         case WaitingType.USE_SKILL:
           const player = this.data.playerList[data.playerId];
@@ -505,10 +524,11 @@ export class GameUI extends GameObject<GameData> {
   }
 
   cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
+    const { player, card, from } = data;
     this.cardAction.addCardToHandCard({
-      player: data.player,
-      cards: [data.card],
-      from: { location: data.from },
+      player: player,
+      card: <Card>card,
+      from: from || { location: CardActionLocation.DECK },
     });
   }
 
@@ -538,7 +558,12 @@ export class GameUI extends GameObject<GameData> {
   }
 
   messagePlacedIntoMessageZone(data: GameEventType.MessagePlacedIntoMessageZone) {
-    this.cardAction.messagePlacedIntoMessageZone(data);
+    const { player, message, from } = data;
+    this.cardAction.addCardToMessageZone({
+      player,
+      card: <Card>message,
+      from: from || { location: CardActionLocation.DECK },
+    });
   }
 
   playerDie(data: GameEventType.PlayerDie) {
@@ -567,10 +592,32 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.playerPlayCard(data);
   }
 
+  cardOnEffect(data: GameEventType.CardOnEffect) {
+    const { card, handler } = data;
+    if (handler) {
+      card[handler](this);
+    }
+  }
+
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
-    const flag = data.card.onFinish(this.data) && data.flag !== false;
+    const flag = data.card.onFinish(this) && data.flag !== false;
     if (flag !== false) {
       this.cardAction.afterPlayerPlayCard(data);
+    }
+  }
+
+  skillOnEffect(data: GameEventType.SkillOnEffect) {
+    const { player, skill, handler } = data;
+    skill.gameObject?.lock();
+    if (player.id === 0 && handler) {
+      skill[handler](this);
+    }
+  }
+
+  afterPlayerUseSkill(skill: Skill) {
+    if (skill.gameObject) {
+      skill.gameObject.unlock();
+      skill.gameObject.isOn = false;
     }
   }
 
@@ -592,7 +639,7 @@ export class GameUI extends GameObject<GameData> {
     this.playerAction.handleAction();
   }
 
-  promotUseHandCard(tooltipText) {
+  promptUseHandCard(tooltipText) {
     this.playerAction = new PlayerAction({
       actions: [
         {
@@ -608,7 +655,7 @@ export class GameUI extends GameObject<GameData> {
           handler: (card: Card) =>
             new Promise(() => {
               if (this.cardCanPlayed(card)) {
-                card.onSelectedToPlay(this.data, this.tooltip);
+                card.onSelectedToPlay(this);
               } else {
                 this.tooltip.setText("现在不能使用这张卡");
               }
@@ -624,13 +671,13 @@ export class GameUI extends GameObject<GameData> {
         this.playerAction.next(card);
       },
       onDeselect: (card: Card) => {
-        card.onDeselected(this.data);
+        card.onDeselected(this);
         this.playerAction.prev();
       },
     });
   }
 
-  promotUseChengQing(tooltipText, playerId) {
+  promptUseChengQing(tooltipText, playerId) {
     this.playerAction = new PlayerAction({
       actions: [
         {
@@ -710,7 +757,7 @@ export class GameUI extends GameObject<GameData> {
     this.playerAction.start();
   }
 
-  promotDieGiveCard(tooltipText) {
+  promptDieGiveCard(tooltipText) {
     this.playerAction = new PlayerAction({
       actions: [
         {
@@ -761,7 +808,7 @@ export class GameUI extends GameObject<GameData> {
     this.playerAction.start();
   }
 
-  promotSendMessage(tooltipText) {
+  promptSendMessage(tooltipText) {
     this.tooltip.setText(tooltipText);
     this.tooltip.buttons.setButtons([]);
     this.startSelectHandCard({
@@ -773,7 +820,7 @@ export class GameUI extends GameObject<GameData> {
             {
               text: card.name,
               onclick: () => {
-                card.onSelectedToPlay(this.data, this.tooltip);
+                card.onSelectedToPlay(this);
               },
             },
             {
@@ -800,13 +847,13 @@ export class GameUI extends GameObject<GameData> {
         this.stopSelectPlayer();
         this.clearSelectedPlayers();
         if (card.availablePhases.indexOf(this.data.gamePhase) !== -1) {
-          card.onDeselected(this.data);
+          card.onDeselected(this);
         }
       },
     });
   }
 
-  promotReceiveMessage(tooltipText) {
+  promptReceiveMessage(tooltipText) {
     const setTooltip = () => {
       this.tooltip.setText(tooltipText);
       this.tooltip.buttons.setButtons([
@@ -837,7 +884,7 @@ export class GameUI extends GameObject<GameData> {
       num: 1,
       onSelect: (card: Card) => {
         if (this.cardCanPlayed(card)) {
-          card.onSelectedToPlay(this.data, this.tooltip);
+          card.onSelectedToPlay(this);
         } else {
           this.tooltip.setText("现在不能使用这张卡");
         }
@@ -845,7 +892,7 @@ export class GameUI extends GameObject<GameData> {
       onDeselect: (card: Card) => {
         setTooltip();
         if (this.cardCanPlayed(card)) {
-          card.onDeselected(this.data);
+          card.onDeselected(this);
         }
       },
     });

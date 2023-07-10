@@ -1,8 +1,8 @@
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { Player } from "../../Player/Player";
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -24,15 +24,16 @@ export class ChengQing extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
+  onSelectedToPlay(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择要澄清的目标`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => {
         return player.messageCounts[CardColor.BLACK] !== 0;
       },
       onSelect: async (player: Player) => {
-        const showCardsWindow = gameData.gameObject.showCardsWindow
+        const showCardsWindow = gui.showCardsWindow;
         showCardsWindow.show({
           title: "选择一张情报弃置",
           cardList: player.getMessagesCopy(),
@@ -43,12 +44,12 @@ export class ChengQing extends Card {
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
                   cardId: this.id,
-                  playerId: gameData.gameObject.selectedPlayers.list[0].id,
+                  playerId: gui.selectedPlayers.list[0].id,
                   targetCardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
                 showCardsWindow.hide();
-                this.onDeselected(gameData);
+                this.onDeselected(gui);
               },
               enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
@@ -56,7 +57,7 @@ export class ChengQing extends Card {
               text: "取消",
               onclick: () => {
                 showCardsWindow.hide();
-                gameData.gameObject.clearSelectedPlayers();
+                gui.clearSelectedPlayers();
               },
             },
           ],
@@ -65,9 +66,9 @@ export class ChengQing extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {

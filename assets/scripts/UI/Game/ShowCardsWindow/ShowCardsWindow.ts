@@ -19,6 +19,14 @@ import { OuterGlow } from "../../../Utils/OuterGlow";
 import { SelectedList } from "../../../Utils/SelectedList";
 const { ccclass, property } = _decorator;
 
+export interface ShowCardsOptions {
+  title?: string;
+  limit: number;
+  cardList?: Card[];
+  buttons?: ButtonConfig[];
+  tags?: string[];
+}
+
 @ccclass("ShowCardsWindow")
 export class ShowCardsWindow extends Component {
   @property(Node)
@@ -38,7 +46,7 @@ export class ShowCardsWindow extends Component {
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
   }
 
-  show(options?: { title?: string; limit: number; cardList?: Card[]; buttons?: ButtonConfig[]; tags?: string[] }) {
+  show(options?: ShowCardsOptions) {
     this.node.active = true;
     if (options) {
       const { title, cardList, buttons, limit, tags } = options;

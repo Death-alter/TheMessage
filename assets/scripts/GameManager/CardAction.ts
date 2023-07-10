@@ -53,6 +53,20 @@ export class CardAction extends Component {
     }
   }
 
+  private dealCardFromHandCard(card: Card | Card[], from: ActionLocation) {
+    if (from && from.player && from.player.id === 0 && from.location === CardActionLocation.PLAYER_HAND_CARD) {
+      if (card instanceof Array) {
+        for (let c of card) {
+          this.handCardList.removeData(c);
+          c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        }
+      } else {
+        this.handCardList.removeData(card);
+        card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      }
+    }
+  }
+
   private getActionItem(node: Node) {
     return this.items[node.uuid];
   }
@@ -206,20 +220,9 @@ export class CardAction extends Component {
   addCardToHandCard(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
     const { player, from } = data;
     const card = data.card || data.cards;
-    let node;
     return new Promise((resolve, reject) => {
-      if (from && from.player && from.player.id === 0) {
-        if (card instanceof Array) {
-          for (let c of card) {
-            this.handCardList.removeData(c);
-            c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-          }
-        } else {
-          this.handCardList.removeData(card);
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        }
-      }
-      node = this.addCard(<Card>card, from);
+      this.dealCardFromHandCard(card, from);
+      const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
         from,
@@ -248,20 +251,9 @@ export class CardAction extends Component {
   addCardToMessageZone(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
     const { player, from } = data;
     const card = data.card || data.cards;
-    let node;
     return new Promise((resolve, reject) => {
-      if (from && from.player && from.player.id === 0) {
-        if (card instanceof Array) {
-          for (let c of card) {
-            this.handCardList.removeData(c);
-            c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-          }
-        } else {
-          this.handCardList.removeData(card);
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        }
-      }
-      node = this.addCard(<Card>card, from);
+      this.dealCardFromHandCard(card, from);
+      const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
         from,
@@ -284,6 +276,7 @@ export class CardAction extends Component {
 
   moveCard({ card, from, to }: { card: Card; from?: ActionLocation; to: ActionLocation }) {
     return new Promise((resolve, reject) => {
+      this.dealCardFromHandCard(card, from);
       const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
@@ -337,10 +330,9 @@ export class CardAction extends Component {
     });
   }
 
-  //打出卡牌动画，播放声音
+  //打出卡牌
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
-    console.log(card);
     if (player.id === 0 && card.id != null) {
       this.handCardList.removeData(card);
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
@@ -365,21 +357,10 @@ export class CardAction extends Component {
   }
 
   giveCards({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
-    return new Promise((resolve, reject) => {
-      if (player.id === 0) {
-        cardList.forEach((card) => {
-          this.handCardList.removeData(card);
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-        });
-      }
-      console.log(cardList);
-      this.addCardToHandCard({
-        player: targetPlayer,
-        cards: cardList,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-      }).then(() => {
-        resolve(null);
-      });
+    return this.addCardToHandCard({
+      player: targetPlayer,
+      cards: cardList,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
     });
   }
 
@@ -464,14 +445,6 @@ export class CardAction extends Component {
           resolve(null);
         });
       }
-    });
-  }
-
-  messagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
-    return this.addCardToMessageZone({
-      player,
-      card: message,
-      from: { location: CardActionLocation.DECK },
     });
   }
 

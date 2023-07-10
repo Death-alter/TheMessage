@@ -52,7 +52,7 @@ export class LianLuo extends ActiveSkill {
                     this.gameObject.isOn = false;
                     gameData.gameObject.stopSelectHandCard();
                     gameData.gameObject.clearSelectedHandCards();
-                    gameData.gameObject.promotSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+                    gameData.gameObject.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
                     reject(null);
                   },
                 },

@@ -4,11 +4,11 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
 import { Player } from "../../Player/Player";
 import { HandCardContianer } from "../../Container/HandCardContianer";
 import { getCardColorText } from "../../../Utils";
 import { GameLog } from "../../GameLog/GameLog";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -33,9 +33,10 @@ export class MiLing extends Card {
     this._secretColor = option.secretColor;
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择密令的目标`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player: Player) => {
         return player.handCardCount > 0 && player.id !== 0;
@@ -46,19 +47,19 @@ export class MiLing extends Card {
           {
             text: "东风",
             onclick: () => {
-              this.secretButtonClicked(gameData, 0);
+              this.secretButtonClicked(gui, 0);
             },
           },
           {
             text: "西风",
             onclick: () => {
-              this.secretButtonClicked(gameData, 1);
+              this.secretButtonClicked(gui, 1);
             },
           },
           {
             text: "静风",
             onclick: () => {
-              this.secretButtonClicked(gameData, 2);
+              this.secretButtonClicked(gui, 2);
             },
           },
         ]);
@@ -66,30 +67,30 @@ export class MiLing extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
+    let secretText;
+    switch (secret) {
+      case 0:
+        secretText = "东风";
+        break;
+      case 1:
+        secretText = "西风";
+        break;
+      case 2:
+        secretText = "静风";
+        break;
+    }
+
+    const gameLog = gameData.gameLog;
+    const player = gameData.playerList[playerId];
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}宣言了${secretText}`));
+
     if (gameData.gameObject) {
-      let secretText;
-      switch (secret) {
-        case 0:
-          secretText = "东风";
-          break;
-        case 1:
-          secretText = "西风";
-          break;
-        case 2:
-          secretText = "静风";
-          break;
-      }
-
-      const gameLog = gameData.gameLog;
-      const player = gameData.playerList[playerId];
-      gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}宣言了${secretText}`));
-
       if (hasColor) {
         //自己是目标
         if (targetPlayerId === 0) {
@@ -167,15 +168,15 @@ export class MiLing extends Card {
     }
   }
 
-  secretButtonClicked(gameData: GameData, secret: number) {
-    const card = gameData.handCardList.selectedCards.list[0];
-    const player = gameData.gameObject.selectedPlayers.list[0];
+  secretButtonClicked(gui: GameUI, secret: number) {
+    const card = gui.selectedHandCards.list[0];
+    const player = gui.selectedPlayers.list[0];
     NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
       cardId: card.id,
       targetPlayerId: player.id,
       secret,
-      seq: gameData.gameObject.seq,
+      seq: gui.seq,
     });
-    this.onDeselected(gameData);
+    this.onDeselected(gui);
   }
 }

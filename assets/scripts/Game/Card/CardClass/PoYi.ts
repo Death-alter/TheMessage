@@ -1,10 +1,10 @@
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];
@@ -23,8 +23,9 @@ export class PoYi extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
-    if (gameData.messageInTransmit.status === CardStatus.FACE_UP) {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
+    if (gui.data.messageInTransmit.status === CardStatus.FACE_UP) {
       tooltip.setText(`该情报无需破译`);
     } else {
       tooltip.setText(`是否使用破译？`);
@@ -34,7 +35,7 @@ export class PoYi extends Card {
           onclick: () => {
             NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
               cardId: this.id,
-              seq: gameData.gameObject.seq,
+              seq: gui.seq,
             });
           },
         },
@@ -42,7 +43,7 @@ export class PoYi extends Card {
     }
   }
 
-  onDeselected(gameData: GameData) {}
+  onDeselected(gui: GameUI) {}
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
     if (gameData.gameObject) {

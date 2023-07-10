@@ -1,10 +1,9 @@
-import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
-import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class PingHeng extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -23,9 +22,10 @@ export class PingHeng extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择平衡的目标`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => {
         return player.id !== 0;
@@ -36,13 +36,13 @@ export class PingHeng extends Card {
           {
             text: "确定",
             onclick: () => {
-              const player = gameData.gameObject.selectedPlayers.list[0];
+              const player = gui.selectedPlayers.list[0];
               NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
                 cardId: this.id,
                 playerId: player.id,
-                seq: gameData.gameObject.seq,
+                seq: gui.seq,
               });
-              this.onDeselected(gameData);
+              this.onDeselected(gui);
             },
           },
         ]);
@@ -50,9 +50,9 @@ export class PingHeng extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   onEffect(): void {}

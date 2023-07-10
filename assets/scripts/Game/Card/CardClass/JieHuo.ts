@@ -1,9 +1,8 @@
-import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
-import { ProcessEvent, NetworkEventToS } from "../../../Event/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
-import { Player } from "../../Player/Player";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 
@@ -24,7 +23,8 @@ export class JieHuo extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`是否使用截获？`);
     tooltip.buttons.setButtons([
       {
@@ -32,10 +32,10 @@ export class JieHuo extends Card {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
             cardId: this.id,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
-        enabled: () => gameData.messagePlayerId !== 0,
+        enabled: () => gui.data.messagePlayerId !== 0,
       },
     ]);
   }
