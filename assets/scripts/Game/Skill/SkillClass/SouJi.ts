@@ -69,7 +69,7 @@ export class SouJi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promotUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },

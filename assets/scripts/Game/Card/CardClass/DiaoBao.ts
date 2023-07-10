@@ -4,7 +4,8 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
+import { GameLog } from "../../GameLog/GameLog";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class DiaoBao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
@@ -24,7 +25,8 @@ export class DiaoBao extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`是否使用调包？`);
     tooltip.buttons.setButtons([
       {
@@ -32,7 +34,7 @@ export class DiaoBao extends Card {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
             cardId: this.id,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -50,13 +52,17 @@ export class DiaoBao extends Card {
 
     gameData.messageInTransmit = gameData.cardOnPlay;
     this.messageToReplaced = oldMessage;
+
+    const gameLog = gameData.gameLog;
+    gameLog.addData(new GameLog(`情报${gameLog.formatCard(this.messageToReplaced)}被调包`));
   }
 
-  onFinish(gameData: GameData) {
+  onFinish(gui: GameUI) {
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
-      message: gameData.messageInTransmit,
+      message: gui.data.messageInTransmit,
       oldMessage: this.messageToReplaced,
     });
+
     this.messageToReplaced = null;
     return false;
   }

@@ -79,7 +79,7 @@ export class JinBi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },

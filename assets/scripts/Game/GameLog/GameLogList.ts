@@ -9,6 +9,8 @@ import { GameLogMessageObject } from "./GameLogMessageObject";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
 import { GameLogHistory } from "./GameLogHistory";
+import { Player } from "../Player/Player";
+import { ActionLocation, CardActionLocation } from "../../GameManager/type";
 
 export class GameLogList extends DataContainer<GameLog> {
   logMessagePool: ObjectPool<GameLogMessageObject>;
@@ -65,6 +67,37 @@ export class GameLogList extends DataContainer<GameLog> {
     }
   }
 
+  formatPlayer(player: Player) {
+    return `【${player.seatNumber + 1}号】${player.character.name}`;
+  }
+
+  fromatLoaction(l: ActionLocation) {
+    const { location, player } = l;
+    switch (location) {
+      case CardActionLocation.DECK:
+        return "牌堆";
+      case CardActionLocation.DISCARD_PILE:
+        return "弃牌堆";
+      case CardActionLocation.PLAYER:
+        if (!player) {
+          return "";
+        }
+        return this.formatPlayer(player);
+      case CardActionLocation.PLAYER_HAND_CARD:
+        if (!player) {
+          return "";
+        }
+        return this.formatPlayer(player) + "的手牌";
+      case CardActionLocation.PLAYER_MESSAGE_ZONE:
+        if (!player) {
+          return "";
+        }
+        return this.formatPlayer(player) + "的情报区";
+      default:
+        return "";
+    }
+  }
+
   registerEvents() {
     GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.onPlayerDrawCard, this);
     GameEventCenter.on(GameEvent.PLAYER_DISCARD_CARD, this.onPlayerDiscardCard, this);
@@ -75,8 +108,6 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage, this);
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
-    GameEventCenter.on(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard, this);
-    GameEventCenter.on(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone, this);
   }
 
   unregisterEvents() {
@@ -89,75 +120,61 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.onPlayerRemoveMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
-    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.onCardAddToHandCard, this);
-    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.onMessagePlacedIntoMessageZone, this);
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}抽了${cardList.length}张牌。`));
+    this.addData(new GameLog(`${this.formatPlayer(player)}抽了${cardList.length}张牌。`));
   }
 
   onPlayerDiscardCard({ cardList, player }: GameEventType.PlayerDiscardCard) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃了${cardList.length}张牌。`));
+    this.addData(new GameLog(`${this.formatPlayer(player)}弃了${cardList.length}张牌。`));
   }
 
   onPlayerPlayCard({ player, targetPlayer, card }: GameEventType.PlayerPlayCard) {
     if (targetPlayer) {
       this.addData(
-        new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}对【${targetPlayer.seatNumber + 1}号】${
-            targetPlayer.character.name
-          }使用了${this.formatCard(card)}`
-        )
+        new GameLog(`${this.formatPlayer(player)}对${this.formatPlayer(targetPlayer)}使用了${this.formatCard(card)}`)
       );
     } else {
-      this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用了${this.formatCard(card)}`));
+      this.addData(new GameLog(`${this.formatPlayer(player)}使用了${this.formatCard(card)}`));
     }
   }
 
   onPlayerGiveCard({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
     this.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}交给了【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }${cardList.length}张牌`
-      )
+      new GameLog(`${this.formatPlayer(player)}交给了${this.formatPlayer(targetPlayer)}${cardList.length}张牌`)
     );
   }
 
   onPlayerSendMessage({ player, direction, targetPlayer, lockedPlayer }: GameEventType.PlayerSendMessage) {
-    let str = "";
+    let str = `${this.formatPlayer(player)}传出情报，`;
     switch (direction) {
       case CardDirection.LEFT:
-        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向左`;
+        str = "方向向左";
         break;
       case CardDirection.RIGHT:
-        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，方向向右`;
+        str = "方向向右";
         break;
       case CardDirection.UP:
-        str = `【${player.seatNumber + 1}号】${player.character.name}传出情报，目标为【${
-          targetPlayer.seatNumber + 1
-        }号】${targetPlayer.character.name}`;
+        str = `目标为${this.formatPlayer(targetPlayer)}`;
         break;
     }
     if (lockedPlayer) {
-      str += `，锁定【${lockedPlayer.seatNumber + 1}号】${lockedPlayer.character.name}`;
+      str += `，锁定${this.formatPlayer(lockedPlayer)}`;
     }
     this.addData(new GameLog(str));
   }
 
   onPlayerChooseReceiveMessage({ player }: GameEventType.PlayerChooseReceiveMessage) {
-    this.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}选择接收情报`));
+    this.addData(new GameLog(`${this.formatPlayer(player)}选择接收情报`));
   }
 
   onPlayerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
-    this.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}成功接收情报${this.formatCard(message)}`)
-    );
+    this.addData(new GameLog(`${this.formatPlayer(player)}成功接收情报${this.formatCard(message)}`));
   }
 
   onPlayerRemoveMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
-    let str = `【${player.seatNumber + 1}号】${player.character.name}移除情报`;
+    let str = `${this.formatPlayer(player)}移除情报`;
 
     for (let message of messageList) {
       str += this.formatCard(message);
@@ -166,18 +183,6 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
-    this.addData(new GameLog(`情报转移至【${messagePlayer.seatNumber + 1}号】${messagePlayer.character.name}`));
-  }
-
-  onCardAddToHandCard({ player, card }: GameEventType.CardAddToHandCard) {
-    this.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${this.formatCard(card)}加入手牌`)
-    );
-  }
-
-  onMessagePlacedIntoMessageZone({ player, message }: GameEventType.MessagePlacedIntoMessageZone) {
-    this.addData(
-      new GameLog(`情报${this.formatCard(message)}被置入【${player.seatNumber + 1}号】${player.character.name}的情报区`)
-    );
+    this.addData(new GameLog(`情报转移至${this.formatPlayer(messagePlayer)}`));
   }
 }

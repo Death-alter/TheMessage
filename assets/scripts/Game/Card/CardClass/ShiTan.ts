@@ -4,8 +4,9 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardOnEffectParams } from "../type";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
 import { IdentityType } from "../../Identity/type";
+import { GameLog } from "../../GameLog/GameLog";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -30,9 +31,10 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择试探的目标`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => player.id !== 0,
       onSelect: () => {
@@ -41,14 +43,14 @@ export class ShiTan extends Card {
           {
             text: "确定",
             onclick: () => {
-              const card = gameData.handCardList.selectedCards.list[0];
-              const player = gameData.gameObject.selectedPlayers.list[0];
+              const card = gui.selectedHandCards.list[0];
+              const player = gui.selectedPlayers.list[0];
               NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
                 cardId: card.id,
                 playerId: player.id,
-                seq: gameData.gameObject.seq,
+                seq: gui.seq,
               });
-              this.onDeselected(gameData);
+              this.onDeselected(gui);
             },
           },
         ]);
@@ -56,9 +58,9 @@ export class ShiTan extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, flag }: CardOnEffectParams) {
@@ -124,6 +126,28 @@ export class ShiTan extends Card {
           ]);
         }
       }
+
+      const gameLog = gameData.gameLog;
+      const array = ["神秘人", "潜伏战线", "特工机关"];
+      let drawStr = "";
+      let disCardStr = "";
+      for (let i = 0; i < 3; i++) {
+        if (shiTanCard.drawCardColor.indexOf(i) === -1) {
+          if (disCardStr.length) {
+            disCardStr += "或";
+          }
+          disCardStr += array[i];
+        } else {
+          if (drawStr.length) {
+            drawStr += "或";
+          }
+          drawStr += array[i];
+        }
+      }
+
+      disCardStr += "：弃置一张手牌。";
+      drawStr += "：摸一张牌。";
+      gameLog.addData(new GameLog(`试探内容：${disCardStr}${drawStr}`));
     }
   }
 }

@@ -2,9 +2,9 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
-import { Tooltip } from "../../../GameManager/Tooltip";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class WuDao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
@@ -23,10 +23,11 @@ export class WuDao extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {
+  onSelectedToPlay(gui: GameUI): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择误导的目标`);
-    const neighbors = gameData.getPlayerNeighbors(gameData.messagePlayerId);
-    gameData.gameObject.startSelectPlayer({
+    const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => {
         return neighbors.indexOf(player) !== -1;
@@ -40,9 +41,9 @@ export class WuDao extends Card {
               NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
                 cardId: this.id,
                 targetPlayerId: player.id,
-                seq: gameData.gameObject.seq,
+                seq: gui.seq,
               });
-              this.onDeselected(gameData);
+              this.onDeselected(gui);
             },
           },
         ]);
@@ -50,9 +51,9 @@ export class WuDao extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {

@@ -1,12 +1,12 @@
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { CardPlayed } from "../../../Event/ProcessEventType";
-import { Tooltip } from "../../../GameManager/Tooltip";
 import { GameLog } from "../../GameLog/GameLog";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -25,45 +25,46 @@ export class WeiBi extends Card {
     });
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip) {
+  onSelectedToPlay(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择威逼的目标`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => {
         return player.id !== 0;
       },
       onSelect: () => {
-        const showCardsWindow = gameData.gameObject.showCardsWindow;
+        const showCardsWindow = gui.showCardsWindow;
         showCardsWindow.show({
           title: "选择目标交给你的卡牌种类",
           cardList: [
-            gameData.createCardByType(CardType.JIE_HUO),
-            gameData.createCardByType(CardType.WU_DAO),
-            gameData.createCardByType(CardType.DIAO_BAO),
-            gameData.createCardByType(CardType.CHENG_QING),
+            gui.data.createCardByType(CardType.JIE_HUO),
+            gui.data.createCardByType(CardType.WU_DAO),
+            gui.data.createCardByType(CardType.DIAO_BAO),
+            gui.data.createCardByType(CardType.CHENG_QING),
           ],
           limit: 1,
           buttons: [
             {
               text: "确定",
               onclick: () => {
-                const player = gameData.gameObject.selectedPlayers.list[0];
+                const player = gui.selectedPlayers.list[0];
                 NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
                   cardId: this.id,
                   playerId: player.id,
                   wantType: showCardsWindow.selectedCards.list[0].type,
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
                 showCardsWindow.hide();
-                this.onDeselected(gameData);
+                this.onDeselected(gui);
               },
-              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+              enabled: () => !!gui.showCardsWindow.selectedCards.list.length,
             },
             {
               text: "取消",
               onclick: () => {
-                gameData.gameObject.showCardsWindow.hide();
-                gameData.gameObject.clearSelectedPlayers();
+                gui.showCardsWindow.hide();
+                gui.clearSelectedPlayers();
               },
             },
           ],
@@ -72,9 +73,9 @@ export class WeiBi extends Card {
     });
   }
 
-  onDeselected(gameData: GameData) {
-    gameData.gameObject.stopSelectPlayer();
-    gameData.gameObject.clearSelectedPlayers();
+  onDeselected(gui: GameUI) {
+    gui.stopSelectPlayer();
+    gui.clearSelectedPlayers();
   }
 
   //有人使用威逼

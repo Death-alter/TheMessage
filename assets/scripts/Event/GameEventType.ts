@@ -3,7 +3,8 @@ import { CardDirection } from "../Game/Card/type";
 import { CharacterStatus } from "../Game/Character/type";
 import { Identity } from "../Game/Identity/Identity";
 import { Player } from "../Game/Player/Player";
-import { CardActionLocation, GamePhase } from "../GameManager/type";
+import { Skill } from "../Game/Skill/Skill";
+import { ActionLocation, GamePhase } from "../GameManager/type";
 
 export interface GameInit {
   playerList: Player[];
@@ -38,13 +39,14 @@ export interface MessageReplaced {
 
 export interface MessagePlacedIntoMessageZone {
   player: Player;
-  message: Card;
+  message?: Card | Card[];
+  from?: ActionLocation;
 }
 
 export interface CardAddToHandCard {
   player: Player;
-  card: Card;
-  from: CardActionLocation;
+  card?: Card | Card[];
+  from?: ActionLocation;
 }
 
 export interface PlayerDrawCard {
@@ -123,7 +125,24 @@ export interface PlayerPlayCard {
   card: Card;
 }
 
+export interface CardOnEffect {
+  player: Player;
+  card: Card;
+  handler?: string;
+}
+
 export interface AfterPlayerPlayCard {
   card: Card;
   flag?: boolean;
+}
+
+export interface PlayerUseSkill {
+  player: Player;
+  skill: Skill;
+}
+
+export interface SkillOnEffect {
+  player: Player;
+  skill: Skill;
+  handler?: string;
 }

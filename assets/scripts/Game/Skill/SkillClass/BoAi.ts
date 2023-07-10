@@ -3,6 +3,7 @@ import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../.
 import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
@@ -69,7 +70,7 @@ export class BoAi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promotUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -87,72 +88,58 @@ export class BoAi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0 && gameData.gameObject) {
-      this.gameObject?.lock();
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText("请选择一张手牌交给另一名角色");
-      gameData.gameObject.startSelectHandCard({
-        num: 1,
-      });
-      gameData.gameObject.startSelectPlayer({
-        num: 1,
-        filter: (player) => player.id !== 0,
-      });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
-              targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-              cardId: gameData.gameObject.selectedHandCards.list[0].id,
-              seq,
-            });
-          },
-          enabled: () =>
-            gameData.gameObject.selectedPlayers.list.length === 1 &&
-            gameData.gameObject.selectedHandCards.list.length === 1,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
-              cardId: 0,
-              seq,
-            });
-          },
-        },
-      ]);
-    }
+    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+      player,
+      skill: this,
+      handler: "promptSelectHandCard",
+    });
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【博爱】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【博爱】`));
+  }
+
+  promptSelectHandCard(gui: GameUI) {
+    const tooltip = gui.tooltip;
+    tooltip.setText("请选择一张手牌交给另一名角色");
+    gui.startSelectHandCard({
+      num: 1,
+    });
+    gui.startSelectPlayer({
+      num: 1,
+      filter: (player) => player.id !== 0,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            cardId: gui.selectedHandCards.list[0].id,
+            seq: gui.seq,
+          });
+        },
+        enabled: () => gui.selectedPlayers.list.length === 1 && gui.selectedHandCards.list.length === 1,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_B_TOS, {
+            cardId: 0,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_bo_ai_b_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const handCard = gameData.playerRemoveHandCard(player, card);
     gameData.playerAddHandCard(targetPlayer, handCard);
 
-    if (gameData.gameObject) {
-      if (playerId === 0) {
-        gameData.handCardList.removeData(handCard);
-        this.gameObject?.unlock();
-        this.gameObject.isOn = false;
-      }
-
-      gameData.gameObject.cardAction.giveCards({ player, targetPlayer, cardList: [handCard] });
-    }
-
-    gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}把一张牌交给【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }`
-      )
-    );
-
+    GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     ++this.usageCount;
   }
 }

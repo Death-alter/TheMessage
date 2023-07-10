@@ -5,6 +5,7 @@ import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { Tween, Node } from "cc";
 import { Tooltip } from "../../GameManager/Tooltip";
 import { GamePhase } from "../../GameManager/type";
+import { GameUI } from "../../UI/Game/GameWindow/GameUI";
 
 export abstract class Card extends DataBasic<CardObject> {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
@@ -76,15 +77,15 @@ export abstract class Card extends DataBasic<CardObject> {
     }
   }
 
-  onSelectedToPlay(gameData: GameData, tooltip: Tooltip): void {}
+  onSelectedToPlay(gui: GameUI): void {}
 
-  onDeselected(gameData: GameData): void {}
+  onDeselected(gui: GameUI): void {}
 
   onEffect(gameData: GameData, params: CardOnEffectParams): boolean | void {
     return true;
   }
 
-  onFinish(gameData: GameData): boolean | void {
+  onFinish(gui: GameUI): boolean | void {
     return true;
   }
 
