@@ -1,6 +1,6 @@
 import { skill_fu_hei_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
@@ -34,6 +34,6 @@ export class FuHei extends PassiveSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【腹黑】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【腹黑】`));
   }
 }

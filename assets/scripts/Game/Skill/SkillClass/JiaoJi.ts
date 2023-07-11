@@ -8,6 +8,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JiaoJi extends ActiveSkill {
   private usageCount: number = 0;
@@ -54,10 +55,10 @@ export class JiaoJi extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择一名角色`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
     });
 
@@ -66,18 +67,18 @@ export class JiaoJi extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_A_TOS, {
-            targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-            seq: gameData.gameObject.seq,
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            seq: gui.seq,
           });
         },
         enabled: () => {
-          return !!gameData.gameObject.selectedPlayers.list.length;
+          return !!gui.selectedPlayers.list.length;
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -88,6 +89,8 @@ export class JiaoJi extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, unknownCardCount, waitingSecond, seq }: skill_jiao_ji_a_toc
   ) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
@@ -105,53 +108,53 @@ export class JiaoJi extends ActiveSkill {
     );
     gameData.playerAddHandCard(player, handCards);
 
-    if (gameData.gameObject) {
-      for (let card of handCards) {
-        gameData.handCardList.removeData(card);
-      }
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: handCards,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+    });
 
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-      });
-
-      if (playerId === 0) {
-        const tooltip = gameData.gameObject.tooltip;
-        this.gameObject?.lock();
-        let num = handCards.length;
-        if (player.messageCounts[CardColor.BLACK] === 0) {
-          tooltip.setText(`请选择${num}张手牌交给该角色`);
-        } else {
-          num = handCards.length - player.messageCounts[CardColor.BLACK];
-          tooltip.setText(`请选择${num > 0 ? num : 0} - ${handCards.length}张手牌交给该角色`);
-        }
-        gameData.gameObject.startSelectHandCard({
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseHandCard",
+        params: {
           num: handCards.length,
-        });
-        tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
-                cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
-                seq,
-              });
-            },
-            enabled: () => gameData.gameObject.selectedHandCards.list.length >= num,
-          },
-        ]);
-      }
+          player,
+        },
+      });
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【交际】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【交际】`));
     gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}抽取了【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }${handCards.length}张手牌`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}抽取了${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`)
     );
+  }
+
+  promptChooseHandCard(gui: GameUI, params) {
+    const { num, player } = params;
+    const tooltip = gui.tooltip;
+    if (player.messageCounts[CardColor.BLACK] === 0) {
+      tooltip.setText(`请选择${num}张手牌交给该角色`);
+    } else {
+      const minNum = num - player.messageCounts[CardColor.BLACK];
+      tooltip.setText(`请选择${minNum > 0 ? minNum : 0} - ${num}张手牌交给该角色`);
+    }
+    gui.startSelectHandCard({
+      num,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_B_TOS, {
+            cardIds: gui.selectedHandCards.list.map((card) => card.id),
+            seq: gui.seq,
+          });
+        },
+        enabled: () => gui.selectedHandCards.list.length >= num,
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_jiao_ji_b_toc) {
@@ -163,31 +166,21 @@ export class JiaoJi extends ActiveSkill {
       player,
       unknownCardCount ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
     );
-    gameData.playerAddHandCard(targetPlayer, handCards);
 
-    if (gameData.gameObject) {
-      for (let card of handCards) {
-        gameData.handCardList.removeData(card);
-      }
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player: targetPlayer,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-      });
-    }
+    gameData.playerAddHandCard(targetPlayer, handCards);
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player: targetPlayer,
+      card: handCards,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+    });
 
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}交给了【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }${handCards.length}张手牌`
+        `${gameLog.formatPlayer(player)}交给了${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`
       )
     );
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
     ++this.usageCount;
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

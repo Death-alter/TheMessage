@@ -1,15 +1,13 @@
 import {
   skill_guang_fa_bao_a_toc,
   skill_guang_fa_bao_b_toc,
-  skill_miao_bi_qiao_bian_a_toc,
-  skill_miao_bi_qiao_bian_b_toc,
   skill_wait_for_guang_fa_bao_b_toc,
 } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType, CardActionLocation } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
-import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { CardColor } from "../../Card/type";
 import { Character } from "../../Character/Character";
 import { CharacterStatus } from "../../Character/type";
@@ -62,8 +60,8 @@ export class GuangFaBao extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_GUANG_FA_BAO_B_TOC);
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText("是否使用【广发报】？");
 
     tooltip.buttons.setButtons([
@@ -71,18 +69,27 @@ export class GuangFaBao extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_A_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
     ]);
+  }
+
+  onEffectA(gameData: GameData, { playerId }: skill_guang_fa_bao_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
+    const gameLog = gameData.gameLog;
+    const player = gameData.playerList[playerId];
+
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【广发报】`));
   }
 
   waitingForUseB(gameData: GameData, { playerId, waitingSecond, seq }: skill_wait_for_guang_fa_bao_b_toc) {
@@ -93,61 +100,61 @@ export class GuangFaBao extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0 && gameData.gameObject) {
+    if (playerId === 0) {
       const player = gameData.playerList[playerId];
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText("请选择任意张手牌置入一名角色的情报区");
-      gameData.gameObject.startSelectHandCard({ num: player.handCardCount });
-      gameData.gameObject.startSelectPlayer({ num: 1 });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_B_TOS, {
-              enable: true,
-              targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-              cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
-              seq,
-            });
-          },
-          enabled: () => {
-            if (gameData.gameObject.selectedPlayers.list.length === 0) return false;
-            const targetPlayer = gameData.gameObject.selectedPlayers.list[0];
-            const colorCounts = targetPlayer.messageCounts;
-            for (let card of gameData.gameObject.selectedHandCards.list) {
-              for (let color of card.color) {
-                ++colorCounts[color];
-              }
-            }
-            if (colorCounts[CardColor.BLACK] < 3 && colorCounts[CardColor.BLUE] < 3 && colorCounts[CardColor.RED] < 3) {
-              return true;
-            } else {
-              return false;
-            }
-          },
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptSelectHandCard",
+        params: {
+          player,
         },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_B_TOS, {
-              enable: false,
-              seq,
-            });
-          },
-        },
-      ]);
+      });
     }
   }
 
-  onEffectA(gameData: GameData, { playerId }: skill_guang_fa_bao_a_toc) {
-    const gameLog = gameData.gameLog;
-    const player = gameData.playerList[playerId];
-
-    if (playerId === 0) {
-      this.gameObject?.lock();
-    }
-
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【广发报】`));
+  promptSelectHandCard(gui: GameUI, params) {
+    const { player } = params;
+    const tooltip = gui.tooltip;
+    tooltip.setText("请选择任意张手牌置入一名角色的情报区");
+    gui.startSelectHandCard({ num: player.handCardCount });
+    gui.startSelectPlayer({ num: 1 });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_B_TOS, {
+            enable: true,
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            cardIds: gui.selectedHandCards.list.map((card) => card.id),
+            seq: gui.seq,
+          });
+        },
+        enabled: () => {
+          if (gui.selectedPlayers.list.length === 0) return false;
+          const targetPlayer = gui.selectedPlayers.list[0];
+          const colorCounts = targetPlayer.messageCounts;
+          for (let card of gui.selectedHandCards.list) {
+            for (let color of card.color) {
+              ++colorCounts[color];
+            }
+          }
+          if (colorCounts[CardColor.BLACK] < 3 && colorCounts[CardColor.BLUE] < 3 && colorCounts[CardColor.RED] < 3) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_B_TOS, {
+            enable: false,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, enable, targetPlayerId, cards }: skill_guang_fa_bao_b_toc) {
@@ -159,29 +166,21 @@ export class GuangFaBao extends ActiveSkill {
       const handCards = gameData.playerRemoveHandCard(player, cards);
       targetPlayer.addMessage(handCards);
 
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToMessageZone({
-          player: targetPlayer,
-          cards: handCards,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-        });
-      }
+      GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+        player: targetPlayer,
+        message: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+      });
+
       let str = "";
       for (let card of handCards) {
         str += gameLog.formatCard(card);
       }
       gameLog.addData(
-        new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}把${str}置入【${targetPlayer.seatNumber + 1}号】${
-            targetPlayer.character.name
-          }的情报区`
-        )
+        new GameLog(`${gameLog.formatPlayer(player)}把${str}置入${gameLog.formatPlayer(targetPlayer)}的情报区`)
       );
     } else {
-      if (playerId === 0) {
-        this.gameObject?.unlock();
-        this.gameObject.isOn = false;
-      }
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
   }
 }

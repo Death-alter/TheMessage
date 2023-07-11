@@ -279,7 +279,7 @@ export enum GameEvent {
   PLAYER_SEND_MESSAGE = "player_send_message",
   PLAYER_CHOOSE_RECEIVE_MESSAGE = "player_choose_receive_message",
   PLAYER_RECEIVE_MESSAGE = "player_receive_message",
-  PLAYER_REOMVE_MESSAGE = "player_remove_message",
+  PLAYER_REMOVE_MESSAGE = "player_remove_message",
   PLAYER_BEFORE_DEATH = "player_before_death",
   PLAYER_DIE = "player_die",
   PLAYER_GIVE_CARD = "player_give_card",

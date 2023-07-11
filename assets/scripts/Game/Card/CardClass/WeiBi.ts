@@ -81,6 +81,9 @@ export class WeiBi extends Card {
   //有人使用威逼
   onEffect(gameData: GameData, { userId, targetPlayerId, wantType }: CardPlayed) {
     const user = gameData.playerList[userId];
+    const gameLog = gameData.gameLog;
+    const userText = gameLog.formatPlayer(user);
+
     let cardTypeText;
     switch (wantType as CardType) {
       case CardType.JIE_HUO:
@@ -96,38 +99,44 @@ export class WeiBi extends Card {
         cardTypeText = "澄清";
         break;
     }
-    gameData.gameLog.addData(
-      new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
-    );
+    gameLog.addData(new GameLog(`${userText}宣言了【${cardTypeText}】`));
 
     //自己被威逼
-    if (targetPlayerId === 0 && gameData.gameObject) {
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText(
-        `【${user.seatNumber + 1}号】${user.character.name} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`
-      );
-      gameData.gameObject.startSelectHandCard({
-        num: 1,
-      });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
-              cardId: gameData.gameObject.selectedHandCards.list[0].id,
-              seq: gameData.gameObject.seq,
-            });
-          },
-          enabled: () => {
-            return (
-              gameData.gameObject.selectedHandCards.list.length === 1 &&
-              gameData.gameObject.selectedHandCards.list[0].type === wantType
-            );
-          },
+    if (targetPlayerId === 0) {
+      GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+        card: this,
+        handler: "promptChooseCard",
+        params: {
+          userText,
+          cardTypeText,
+          wantType,
         },
-      ]);
-      tooltip.show();
+      });
     }
+  }
+
+  promptChooseCard(gui: GameUI, params) {
+    const { userText, cardTypeText, wantType } = params;
+    const tooltip = gui.tooltip;
+    tooltip.setText(`【${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
+    gui.startSelectHandCard({
+      num: 1,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
+            cardId: gui.selectedHandCards.list[0].id,
+            seq: gui.seq,
+          });
+        },
+        enabled: () => {
+          return gui.selectedHandCards.list.length === 1 && gui.selectedHandCards.list[0].type === wantType;
+        },
+      },
+    ]);
+    tooltip.show();
   }
 
   //威逼给牌
@@ -168,25 +177,41 @@ export class WeiBi extends Card {
       new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
     );
     gameData.gameLog.addData(
-      new GameLog(`【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有宣言的牌，对【${user.seatNumber + 1}号】${user.character.name}展示手牌`)
+      new GameLog(
+        `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有宣言的牌，对【${
+          user.seatNumber + 1
+        }号】${user.character.name}展示手牌`
+      )
     );
 
     if (userId === 0) {
-      gameData.gameObject.showCardsWindow.show({
-        title: "目标展示手牌",
-        cardList: cards.map((card) => {
-          return gameData.createCard(card);
-        }),
-        limit: 0,
-        buttons: [
-          {
-            text: "关闭",
-            onclick: () => {
-              gameData.gameObject.showCardsWindow.hide();
-            },
-          },
-        ],
+      const cardList = cards.map((card) => {
+        return gameData.createCard(card);
+      });
+      GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+        card: this,
+        handler: "showHandCards",
+        params: {
+          cardList,
+        },
       });
     }
+  }
+
+  showHandCards(gui: GameUI, params) {
+    const { cardList } = params;
+    gui.showCardsWindow.show({
+      title: "目标展示手牌",
+      cardList,
+      limit: 0,
+      buttons: [
+        {
+          text: "关闭",
+          onclick: () => {
+            gui.showCardsWindow.hide();
+          },
+        },
+      ],
+    });
   }
 }

@@ -54,8 +54,8 @@ export class BoAi extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
 
     tooltip.setText(`是否使用【博爱】`);
     tooltip.buttons.setButtons([
@@ -63,14 +63,14 @@ export class BoAi extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_BO_AI_A_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -78,6 +78,8 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_bo_ai_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
@@ -89,7 +91,6 @@ export class BoAi extends ActiveSkill {
     });
 
     GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-      player,
       skill: this,
       handler: "promptSelectHandCard",
     });
@@ -139,7 +140,7 @@ export class BoAi extends ActiveSkill {
     gameData.playerAddHandCard(targetPlayer, handCard);
 
     GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     ++this.usageCount;
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

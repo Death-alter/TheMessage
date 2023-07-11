@@ -78,7 +78,8 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     //超出宽度后开始堆叠
     if (data.list.length > this._maxLength) {
       for (let i = 0; i < data.list.length; i++) {
-        const node = data.list[i].gameObject.node;
+        const node = data.list[i].gameObject && data.list[i].gameObject.node;
+        if (!node) continue;
         const x = offset - (2 * i * offset) / (data.list.length - 1);
         if (data.selectedCards.isSelected(data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
@@ -95,7 +96,8 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
       }
     } else {
       for (let i = 0; i < data.list.length; i++) {
-        const node = data.list[i].gameObject.node;
+        const node = data.list[i].gameObject && data.list[i].gameObject.node;
+        if (!node) continue;
         const x = offset + i * (this.spacingX + this._childWith);
         if (data.selectedCards.isSelected(data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));

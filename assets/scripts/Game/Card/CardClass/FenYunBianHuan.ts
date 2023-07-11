@@ -1,9 +1,11 @@
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { CardOnEffect } from "../../../Event/GameEventType";
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 
@@ -51,73 +53,79 @@ export class FenYunBianHuan extends Card {
 
   waitingForChooseCard(gameData: GameData, { playerId }: CardOnEffectParams) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameLog;
-    if (playerId !== 0) {
-      GameEventCenter.emit(GameEvent.SHOW_CARDS, {
-        title: `等待${gameLog.formatPlayer(player)}选择一张牌`,
-        cardList: this.cardList,
-        limit: 0,
-        buttons: [],
-      });
+    GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+      card: this,
+      handler: "promptChooseCard",
+      params: {
+        player,
+      },
+    } as CardOnEffect);
+  }
+
+  promptChooseCard(gui: GameUI, params) {
+    const { player } = params;
+    const gameLog = gui.data.gameLog;
+    const showCardsWindow = gui.showCardsWindow;
+
+    if (player.id !== 0) {
+      showCardsWindow.show();
+      showCardsWindow.setTitle(`等待${gameLog.formatPlayer(player)}选择一张牌`);
+      showCardsWindow.buttons.setButtons([]);
     } else {
-      GameEventCenter.emit(GameEvent.SHOW_CARDS, {
-        title: "请选择一张牌",
-        cardList: this.cardList,
-        limit: 1,
-        buttons: [
-          {
-            text: "确定",
-            onclick: () => {
-              const card = gameData.gameObject.showCardsWindow.selectedCards.list[0];
-              gameData.gameObject.showCardsWindow.hide();
-              const messages = player.getMessagesCopy();
-              //flag为情报区是否有同色情报
-              let flag = false;
-              for (let color of card.color) {
-                if (Card.hasColor(messages, color)) {
-                  flag = true;
-                  break;
-                }
+      showCardsWindow.setTitle(`请选择一张牌`);
+      showCardsWindow.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            const card = showCardsWindow.selectedCards.list[0];
+            showCardsWindow.hide();
+            const messages = player.getMessagesCopy();
+            //flag为情报区是否有同色情报
+            let flag = false;
+            for (let color of card.color) {
+              if (Card.hasColor(messages, color)) {
+                flag = true;
+                break;
               }
-              if (flag) {
-                NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                  cardId: card.id,
-                  asMessageCard: false,
-                  seq: gameData.gameObject.seq,
-                });
-              } else {
-                const tooltip = gameData.gameObject.tooltip;
-                tooltip.setText(`是否将该牌置入情报区？`);
-                tooltip.buttons.setButtons([
-                  {
-                    text: "加入手牌",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                        cardId: card.id,
-                        asMessageCard: false,
-                        seq: gameData.gameObject.seq,
-                      });
-                    },
+            }
+            if (flag) {
+              NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                cardId: card.id,
+                asMessageCard: false,
+                seq: gui.seq,
+              });
+            } else {
+              const tooltip = gui.tooltip;
+              tooltip.setText(`是否将该牌置入情报区？`);
+              tooltip.buttons.setButtons([
+                {
+                  text: "加入手牌",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                      cardId: card.id,
+                      asMessageCard: false,
+                      seq: gui.seq,
+                    });
                   },
-                  {
-                    text: "置入情报区",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                        cardId: card.id,
-                        asMessageCard: true,
-                        seq: gameData.gameObject.seq,
-                      });
-                    },
+                },
+                {
+                  text: "置入情报区",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                      cardId: card.id,
+                      asMessageCard: true,
+                      seq: gui.seq,
+                    });
                   },
-                ]);
-              }
-            },
-            enabled: () => {
-              return !!gameData.gameObject.showCardsWindow.selectedCards.list.length;
-            },
+                },
+              ]);
+            }
           },
-        ],
-      });
+          enabled: () => {
+            return !!showCardsWindow.selectedCards.list.length;
+          },
+        },
+      ]);
     }
   }
 

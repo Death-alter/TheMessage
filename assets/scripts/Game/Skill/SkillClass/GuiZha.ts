@@ -8,6 +8,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class GuiZha extends ActiveSkill {
   private usageCount: number = 0;
@@ -45,10 +46,12 @@ export class GuiZha extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
+
     tooltip.setText(`请选择一名角色`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       onSelect: () => {
         tooltip.setText(`请选择要执行的操作`);
@@ -56,13 +59,13 @@ export class GuiZha extends ActiveSkill {
           {
             text: "威逼",
             onclick: () => {
-              gameData.gameObject.showCardsWindow.show({
+              showCardsWindow.show({
                 title: "选择目标交给你的卡牌种类",
                 cardList: [
-                  gameData.createCardByType(CardType.JIE_HUO),
-                  gameData.createCardByType(CardType.WU_DAO),
-                  gameData.createCardByType(CardType.DIAO_BAO),
-                  gameData.createCardByType(CardType.CHENG_QING),
+                  gui.data.createCardByType(CardType.JIE_HUO),
+                  gui.data.createCardByType(CardType.WU_DAO),
+                  gui.data.createCardByType(CardType.DIAO_BAO),
+                  gui.data.createCardByType(CardType.CHENG_QING),
                 ],
                 limit: 1,
                 buttons: [
@@ -70,22 +73,22 @@ export class GuiZha extends ActiveSkill {
                     text: "确定",
                     onclick: () => {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                        targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
+                        targetPlayerId: gui.selectedPlayers.list[0].id,
                         cardType: CardType.WEI_BI,
-                        wantType: gameData.gameObject.showCardsWindow.selectedCards.list[0].type,
-                        seq: gameData.gameObject.seq,
+                        wantType: gui.showCardsWindow.selectedCards.list[0].type,
+                        seq: gui.seq,
                       });
-                      gameData.gameObject.showCardsWindow.hide();
-                      gameData.gameObject.stopSelectPlayer();
-                      gameData.gameObject.clearSelectedPlayers();
+                      showCardsWindow.hide();
+                      gui.stopSelectPlayer();
+                      gui.clearSelectedPlayers();
                     },
-                    enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+                    enabled: () => !!showCardsWindow.selectedCards.list.length,
                   },
                   {
                     text: "取消",
                     onclick: () => {
-                      gameData.gameObject.showCardsWindow.hide();
-                      gameData.gameObject.clearSelectedPlayers();
+                      showCardsWindow.hide();
+                      gui.clearSelectedPlayers();
                     },
                   },
                 ],
@@ -96,12 +99,12 @@ export class GuiZha extends ActiveSkill {
             text: "利诱",
             onclick: () => {
               NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
+                targetPlayerId: gui.selectedPlayers.list[0].id,
                 cardType: CardType.LI_YOU,
-                seq: gameData.gameObject.seq,
+                seq: gui.seq,
               });
-              gameData.gameObject.stopSelectPlayer();
-              gameData.gameObject.clearSelectedPlayers();
+              gui.stopSelectPlayer();
+              gui.clearSelectedPlayers();
             },
           },
         ]);
@@ -113,19 +116,15 @@ export class GuiZha extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, cardType }: skill_gui_zha_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}对【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }使用技能【诡诈】`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}对${gameLog.formatPlayer(targetPlayer)}使用技能【诡诈】`)
     );
     ++this.usageCount;
-    if (playerId === 0) {
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

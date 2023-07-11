@@ -1,5 +1,5 @@
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { ShiTanOption, CardType, CardOnEffectParams } from "../type";
@@ -7,6 +7,7 @@ import { GamePhase } from "../../../GameManager/type";
 import { IdentityType } from "../../Identity/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { CardOnEffect } from "../../../Event/GameEventType";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -94,40 +95,11 @@ export class ShiTan extends Card {
     if (targetPlayerId === 0) {
       const player = gameData.playerList[targetPlayerId];
       const shiTanCard = <ShiTan>gameData.createCard(card);
+      const gameLog = gameData.gameLog;
+
       shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
       gameData.cardOnPlay = shiTanCard;
-      const tooltip = gameData.gameObject.tooltip;
-      if (shiTanCard.drawCardColor.indexOf(player.identityList[0].type) !== -1) {
-        //是抽卡的身份
-        NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-          cardId: [],
-          seq: gameData.gameObject.seq,
-        });
-      } else {
-        if (player.handCardCount === 0) {
-          NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-            cardId: [],
-            seq: gameData.gameObject.seq,
-          });
-        } else {
-          tooltip.setText(`请选择一张手牌丢弃`);
-          gameData.gameObject.startSelectHandCard({ num: 1 });
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-                  cardId: [gameData.gameObject.selectedHandCards.list[0].id],
-                  seq: gameData.gameObject.seq,
-                });
-              },
-              enabled: () => !!gameData.gameObject.selectedHandCards.list.length,
-            },
-          ]);
-        }
-      }
 
-      const gameLog = gameData.gameLog;
       const array = ["神秘人", "潜伏战线", "特工机关"];
       let drawStr = "";
       let disCardStr = "";
@@ -148,6 +120,49 @@ export class ShiTan extends Card {
       disCardStr += "：弃置一张手牌。";
       drawStr += "：摸一张牌。";
       gameLog.addData(new GameLog(`试探内容：${disCardStr}${drawStr}`));
+
+      GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+        card: this,
+        handler: "promptDiscardCard",
+        params: {
+          shiTanCard,
+          player,
+        },
+      } as CardOnEffect);
+    }
+  }
+
+  promptDiscardCard(gui: GameUI, params) {
+    const { shiTanCard, player } = params;
+    const tooltip = gui.tooltip;
+    if (shiTanCard.drawCardColor.indexOf(player.identityList[0].type) !== -1) {
+      //是抽卡的身份
+      NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+        cardId: [],
+        seq: gui.seq,
+      });
+    } else {
+      if (player.handCardCount === 0) {
+        NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+          cardId: [],
+          seq: gui.seq,
+        });
+      } else {
+        tooltip.setText(`请选择一张手牌丢弃`);
+        gui.startSelectHandCard({ num: 1 });
+        tooltip.buttons.setButtons([
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+                cardId: [gui.selectedHandCards.list[0].id],
+                seq: gui.seq,
+              });
+            },
+            enabled: () => !!gui.selectedHandCards.list.length,
+          },
+        ]);
+      }
     }
   }
 }

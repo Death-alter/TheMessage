@@ -1,6 +1,7 @@
 import { DataBasic } from "../../DataBasic";
 import { GamePhase } from "../../GameManager/type";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
+import { GameUI } from "../../UI/Game/GameWindow/GameUI";
 import { Character } from "../Character/Character";
 import { Player } from "../Player/Player";
 import { SkillButton } from "./SkillButton";
@@ -53,11 +54,11 @@ export abstract class ActiveSkill extends Skill {
     this._useablePhase = option.useablePhase;
   }
 
-  abstract onUse(gameData: GameData);
+  abstract onUse(gui: GameUI);
 }
 
 export abstract class TriggerSkill extends Skill {
-  abstract onTrigger(gameData: GameData, params: { [index: string]: any }): void;
+  abstract onTrigger(gui: GameUI, params: { [index: string]: any }): void;
 }
 
 export abstract class PassiveSkill extends Skill {}

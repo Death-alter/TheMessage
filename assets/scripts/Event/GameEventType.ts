@@ -126,9 +126,9 @@ export interface PlayerPlayCard {
 }
 
 export interface CardOnEffect {
-  player: Player;
   card: Card;
   handler?: string;
+  params?: { [index: string]: any };
 }
 
 export interface AfterPlayerPlayCard {
@@ -142,7 +142,7 @@ export interface PlayerUseSkill {
 }
 
 export interface SkillOnEffect {
-  player: Player;
   skill: Skill;
   handler?: string;
+  params?: { [index: string]: any };
 }

@@ -6,9 +6,9 @@ import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../..
 import { GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
-import GamePools from "../../../GameManager/GamePools";
 import { Player } from "../../Player/Player";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JinKouYiKai extends ActiveSkill {
   private usageCount: number = 0;
@@ -63,22 +63,22 @@ export class JinKouYiKai extends ActiveSkill {
     this.isSelfTurn = turnPlayer.id === 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`是否使用【金口一开】`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_A_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -86,6 +86,8 @@ export class JinKouYiKai extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jin_kou_yi_kai_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
@@ -96,39 +98,60 @@ export class JinKouYiKai extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0 && gameData.gameObject) {
-      this.gameObject?.lock();
-      const tooltip = gameData.gameObject.tooltip;
-
+    if (playerId === 0) {
       this.topCard = gameData.createCard(card);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.showDeckTopCard(this.topCard);
-      }
-
-      tooltip.setText(`请选择一项`);
-      tooltip.buttons.setButtons([
-        {
-          text: "摸一张牌",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_B_TOS, {
-              exchange: false,
-              seq,
-            });
-          },
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "checkDeckTopCardAndChoose",
+        params: {
+          card: this.topCard,
         },
-        {
-          text: "交换情报",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_B_TOS, {
-              exchange: true,
-              seq,
-            });
-          },
-        },
-      ]);
+      });
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【金口一开】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【金口一开】`));
+  }
+
+  checkDeckTopCardAndChoose(gui: GameUI, params) {
+    const { card } = params;
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
+
+    showCardsWindow.show({
+      title: "牌堆顶的牌",
+      limit: 0,
+      cardList: [card],
+      buttons: [
+        {
+          text: "关闭",
+          onclick: () => {
+            showCardsWindow.hide();
+          },
+        },
+      ],
+    });
+
+    tooltip.setText(`请选择一项`);
+    tooltip.buttons.setButtons([
+      {
+        text: "摸一张牌",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_B_TOS, {
+            exchange: false,
+            seq: gui.seq,
+          });
+        },
+      },
+      {
+        text: "交换情报",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_B_TOS, {
+            exchange: true,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, exchange }: skill_jin_kou_yi_kai_b_toc) {
@@ -136,39 +159,18 @@ export class JinKouYiKai extends ActiveSkill {
     const player = gameData.playerList[playerId];
 
     if (exchange) {
-      if (playerId === 0) {
-        if (gameData.gameObject) {
-          gameData.gameObject.cardAction.replaceMessage({
-            message: this.topCard,
-            oldMessage: gameData.messageInTransmit,
-          });
-        }
-      } else {
-        const card = gameData.createCard();
-        if (gameData.gameObject) {
-          gameData.gameObject.cardAction.showDeckTopCard(card);
-          gameData.gameObject.cardAction.replaceMessage({
-            message: card,
-            oldMessage: gameData.messageInTransmit,
-          });
-        }
-      }
+      const card = this.topCard || gameData.createCard();
+      GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
+        message: card,
+        oldMessage: gameData.messageInTransmit,
+      });
 
-      gameLog.addData(
-        new GameLog(`【${player.seatNumber + 1}号】${player.character.name}选择将牌堆顶的牌和待收情报互换`)
-      );
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择将牌堆顶的牌和待收情报互换`));
     } else {
-      if (playerId === 0) {
-        GamePools.cardPool.put(this.topCard.gameObject);
-        this.topCard = null;
-      }
-      gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}选择摸一张牌`));
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择摸一张牌`));
     }
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
     ++this.usageCount;
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

@@ -3,6 +3,7 @@ import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -74,9 +75,13 @@ export class ChengQing extends Card {
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {
     const targetPlayer = gameData.playerList[targetPlayerId];
     const message = targetPlayer.removeMessage(targetCardId);
-    GameEventCenter.emit(GameEvent.PLAYER_REOMVE_MESSAGE, {
+    const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, {
       player: targetPlayer,
       messageList: [message],
     });
+
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}被弃置`));
   }
 }

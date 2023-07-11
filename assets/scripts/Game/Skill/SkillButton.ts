@@ -3,6 +3,7 @@ import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
 import { GameData } from "../../UI/Game/GameWindow/GameData";
 import { GameObject } from "../../GameObject";
 import { GamePhase } from "../../GameManager/type";
+import { GameUI } from "../../UI/Game/GameWindow/GameUI";
 
 const { ccclass } = _decorator;
 
@@ -50,7 +51,7 @@ export class SkillButton extends GameObject<Skill> {
     }, 0);
   }
 
-  init(gameData: GameData, skill: Skill) {
+  init(gui: GameUI, skill: Skill) {
     this.data = skill;
     this.node.getChildByName("Label").getComponent(Label).string = skill.name;
     if (skill instanceof PassiveSkill) {
@@ -60,26 +61,26 @@ export class SkillButton extends GameObject<Skill> {
       this.useable = false;
       this.onClick(() => {
         if (!this._locked) {
-          gameData.gameObject.stopSelectPlayer();
-          gameData.gameObject.clearSelectedPlayers();
-          gameData.gameObject.stopSelectHandCard();
-          gameData.gameObject.clearSelectedHandCards();
+          gui.stopSelectPlayer();
+          gui.clearSelectedPlayers();
+          gui.stopSelectHandCard();
+          gui.clearSelectedHandCards();
           if (this.isOn) {
             this.isOn = false;
-            switch (gameData.gamePhase) {
+            switch (gui.data.gamePhase) {
               case GamePhase.MAIN_PHASE:
-                gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+                gui.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
                 break;
               case GamePhase.SEND_PHASE_START:
-                gameData.gameObject.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+                gui.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
                 break;
               case GamePhase.FIGHT_PHASE:
-                gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+                gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
                 break;
             }
           } else {
             this.isOn = true;
-            skill.onUse(gameData);
+            skill.onUse(gui);
           }
         }
       });

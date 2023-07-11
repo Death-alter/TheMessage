@@ -1,8 +1,9 @@
 import { skill_cheng_zhi_toc, skill_wait_for_cheng_zhi_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
 import { createIdentity } from "../../Identity";
@@ -66,21 +67,15 @@ export class ChengZhi extends TriggerSkill {
     }
     gameData.playerAddHandCard(player, handCards);
 
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: diePlayer },
-      });
-    }
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: handCards,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: diePlayer },
+    });
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【承志】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【承志】`));
     gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}获得【${diePlayer.seatNumber + 1}号】${
-          diePlayer.character.name
-        }的手牌并查看其身份`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的手牌并查看其身份`)
     );
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
@@ -91,8 +86,8 @@ export class ChengZhi extends TriggerSkill {
     });
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`该角色的身份是${this.identity.name}，是否获得该角色的身份牌？`);
     tooltip.buttons.setButtons([
       {
@@ -100,7 +95,7 @@ export class ChengZhi extends TriggerSkill {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_CHENG_ZHI_TOS, {
             enable: true,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -109,7 +104,7 @@ export class ChengZhi extends TriggerSkill {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_CHENG_ZHI_TOS, {
             enable: false,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -118,6 +113,8 @@ export class ChengZhi extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, diePlayerId, enable }: skill_cheng_zhi_toc) {
     if (enable) {
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
       const player = gameData.playerList[playerId];
       const diePlayer = gameData.playerList[diePlayerId];
       const gameLog = gameData.gameLog;
@@ -127,20 +124,25 @@ export class ChengZhi extends TriggerSkill {
 
       if (playerId === 0) {
         player.confirmIdentity(this.identity);
-        gameData.gameObject.setSelfIdentityUI();
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "setIdentityUI",
+        });
       } else if (diePlayerId === 0) {
-        gameData.gameObject.setSelfIdentityUI();
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "setIdentityUI",
+        });
       } else {
         player.setIdentityList(diePlayer.identityList);
       }
 
-      gameLog.addData(
-        new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}获得【${diePlayer.seatNumber + 1}号】${
-            diePlayer.character.name
-          }的身份`
-        )
-      );
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的身份`));
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
+  }
+
+  setIdentityUI(gui: GameUI) {
+    gui.setSelfIdentityUI();
   }
 }

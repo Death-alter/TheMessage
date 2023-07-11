@@ -8,6 +8,7 @@ import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../.
 import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { Card } from "../../Card/Card";
 import { CardColor } from "../../Card/type";
 import { Character } from "../../Character/Character";
@@ -68,10 +69,10 @@ export class DuJi extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_DU_JI_C_TOC);
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择两名角色`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 2,
       filter: (player) => player.id !== 0,
     });
@@ -80,16 +81,16 @@ export class DuJi extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_A_TOS, {
-            targetPlayerIds: gameData.gameObject.selectedPlayers.list.map((player) => player.id),
-            seq: gameData.gameObject.seq,
+            targetPlayerIds: gui.selectedPlayers.list.map((player) => player.id),
+            seq: gui.seq,
           });
         },
-        enabled: () => gameData.gameObject.selectedPlayers.list.length === 2,
+        enabled: () => gui.selectedPlayers.list.length === 2,
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -97,9 +98,10 @@ export class DuJi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerIds, cards }: skill_du_ji_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    const showCardsWindow = gameData.gameObject.showCardsWindow;
     const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
     const targetPlayer2 = gameData.playerList[targetPlayerIds[1]];
 
@@ -110,53 +112,69 @@ export class DuJi extends ActiveSkill {
 
     if (Card.hasColor(card1, CardColor.BLACK)) {
       gameData.playerAddHandCard(targetPlayer2, card1);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player: targetPlayer2,
-          card: card1,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-        });
-      }
       ++blackCount;
+
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player: targetPlayer2,
+        card: card1,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
+      });
     } else {
       gameData.playerAddHandCard(player, card1);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player,
-          card: card1,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-        });
-      }
+
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player,
+        card: card1,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
+      });
     }
     if (Card.hasColor(card2, CardColor.BLACK)) {
       gameData.playerAddHandCard(targetPlayer1, card2);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player: targetPlayer1,
-          card: card2,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-        });
-      }
       ++blackCount;
+
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player: targetPlayer1,
+        card: card2,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+      });
     } else {
       gameData.playerAddHandCard(player, card2);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player: player,
-          card: card2,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-        });
-      }
+
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player: player,
+        card: card2,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+      });
     }
+
+    const cardList = cards.map((card) => gameData.createCard(card));
+    const tags = targetPlayerIds.map((id) => gameLog.formatPlayer(gameData.playerList[id]));
+
+    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+      skill: this,
+      handler: "showDrawnCard",
+      params: {
+        cardList,
+        tags,
+      },
+    });
+
+    if (blackCount === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    }
+
+    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【毒计】`));
+  }
+
+  showDrawnCard(gui: GameUI, params) {
+    const { cardList, tags } = params;
+    const showCardsWindow = gui.showCardsWindow;
 
     showCardsWindow.show({
       title: "【毒计】展示抽到的手牌",
       limit: 0,
-      cardList: cards.map((card) => gameData.createCard(card)),
-      tags: targetPlayerIds.map((id) => {
-        const player = gameData.playerList[id];
-        return `【${player.seatNumber + 1}号】${player.character.name}`;
-      }),
+      cardList,
+      tags,
       buttons: [
         {
           text: "关闭",
@@ -166,16 +184,6 @@ export class DuJi extends ActiveSkill {
         },
       ],
     });
-
-    if (blackCount === 0) {
-      if (playerId === 0) {
-        this.gameObject.isOn = false;
-      }
-    } else {
-      this.gameObject?.lock();
-    }
-
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【毒计】`));
   }
 
   waitingForUseB(
@@ -189,37 +197,49 @@ export class DuJi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0 && gameData.gameObject) {
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText("请选择一个抽取黑色牌的角色，让他选择一项");
-      gameData.gameObject.startSelectPlayer({
-        num: 1,
-        filter: (player) => targetPlayerIds.indexOf(player.id) !== -1,
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChoosePlayerToDo",
+        params: {
+          targetPlayerIds,
+          cardIds,
+        },
       });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            const selectedPlayer = gameData.gameObject.selectedPlayers.list[0];
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_B_TOS, {
-              enable: true,
-              cardId: cardIds[targetPlayerIds.indexOf(selectedPlayer.id)],
-              seq: seq,
-            });
-          },
-          enabled: () => gameData.gameObject.selectedPlayers.list.length > 0,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_B_TOS, {
-              enable: false,
-              seq: seq,
-            });
-          },
-        },
-      ]);
     }
+  }
+
+  promptChoosePlayerToDo(gui: GameUI, params) {
+    const { targetPlayerIds, cardIds } = params;
+    const tooltip = gui.tooltip;
+    tooltip.setText("请选择一个抽取黑色牌的角色，让他选择一项");
+    gui.startSelectPlayer({
+      num: 1,
+      filter: (player) => targetPlayerIds.indexOf(player.id) !== -1,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          const selectedPlayer = gui.selectedPlayers.list[0];
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_B_TOS, {
+            enable: true,
+            cardId: cardIds[targetPlayerIds.indexOf(selectedPlayer.id)],
+            seq: gui.seq,
+          });
+        },
+        enabled: () => gui.selectedPlayers.list.length > 0,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_B_TOS, {
+            enable: false,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(
@@ -238,29 +258,11 @@ export class DuJi extends ActiveSkill {
       const player = gameData.playerList[playerId];
       const waitingPlayer = gameData.playerList[waitingPlayerId];
 
-      if (waitingPlayerId === 0 && gameData.gameObject) {
-        const tooltip = gameData.gameObject.tooltip;
-        tooltip.setText("请选择将牌置入谁的情报区");
-        tooltip.buttons.setButtons([
-          {
-            text: "自己",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_C_TOS, {
-                inFrontOfMe: true,
-                seq: seq,
-              });
-            },
-          },
-          {
-            text: "对方",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_C_TOS, {
-                inFrontOfMe: false,
-                seq: seq,
-              });
-            },
-          },
-        ]);
+      if (waitingPlayerId === 0) {
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "promptSelectPlayer",
+        });
       }
 
       gameLog.addData(
@@ -273,6 +275,31 @@ export class DuJi extends ActiveSkill {
     }
   }
 
+  promptSelectPlayer(gui: GameUI) {
+    const tooltip = gui.tooltip;
+    tooltip.setText("请选择将牌置入谁的情报区");
+    tooltip.buttons.setButtons([
+      {
+        text: "自己",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_C_TOS, {
+            inFrontOfMe: true,
+            seq: gui.seq,
+          });
+        },
+      },
+      {
+        text: "对方",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_C_TOS, {
+            inFrontOfMe: false,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
+  }
+
   onEffectC(gameData: GameData, { playerId, waitingPlayerId, targetPlayerId, card }: skill_du_ji_c_toc) {
     const gameLog = gameData.gameLog;
     const waitingPlayer = gameData.playerList[waitingPlayerId];
@@ -280,26 +307,20 @@ export class DuJi extends ActiveSkill {
 
     const handCard = gameData.playerRemoveHandCard(waitingPlayer, card);
     targetPlayer.addMessage(handCard);
-    
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToMessageZone({
-        player: targetPlayer,
-        card: handCard,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: waitingPlayer },
-      });
-    }
+
+    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+      player: targetPlayer,
+      message: handCard,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: waitingPlayer },
+    });
 
     gameLog.addData(
       new GameLog(
-        `【${waitingPlayer.seatNumber + 1}号】${waitingPlayer.character.name}把${gameLog.formatCard(handCard)}置入${
-          targetPlayer.seatNumber + 1
-        }号】${targetPlayer.character.name}的情报区`
+        `${gameLog.formatPlayer(waitingPlayer)}把${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(
+          targetPlayer
+        )}的情报区`
       )
     );
-
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

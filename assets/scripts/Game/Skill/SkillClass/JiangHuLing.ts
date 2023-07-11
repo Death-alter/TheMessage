@@ -1,12 +1,13 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import {
+  color,
   skill_jiang_hu_ling_a_toc,
   skill_jiang_hu_ling_b_toc,
   skill_wait_for_jiang_hu_ling_b_toc,
 } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardColor } from "../../Card/type";
@@ -14,6 +15,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JiangHuLing extends TriggerSkill {
   constructor(character: Character) {
@@ -68,8 +70,8 @@ export class JiangHuLing extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_B_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`你传出了情报,是否使用【江湖令】？`);
     tooltip.buttons.setButtons([
       {
@@ -83,7 +85,7 @@ export class JiangHuLing extends TriggerSkill {
                 NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
                   enable: true,
                   color: CardColor.RED,
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
               },
             },
@@ -93,7 +95,7 @@ export class JiangHuLing extends TriggerSkill {
                 NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
                   enable: true,
                   color: CardColor.BLUE,
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
               },
             },
@@ -103,7 +105,7 @@ export class JiangHuLing extends TriggerSkill {
                 NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
                   enable: true,
                   color: CardColor.BLACK,
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
               },
             },
@@ -115,7 +117,7 @@ export class JiangHuLing extends TriggerSkill {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
             enable: false,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -130,56 +132,71 @@ export class JiangHuLing extends TriggerSkill {
       seq: seq,
     });
 
-    if (playerId === 0 && gameData.gameObject) {
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText("情报被接收，是否使用【江湖令】？");
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            const showCardsWindow = gameData.gameObject.showCardsWindow;
-            showCardsWindow.show({
-              title: `请选择一张${getCardColorText(<number>color)}色情报弃置`,
-              limit: 1,
-              cardList: gameData.playerList[gameData.messagePlayerId].getMessagesCopy(),
-              buttons: [
-                {
-                  text: "确定",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_B_TOS, {
-                      cardId: showCardsWindow.selectedCards.list[0].id,
-                      seq,
-                    });
-                    showCardsWindow.hide();
-                  },
-                  enabled: () =>
-                    showCardsWindow.selectedCards.list.length &&
-                    Card.hasColor(showCardsWindow.selectedCards.list[0], <number>color),
-                },
-              ],
-            });
-          },
+    if (playerId === 0) {
+      const messagePlayer = gameData.playerList[gameData.messagePlayerId];
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promprtUse",
+        params: {
+          color,
+          messagePlayer,
         },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-              seq: gameData.gameObject.seq,
-            });
-          },
-        },
-      ]);
+      });
     }
   }
 
+  promprtUse(gui: GameUI, params: { color: color; messagePlayer: Player }) {
+    const { color, messagePlayer } = params;
+    const tooltip = gui.tooltip;
+
+    tooltip.setText("情报被接收，是否使用【江湖令】？");
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          const showCardsWindow = gui.showCardsWindow;
+          showCardsWindow.show({
+            title: `请选择一张${getCardColorText(<number>color)}色情报弃置`,
+            limit: 1,
+            cardList: messagePlayer.getMessagesCopy(),
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_B_TOS, {
+                    cardId: showCardsWindow.selectedCards.list[0].id,
+                    seq: gui.seq,
+                  });
+                  showCardsWindow.hide();
+                },
+                enabled: () =>
+                  showCardsWindow.selectedCards.list.length &&
+                  Card.hasColor(showCardsWindow.selectedCards.list[0], <number>color),
+              },
+            ],
+          });
+        },
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
+  }
+
   onEffectA(gameData: GameData, { playerId, color }: skill_jiang_hu_ling_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
 
-    let str = `【${player.seatNumber + 1}号】${player.character.name}使用技能【江湖令】，宣言${getCardColorText(
-      <number>color
-    )}色`;
-    gameLog.addData(new GameLog(str));
+    gameLog.addData(
+      new GameLog(`${gameLog.formatPlayer(player)}使用技能【江湖令】，宣言${getCardColorText(<number>color)}色`)
+    );
   }
 
   onEffectB(gameData: GameData, { playerId, cardId }: skill_jiang_hu_ling_b_toc) {
@@ -188,16 +205,16 @@ export class JiangHuLing extends TriggerSkill {
     const messagePlayer = gameData.playerList[gameData.messagePlayerId];
 
     const message = messagePlayer.removeMessage(cardId);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.removeMessage({ player: messagePlayer, messageList: [message] });
-    }
+
+    GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: messagePlayer, messageList: [message] });
 
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}从【${messagePlayer.seatNumber + 1}号】${
-          messagePlayer.character.name
-        }的情报区弃置${gameLog.formatCard(message)}`
+        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(messagePlayer)}的情报区弃置${gameLog.formatCard(
+          message
+        )}`
       )
     );
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

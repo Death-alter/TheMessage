@@ -1,6 +1,6 @@
 import { skill_jian_ren_a_toc, skill_jian_ren_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { CardActionLocation, WaitingType } from "../../../GameManager/type";
@@ -9,6 +9,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JianRen extends TriggerSkill {
   constructor(character: Character) {
@@ -42,15 +43,15 @@ export class JianRen extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_JIAN_REN_B_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`你接收了黑色情报,是否使用【坚韧】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAN_REN_A_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -58,7 +59,7 @@ export class JianRen extends TriggerSkill {
         text: "取消",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -66,13 +67,57 @@ export class JianRen extends TriggerSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jian_ren_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+    
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    const showCardsWindow = gameData.gameObject.showCardsWindow;
+
+    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+      skill: this,
+      handler: "showDeckTopCard",
+      params: {
+        card: gameData.createCard(card),
+      },
+    });
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【坚韧】`));
+
+    const handCard = gameData.createCard(card);
+
+    if (waitingSecond > 0) {
+      gameData.playerAddHandCard(player, handCard);
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player,
+        card: handCard,
+        from: { location: CardActionLocation.DECK },
+      });
+
+      gameLog.addData(
+        new GameLog(`${gameLog.formatPlayer(player)}把展示的牌${gameLog.formatCard(handCard)}加入手牌`)
+      );
+
+      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        playerId: playerId,
+        second: waitingSecond,
+        type: WaitingType.HANDLE_SKILL,
+        seq: seq,
+      });
+
+      if (playerId === 0) {
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "promptSelectCard",
+        });
+      }
+    }
+  }
+
+  showDeckTopCard(gui: GameUI, params) {
+    const { card } = params;
+    const showCardsWindow = gui.showCardsWindow;
     showCardsWindow.show({
       title: "展示牌堆顶的牌",
       limit: 0,
-      cardList: [gameData.createCard(card)],
+      cardList: [card],
       buttons: [
         {
           text: "关闭",
@@ -82,74 +127,47 @@ export class JianRen extends TriggerSkill {
         },
       ],
     });
+  }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【坚韧】`));
+  promptSelectCard(gui: GameUI) {
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
 
-    const handCard = gameData.createCard(card);
-    if (Card.hasColor(handCard, CardColor.BLACK)) {
-      gameData.playerAddHandCard(player, handCard);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player,
-          card: handCard,
-          from: { location: CardActionLocation.DECK },
+    tooltip.setText("请选择一名角色弃置一张黑色情报");
+    gui.startSelectPlayer({
+      num: 1,
+      filter: (player) => player.messageCounts[CardColor.BLACK] > 0,
+      onSelect: (player) => {
+        showCardsWindow.show({
+          title: "请选择一张黑色情报弃置",
+          limit: 1,
+          cardList: player.getMessagesCopy(),
+          buttons: [
+            {
+              text: "确定",
+              onclick: () => {
+                NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAN_REN_B_TOS, {
+                  targetPlayerId: player.id,
+                  cardId: showCardsWindow.selectedCards.list[0].id,
+                  seq: gui.seq,
+                });
+                showCardsWindow.hide();
+              },
+              enabled: () =>
+                showCardsWindow.selectedCards.list.length &&
+                Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                gui.clearSelectedPlayers();
+                showCardsWindow.hide();
+              },
+            },
+          ],
         });
-      }
-
-      gameLog.addData(
-        new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}把展示的牌${gameLog.formatCard(handCard)}加入手牌`
-        )
-      );
-    }
-
-    if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: playerId,
-        second: waitingSecond,
-        type: WaitingType.HANDLE_SKILL,
-        seq: seq,
-      });
-
-      if (playerId === 0 && gameData.gameObject) {
-        const tooltip = gameData.gameObject.tooltip;
-        tooltip.setText("请选择一名角色弃置一张黑色情报");
-        gameData.gameObject.startSelectPlayer({
-          num: 1,
-          filter: (player) => player.messageCounts[CardColor.BLACK] > 0,
-          onSelect: (player) => {
-            showCardsWindow.show({
-              title: "请选择一张黑色情报弃置",
-              limit: 1,
-              cardList: player.getMessagesCopy(),
-              buttons: [
-                {
-                  text: "确定",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAN_REN_B_TOS, {
-                      targetPlayerId: player.id,
-                      cardId: showCardsWindow.selectedCards.list[0].id,
-                      seq,
-                    });
-                    showCardsWindow.hide();
-                  },
-                  enabled: () =>
-                    showCardsWindow.selectedCards.list.length &&
-                    Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    gameData.gameObject.clearSelectedPlayers();
-                    showCardsWindow.hide();
-                  },
-                },
-              ],
-            });
-          },
-        });
-      }
-    }
+      },
+    });
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_jian_ren_b_toc) {
@@ -158,16 +176,16 @@ export class JianRen extends TriggerSkill {
     const gameLog = gameData.gameLog;
 
     const message = targetPlayer.removeMessage(cardId);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.removeMessage({ player: targetPlayer, messageList: [message] });
-    }
+
+    GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: targetPlayer, messageList: [message] });
 
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}从【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }的情报区弃置${gameLog.formatCard(message)}`
+        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(targetPlayer)}的情报区弃置${gameLog.formatCard(
+          message
+        )}`
       )
     );
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

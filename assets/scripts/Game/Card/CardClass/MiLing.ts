@@ -1,14 +1,14 @@
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { Player } from "../../Player/Player";
-import { HandCardContianer } from "../../Container/HandCardContianer";
 import { getCardColorText } from "../../../Utils";
 import { GameLog } from "../../GameLog/GameLog";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { CardOnEffect } from "../../../Event/GameEventType";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -85,87 +85,119 @@ export class MiLing extends Card {
         secretText = "静风";
         break;
     }
+    const targetPlayer = gameData.playerList[targetPlayerId];
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}宣言了${secretText}`));
 
-    if (gameData.gameObject) {
-      if (hasColor) {
-        //自己是目标
-        if (targetPlayerId === 0) {
-          const color: CardColor = card.secretColor[secret];
-          const handCardList = gameData.handCardList;
-          const tooltip = gameData.gameObject.tooltip;
-          let tooltipText = "密令的暗号为" + secretText;
-          tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
-          tooltip.setText(tooltipText);
-          gameData.gameObject.startSelectHandCard({
-            num: 1,
-          });
-          tooltip.buttons.setButtons([
-            {
-              text: "传递情报",
-              onclick: () => {
-                gameData.gameObject.doSendMessage();
-              },
-              enabled: () => {
-                return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
-              },
-            },
-          ]);
-        }
-      } else {
-        const targetPlayer = gameData.playerList[targetPlayerId];
-        gameLog.addData(
-          new GameLog(
-            `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有对应颜色的卡牌，由【${
-              player.seatNumber + 1
-            }号】${player.character.name}选择一张牌传出`
-          )
-        );
-        if (playerId === 0) {
-          //自己是出牌者
-          const handCardList = handCards.map((card) => {
-            return gameData.createCard(card);
-          });
-          const showCardsWindow = gameData.gameObject.showCardsWindow;
-          showCardsWindow.show({
-            title: "选择一张情报由目标传出",
-            cardList: handCardList,
-            limit: 1,
-            buttons: [
-              {
-                text: "确定",
-                onclick: () => {
-                  NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-                    cardId: showCardsWindow.selectedCards.list[0].id,
-                    seq: gameData.gameObject.seq,
-                  });
-                  showCardsWindow.hide();
-                },
-                enabled: () => !!showCardsWindow.selectedCards.list.length,
-              },
-            ],
-          });
-        }
+    if (hasColor) {
+      if (targetPlayerId === 0) {
+        const color: CardColor = card.secretColor[secret];
+        GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+          card: this,
+          handler: "promptPlayerChooseCard",
+          params: {
+            color,
+            secretText,
+          },
+        } as CardOnEffect);
+      }
+    } else {
+      gameLog.addData(
+        new GameLog(
+          `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有对应颜色的卡牌，由【${
+            player.seatNumber + 1
+          }号】${player.character.name}选择一张牌传出`
+        )
+      );
+      if (playerId === 0) {
+        const handCardList = handCards.map((card) => {
+          return gameData.createCard(card);
+        });
+        GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+          card: this,
+          handler: "promptTargetPlayerChooseCard",
+          params: {
+            handCardList,
+          },
+        } as CardOnEffect);
       }
     }
   }
 
+  promptPlayerChooseCard(gui: GameUI, params) {
+    const { secretText, color } = params;
+    const handCardList = gui.data.handCardList;
+    const tooltip = gui.tooltip;
+    let tooltipText = "密令的暗号为" + secretText;
+    tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
+    tooltip.setText(tooltipText);
+    gui.startSelectHandCard({
+      num: 1,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "传递情报",
+        onclick: () => {
+          gui.doSendMessage();
+        },
+        enabled: () => {
+          return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
+        },
+      },
+    ]);
+  }
+
+  promptTargetPlayerChooseCard(gui: GameUI, params) {
+    const { handCardList } = params;
+    const showCardsWindow = gui.showCardsWindow;
+    showCardsWindow.show({
+      title: "选择一张情报由目标传出",
+      cardList: handCardList,
+      limit: 1,
+      buttons: [
+        {
+          text: "确定",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
+              cardId: showCardsWindow.selectedCards.list[0].id,
+              seq: gui.seq,
+            });
+            showCardsWindow.hide();
+          },
+          enabled: () => !!showCardsWindow.selectedCards.list.length,
+        },
+      ],
+    });
+  }
+
   onChooseCard(gameData: GameData, { playerId, targetPlayerId, card }: CardOnEffectParams) {
     if (targetPlayerId === 0) {
-      const handCardList = gameData.handCardList;
-      handCardList.selectedCards.limit = 1;
-      for (let item of handCardList.list) {
-        if (item.id === card.cardId) {
-          (<HandCardContianer>handCardList.gameObject).selectCard(item);
-          break;
-        }
-      }
-      handCardList.selectedCards.lock();
-      gameData.gameObject.doSendMessage();
+      GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+        card: this,
+        handler: "promptSendMessage",
+        params: {
+          cardId: card.cardId,
+        },
+      } as CardOnEffect);
     }
+  }
+
+  promptSendMessage(gui: GameUI, params) {
+    const { cardId } = params;
+    const handCardContainer = gui.handCardContainer;
+    gui.startSelectHandCard({
+      num: 1,
+    });
+    for (let item of handCardContainer.data.list) {
+      if ((<Card>item).id === cardId) {
+        handCardContainer.selectCard(<Card>item);
+        break;
+      }
+    }
+    gui.stopSelectHandCard();
+    gui.doSendMessage();
   }
 
   secretButtonClicked(gui: GameUI, secret: number) {

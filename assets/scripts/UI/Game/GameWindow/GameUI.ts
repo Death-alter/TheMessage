@@ -16,7 +16,7 @@ import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
 import { OuterGlow } from "../../../Utils/OuterGlow";
-import { ActiveSkill, Skill, TriggerSkill } from "../../../Game/Skill/Skill";
+import { ActiveSkill, PassiveSkill, Skill, TriggerSkill } from "../../../Game/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { CharacterObject } from "../../../Game/Character/CharacterObject";
@@ -143,6 +143,9 @@ export class GameUI extends GameObject<GameData> {
     //卡牌结算完
     GameEventCenter.on(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
 
+    //使用技能
+    GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
+
     //技能结算
     GameEventCenter.on(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
 
@@ -168,7 +171,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
 
     //移除情报
-    GameEventCenter.on(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
 
     //玩家死前
     // GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, (data: GameEventType.PlayerBeforeDeath) => {});
@@ -193,6 +196,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
+    GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
     GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
     GameEventCenter.off(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
     GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
@@ -201,7 +205,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_REOMVE_MESSAGE, this.playerRemoveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
     GameEventCenter.off(GameEvent.SHOW_CARDS, this.showCards, this);
@@ -223,7 +227,7 @@ export class GameUI extends GameObject<GameData> {
     const selfNode = this.node.getChildByPath("Self/Player");
     this.data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
     this.playerObjectList.push(this.data.playerList[0].gameObject);
-    this.skillButtons.getComponent(SkillButtons).init(this.data, this.data.selfPlayer.character.skills);
+    this.skillButtons.getComponent(SkillButtons).init(this, this.data.selfPlayer.character.skills);
 
     this.setSelfIdentityUI();
 
@@ -447,7 +451,7 @@ export class GameUI extends GameObject<GameData> {
           const player = this.data.playerList[data.playerId];
           for (let skill of player.character.skills) {
             if (skill instanceof TriggerSkill) {
-              skill.onTrigger(this.data, data.params);
+              skill.onTrigger(this, data.params);
             }
           }
           break;
@@ -593,9 +597,9 @@ export class GameUI extends GameObject<GameData> {
   }
 
   cardOnEffect(data: GameEventType.CardOnEffect) {
-    const { card, handler } = data;
+    const { card, handler, params } = data;
     if (handler) {
-      card[handler](this);
+      card[handler](this, params);
     }
   }
 
@@ -606,16 +610,21 @@ export class GameUI extends GameObject<GameData> {
     }
   }
 
+  playerUseSkill(skill: Skill) {
+    if (!(skill instanceof PassiveSkill) && skill.gameObject) {
+      skill.gameObject.lock();
+    }
+  }
+
   skillOnEffect(data: GameEventType.SkillOnEffect) {
-    const { player, skill, handler } = data;
-    skill.gameObject?.lock();
-    if (player.id === 0 && handler) {
-      skill[handler](this);
+    const { skill, handler, params } = data;
+    if (handler) {
+      skill[handler](this, params);
     }
   }
 
   afterPlayerUseSkill(skill: Skill) {
-    if (skill.gameObject) {
+    if (!(skill instanceof PassiveSkill) && skill.gameObject) {
       skill.gameObject.unlock();
       skill.gameObject.isOn = false;
     }

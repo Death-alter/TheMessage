@@ -1,10 +1,11 @@
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { CardOnEffect } from "../../../Event/GameEventType";
 
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];
@@ -46,51 +47,63 @@ export class PoYi extends Card {
   onDeselected(gui: GameUI) {}
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
-    if (gameData.gameObject) {
-      if (userId === 0) {
-        const message = gameData.createMessage(targetCard);
-        message.gameObject = gameData.messageInTransmit.gameObject;
-        gameData.messageInTransmit = message;
-        message.flip();
-        if (Card.hasColor(message, CardColor.BLACK)) {
-          const tooltip = gameData.gameObject.tooltip;
-          tooltip.setText(`是否翻开并摸一张牌？`);
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-                  show: true,
-                  seq: gameData.gameObject.seq,
-                });
-              },
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-                  show: false,
-                  seq: gameData.gameObject.seq,
-                });
-              },
-            },
-          ]);
-        } else {
-          NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-            show: false,
-            seq: gameData.gameObject.seq,
-          });
-        }
-      }
+    if (userId === 0) {
+      const message = gameData.createMessage(targetCard);
+      this.showMessageInTransmit(gameData, message);
+      const isBlackMessage = Card.hasColor(message, CardColor.BLACK);
+      GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
+        card: this,
+        handler: "promptChooseDraw",
+        params: {
+          isBlackMessage,
+        },
+      } as CardOnEffect);
+    }
+  }
+
+  promptChooseDraw(gui: GameUI, params) {
+    const isBlackMessage = { params };
+    if (isBlackMessage) {
+      const tooltip = gui.tooltip;
+      tooltip.setText(`是否翻开并摸一张牌？`);
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+              show: true,
+              seq: gui.seq,
+            });
+          },
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+              show: false,
+              seq: gui.seq,
+            });
+          },
+        },
+      ]);
+    } else {
+      NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+        show: false,
+        seq: gui.seq,
+      });
     }
   }
 
   onShow(gameData: GameData, { userId, targetCard, flag }: CardOnEffectParams) {
     if (flag && userId !== 0) {
       const message = gameData.createMessage(targetCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = message;
-      message.flip();
+      this.showMessageInTransmit(gameData, message);
     }
+  }
+
+  showMessageInTransmit(gameData: GameData, message) {
+    message.gameObject = gameData.messageInTransmit.gameObject;
+    gameData.messageInTransmit = message;
+    message.flip();
   }
 }

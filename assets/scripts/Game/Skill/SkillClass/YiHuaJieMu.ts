@@ -149,9 +149,9 @@ export class YiHuaJieMu extends ActiveSkill {
       }
       gameLog.addData(
         new GameLog(
-          `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
-            message
-          )}】置入【${toPlayer.seatNumber + 1}号】${toPlayer.character.name}的情报区`
+          `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报${gameLog.formatCard(message)}置入【${
+            toPlayer.seatNumber + 1
+          }号】${toPlayer.character.name}的情报区`
         )
       );
     }

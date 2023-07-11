@@ -1,7 +1,7 @@
 import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { Player } from "../../Player/Player";
 import { skill_huan_ri_toc } from "../../../../protobuf/proto";
@@ -33,6 +33,7 @@ export class HuanRi extends PassiveSkill {
   onEffect(gameData: GameData, { playerId }: skill_huan_ri_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【换日】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【换日】`));
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

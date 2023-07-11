@@ -532,14 +532,14 @@ export class GameData extends DataBasic<GameUI> {
     }
   }
 
-  playerRemoveHandCard(playerId: number, card: card);
-  playerRemoveHandCard(player: Player, card: card);
-  playerRemoveHandCard(playerId: number, cards: card[]);
-  playerRemoveHandCard(player: Player, cards: card[]);
-  playerRemoveHandCard(playerId: number, card: number);
-  playerRemoveHandCard(player: Player, cardId: number);
-  playerRemoveHandCard(playerId: number, cardIds: number[]);
-  playerRemoveHandCard(player: Player, cardIds: number[]);
+  playerRemoveHandCard(playerId: number, card: card): Card;
+  playerRemoveHandCard(player: Player, card: card): Card;
+  playerRemoveHandCard(playerId: number, cards: card[]): Card[];
+  playerRemoveHandCard(player: Player, cards: card[]): Card[];
+  playerRemoveHandCard(playerId: number, card: number): Card;
+  playerRemoveHandCard(player: Player, cardId: number): Card;
+  playerRemoveHandCard(playerId: number, cardIds: number[]): Card[];
+  playerRemoveHandCard(player: Player, cardIds: number[]): Card[];
   playerRemoveHandCard(player: number | Player, card: number | number[] | card | card[]): Card | Card[] {
     let p = <Player>player;
     if (typeof player === "number") {
@@ -575,9 +575,9 @@ export class GameData extends DataBasic<GameUI> {
           return card.map((card) => this.createCard(card));
         }
       } else {
-        const reomvedCard = p.removeHandCard(0);
+        const REMOVEdCard = p.removeHandCard(0);
         if (typeof card === "number") {
-          return reomvedCard;
+          return REMOVEdCard;
         } else {
           return this.createCard(card);
         }

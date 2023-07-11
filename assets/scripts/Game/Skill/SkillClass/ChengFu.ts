@@ -1,6 +1,6 @@
 import { skill_cheng_fu_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardType } from "../../Card/type";
 import { Character } from "../../Character/Character";
@@ -42,8 +42,6 @@ export class ChengFu extends PassiveSkill {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[fromPlayerId];
     const cardOnPlay = gameData.createCard(card);
-    gameLog.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用的${gameLog.formatCard(cardOnPlay)}无效`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(cardOnPlay)}无效`));
   }
 }

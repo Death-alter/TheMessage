@@ -288,10 +288,6 @@ export class CardAction extends Component {
     });
   }
 
-  showDeckTopCard(card: Card) {
-    this.addCard(card, { location: CardActionLocation.DECK });
-  }
-
   //抽牌动画
   drawCards({ player, cardList }: GameEventType.PlayerDrawCard) {
     return this.addCardToHandCard({
@@ -466,12 +462,15 @@ export class CardAction extends Component {
 
   replaceMessage({ message, oldMessage }: GameEventType.MessageReplaced) {
     return new Promise(async (resolve, reject) => {
+      if (!message.gameObject || !message.gameObject.node) {
+        this.setCard(message, { location: CardActionLocation.DECK });
+      }
       this.transmissionMessageObject = message.gameObject;
       const worldPosition = new Vec3(oldMessage.gameObject.node.worldPosition);
       await this.discardMessage(oldMessage);
       await message.flip();
       await this.moveNode({
-        node: message.gameObject.node,
+        node: this.transmissionMessageObject.node,
         to: { position: worldPosition },
         duration: 0.6,
       });

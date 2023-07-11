@@ -8,6 +8,7 @@ import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardType } from "../../Card/type";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JinBi extends ActiveSkill {
   private usageCount: number = 0;
@@ -54,11 +55,11 @@ export class JinBi extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
 
     tooltip.setText(`请选择一名角色`);
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player: Player) => player.id !== 0,
     });
@@ -68,18 +69,18 @@ export class JinBi extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_A_TOS, {
-            targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-            seq: gameData.gameObject.seq,
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            seq: gui.seq,
           });
         },
         enabled: () => {
-          return gameData.gameObject.selectedPlayers.list.length === 1;
+          return gui.selectedPlayers.list.length === 1;
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -87,6 +88,8 @@ export class JinBi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, waitingSecond, seq }: skill_jin_bi_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -98,46 +101,49 @@ export class JinBi extends ActiveSkill {
       seq: seq,
     });
 
-    if (playerId === 0) {
-      this.gameObject?.lock();
-    }
-
     if (targetPlayerId === 0) {
-      const tooltip = gameData.gameObject.tooltip;
-      tooltip.setText(`请选择两张手牌交给【${player.seatNumber + 1}号】${player.character.name}`);
-      gameData.gameObject.startSelectHandCard({
-        num: 2,
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseHandCard",
+        params: {
+          player,
+        },
       });
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_B_TOS, {
-              cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
-              seq: seq,
-            });
-          },
-          enabled: () => gameData.gameObject.selectedHandCards.list.length === 2,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_B_TOS, {
-              cardIds: [],
-              seq: seq,
-            });
-          },
-        },
-      ]);
     }
 
     gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}使用技能【禁闭】,指定【${
-          targetPlayer.seatNumber + 1
-        }号】${targetPlayer.character.name}`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}使用技能【禁闭】,指定${gameLog.formatPlayer(targetPlayer)}`)
     );
+  }
+
+  promptChooseHandCard(gui: GameUI, params) {
+    const { player } = params;
+    const tooltip = gui.tooltip;
+    tooltip.setText(`请选择两张手牌交给【${player.seatNumber + 1}号】${player.character.name}`);
+    gui.startSelectHandCard({
+      num: 2,
+    });
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_B_TOS, {
+            cardIds: gui.selectedHandCards.list.map((card) => card.id),
+            seq: gui.seq,
+          });
+        },
+        enabled: () => gui.selectedHandCards.list.length === 2,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_B_TOS, {
+            cardIds: [],
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, unknownCardCount }: skill_jin_bi_b_toc) {
@@ -154,7 +160,7 @@ export class JinBi extends ActiveSkill {
           gameData.bannedCardTypes = [];
         });
       }
-      gameLog.addData(new GameLog(`【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}被【禁闭】`));
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}被【禁闭】`));
     } else {
       const handCards = gameData.playerRemoveHandCard(
         targetPlayer,
@@ -162,26 +168,16 @@ export class JinBi extends ActiveSkill {
       );
       gameData.playerAddHandCard(player, handCards);
 
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player,
-          cards: handCards,
-          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-        });
-      }
-      gameLog.addData(
-        new GameLog(
-          `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}交给【${player.seatNumber + 1}号】${
-            player.character.name
-          }两张手牌`
-        )
-      );
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player,
+        card: handCards,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}交给${gameLog.formatPlayer(player)}两张手牌`));
     }
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
     ++this.usageCount;
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }
