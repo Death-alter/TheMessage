@@ -74,10 +74,6 @@ export class GameUI extends GameObject<GameData> {
     return this.data.handCardList.selectedCards;
   }
 
-  private showCards(data: ShowCardsOptions) {
-    this.showCardsWindow.show(data);
-  }
-
   onLoad() {
     this.showCardsWindow = this.showCardWindowNode.getComponent(ShowCardsWindow);
     this.cardAction = this.cardActionNode.getComponent(CardAction);
@@ -155,6 +151,8 @@ export class GameUI extends GameObject<GameData> {
     //玩家开始传递情报
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
 
+    GameEventCenter.on(GameEvent.MESSAGE_REMOVED, this.removeMessage, this);
+
     //情报传递
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
 
@@ -182,7 +180,7 @@ export class GameUI extends GameObject<GameData> {
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
 
-    GameEventCenter.on(GameEvent.SHOW_CARDS, this.showCards, this);
+    GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
   stopRender() {
@@ -202,13 +200,14 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
+    GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.removeMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
-    GameEventCenter.off(GameEvent.SHOW_CARDS, this.showCards, this);
+    GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
   init() {
@@ -538,6 +537,14 @@ export class GameUI extends GameObject<GameData> {
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
     this.cardAction.playerSendMessage(data);
+  }
+
+  moveCard(data: GameEventType.CardMoved) {
+    this.cardAction.moveCard(data);
+  }
+
+  removeMessage(message) {
+    this.cardAction.discardMessage(message);
   }
 
   transmitMessage(data: GameEventType.MessageTransmission) {

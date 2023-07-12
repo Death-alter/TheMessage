@@ -1,13 +1,14 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { skill_tou_tian_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JiZhi extends ActiveSkill {
   private dyingPlayerId: number = -1;
@@ -51,25 +52,25 @@ export class JiZhi extends ActiveSkill {
     }
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`是否使用【急智】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_ZHI_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
       {
         text: "取消",
         onclick: () => {
-          if (gameData.gamePhase === GamePhase.FIGHT_PHASE) {
-            gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          if (gui.data.gamePhase === GamePhase.FIGHT_PHASE) {
+            gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           } else {
-            gameData.gameObject.promptUseChengQing("玩家濒死，是否使用澄清？", this.dyingPlayerId);
+            gui.promptUseChengQing("玩家濒死，是否使用澄清？", this.dyingPlayerId);
           }
           this.gameObject.isOn = false;
         },
@@ -78,12 +79,12 @@ export class JiZhi extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【急智】`));
 
-    if (playerId === 0) {
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

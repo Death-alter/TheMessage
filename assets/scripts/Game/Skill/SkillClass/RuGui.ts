@@ -2,11 +2,12 @@ import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { skill_ru_gui_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardActionLocation, WaitingType } from "../../../GameManager/type";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class RuGui extends TriggerSkill {
   constructor(character: Character) {
@@ -44,41 +45,41 @@ export class RuGui extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_RU_GUI_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`是否使用【如归】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          gameData.gameObject.showCardsWindow.show({
+          gui.showCardsWindow.show({
             title: "请选择一张情报",
             limit: 1,
-            cardList: gameData.selfPlayer.getMessagesCopy(),
+            cardList: gui.data.selfPlayer.getMessagesCopy(),
             buttons: [
               {
                 text: "确定",
                 onclick: () => {
                   NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_GUI_TOS, {
                     enable: true,
-                    cardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
-                    seq: gameData.gameObject.seq,
+                    cardId: gui.showCardsWindow.selectedCards.list[0].id,
+                    seq: gui.seq,
                   });
-                  gameData.gameObject.showCardsWindow.hide();
+                  gui.showCardsWindow.hide();
                 },
-                enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+                enabled: () => !!gui.showCardsWindow.selectedCards.list.length,
               },
             ],
           });
         },
-        enabled: gameData.selfPlayer.messageCounts.total > 0,
+        enabled: gui.data.selfPlayer.messageCounts.total > 0,
       },
       {
         text: "取消",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_GUI_TOS, {
             enable: false,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -87,27 +88,29 @@ export class RuGui extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, cardId, enable }: skill_ru_gui_toc) {
     if (enable) {
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
       const player = gameData.playerList[playerId];
       const turnPlayer = gameData.playerList[gameData.turnPlayerId];
       const gameLog = gameData.gameLog;
       const message = player.removeMessage(cardId);
       turnPlayer.addMessage(message);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToMessageZone({
-          player: turnPlayer,
-          card: message,
-          from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
-        });
-      }
+      GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+        player: turnPlayer,
+        message,
+        from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
+      });
 
-      gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【如归】`));
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【如归】`));
       gameLog.addData(
         new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}把情报${gameLog.formatCard(message)}置入【${
-            turnPlayer.seatNumber + 1
-          }号】${turnPlayer.character.name}的情报区`
+          `${gameLog.formatPlayer(player)}把情报${gameLog.formatCard(message)}置入${gameLog.formatPlayer(
+            turnPlayer
+          )}的情报区`
         )
       );
+
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
   }
 }

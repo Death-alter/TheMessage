@@ -56,17 +56,14 @@ export class JiuJi extends PassiveSkill {
     cardOnPlay.gameObject = gameData.cardOnPlay.gameObject;
     gameData.cardOnPlay = null;
     gameData.playerAddHandCard(player, cardOnPlay);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: cardOnPlay,
-      });
-    }
+
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: cardOnPlay,
+    });
 
     GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card: cardOnPlay, flag: false });
 
-    gameLog.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${gameLog.formatCard(cardOnPlay)}加入手牌`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(cardOnPlay)}加入手牌`));
   }
 }

@@ -1,13 +1,14 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { skill_miao_bi_qiao_bian_a_toc, skill_miao_bi_qiao_bian_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class MiaoBiQiaoBian extends ActiveSkill {
   constructor(character: Character) {
@@ -46,13 +47,13 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_MIAO_BI_QIAO_BIAN_B_TOC);
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
-    const showCardsWindow = gameData.gameObject.showCardsWindow;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
 
     let hasMessage = false;
 
-    for (let player of gameData.playerList) {
+    for (let player of gui.data.playerList) {
       if (player.messageCounts.total > 0) {
         hasMessage = true;
         break;
@@ -71,11 +72,11 @@ export class MiaoBiQiaoBian extends ActiveSkill {
         onclick: () => {
           tooltip.setText("请选择一个角色");
           tooltip.buttons.setButtons([]);
-          gameData.gameObject.startSelectPlayer({
+          gui.startSelectPlayer({
             num: 1,
             filter: (player) => player.messageCounts.total > 0,
             onSelect: (player: Player) => {
-              gameData.gameObject.selectedPlayers.lock();
+              gui.selectedPlayers.lock();
               showCardsWindow.show({
                 title: "请选择第一张情报",
                 limit: 1,
@@ -87,11 +88,11 @@ export class MiaoBiQiaoBian extends ActiveSkill {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_A_TOS, {
                         targetPlayerId: player.id,
                         cardId: showCardsWindow.selectedCards.list[0].id,
-                        seq: gameData.gameObject.seq,
+                        seq: gui.seq,
                       });
-                      gameData.gameObject.selectedPlayers.unlock();
-                      gameData.gameObject.clearSelectedPlayers();
-                      gameData.gameObject.stopSelectPlayer();
+                      gui.selectedPlayers.unlock();
+                      gui.clearSelectedPlayers();
+                      gui.stopSelectPlayer();
                       showCardsWindow.hide();
                     },
                   },
@@ -99,7 +100,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
                     text: "取消",
                     onclick: () => {
                       showCardsWindow.hide();
-                      gameData.gameObject.selectedPlayers.unlock();
+                      gui.selectedPlayers.unlock();
                     },
                   },
                 ],
@@ -112,7 +113,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -123,6 +124,8 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_miao_bi_qiao_bian_a_toc
   ) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -136,96 +139,104 @@ export class MiaoBiQiaoBian extends ActiveSkill {
 
     const message = targetPlayer.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: message,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+    });
+
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseCard",
+        params: {
+          message,
+        },
       });
     }
 
-    if (playerId === 0 && gameData.gameObject) {
-      const tooltip = gameData.gameObject.tooltip;
-      const showCardsWindow = gameData.gameObject.showCardsWindow;
-
-      this.gameObject?.lock();
-
-      tooltip.setText("是否选择第二张牌？");
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            tooltip.setText("请选择一个角色");
-            tooltip.buttons.setButtons([]);
-            gameData.gameObject.startSelectPlayer({
-              num: 1,
-              filter: (player) => player.messageCounts.total > 0,
-              onSelect: (player: Player) => {
-                gameData.gameObject.selectedPlayers.lock();
-                showCardsWindow.show({
-                  title: "请选择第二张情报",
-                  limit: 1,
-                  cardList: player.getMessagesCopy(),
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
-                          enable: true,
-                          targetPlayerId: player.id,
-                          cardId: showCardsWindow.selectedCards.list[0].id,
-                          seq,
-                        });
-                        gameData.gameObject.selectedPlayers.unlock();
-                        gameData.gameObject.clearSelectedPlayers();
-                        gameData.gameObject.stopSelectPlayer();
-                        showCardsWindow.hide();
-                      },
-                      enabled: () => {
-                        if (showCardsWindow.selectedCards.list.length === 0) return false;
-                        if (message.color.length === 1) {
-                          return showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1;
-                        } else {
-                          return (
-                            showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1 &&
-                            showCardsWindow.selectedCards.list[0].color.indexOf(message.color[1]) === -1
-                          );
-                        }
-                      },
-                    },
-                    {
-                      text: "取消",
-                      onclick: () => {
-                        showCardsWindow.hide();
-                        gameData.gameObject.selectedPlayers.unlock();
-                      },
-                    },
-                  ],
-                });
-              },
-            });
-          },
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
-              enable: false,
-              seq,
-            });
-          },
-        },
-      ]);
-    }
-
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【妙笔巧辩】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙笔巧辩】`));
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}把【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }情报区中的${gameLog.formatCard(message)}加入手牌`
+        `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(
+          message
+        )}加入手牌`
       )
     );
+  }
+
+  promptChooseCard(gui: GameUI, params) {
+    const { message } = params;
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
+
+    tooltip.setText("是否选择第二张牌？");
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          tooltip.setText("请选择一个角色");
+          tooltip.buttons.setButtons([]);
+          gui.startSelectPlayer({
+            num: 1,
+            filter: (player) => player.messageCounts.total > 0,
+            onSelect: (player: Player) => {
+              gui.selectedPlayers.lock();
+              showCardsWindow.show({
+                title: "请选择第二张情报",
+                limit: 1,
+                cardList: player.getMessagesCopy(),
+                buttons: [
+                  {
+                    text: "确定",
+                    onclick: () => {
+                      NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
+                        enable: true,
+                        targetPlayerId: player.id,
+                        cardId: showCardsWindow.selectedCards.list[0].id,
+                        seq: gui.seq,
+                      });
+                      gui.selectedPlayers.unlock();
+                      gui.clearSelectedPlayers();
+                      gui.stopSelectPlayer();
+                      showCardsWindow.hide();
+                    },
+                    enabled: () => {
+                      if (showCardsWindow.selectedCards.list.length === 0) return false;
+                      if (message.color.length === 1) {
+                        return showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1;
+                      } else {
+                        return (
+                          showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1 &&
+                          showCardsWindow.selectedCards.list[0].color.indexOf(message.color[1]) === -1
+                        );
+                      }
+                    },
+                  },
+                  {
+                    text: "取消",
+                    onclick: () => {
+                      showCardsWindow.hide();
+                      gui.selectedPlayers.unlock();
+                    },
+                  },
+                ],
+              });
+            },
+          });
+        },
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
+            enable: false,
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {
@@ -233,27 +244,22 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    if (playerId === 0) {
-      this.gameObject?.unlock();
-      this.gameObject.isOn = false;
-    }
-
     const message = targetPlayer.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-      });
-    }
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: message,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+    });
 
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}把【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }情报区中的${gameLog.formatCard(message)}加入手牌`
+        `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(
+          message
+        )}加入手牌`
       )
     );
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

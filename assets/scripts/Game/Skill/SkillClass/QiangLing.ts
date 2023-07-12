@@ -3,11 +3,12 @@ import { Character } from "../../Character/Character";
 import { skill_qiang_ling_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, ProcessEvent, NetworkEventToS, GameEvent } from "../../../Event/type";
-import { GamePhase, WaitingType } from "../../../GameManager/type";
+import { WaitingType } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardType } from "../../Card/type";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class QiangLing extends TriggerSkill {
   constructor(character: Character) {
@@ -46,21 +47,21 @@ export class QiangLing extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_QIANG_LING_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     const cardList = [
-      gameData.createCardByType(CardType.CHENG_QING),
-      gameData.createCardByType(CardType.PO_YI),
-      gameData.createCardByType(CardType.JIE_HUO),
-      gameData.createCardByType(CardType.DIAO_BAO),
-      gameData.createCardByType(CardType.WU_DAO),
+      gui.data.createCardByType(CardType.CHENG_QING),
+      gui.data.createCardByType(CardType.PO_YI),
+      gui.data.createCardByType(CardType.JIE_HUO),
+      gui.data.createCardByType(CardType.DIAO_BAO),
+      gui.data.createCardByType(CardType.WU_DAO),
     ];
     tooltip.setText(`是否使用【强令】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          const showCardsWindow = gameData.gameObject.showCardsWindow;
+          const showCardsWindow = gui.showCardsWindow;
           showCardsWindow.show({
             title: "请选择至多两个卡牌类型",
             limit: 2,
@@ -72,7 +73,7 @@ export class QiangLing extends TriggerSkill {
                   NetworkEventCenter.emit(NetworkEventToS.SKILL_QIANG_LING_TOS, {
                     enable: true,
                     types: showCardsWindow.selectedCards.list.map((card) => card.type),
-                    seq: gameData.gameObject.seq,
+                    seq: gui.seq,
                   });
                   showCardsWindow.hide();
                 },
@@ -87,7 +88,7 @@ export class QiangLing extends TriggerSkill {
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_QIANG_LING_TOS, {
             enable: false,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -95,6 +96,7 @@ export class QiangLing extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, types }: skill_qiang_ling_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     const cards = types.map((type) => gameData.createCardByType(<number>type));
@@ -111,5 +113,7 @@ export class QiangLing extends TriggerSkill {
       str += gameLog.formatCard(card);
     }
     gameLog.addData(new GameLog(str));
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

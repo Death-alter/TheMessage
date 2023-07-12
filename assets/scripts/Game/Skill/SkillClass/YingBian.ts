@@ -1,9 +1,9 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../GameManager/type";
-import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardType } from "../../Card/type";
 import { createCard } from "../../Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class YingBian extends ActiveSkill {
   get useable() {
@@ -23,19 +23,19 @@ export class YingBian extends ActiveSkill {
 
   dispose() {}
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
 
     tooltip.setText(`请选择一张【截获】当做【误导】使用`);
-    gameData.gameObject.startSelectHandCard({
+    gui.startSelectHandCard({
       num: 1,
       onSelect: (card) => {
         if (card.type === CardType.JIE_HUO) {
           const card = createCard({
-            id: gameData.gameObject.selectedHandCards.list[0].id,
+            id: gui.selectedHandCards.list[0].id,
             type: CardType.WU_DAO,
           });
-          card.onSelectedToPlay(gameData, tooltip);
+          card.onSelectedToPlay(gui);
           this.gameObject.isOn = false;
         }
       },

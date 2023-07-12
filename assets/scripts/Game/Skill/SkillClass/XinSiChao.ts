@@ -7,6 +7,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class XinSiChao extends ActiveSkill {
   private usageCount: number = 0;
@@ -44,11 +45,11 @@ export class XinSiChao extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
 
     tooltip.setText(`请选择一张手牌丢弃`);
-    gameData.gameObject.startSelectHandCard({
+    gui.startSelectHandCard({
       num: 1,
     });
 
@@ -57,18 +58,18 @@ export class XinSiChao extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_SI_CHAO_TOS, {
-            cardId: gameData.gameObject.selectedHandCards.list[0].id,
-            seq: gameData.gameObject.seq,
+            cardId: gui.selectedHandCards.list[0].id,
+            seq: gui.seq,
           });
         },
         enabled: () => {
-          return gameData.gameObject.selectedHandCards.list.length === 1;
+          return gui.selectedHandCards.list.length === 1;
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -76,12 +77,11 @@ export class XinSiChao extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_xin_si_chao_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【新思潮】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【新思潮】`));
     ++this.usageCount;
-    if (playerId === 0) {
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

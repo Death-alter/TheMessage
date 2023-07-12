@@ -4,8 +4,9 @@ import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { PlayerAction } from "../../../UI/PlayerAction";
 import { GamePhase } from "../../../GameManager/type";
-import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
+import { NetworkEventToC } from "../../../Event/type";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class LianLuo extends ActiveSkill {
   constructor(character: Character) {
@@ -25,8 +26,8 @@ export class LianLuo extends ActiveSkill {
 
   dispose() {}
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     new PlayerAction({
       actions: [
         {
@@ -34,25 +35,25 @@ export class LianLuo extends ActiveSkill {
           handler: () =>
             new Promise((resolve, reject) => {
               tooltip.setText("请选择一张牌当做情报传出");
-              gameData.gameObject.startSelectHandCard({
+              gui.startSelectHandCard({
                 num: 1,
               });
               tooltip.buttons.setButtons([
                 {
                   text: "确定",
                   onclick: () => {
-                    gameData.gameObject.selectedHandCards.lock();
+                    gui.selectedHandCards.lock();
                     resolve(null);
                   },
-                  enabled: () => gameData.gameObject.selectedHandCards.list.length > 0,
+                  enabled: () => gui.selectedHandCards.list.length > 0,
                 },
                 {
                   text: "取消",
                   onclick: () => {
                     this.gameObject.isOn = false;
-                    gameData.gameObject.stopSelectHandCard();
-                    gameData.gameObject.clearSelectedHandCards();
-                    gameData.gameObject.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+                    gui.stopSelectHandCard();
+                    gui.clearSelectedHandCards();
+                    gui.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
                     reject(null);
                   },
                 },
@@ -88,7 +89,7 @@ export class LianLuo extends ActiveSkill {
         },
       ],
       complete: (direction) => {
-        gameData.gameObject.doSendMessage(direction);
+        gui.doSendMessage(direction);
         NetworkEventCenter.once(NetworkEventToC.SEND_MESSAGE_CARD_TOC, () => {
           this.gameObject.isOn = false;
         });

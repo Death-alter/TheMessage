@@ -33,6 +33,6 @@ export class YouDao extends PassiveSkill {
   onEffect(gameData: GameData, { playerId }: skill_ming_er_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【诱导】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【诱导】`));
   }
 }

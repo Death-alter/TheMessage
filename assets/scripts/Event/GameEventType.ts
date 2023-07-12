@@ -146,3 +146,9 @@ export interface SkillOnEffect {
   handler?: string;
   params?: { [index: string]: any };
 }
+
+export interface CardMoved {
+  card: Card;
+  from?: ActionLocation;
+  to: ActionLocation;
+}

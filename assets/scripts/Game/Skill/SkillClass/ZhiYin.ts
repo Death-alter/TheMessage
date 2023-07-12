@@ -34,6 +34,6 @@ export class ZhiYin extends PassiveSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【知音】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【知音】`));
   }
 }

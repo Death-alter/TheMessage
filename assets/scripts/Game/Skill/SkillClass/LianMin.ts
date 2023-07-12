@@ -1,14 +1,15 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { skill_lian_min_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
 import { CardActionLocation } from "../../../GameManager/type";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class LianMin extends TriggerSkill {
   constructor(character: Character) {
@@ -33,23 +34,23 @@ export class LianMin extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_LIAN_MIN_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`你传出的非黑色情报被接收，是否使用【怜悯】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
           tooltip.setText(`请选择一名角色`);
-          gameData.gameObject.startSelectPlayer({
+          gui.startSelectPlayer({
             num: 1,
             filter: (player) => {
               return (
-                (player.id === 0 || player.id === gameData.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0
+                (player.id === 0 || player.id === gui.data.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0
               );
             },
             onSelect: (player) => {
-              const showCardsWindow = gameData.gameObject.showCardsWindow;
+              const showCardsWindow = gui.showCardsWindow;
               showCardsWindow.show({
                 title: "请选择一张情报",
                 limit: 1,
@@ -61,7 +62,7 @@ export class LianMin extends TriggerSkill {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_LIAN_MIN_TOS, {
                         targetPlayerId: player.id,
                         cardId: showCardsWindow.selectedCards.list[0].id,
-                        seq: gameData.gameObject.seq,
+                        seq: gui.seq,
                       });
                     },
                     enabled: () =>
@@ -72,7 +73,7 @@ export class LianMin extends TriggerSkill {
                     text: "取消",
                     onclick: () => {
                       showCardsWindow.hide();
-                      gameData.gameObject.clearSelectedPlayers();
+                      gui.clearSelectedPlayers();
                       tooltip.setText(`请选择一名角色`);
                     },
                   },
@@ -85,10 +86,10 @@ export class LianMin extends TriggerSkill {
               text: "取消",
               onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-                  seq: gameData.gameObject.seq,
+                  seq: gui.seq,
                 });
-                gameData.gameObject.stopSelectPlayer();
-                gameData.gameObject.clearSelectedPlayers();
+                gui.stopSelectPlayer();
+                gui.clearSelectedPlayers();
               },
             },
           ]);
@@ -98,7 +99,7 @@ export class LianMin extends TriggerSkill {
         text: "取消",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -106,26 +107,28 @@ export class LianMin extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_lian_min_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
     const message = targetPlayer.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.addCardToHandCard({
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
-      });
-    }
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: message,
+      from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
+    });
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【怜悯】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【怜悯】`));
     gameLog.addData(
       new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}把【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }的情报${gameLog.formatCard(message)}加入手牌`
+        `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
+          message
+        )}加入手牌`
       )
     );
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

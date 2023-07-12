@@ -1,12 +1,14 @@
 import { skill_qi_huo_ke_ju_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import GamePools from "../../../GameManager/GamePools";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { CardActionLocation } from "../../../GameManager/type";
 
 export class QiHuoKeJu extends TriggerSkill {
   constructor(character: Character) {
@@ -31,26 +33,26 @@ export class QiHuoKeJu extends TriggerSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_QI_HUO_KE_JU_TOC);
   }
 
-  onTrigger(gameData: GameData, params): void {
-    const tooltip = gameData.gameObject.tooltip;
+  onTrigger(gui: GameUI, params): void {
+    const tooltip = gui.tooltip;
     tooltip.setText(`你接收了双色情报，是否使用【奇货可居】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          gameData.gameObject.showCardsWindow.show({
+          gui.showCardsWindow.show({
             title: "请从情报区选择一张牌",
-            cardList: gameData.selfPlayer.getMessagesCopy(),
+            cardList: gui.data.selfPlayer.getMessagesCopy(),
             limit: 1,
             buttons: [
               {
                 text: "确定",
                 onclick: () => {
                   NetworkEventCenter.emit(NetworkEventToS.SKILL_QI_HUO_KE_JU_TOS, {
-                    cardId: gameData.gameObject.showCardsWindow.selectedCards.list[0].id,
-                    seq: gameData.gameObject.seq,
+                    cardId: gui.showCardsWindow.selectedCards.list[0].id,
+                    seq: gui.seq,
                   });
-                  gameData.gameObject.showCardsWindow.hide();
+                  gui.showCardsWindow.hide();
                 },
               },
             ],
@@ -61,7 +63,7 @@ export class QiHuoKeJu extends TriggerSkill {
         text: "取消",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
       },
@@ -69,22 +71,22 @@ export class QiHuoKeJu extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, cardId }: skill_qi_huo_ke_ju_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     const message = player.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【奇货可居】`));
-    gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}将情报区的${gameLog.formatCard(message)}加入手牌`
-      )
-    );
 
-    if (playerId === 0) {
-      if (gameData.gameObject) {
-        message.gameObject = GamePools.cardPool.get();
-        gameData.gameObject.cardAction.addCardToHandCard({ player, card: message });
-      }
-    }
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: message,
+      from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+    });
+
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【奇货可居】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}将情报区的${gameLog.formatCard(message)}加入手牌`));
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

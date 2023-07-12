@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
-import { skill_sou_ji_a_toc, skill_sou_ji_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { card, skill_sou_ji_a_toc, skill_sou_ji_b_toc } from "../../../../protobuf/proto";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType, CardActionLocation } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
@@ -10,6 +10,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class SouJi extends ActiveSkill {
   constructor(character: Character) {
@@ -48,10 +49,10 @@ export class SouJi extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_SOU_JI_B_TOC);
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText("请选择一名角色");
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => player.id !== 0,
     });
@@ -60,16 +61,16 @@ export class SouJi extends ActiveSkill {
         text: "确定",
         onclick: () => {
           NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_A_TOS, {
-            targetPlayerId: gameData.gameObject.selectedPlayers.list[0].id,
-            seq: gameData.gameObject.seq,
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            seq: gui.seq,
           });
         },
-        enabled: () => !!gameData.gameObject.selectedPlayers.list.length,
+        enabled: () => !!gui.selectedPlayers.list.length,
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -80,6 +81,7 @@ export class SouJi extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, messageCard, waitingSecond, seq }: skill_sou_ji_a_toc
   ) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -91,135 +93,137 @@ export class SouJi extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    if (playerId === 0 && gameData.gameObject) {
-      this.gameObject?.lock();
-
-      const showCardsWindow = gameData.gameObject.showCardsWindow;
+    if (playerId === 0) {
       const message = gameData.createMessage(messageCard);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
 
-      const cardList = [...cards.map((card) => gameData.createCard(card)), gameData.createCard(messageCard)];
-      showCardsWindow.show({
-        title: "请选择任意张黑色牌加入手牌",
-        limit: cardList.length,
-        cardList,
-        tags: cardList.map((card, index) => {
-          if (index === cardList.length - 1) {
-            return "待收情报";
-          } else {
-            return "手牌";
-          }
-        }),
-        buttons: [
-          {
-            text: "确定",
-            onclick: () => {
-              const data: any = {
-                cardIds: [],
-                messageCard: false,
-                seq,
-              };
-              for (let card of showCardsWindow.selectedCards.list) {
-                if (card.id === messageCard.cardId) {
-                  data.messageCard = true;
-                } else {
-                  data.cardIds.push(card.id);
-                }
-              }
-
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_B_TOS, data);
-              showCardsWindow.hide();
-            },
-            enabled: () => {
-              for (let card of showCardsWindow.selectedCards.list) {
-                if (!Card.hasColor(card, CardColor.BLACK)) {
-                  return false;
-                }
-              }
-              return true;
-            },
-          },
-        ],
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseBlackCards",
+        params: {
+          cards: cards.map((card) => gameData.createCard(card)),
+          message: gameData.createCard(messageCard),
+        },
       });
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【搜缉】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【搜缉】`));
     gameLog.addData(
-      new GameLog(
-        `【${player.seatNumber + 1}号】${player.character.name}查看【${targetPlayer.seatNumber + 1}号】${
-          targetPlayer.character.name
-        }的手牌和待收情报`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌和待收情报`)
     );
+  }
+
+  promptChooseBlackCards(gui: GameUI, params) {
+    const { cards, message } = params;
+    const showCardsWindow = gui.showCardsWindow;
+
+    const cardList = [...cards, message];
+    showCardsWindow.show({
+      title: "请选择任意张黑色牌加入手牌",
+      limit: cardList.length,
+      cardList,
+      tags: cardList.map((card, index) => {
+        if (index === cardList.length - 1) {
+          return "待收情报";
+        } else {
+          return "手牌";
+        }
+      }),
+      buttons: [
+        {
+          text: "确定",
+          onclick: () => {
+            const data: any = {
+              cardIds: [],
+              messageCard: false,
+              seq: gui.seq,
+            };
+            for (let card of showCardsWindow.selectedCards.list) {
+              if (card.id === message.id) {
+                data.messageCard = true;
+              } else {
+                data.cardIds.push(card.id);
+              }
+            }
+
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_B_TOS, data);
+            showCardsWindow.hide();
+          },
+          enabled: () => {
+            for (let card of showCardsWindow.selectedCards.list) {
+              if (!Card.hasColor(card, CardColor.BLACK)) {
+                return false;
+              }
+            }
+            return true;
+          },
+        },
+      ],
+    });
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cards, messageCard }: skill_sou_ji_b_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
-    const showCardsWindow = gameData.gameObject.showCardsWindow;
 
+    const cardList = cards.map((card) => gameData.createCard(card));
     const handCards = gameData.playerRemoveHandCard(
       targetPlayer,
-      cards.map((card) => card)
+      cards.map((card: card) => card.cardId)
     );
     gameData.playerAddHandCard(player, handCards);
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: handCards,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+    });
 
     if (messageCard) {
       gameData.playerAddHandCard(player, gameData.messageInTransmit);
-    }
+      const message = gameData.createCard(messageCard);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = null;
+      cardList.push(message);
 
-    if (gameData.gameObject) {
-      if (targetPlayerId === 0) {
-        for (let card of handCards) {
-          gameData.handCardList.removeData(card);
-        }
-      }
-
-      gameData.gameObject.cardAction.addCardToHandCard({
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        card: message,
         player,
-        cards: handCards,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
       });
-
-      const cardList = cards.map((card) => gameData.createCard(card));
-      if (messageCard) {
-        const message = gameData.createCard(messageCard);
-        message.gameObject = gameData.messageInTransmit.gameObject;
-        gameData.messageInTransmit = null;
-        if (gameData.gameObject) {
-          gameData.gameObject.cardAction.addCardToHandCard({
-            card: message,
-            player,
-          });
-        }
-        cardList.push(message);
-      }
-
-      if (playerId !== 0) {
-        showCardsWindow.show({
-          title: "展示【搜缉】拿走的牌",
-          limit: 0,
-          cardList,
-          buttons: [
-            {
-              text: "关闭",
-              onclick: () => {
-                showCardsWindow.hide();
-              },
-            },
-          ],
-        });
-      } else {
-        this.gameObject?.unlock();
-        this.gameObject.isOn = false;
-      }
-
-      gameLog.addData(
-        new GameLog(`【${player.seatNumber + 1}号】${player.character.name}把${cardList.length}张牌加入手牌`)
-      );
     }
+
+    if (playerId !== 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "showCards",
+        params: {
+          cardList,
+        },
+      });
+    }
+
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${cardList.length}张牌加入手牌`));
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+  }
+
+  showCards(gui: GameUI, params) {
+    const { cardList } = params;
+    const showCardsWindow = gui.showCardsWindow;
+    showCardsWindow.show({
+      title: "展示【搜缉】拿走的牌",
+      limit: 0,
+      cardList,
+      buttons: [
+        {
+          text: "关闭",
+          onclick: () => {
+            showCardsWindow.hide();
+          },
+        },
+      ],
+    });
   }
 }

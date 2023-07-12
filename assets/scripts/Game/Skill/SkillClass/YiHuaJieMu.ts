@@ -1,13 +1,14 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { skill_yi_hua_jie_mu_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { CardActionLocation, GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CharacterStatus } from "../../Character/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class YiHuaJieMu extends ActiveSkill {
   constructor(character: Character) {
@@ -38,18 +39,18 @@ export class YiHuaJieMu extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_YI_HUA_JIE_MU_TOC);
   }
 
-  async onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  async onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText(`请选择要获取情报的角色`);
     const fromPlayer = await (() =>
       new Promise((resolve: (player: Player) => void, reject) => {
-        gameData.gameObject.startSelectPlayer({
+        gui.startSelectPlayer({
           num: 1,
           filter: (player) => {
             return player.messageCounts.total > 0;
           },
           onSelect: (player) => {
-            gameData.gameObject.selectedPlayers.lock();
+            gui.selectedPlayers.lock();
             resolve(player);
           },
         });
@@ -57,7 +58,7 @@ export class YiHuaJieMu extends ActiveSkill {
 
     const cardId = await (() =>
       new Promise((resolve: (cardId: number) => void, reject) => {
-        gameData.gameObject.showCardsWindow.show({
+        gui.showCardsWindow.show({
           title: "请选择一张情报",
           limit: 1,
           cardList: fromPlayer.getMessagesCopy(),
@@ -65,13 +66,13 @@ export class YiHuaJieMu extends ActiveSkill {
             {
               text: "确定",
               onclick: () => {
-                const id = gameData.gameObject.showCardsWindow.selectedCards.list[0].id;
-                gameData.gameObject.showCardsWindow.hide();
-                gameData.gameObject.selectedPlayers.unlock();
-                gameData.gameObject.clearSelectedPlayers();
+                const id = gui.showCardsWindow.selectedCards.list[0].id;
+                gui.showCardsWindow.hide();
+                gui.selectedPlayers.unlock();
+                gui.clearSelectedPlayers();
                 resolve(id);
               },
-              enabled: () => !!gameData.gameObject.showCardsWindow.selectedCards.list.length,
+              enabled: () => !!gui.showCardsWindow.selectedCards.list.length,
             },
           ],
         });
@@ -80,7 +81,7 @@ export class YiHuaJieMu extends ActiveSkill {
     tooltip.setText("请选择把情报置入另一名角色的情报区");
 
     let toPlayer;
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
       filter: (player) => {
         return player !== fromPlayer;
@@ -98,17 +99,17 @@ export class YiHuaJieMu extends ActiveSkill {
             fromPlayerId: fromPlayer.id,
             cardId,
             toPlayerId: toPlayer.id,
-            seq: gameData.gameObject.seq,
+            seq: gui.seq,
           });
         },
         enabled: () => {
-          return !!gameData.gameObject.selectedPlayers.list.length;
+          return !!gui.selectedPlayers.list.length;
         },
       },
       {
         text: "取消",
         onclick: () => {
-          gameData.gameObject.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
           this.gameObject.isOn = false;
         },
       },
@@ -116,48 +117,46 @@ export class YiHuaJieMu extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, fromPlayerId, toPlayerId, cardId, joinIntoHand }: skill_yi_hua_jie_mu_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const fromPlayer = gameData.playerList[fromPlayerId];
     const toPlayer = gameData.playerList[toPlayerId];
     const message = fromPlayer.removeMessage(cardId);
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【移花接木】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【移花接木】`));
+
     if (joinIntoHand) {
       gameData.playerAddHandCard(player, message);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToHandCard({
-          player,
-          card: message,
-          from: { location: CardActionLocation.PLAYER, player: fromPlayer },
-        });
-      }
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+      });
       gameLog.addData(
         new GameLog(
-          `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报【${gameLog.formatCard(
-            message
-          )}】加入【${player.seatNumber + 1}号】${player.character.name}的手牌`
+          `${gameLog.formatPlayer(fromPlayer)}的情报【${gameLog.formatCard(message)}】加入${gameLog.formatPlayer(
+            player
+          )}的手牌`
         )
       );
     } else {
       toPlayer.addMessage(message);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.addCardToMessageZone({
-          player,
-          card: message,
-          from: { location: CardActionLocation.PLAYER, player: fromPlayer },
-        });
-      }
+      GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+        player,
+        message,
+        from: { location: CardActionLocation.PLAYER, player: fromPlayer },
+      });
+
       gameLog.addData(
         new GameLog(
-          `【${fromPlayer.seatNumber + 1}号】${fromPlayer.character.name}的情报${gameLog.formatCard(message)}置入【${
-            toPlayer.seatNumber + 1
-          }号】${toPlayer.character.name}的情报区`
+          `${gameLog.formatPlayer(fromPlayer)}的情报${gameLog.formatCard(message)}置入${gameLog.formatPlayer(
+            toPlayer
+          )}的情报区`
         )
       );
     }
 
-    if (playerId === 0) {
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }

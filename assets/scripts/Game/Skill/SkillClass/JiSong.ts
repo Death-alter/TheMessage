@@ -9,6 +9,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardColor } from "../../Card/type";
 import { Card } from "../../Card/Card";
+import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 
 export class JiSong extends ActiveSkill {
   private usageCount: number = 0;
@@ -47,22 +48,22 @@ export class JiSong extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gameData: GameData) {
-    const tooltip = gameData.gameObject.tooltip;
+  onUse(gui: GameUI) {
+    const tooltip = gui.tooltip;
     tooltip.setText("请选择一名角色");
-    gameData.gameObject.startSelectPlayer({
+    gui.startSelectPlayer({
       num: 1,
-      filter: (player) => player.id !== gameData.messagePlayerId,
+      filter: (player) => player.id !== gui.data.messagePlayerId,
       onSelect: (player) => {
-        const showCardsWindow = gameData.gameObject.showCardsWindow;
-        gameData.gameObject.stopSelectPlayer();
+        const showCardsWindow = gui.showCardsWindow;
+        gui.stopSelectPlayer();
         tooltip.setText("请选择一项");
         tooltip.buttons.setButtons([
           {
             text: "弃置手牌",
             onclick: () => {
               tooltip.setText(`请选择两张手牌弃置`);
-              gameData.gameObject.startSelectHandCard({
+              gui.startSelectHandCard({
                 num: 2,
               });
               tooltip.buttons.setButtons([
@@ -70,16 +71,16 @@ export class JiSong extends ActiveSkill {
                   text: "确定",
                   onclick: () => {
                     NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_SONG_TOS, {
-                      cardIds: gameData.gameObject.selectedHandCards.list.map((card) => card.id),
+                      cardIds: gui.selectedHandCards.list.map((card) => card.id),
                       targetPlayerId: player.id,
-                      seq: gameData.gameObject.seq,
+                      seq: gui.seq,
                     });
                   },
-                  enabled: () => gameData.gameObject.selectedHandCards.list.length === 2,
+                  enabled: () => gui.selectedHandCards.list.length === 2,
                 },
               ]);
             },
-            enabled: () => gameData.selfPlayer.handCardCount > 1,
+            enabled: () => gui.data.selfPlayer.handCardCount > 1,
           },
           {
             text: "弃置情报",
@@ -87,7 +88,7 @@ export class JiSong extends ActiveSkill {
               showCardsWindow.show({
                 title: "请选择一张非黑色情报弃置",
                 limit: 1,
-                cardList: gameData.selfPlayer.getMessagesCopy(),
+                cardList: gui.data.selfPlayer.getMessagesCopy(),
                 buttons: [
                   {
                     text: "确定",
@@ -95,7 +96,7 @@ export class JiSong extends ActiveSkill {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_SONG_TOS, {
                         messageCard: showCardsWindow.selectedCards.list[0].id,
                         targetPlayerId: player.id,
-                        seq: gameData.gameObject.seq,
+                        seq: gui.seq,
                       });
                       showCardsWindow.hide();
                     },
@@ -106,7 +107,7 @@ export class JiSong extends ActiveSkill {
                 ],
               });
             },
-            enabled: () => gameData.selfPlayer.messageCounts[CardColor.BLACK] < gameData.selfPlayer.messageCounts.total,
+            enabled: () => gui.data.selfPlayer.messageCounts[CardColor.BLACK] < gui.data.selfPlayer.messageCounts.total,
           },
         ]);
       },
@@ -114,30 +115,26 @@ export class JiSong extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, messageCard, targetPlayerId }: skill_ji_song_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【急送】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【急送】`));
 
     if (messageCard) {
       const message = player.removeMessage(messageCard.cardId);
-      if (gameData.gameObject) {
-        gameData.gameObject.cardAction.removeMessage({ player, messageList: [message] });
-      }
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃置情报${gameLog.formatCard(message)}`);
+      GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player, messageList: [message] });
+      new GameLog(`${gameLog.formatPlayer(player)}弃置情报${gameLog.formatCard(message)}`);
     }
-    if (gameData.gameObject) {
-      gameData.gameObject.cardAction.transmitMessage({
-        messagePlayer: targetPlayer,
-        message: gameData.messageInTransmit,
-      });
-    }
+
+    GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
+      messagePlayer: targetPlayer,
+      message: gameData.messageInTransmit,
+    });
 
     ++this.usageCount;
-
-    if (playerId === 0) {
-      this.gameObject.isOn = false;
-    }
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }
 }
