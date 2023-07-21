@@ -148,13 +148,13 @@ export class GameLogList extends DataContainer<GameLog> {
     let str = `${this.formatPlayer(player)}传出情报，`;
     switch (direction) {
       case CardDirection.LEFT:
-        str = "方向向左";
+        str += "方向向左";
         break;
       case CardDirection.RIGHT:
-        str = "方向向右";
+        str += "方向向右";
         break;
       case CardDirection.UP:
-        str = `目标为${this.formatPlayer(targetPlayer)}`;
+        str += `目标为${this.formatPlayer(targetPlayer)}`;
         break;
     }
     if (lockedPlayer) {

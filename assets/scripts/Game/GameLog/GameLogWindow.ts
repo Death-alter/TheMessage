@@ -1,17 +1,4 @@
-import {
-  _decorator,
-  Component,
-  Label,
-  Graphics,
-  tween,
-  UIOpacity,
-  Node,
-  UITransform,
-  Size,
-  Tween,
-  Prefab,
-  instantiate,
-} from "cc";
+import { _decorator, Node, Prefab, instantiate, ScrollView } from "cc";
 import { GameLog } from "./GameLog";
 import { GameObjectContainer } from "../Container/GameObjectContainer";
 import { GameLogTextObject } from "./GameLogTextObject";
@@ -24,6 +11,11 @@ export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
   logPrefab: Prefab | null = null;
 
   public viewContent: Node;
+
+  onEnable() {
+    this.getComponentInChildren(ScrollView).scrollToBottom(0);
+  }
+
   init() {
     this.viewContent = this.node.getChildByPath("ScrollView/view/content");
 

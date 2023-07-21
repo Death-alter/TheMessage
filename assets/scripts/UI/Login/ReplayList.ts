@@ -34,12 +34,9 @@ export class ReplayList extends Component {
       const replay = instantiate(this.replayPrefab);
       replay.getChildByName("Label").getComponent(Label).string = item.slice(0, -7);
       replay.on(Node.EventType.TOUCH_END, () => {
-        ProcessEventCenter.emit(ProcessEvent.START_LOAD_GAME_SCENE);
-        director.loadScene("game", (e) => {
-          NetworkEventCenter.emit(NetworkEventToS.DISPLAY_RECORD_TOS, {
-            version: config.version,
-            recordId,
-          });
+        NetworkEventCenter.emit(NetworkEventToS.DISPLAY_RECORD_TOS, {
+          version: config.version,
+          recordId,
         });
       });
       viewContent.addChild(replay);

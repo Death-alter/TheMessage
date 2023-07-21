@@ -47,7 +47,7 @@ export class GameManager extends Component {
 
   public gameData: GameData;
   public gameLog: GameLogList;
-  public syncStatus: SyncStatus;
+  public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
 
   onLoad() {
     //初始化GamePools
@@ -61,7 +61,6 @@ export class GameManager extends Component {
     const dataManager = find("Resident").getComponent(DataManager);
     this.gameData = dataManager.gameData;
     this.gameLog = dataManager.gameLog;
-    this.syncStatus = dataManager.syncStatus;
     this.gameData.gameObject = gameUI;
     this.gameLog.gameObject = this.logContainer.getComponent(GameLogContainer);
     this.gameLog.logHistory.gameObject = this.logHistory.getComponent(GameLogWindow);
@@ -87,6 +86,15 @@ export class GameManager extends Component {
 
     //游戏结束
     GameEventCenter.on(GameEvent.GAME_OVER, this.gameOver, this);
+
+    ProcessEventCenter.on(ProcessEvent.RECONNECT_SYNC_START, () => {
+      this.syncStatus = SyncStatus.IS_SYNCING;
+    });
+
+    ProcessEventCenter.on(ProcessEvent.RECONNECT_SYNC_END, () => {
+      this.syncStatus = SyncStatus.SYNC_COMPLETE;
+      this.initGame();
+    });
   }
 
   onDisable() {

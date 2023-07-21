@@ -90,10 +90,12 @@ export class BoAi extends ActiveSkill {
       seq: seq,
     });
 
-    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-      skill: this,
-      handler: "promptSelectHandCard",
-    });
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptSelectHandCard",
+      });
+    }
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【博爱】`));
   }

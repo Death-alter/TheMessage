@@ -1,6 +1,6 @@
 import { NetworkEventCenter, ProcessEventCenter } from "./EventTarget";
 import * as ProtobufType from "../../protobuf/proto.d";
-import { NetworkEventToC, ProcessEvent } from "./type";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "./type";
 import { _decorator, director } from "cc";
 import { CardType } from "../Game/Card/type";
 import { WaitingType } from "../GameManager/type";
@@ -110,16 +110,16 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.LEAVE_ROOM_TOC, (data: ProtobufType.leave_room_toc) => {
       ProcessEventCenter.emit(ProcessEvent.LEAVE_ROOM, { position: data.position });
     });
-    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: ProtobufType.wait_for_select_role_toc) => {
+    NetworkEventCenter.on(NetworkEventToC.GAME_START_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.START_LOAD_GAME_SCENE);
-      director.loadScene("game", (e) => {
-        ProcessEventCenter.emit(ProcessEvent.START_SELECT_CHARACTER, {
-          playerCount: data.playerCount,
-          identity: data.identity,
-          secretTask: data.secretTask,
-          characterIdList: data.roles,
-          waitingSecond: data.waitingSecond,
-        });
+    });
+    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: ProtobufType.wait_for_select_role_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.START_SELECT_CHARACTER, {
+        playerCount: data.playerCount,
+        identity: data.identity,
+        secretTask: data.secretTask,
+        characterIdList: data.roles,
+        waitingSecond: data.waitingSecond,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: ProtobufType.auto_play_toc) => {
