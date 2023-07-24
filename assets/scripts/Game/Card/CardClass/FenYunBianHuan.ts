@@ -68,64 +68,71 @@ export class FenYunBianHuan extends Card {
     const showCardsWindow = gui.showCardsWindow;
 
     if (player.id !== 0) {
-      showCardsWindow.show();
-      showCardsWindow.setTitle(`等待${gameLog.formatPlayer(player)}选择一张牌`);
-      showCardsWindow.buttons.setButtons([]);
+      showCardsWindow.show({
+        title: `等待${gameLog.formatPlayer(player)}选择一张牌`,
+        cardList: this.cardList,
+        limit: 1,
+        buttons: [],
+      });
     } else {
-      showCardsWindow.setTitle(`请选择一张牌`);
-      showCardsWindow.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            const card = showCardsWindow.selectedCards.list[0];
-            showCardsWindow.hide();
-            const messages = player.getMessagesCopy();
-            //flag为情报区是否有同色情报
-            let flag = false;
-            for (let color of card.color) {
-              if (Card.hasColor(messages, color)) {
-                flag = true;
-                break;
+      showCardsWindow.show({
+        title: "请选择一张牌",
+        cardList: this.cardList,
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              const card = showCardsWindow.selectedCards.list[0];
+              showCardsWindow.hide();
+              const messages = player.getMessagesCopy();
+              //flag为情报区是否有同色情报
+              let flag = false;
+              for (let color of card.color) {
+                if (Card.hasColor(messages, color)) {
+                  flag = true;
+                  break;
+                }
               }
-            }
-            if (flag) {
-              NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                cardId: card.id,
-                asMessageCard: false,
-                seq: gui.seq,
-              });
-            } else {
-              const tooltip = gui.tooltip;
-              tooltip.setText(`是否将该牌置入情报区？`);
-              tooltip.buttons.setButtons([
-                {
-                  text: "加入手牌",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                      cardId: card.id,
-                      asMessageCard: false,
-                      seq: gui.seq,
-                    });
+              if (flag) {
+                NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                  cardId: card.id,
+                  asMessageCard: false,
+                  seq: gui.seq,
+                });
+              } else {
+                const tooltip = gui.tooltip;
+                tooltip.setText(`是否将该牌置入情报区？`);
+                tooltip.buttons.setButtons([
+                  {
+                    text: "加入手牌",
+                    onclick: () => {
+                      NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                        cardId: card.id,
+                        asMessageCard: false,
+                        seq: gui.seq,
+                      });
+                    },
                   },
-                },
-                {
-                  text: "置入情报区",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
-                      cardId: card.id,
-                      asMessageCard: true,
-                      seq: gui.seq,
-                    });
+                  {
+                    text: "置入情报区",
+                    onclick: () => {
+                      NetworkEventCenter.emit(NetworkEventToS.FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOS, {
+                        cardId: card.id,
+                        asMessageCard: true,
+                        seq: gui.seq,
+                      });
+                    },
                   },
-                },
-              ]);
-            }
+                ]);
+              }
+            },
+            enabled: () => {
+              return !!showCardsWindow.selectedCards.list.length;
+            },
           },
-          enabled: () => {
-            return !!showCardsWindow.selectedCards.list.length;
-          },
-        },
-      ]);
+        ],
+      });
     }
   }
 
