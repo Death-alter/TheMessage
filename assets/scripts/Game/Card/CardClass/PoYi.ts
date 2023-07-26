@@ -62,7 +62,7 @@ export class PoYi extends Card {
   }
 
   promptChooseDraw(gui: GameUI, params) {
-    const isBlackMessage = { params };
+    const { isBlackMessage } = params;
     if (isBlackMessage) {
       const tooltip = gui.tooltip;
       tooltip.setText(`是否翻开并摸一张牌？`);

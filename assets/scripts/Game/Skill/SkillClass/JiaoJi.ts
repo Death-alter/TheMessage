@@ -134,10 +134,11 @@ export class JiaoJi extends ActiveSkill {
   promptChooseHandCard(gui: GameUI, params) {
     const { num, player } = params;
     const tooltip = gui.tooltip;
+    const minNum = num - player.messageCounts[CardColor.BLACK];
+
     if (player.messageCounts[CardColor.BLACK] === 0) {
       tooltip.setText(`请选择${num}张手牌交给该角色`);
     } else {
-      const minNum = num - player.messageCounts[CardColor.BLACK];
       tooltip.setText(`请选择${minNum > 0 ? minNum : 0} - ${num}张手牌交给该角色`);
     }
     gui.startSelectHandCard({
@@ -152,7 +153,7 @@ export class JiaoJi extends ActiveSkill {
             seq: gui.seq,
           });
         },
-        enabled: () => gui.selectedHandCards.list.length >= num,
+        enabled: () => gui.selectedHandCards.list.length >= minNum,
       },
     ]);
   }
@@ -175,9 +176,7 @@ export class JiaoJi extends ActiveSkill {
     });
 
     gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(player)}交给了${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`
-      )
+      new GameLog(`${gameLog.formatPlayer(player)}交给了${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`)
     );
 
     ++this.usageCount;

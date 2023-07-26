@@ -63,7 +63,7 @@ export class PlayerList extends Component {
 
     //有人加入房间
     ProcessEventCenter.on(ProcessEvent.JOIN_ROOM, (data) => {
-      this.playerList[data.position] = { userName: data.name, winCounts: data.winCounts || 0 };
+      this.playerList[data.position] = { userName: data.name, winCounts: data.winCount || 0 };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
     });
 

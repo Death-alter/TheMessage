@@ -6,6 +6,7 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
+import { CardType } from "../../Card/type";
 
 export class JiuJi extends PassiveSkill {
   constructor(character: Character) {
@@ -49,11 +50,9 @@ export class JiuJi extends PassiveSkill {
   onEffectB(gameData: GameData, { playerId, card, unknownCardCount }: skill_jiu_ji_b_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    const cardOnPlay = unknownCardCount > 0 ? gameData.createCardByType(card.cardType) : gameData.createCard(card);
-    if (!cardOnPlay) {
-      return;
-    }
-    cardOnPlay.gameObject = gameData.cardOnPlay.gameObject;
+    if (!card && unknownCardCount === 0) return;
+
+    const cardOnPlay = gameData.cardOnPlay;
     gameData.cardOnPlay = null;
     gameData.playerAddHandCard(player, cardOnPlay);
 

@@ -41,7 +41,7 @@ export class ChengFu extends PassiveSkill {
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[fromPlayerId];
-    const cardOnPlay = gameData.createCard(card);
+    const cardOnPlay = unknownCardCount > 0 ? gameData.createCardByType(CardType.SHI_TAN) : gameData.createCard(card);
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(cardOnPlay)}无效`));
   }
 }

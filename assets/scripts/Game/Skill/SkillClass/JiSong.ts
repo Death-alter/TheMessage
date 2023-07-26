@@ -102,7 +102,7 @@ export class JiSong extends ActiveSkill {
                     },
                     enabled: () =>
                       showCardsWindow.selectedCards.list.length &&
-                      Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                      !Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                   },
                 ],
               });
