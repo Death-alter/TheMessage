@@ -172,9 +172,11 @@ export class CardAction extends Component {
       item.action?.stop();
       this.node.removeChild(item.node);
       if (item.data instanceof Card) {
+        item.data.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         GamePools.cardPool.put(item.data.gameObject);
       } else {
         for (let card of item.data.list) {
+          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           GamePools.cardPool.put(card.gameObject);
           card.gameObject = null;
         }
