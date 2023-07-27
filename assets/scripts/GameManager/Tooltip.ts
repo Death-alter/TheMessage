@@ -1,8 +1,8 @@
-import { _decorator, Component, Node, Label, NodePool, Prefab, instantiate, Button } from "cc";
+import { _decorator, Component, Node, Label } from "cc";
 import { ProgressControl } from "../UI/Game/ProgressControl";
 import { ProcessEventCenter } from "../Event/EventTarget";
 import { ProcessEvent } from "../Event/type";
-import DynamicButtons, { ButtonConfig } from "../Utils/DynamicButtons";
+import DynamicButtons from "../Utils/DynamicButtons";
 const { ccclass, property } = _decorator;
 
 @ccclass("Tooltip")

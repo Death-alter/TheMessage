@@ -5,7 +5,6 @@ import { NetworkEventCenter } from "../Event/EventTarget";
 import { NetworkEventToS, NetworkEventToC } from "../Event/type";
 import config from "../config";
 import md5 from "ts-md5";
-import { EDITOR } from "cc/env";
 import { DataManager } from "../GameManager/DataManager";
 
 const { ccclass } = _decorator;
@@ -33,26 +32,26 @@ export class NetworkManager extends Component {
 
     EventMapper.init();
 
-    // if (!EDITOR) {
-    //   game.on(Game.EVENT_HIDE, () => {
-    //     if (director.getScene().name === "game") {
-    //       this.timer = setTimeout(this.closeConnection, 30 * 1000);
-    //     }
-    //   });
+    if (sys.isNative) {
+      game.on(Game.EVENT_HIDE, () => {
+        if (director.getScene().name === "game") {
+          this.timer = setTimeout(this.closeConnection, 15 * 1000);
+        }
+      });
 
-    //   game.on(Game.EVENT_SHOW, () => {
-    //     if (director.getScene().name === "game") {
-    //       if (ws.state !== WebSocket.OPEN) {
-    //         this.node.getComponent(DataManager).clearData();
-    //         director.loadScene("login", () => {
-    //           this.createConnection();
-    //         });
-    //       } else {
-    //         clearTimeout(this.timer);
-    //       }
-    //     }
-    //   });
-    // }
+      game.on(Game.EVENT_SHOW, () => {
+        if (director.getScene().name === "game") {
+          if (ws.state !== WebSocket.OPEN) {
+            this.node.getComponent(DataManager).clearData();
+            director.loadScene("login", () => {
+              this.createConnection();
+            });
+          } else {
+            clearTimeout(this.timer);
+          }
+        }
+      });
+    }
   }
 
   createConnection() {

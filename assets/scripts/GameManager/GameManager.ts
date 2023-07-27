@@ -48,6 +48,7 @@ export class GameManager extends Component {
   public gameData: GameData;
   public gameLog: GameLogList;
   public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
+  public isRecord: boolean = false;
 
   onLoad() {
     //初始化GamePools
@@ -61,6 +62,7 @@ export class GameManager extends Component {
     const dataManager = find("Resident").getComponent(DataManager);
     this.gameData = dataManager.gameData;
     this.gameLog = dataManager.gameLog;
+    this.isRecord = dataManager.isRecord;
     this.gameData.gameObject = gameUI;
     this.gameLog.gameObject = this.logContainer.getComponent(GameLogContainer);
     this.gameLog.logHistory.gameObject = this.logHistory.getComponent(GameLogWindow);
@@ -123,7 +125,7 @@ export class GameManager extends Component {
 
     if (this.syncStatus !== SyncStatus.IS_SYNCING) {
       this.gameWindow.active = true;
-      this.gameData.gameObject.init();
+      this.gameData.gameObject.init(this.isRecord);
       this.gameData.gameObject.startRender();
     }
   }

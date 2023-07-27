@@ -1,15 +1,4 @@
-import {
-  _decorator,
-  Component,
-  Node,
-  Label,
-  Sprite,
-  color,
-  UITransform,
-  Vec3,
-  HorizontalTextAlignment,
-  LabelOutline,
-} from "cc";
+import { _decorator, Component, Node, Label, color, Vec3, HorizontalTextAlignment, LabelOutline } from "cc";
 import { Card } from "../../../Game/Card/Card";
 import { CardGroupObject } from "../../../Game/Container/CardGroupObject";
 import { DataContainer } from "../../../Game/Container/DataContainer";
@@ -39,6 +28,7 @@ export class ShowCardsWindow extends Component {
   public cardList = new DataContainer<Card>();
   public selectedCards: SelectedList<Card> = new SelectedList<Card>();
   public buttons: DynamicButtons;
+  public isActive = true;
 
   onLoad() {
     this.cardContainer.addComponent(CardGroupObject);
@@ -47,6 +37,7 @@ export class ShowCardsWindow extends Component {
   }
 
   show(options?: ShowCardsOptions) {
+    if (!this.isActive) return;
     this.node.active = true;
     if (options) {
       const { title, cardList, buttons, limit, tags } = options;

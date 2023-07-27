@@ -11,7 +11,7 @@ import { GameObject } from "../../../GameObject";
 import { GameData } from "./GameData";
 import { Card } from "../../../Game/Card/Card";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager/type";
-import { ShowCardsOptions, ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
+import { ShowCardsWindow } from "../ShowCardsWindow/ShowCardsWindow";
 import { Player } from "../../../Game/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { CardDirection, CardType } from "../../../Game/Card/type";
@@ -210,7 +210,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
-  init() {
+  init(isRecord: boolean) {
     if (sys.isMobile) {
       //展示卡牌窗口
       this.node.on(
@@ -220,6 +220,11 @@ export class GameUI extends GameObject<GameData> {
         },
         this
       );
+    }
+
+    if (isRecord) {
+      this.tooltip.showButton = false;
+      this.showCardsWindow.isActive = false;
     }
 
     //创建自己的UI

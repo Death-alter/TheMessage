@@ -170,10 +170,7 @@ export class SouJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const cardList = cards.map((card) => gameData.createCard(card));
-    const handCards = gameData.playerRemoveHandCard(
-      targetPlayer,
-      cards.map((card: card) => card.cardId)
-    );
+    const handCards = gameData.playerRemoveHandCard(targetPlayer, cards);
     gameData.playerAddHandCard(player, handCards);
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,

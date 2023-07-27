@@ -575,9 +575,9 @@ export class GameData extends DataBasic<GameUI> {
           return card.map((card) => this.createCard(card));
         }
       } else {
-        const REMOVEdCard = p.removeHandCard(0);
+        const removedCard = p.removeHandCard(0);
         if (typeof card === "number") {
-          return REMOVEdCard;
+          return removedCard;
         } else {
           return this.createCard(card);
         }

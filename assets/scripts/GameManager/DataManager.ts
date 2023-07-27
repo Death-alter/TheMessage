@@ -1,8 +1,8 @@
-import { _decorator, Component, director} from "cc";
+import { _decorator, Component, director } from "cc";
 import { GameLogList } from "../Game/GameLog/GameLogList";
 import { GameData } from "../UI/Game/GameWindow/GameData";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { GameEvent,  NetworkEventToS, ProcessEvent } from "../Event/type";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../Event/type";
 import { SyncStatus } from "./type";
 import { GameLogHistory } from "../Game/GameLog/GameLogHistory";
 const { ccclass, property } = _decorator;
@@ -13,6 +13,7 @@ export class DataManager extends Component {
   public gameLog: GameLogList;
   public logHistory: GameLogHistory;
   public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
+  public isRecord: boolean = false;
 
   onLoad(): void {
     ProcessEventCenter.on(
@@ -22,6 +23,14 @@ export class DataManager extends Component {
         director.loadScene("game", () => {
           NetworkEventCenter.emit(NetworkEventToS.GAME_INIT_FINISH_TOS);
         });
+      },
+      this
+    );
+
+    NetworkEventCenter.on(
+      NetworkEventToS.DISPLAY_RECORD_TOS,
+      () => {
+        this.isRecord = true;
       },
       this
     );
@@ -45,6 +54,7 @@ export class DataManager extends Component {
     this.gameData = null;
     this.gameLog = null;
     this.logHistory = null;
+    this.isRecord = false;
   }
 
   resetData() {
