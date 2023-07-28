@@ -104,7 +104,8 @@ export class CardAction extends Component {
   private moveNode({ node, from, to, duration = 0.6 }: MoveNodeParams) {
     return new Promise((resolve, reject) => {
       if (!this.getActionItem(node)) reject(null);
-      if (from && !this.items[node.uuid]) {
+      // if (from && !this.items[node.uuid]) {
+      if (from) {
         node.worldPosition = this.getLocation(from.location, from.player);
       }
       this.setAction(
@@ -170,17 +171,18 @@ export class CardAction extends Component {
     const item = this.items[node.uuid];
     if (item) {
       item.action?.stop();
-      this.node.removeChild(item.node);
+      const node = item.node;
+      this.node.removeChild(node);
       if (item.data instanceof Card) {
-        item.data.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        node.scale = new Vec3(0.6, 0.6, 1);
         GamePools.cardPool.put(item.data.gameObject);
       } else {
         for (let card of item.data.list) {
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           GamePools.cardPool.put(card.gameObject);
           card.gameObject = null;
         }
         item.data.removeAllData();
+        node.scale = new Vec3(1, 1, 1);
         GamePools.cardGroupPool.put(item.data.gameObject);
       }
       item.data.gameObject = null;
@@ -308,6 +310,7 @@ export class CardAction extends Component {
           card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           const node = this.addCard(card);
           this.moveNode({
+            from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
             node,
             to: { location: CardActionLocation.DISCARD_PILE },
           }).then(() => {

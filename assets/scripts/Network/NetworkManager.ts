@@ -59,15 +59,15 @@ export class NetworkManager extends Component {
     ws.setHeartBeatFunction(() => {
       ws.send("heart_tos");
     });
-    ws.on("reconnect", () => {
-      const name = sys.localStorage.getItem("userName");
-      NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
-        version: config.version,
-        name,
-        password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
-        device: md5.Md5.hashStr(name),
-      });
-    });
+    // ws.on("reconnect", () => {
+    //   const name = sys.localStorage.getItem("userName");
+    //   NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
+    //     version: config.version,
+    //     name,
+    //     password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
+    //     device: md5.Md5.hashStr(name),
+    //   });
+    // });
   }
 
   closeConnection() {

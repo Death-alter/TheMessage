@@ -110,8 +110,7 @@ export class GameUI extends GameObject<GameData> {
     //收到初始化
     // GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
 
-    //收到游戏开始
-    // GameEventCenter.once(GameEvent.GAME_START, (data: GameEventType.GameStart) => {});
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
 
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
 
@@ -188,7 +187,7 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     // GameEventCenter.off(GameEvent.GAME_INIT, this.init, this);
-    // GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
     GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
@@ -517,6 +516,15 @@ export class GameUI extends GameObject<GameData> {
       .getChildByName("SeatNumber")
       .getComponent(Label).color = color("#FFFFFF");
     data.turnPlayer.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
+  }
+
+  onGamePhaseChange() {
+    this.data.selfPlayer.character.skills.forEach((skill) => {
+      if (skill instanceof ActiveSkill) {
+        skill.gameObject.unlock();
+        skill.gameObject.isOn = false;
+      }
+    });
   }
 
   onDeckCardNumberChange(data: GameEventType.DeckCardNumberChange) {
