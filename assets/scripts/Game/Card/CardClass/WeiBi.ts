@@ -199,6 +199,7 @@ export class WeiBi extends Card {
   }
 
   showHandCards(gui: GameUI, params) {
+    console.log(1);
     const { cardList } = params;
     gui.showCardsWindow.show({
       title: "目标展示手牌",

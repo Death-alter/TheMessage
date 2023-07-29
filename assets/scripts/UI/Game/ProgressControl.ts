@@ -21,6 +21,7 @@ export class ProgressControl extends Component {
     this.node.active = true;
     this.playProgressAnimation(seconds).then(() => {
       if (callback) callback();
+      ProcessEventCenter.emit(ProcessEvent.COUNT_DOWN_TIMEOUT, this);
     });
   }
 

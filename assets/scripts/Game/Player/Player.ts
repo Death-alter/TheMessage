@@ -187,6 +187,9 @@ export class Player extends DataBasic<PlayerObject> {
         }
       }
       this.gameObject?.refreshMessageCount();
+      if (this.messageCounts[CardColor.BLACK] < 3) {
+        this.status = PlayerStatus.ALIVE;
+      }
       return message;
     } else {
       const arr = [];
@@ -199,6 +202,9 @@ export class Player extends DataBasic<PlayerObject> {
         }
       }
       this.gameObject?.refreshMessageCount();
+      if (this.messageCounts[CardColor.BLACK] < 3) {
+        this.status = PlayerStatus.ALIVE;
+      }
       return arr;
     }
   }

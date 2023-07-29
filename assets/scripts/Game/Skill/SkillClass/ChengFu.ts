@@ -37,6 +37,7 @@ export class ChengFu extends PassiveSkill {
       card: unknownCardCount > 0 ? null : card,
       cardType: unknownCardCount > 0 ? CardType.SHI_TAN : CardType.WEI_BI,
       targetPlayerId: playerId,
+      isActual: card && card.cardId > 0,
     });
 
     const gameLog = gameData.gameLog;

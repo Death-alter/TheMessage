@@ -11,7 +11,7 @@ export class ChengXiaoDie extends Character {
       name: "程小蝶",
       sprite: "images/characters/ChengXiaoDie",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.MALE,
       gameObject: gameObject,
     });
     this.setSkills([new ZhiYin(this), new JingMeng(this)]);

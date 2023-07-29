@@ -106,9 +106,7 @@ export class GameUI extends GameObject<GameData> {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-
-    //收到初始化
-    // GameEventCenter.on(GameEvent.GAME_INIT, this.init, this);
+    ProcessEventCenter.on(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
 
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
 
@@ -116,9 +114,6 @@ export class GameUI extends GameObject<GameData> {
 
     //卡组数量变化
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
-
-    //洗牌
-    // GameEventCenter.on(GameEvent.DECK_SHUFFLED, () => {});
 
     //抽牌
     GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
@@ -186,7 +181,7 @@ export class GameUI extends GameObject<GameData> {
     this.cardAction.node.active = false;
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    // GameEventCenter.off(GameEvent.GAME_INIT, this.init, this);
+    ProcessEventCenter.off(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
@@ -442,7 +437,20 @@ export class GameUI extends GameObject<GameData> {
           this.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          this.promptReceiveMessage("情报传递到你面前，是否接收情报？");
+          let text = "";
+          switch (this.data.messageDirection) {
+            case CardDirection.UP:
+              text = "上";
+              break;
+            case CardDirection.LEFT:
+              text = "左";
+              break;
+            case CardDirection.RIGHT:
+              text = "右";
+              break;
+          }
+
+          this.promptReceiveMessage(`情报传递到你面前，方向向${text}，是否接收情报？`);
           break;
         case WaitingType.PLAYER_DYING:
           this.promptUseChengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
@@ -507,6 +515,10 @@ export class GameUI extends GameObject<GameData> {
     this.stopSelectHandCard();
     this.clearSelectedHandCards();
     this.handCardContainer.resetSelectCard();
+  }
+
+  onCountDownTimeout() {
+    this.showCardsWindow.hide();
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {
@@ -750,15 +762,15 @@ export class GameUI extends GameObject<GameData> {
                   {
                     text: "确定",
                     onclick: () => {
+                      resolve(this.showCardsWindow.selectedCards.list[0].id);
                       this.showCardsWindow.hide();
-                      resolve(null);
                     },
                   },
                   {
                     text: "取消",
                     onclick: () => {
-                      this.showCardsWindow.hide();
                       reject(null);
+                      this.showCardsWindow.hide();
                     },
                   },
                 ],
@@ -766,11 +778,11 @@ export class GameUI extends GameObject<GameData> {
             }),
         },
       ],
-      complete: () => {
+      complete: (targetCardId) => {
         NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
           use: true,
           cardId: this.selectedHandCards.list[0].id,
-          targetCardId: this.showCardsWindow.selectedCards.list[0].id,
+          targetCardId,
           seq: this.seq,
         });
       },
@@ -927,12 +939,12 @@ export class GameUI extends GameObject<GameData> {
     });
   }
 
-  doSendMessage(direction?: CardDirection) {
+  doSendMessage() {
     const card = this.selectedHandCards.list[0];
     const data: any = {
       cardId: card.id,
       lockPlayerId: [],
-      cardDir: direction == null ? card.direction : direction,
+      cardDir: card.direction,
       seq: this.seq,
     };
     this.selectedHandCards.lock();
@@ -974,7 +986,7 @@ export class GameUI extends GameObject<GameData> {
         name: "confirmLock",
         handler: () =>
           new Promise((resolve, reject) => {
-            switch (card.direction) {
+            switch (data.cardDir) {
               case CardDirection.LEFT:
               case CardDirection.RIGHT:
                 this.tooltip.setText("请选择一名角色锁定");
@@ -993,7 +1005,7 @@ export class GameUI extends GameObject<GameData> {
               {
                 text: "锁定",
                 onclick: () => {
-                  switch (card.direction) {
+                  switch (data.cardDir) {
                     case CardDirection.LEFT:
                     case CardDirection.RIGHT:
                       data.lockPlayerId = [this.selectedPlayers.list[0].id];

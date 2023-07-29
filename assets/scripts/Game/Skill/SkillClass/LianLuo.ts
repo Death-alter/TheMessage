@@ -1,99 +1,168 @@
-import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { CardDirection } from "../../Card/type";
-import { ActiveSkill } from "../Skill";
+import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { PlayerAction } from "../../../UI/PlayerAction";
-import { GamePhase } from "../../../GameManager/type";
-import { NetworkEventToC } from "../../../Event/type";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameData } from "../../../UI/Game/GameWindow/GameData";
 
-export class LianLuo extends ActiveSkill {
+export class LianLuo extends PassiveSkill {
   constructor(character: Character) {
     super({
       name: "联络",
       character,
       description: "你传出情报时，可以将情报牌上的箭头视作任意方向。",
-      useablePhase: [GamePhase.SEND_PHASE_START],
     });
   }
 
-  get useable() {
-    return true;
+  init(gameData: GameData, player) {
+    GameEventCenter.on(GameEvent.GAME_INIT, () => {
+      if (player.id === 0) {
+        gameData.gameObject.doSendMessage = function () {
+          const card = this.selectedHandCards.list[0];
+          const data: any = {
+            cardId: card.id,
+            lockPlayerId: [],
+            cardDir: card.direction,
+            seq: this.seq,
+          };
+          this.selectedHandCards.lock();
+
+          const actions = [
+            {
+              name: "selectDirection",
+              handler: () =>
+                new Promise((resolve, reject) => {
+                  this.tooltip.setText("请选择情报传递的方向");
+                  this.tooltip.buttons.setButtons([
+                    {
+                      text: "左",
+                      onclick: () => {
+                        data.cardDir = CardDirection.LEFT;
+                        resolve(null);
+                      },
+                    },
+                    {
+                      text: "上",
+                      onclick: () => {
+                        data.cardDir = CardDirection.UP;
+                        resolve(null);
+                      },
+                    },
+                    {
+                      text: "右",
+                      onclick: () => {
+                        data.cardDir = CardDirection.RIGHT;
+                        resolve(null);
+                      },
+                    },
+                  ]);
+                }),
+            },
+            {
+              name: "selectTarget",
+              handler: () =>
+                new Promise((resolve, reject) => {
+                  switch (data.cardDir) {
+                    case CardDirection.LEFT:
+                      data.targetPlayerId = this.data.playerList.length - 1;
+                      resolve(null);
+                      break;
+                    case CardDirection.RIGHT:
+                      data.targetPlayerId = 1;
+                      resolve(null);
+                      break;
+                    case CardDirection.UP:
+                      this.tooltip.setText("请选择要传递情报的目标");
+                      this.tooltip.buttons.setButtons([]);
+                      this.startSelectPlayer({
+                        num: 1,
+                        filter: (player) => {
+                          return player.id !== 0;
+                        },
+                        onSelect: (player) => {
+                          data.targetPlayerId = player.id;
+                          resolve(null);
+                        },
+                      });
+                      break;
+                  }
+                }),
+            },
+          ];
+          if (card.lockable) {
+            actions.push({
+              name: "confirmLock",
+              handler: () =>
+                new Promise((resolve, reject) => {
+                  switch (data.cardDir) {
+                    case CardDirection.LEFT:
+                    case CardDirection.RIGHT:
+                      this.tooltip.setText("请选择一名角色锁定");
+                      this.startSelectPlayer({
+                        num: 1,
+                        filter: (player) => {
+                          return player.id !== 0;
+                        },
+                      });
+                      break;
+                    case CardDirection.UP:
+                      this.tooltip.setText("是否锁定该角色");
+                      break;
+                  }
+                  this.tooltip.buttons.setButtons([
+                    {
+                      text: "锁定",
+                      onclick: () => {
+                        switch (data.cardDir) {
+                          case CardDirection.LEFT:
+                          case CardDirection.RIGHT:
+                            data.lockPlayerId = [this.selectedPlayers.list[0].id];
+                            break;
+                          case CardDirection.UP:
+                            data.lockPlayerId = [data.targetPlayerId];
+                            break;
+                        }
+                        resolve(null);
+                      },
+                      enabled: () => {
+                        return this.selectedPlayers.list.length === 1;
+                      },
+                    },
+                    {
+                      text: "不锁定",
+                      onclick: () => {
+                        resolve(null);
+                      },
+                    },
+                  ]);
+                }),
+            });
+          }
+
+          this.playerAction = new PlayerAction({
+            actions,
+            complete: () => {
+              NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
+
+              this.scheduleOnce(() => {
+                this.selectedPlayers.unlock();
+                this.selectedHandCards.unlock();
+                this.stopSelectHandCard();
+                this.clearSelectedHandCards();
+                this.stopSelectPlayer();
+                this.clearSelectedPlayers();
+              }, 0);
+            },
+          });
+
+          this.playerAction.start();
+        };
+      }
+    });
   }
 
-  init() {}
-
-  dispose() {}
-
-  onUse(gui: GameUI) {
-    const tooltip = gui.tooltip;
-    new PlayerAction({
-      actions: [
-        {
-          name: "selectHandCard",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              tooltip.setText("请选择一张牌当做情报传出");
-              gui.startSelectHandCard({
-                num: 1,
-              });
-              tooltip.buttons.setButtons([
-                {
-                  text: "确定",
-                  onclick: () => {
-                    gui.selectedHandCards.lock();
-                    resolve(null);
-                  },
-                  enabled: () => gui.selectedHandCards.list.length > 0,
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    this.gameObject.isOn = false;
-                    gui.stopSelectHandCard();
-                    gui.clearSelectedHandCards();
-                    gui.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
-                    reject(null);
-                  },
-                },
-              ]);
-            }),
-        },
-        {
-          name: "selectDirection",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              tooltip.setText("请选择情报传递的方向");
-              tooltip.buttons.setButtons([
-                {
-                  text: "左",
-                  onclick: () => {
-                    resolve(CardDirection.LEFT);
-                  },
-                },
-                {
-                  text: "上",
-                  onclick: () => {
-                    resolve(CardDirection.UP);
-                  },
-                },
-                {
-                  text: "右",
-                  onclick: () => {
-                    resolve(CardDirection.RIGHT);
-                  },
-                },
-              ]);
-            }),
-        },
-      ],
-      complete: (direction) => {
-        gui.doSendMessage(direction);
-        NetworkEventCenter.once(NetworkEventToC.SEND_MESSAGE_CARD_TOC, () => {
-          this.gameObject.isOn = false;
-        });
-      },
-    }).start();
+  dispose() {
+    GameEventCenter.off(GameEvent.GAME_INIT);
   }
 }

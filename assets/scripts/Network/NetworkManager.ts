@@ -32,26 +32,26 @@ export class NetworkManager extends Component {
 
     EventMapper.init();
 
-    if (sys.isNative) {
-      game.on(Game.EVENT_HIDE, () => {
-        if (director.getScene().name === "game") {
-          this.timer = setTimeout(this.closeConnection, 15 * 1000);
-        }
-      });
+    // if (sys.isNative) {
+    //   game.on(Game.EVENT_HIDE, () => {
+    //     if (director.getScene().name === "game") {
+    //       this.timer = setTimeout(this.closeConnection, 15 * 1000);
+    //     }
+    //   });
 
-      game.on(Game.EVENT_SHOW, () => {
-        if (director.getScene().name === "game") {
-          if (ws.state !== WebSocket.OPEN) {
-            this.node.getComponent(DataManager).clearData();
-            director.loadScene("login", () => {
-              this.createConnection();
-            });
-          } else {
-            clearTimeout(this.timer);
-          }
-        }
-      });
-    }
+    //   game.on(Game.EVENT_SHOW, () => {
+    //     if (director.getScene().name === "game") {
+    //       if (ws.state !== WebSocket.OPEN) {
+    //         this.node.getComponent(DataManager).clearData();
+    //         director.loadScene("login", () => {
+    //           this.createConnection();
+    //         });
+    //       } else {
+    //         clearTimeout(this.timer);
+    //       }
+    //     }
+    //   });
+    // }
   }
 
   createConnection() {

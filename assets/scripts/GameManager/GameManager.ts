@@ -127,6 +127,7 @@ export class GameManager extends Component {
       this.gameWindow.active = true;
       this.gameData.gameObject.init(this.isRecord);
       this.gameData.gameObject.startRender();
+      GameEventCenter.emit(GameEvent.GAME_INIT);
     }
   }
 

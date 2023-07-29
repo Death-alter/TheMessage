@@ -236,6 +236,7 @@ export enum ProcessEvent {
   GET_AUTO_PLAY_STATUS = "get_auto_play_status",
   START_COUNT_DOWN = "start_count_down",
   STOP_COUNT_DOWN = "stop_count_down",
+  COUNT_DOWN_TIMEOUT = "count_down_timeout",
   SELECT_HAND_CARD = "select_hand_card",
   CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
   SELECT_PLAYER = "select_player",

@@ -29,7 +29,7 @@ export class GameData extends DataBasic<GameUI> {
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
   public dyingPlayer: Player = null; //等待澄清的玩家
-  public bannedCardTypes: CardType[];
+  public bannedCardTypes: CardType[] = [];
   public gameLog: GameLogList;
   public handCardList: HandCardList;
 
