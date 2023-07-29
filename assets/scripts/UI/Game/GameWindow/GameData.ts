@@ -254,6 +254,7 @@ export class GameData extends DataBasic<GameUI> {
       if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting) {
         //接收阶段
         const player = this.playerList[data.messagePlayerId];
+        player.addMessage(this.messageInTransmit);
         GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
           player,
           message: this.messageInTransmit,
