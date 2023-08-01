@@ -108,7 +108,7 @@ export class QiangLing extends TriggerSkill {
       gameData.selfBanned = false;
     });
 
-    let str = `【${player.seatNumber + 1}号】${player.character.name}使用技能【强令】，宣言`;
+    let str = `${gameLog.formatPlayer(player)}使用技能【强令】，宣言`;
     for (let card of cards) {
       str += gameLog.formatCard(card);
     }

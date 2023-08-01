@@ -52,7 +52,7 @@ export class Player extends DataBasic<PlayerObject> {
   set seatNumber(number) {
     if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
-    this.gameObject?.setSeat(number);
+    this.gameObject?.setSeat();
   }
 
   get handCards() {

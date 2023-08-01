@@ -119,7 +119,9 @@ export class JinBi extends ActiveSkill {
   promptChooseHandCard(gui: GameUI, params) {
     const { player } = params;
     const tooltip = gui.tooltip;
-    tooltip.setText(`请选择两张手牌交给【${player.seatNumber + 1}号】${player.character.name}`);
+    const gameLog = gui.data.gameLog;
+
+    tooltip.setText(`请选择两张手牌交给${gameLog.formatPlayer(player)}`);
     gui.startSelectHandCard({
       num: 2,
     });

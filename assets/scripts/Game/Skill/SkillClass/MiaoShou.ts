@@ -107,10 +107,8 @@ export class MiaoShou extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【妙手】`));
-    gameLog.addData(
-      new GameLog(`【${player.seatNumber + 1}号】${player.character.name}弃置了待收情报${gameLog.formatCard(message)}`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}弃置了待收情报${gameLog.formatCard(message)}`));
   }
 
   promptSelectCard(gui: GameUI, params) {

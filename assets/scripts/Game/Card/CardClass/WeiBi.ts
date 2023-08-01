@@ -157,6 +157,7 @@ export class WeiBi extends Card {
   onShowHandCard(gameData: GameData, { userId, cards, targetPlayerId, wantType }: CardOnEffectParams) {
     const user = gameData.playerList[userId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+    const gameLog = gameData.gameLog;
 
     let cardTypeText;
     switch (wantType as CardType) {
@@ -173,15 +174,9 @@ export class WeiBi extends Card {
         cardTypeText = "澄清";
         break;
     }
-    gameData.gameLog.addData(
-      new GameLog(`【${user.seatNumber + 1}号】${user.character.name}宣言了【${cardTypeText}】`)
-    );
-    gameData.gameLog.addData(
-      new GameLog(
-        `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有宣言的牌，对【${
-          user.seatNumber + 1
-        }号】${user.character.name}展示手牌`
-      )
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(user)}宣言了【${cardTypeText}】`));
+    gameLog.addData(
+      new GameLog(`${gameLog.formatPlayer(targetPlayer)}没有宣言的牌，对${gameLog.formatPlayer(user)}展示手牌`)
     );
 
     if (userId === 0) {

@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, Sprite, color, game, Game } from "cc";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Game/Container/HandCardContianer";
@@ -59,6 +59,9 @@ export class GameUI extends GameObject<GameData> {
   @property(Node)
   skillButtons: Node | null = null;
 
+  public isRendering: boolean = false;
+  public isRecord: boolean = false;
+
   public cardAction: CardAction;
   public tooltip: Tooltip;
   public playerObjectList: PlayerObject[] = [];
@@ -99,16 +102,30 @@ export class GameUI extends GameObject<GameData> {
       }
       this.tooltip.hideNextPhaseButton();
     });
+    game.on(Game.EVENT_SHOW, () => {
+      this.init(this.isRecord);
+      this.startRender();
+    });
+    game.on(Game.EVENT_HIDE, () => {
+      this.stopRender();
+    });
+  }
+
+  onDestroy(): void {
+    game.off(Game.EVENT_SHOW);
+    game.off(Game.EVENT_HIDE);
   }
 
   startRender() {
+    if (this.isRendering) return;
+    this.isRendering = true;
     this.cardAction.node.active = true;
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     ProcessEventCenter.on(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
 
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
 
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
 
@@ -173,26 +190,31 @@ export class GameUI extends GameObject<GameData> {
 
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
-
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
   stopRender() {
+    if (!this.isRendering) return;
+    this.isRendering = false;
     this.cardAction.node.active = false;
+
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     ProcessEventCenter.off(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange);
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
+    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
     GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
     GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
     GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
+    GameEventCenter.off(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
     GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
     GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
     GameEventCenter.off(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
     GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.removeMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
@@ -201,7 +223,7 @@ export class GameUI extends GameObject<GameData> {
     GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
-    GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
+    GameEventCenter.off(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
   init(isRecord: boolean) {
@@ -216,12 +238,14 @@ export class GameUI extends GameObject<GameData> {
       );
     }
 
+    this.isRecord = isRecord;
     if (isRecord) {
       this.tooltip.showButton = false;
       this.showCardsWindow.isActive = false;
     }
 
     //创建自己的UI
+    this.playerObjectList = [];
     const selfNode = this.node.getChildByPath("Self/Player");
     this.data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
     this.playerObjectList.push(this.data.playerList[0].gameObject);
@@ -234,6 +258,8 @@ export class GameUI extends GameObject<GameData> {
     this.data.handCardList.gameObject = this.handCardContainer;
     this.handCardContainer.init();
     this.cardAction.handCardList = this.data.handCardList;
+    this.cardAction.clear();
+    this.data.handCardList.removeAllData();
     for (let card of this.data.selfPlayer.handCards) {
       this.data.handCardList.addData(card);
     }
@@ -249,6 +275,7 @@ export class GameUI extends GameObject<GameData> {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
       this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.data.playerList[i + 1].gameObject.setSeat();
       this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
@@ -256,6 +283,7 @@ export class GameUI extends GameObject<GameData> {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
       this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.data.playerList[i + 1].gameObject.setSeat();
       this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
@@ -263,6 +291,7 @@ export class GameUI extends GameObject<GameData> {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
       this.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
+      this.data.playerList[i + 1].gameObject.setSeat();
       this.playerObjectList.push(this.data.playerList[i + 1].gameObject);
     }
 
@@ -314,7 +343,7 @@ export class GameUI extends GameObject<GameData> {
       const messageZone = this.playerObjectList[i].node.getChildByPath("Border/Message");
       messageZone.on(Node.EventType.TOUCH_END, () => {
         this.showCardsWindow.show({
-          title: `【${player.seatNumber + 1}号】${player.character.name}的情报区`,
+          title: `${this.data.gameLog.formatPlayer(player)}的情报区`,
           limit: 0,
           cardList: player.getMessagesCopy(),
           buttons: [
@@ -335,7 +364,6 @@ export class GameUI extends GameObject<GameData> {
         location: CardActionLocation.PLAYER,
         player: this.data.playerList[this.data.messagePlayerId],
       });
-      this.cardAction.transmissionMessageObject = this.data.messageInTransmit.gameObject;
     }
   }
 
@@ -662,10 +690,11 @@ export class GameUI extends GameObject<GameData> {
   }
 
   cardCanPlayed(card) {
-    return (
-      card.availablePhases.indexOf(this.data.gamePhase) !== -1 &&
-      (!this.data.selfBanned || this.data.bannedCardTypes.indexOf(card.type) === -1)
-    );
+    const banned = this.data.selfBanned && this.data.bannedCardTypes.indexOf(card.type) !== -1;
+    return {
+      canPlay: card.availablePhases.indexOf(this.data.gamePhase) !== -1 && !banned,
+      banned: banned,
+    };
   }
 
   savePlayerAction() {
@@ -694,10 +723,15 @@ export class GameUI extends GameObject<GameData> {
           name: "playCard",
           handler: (card: Card) =>
             new Promise(() => {
-              if (this.cardCanPlayed(card)) {
+              const flag = this.cardCanPlayed(card);
+              if (flag.canPlay) {
                 card.onSelectedToPlay(this);
               } else {
-                this.tooltip.setText("现在不能使用这张卡");
+                if (flag.banned) {
+                  this.tooltip.setText("这张卡被禁用了");
+                } else {
+                  this.tooltip.setText("现在不能使用这张卡");
+                }
               }
             }),
         },
@@ -855,7 +889,7 @@ export class GameUI extends GameObject<GameData> {
       num: 1,
       onSelect: (card: Card) => {
         this.tooltip.setText("请选择一项操作");
-        if (this.cardCanPlayed(card)) {
+        if (this.cardCanPlayed(card).canPlay) {
           this.tooltip.buttons.setButtons([
             {
               text: card.name,
@@ -923,15 +957,20 @@ export class GameUI extends GameObject<GameData> {
     this.startSelectHandCard({
       num: 1,
       onSelect: (card: Card) => {
-        if (this.cardCanPlayed(card)) {
+        const flag = this.cardCanPlayed(card);
+        if (flag.canPlay) {
           card.onSelectedToPlay(this);
         } else {
-          this.tooltip.setText("现在不能使用这张卡");
+          if (flag.banned) {
+            this.tooltip.setText("这张卡被禁用了");
+          } else {
+            this.tooltip.setText("现在不能使用这张卡");
+          }
         }
       },
       onDeselect: (card: Card) => {
         setTooltip();
-        if (this.cardCanPlayed(card)) {
+        if (this.cardCanPlayed(card).canPlay) {
           card.onDeselected(this);
         }
       },

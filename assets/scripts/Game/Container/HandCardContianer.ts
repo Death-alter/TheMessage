@@ -51,6 +51,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     if (!card.gameObject) {
       card.gameObject = GamePools.cardPool.get();
     }
+    card.gameObject.node.scale = new Vec3(1, 1, 1);
     this.node.addChild(card.gameObject.node);
     card.gameObject.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
     card.gameObject.node.on(

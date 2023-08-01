@@ -78,7 +78,7 @@ export class JiBan extends ActiveSkill {
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_ji_ban_a_toc) {
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-    
+
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -99,7 +99,7 @@ export class JiBan extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【羁绊】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【羁绊】`));
   }
 
   promptSelectHandCard(gui: GameUI, params) {

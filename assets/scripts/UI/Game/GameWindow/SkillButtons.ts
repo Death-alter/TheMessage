@@ -12,6 +12,8 @@ export class SkillButtons extends Component {
   public list: SkillButton[] = [];
 
   init(gui: GameUI, skills: Skill[]) {
+    this.node.removeAllChildren();
+    this.list = [];
     for (let skill of skills) {
       const button = instantiate(this.skillButtonPrefab);
       const skillButton = button.getComponent(SkillButton);

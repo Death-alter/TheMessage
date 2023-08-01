@@ -44,7 +44,7 @@ export class JiuJi extends PassiveSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【就计】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【就计】`));
   }
 
   onEffectB(gameData: GameData, { playerId, card, unknownCardCount }: skill_jiu_ji_b_toc) {

@@ -89,7 +89,7 @@ export class MiLing extends Card {
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}宣言了${secretText}`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}宣言了${secretText}`));
 
     if (hasColor) {
       if (targetPlayerId === 0) {
@@ -106,9 +106,7 @@ export class MiLing extends Card {
     } else {
       gameLog.addData(
         new GameLog(
-          `【${targetPlayer.seatNumber + 1}号】${targetPlayer.character.name}没有对应颜色的卡牌，由【${
-            player.seatNumber + 1
-          }号】${player.character.name}选择一张牌传出`
+          `${gameLog.formatPlayer(targetPlayer)}没有对应颜色的卡牌，由【${gameLog.formatPlayer(player)}选择一张牌传出`
         )
       );
       if (playerId === 0) {

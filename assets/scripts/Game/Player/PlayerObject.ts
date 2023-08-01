@@ -85,8 +85,10 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   //设置座位文字
-  setSeat(seatNumber: number) {
-    this.node.getChildByName("SeatNumber").getComponent(Label).string = PlayerObject.seatNumberText[seatNumber];
+  setSeat() {
+    if (this.data.seatNumber)
+      this.node.getChildByName("SeatNumber").getComponent(Label).string =
+        PlayerObject.seatNumberText[this.data.seatNumber];
   }
 
   //倒计时
@@ -113,7 +115,7 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   refreshSelectableState() {
-    if (this.data.isAlive) {
+    if (this.data && this.data.isAlive) {
       if (this._selectable) {
         this.node.getChildByPath("Cover").active = false;
       } else {

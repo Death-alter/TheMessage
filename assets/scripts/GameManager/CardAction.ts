@@ -67,13 +67,28 @@ export class CardAction extends Component {
     }
   }
 
+  private dealMessageInTransmission(card: Card | Card[]) {
+    if (card instanceof Array) {
+      for (let c of card) {
+        if (c.gameObject === this.transmissionMessageObject) {
+          this.transmissionMessageObject = null;
+          break;
+        }
+      }
+    } else {
+      if (card.gameObject === this.transmissionMessageObject) {
+        this.transmissionMessageObject = null;
+      }
+    }
+  }
+
   private getActionItem(node: Node) {
     return this.items[node.uuid];
   }
 
   private setAction(node: Node, t: Tween<any>, mixin?: boolean) {
     if (mixin !== false) mixin = true;
-    if (this.node.active && node) {
+    if (this.node.active && node && this.items[node.uuid]) {
       const action = this.items[node.uuid] && this.items[node.uuid].action;
       if (action) {
         if (mixin) {
@@ -190,6 +205,11 @@ export class CardAction extends Component {
     }
   }
 
+  clear() {
+    this.node.removeAllChildren();
+    this.items = {};
+  }
+
   showIndicantLine({ from, to, duration = 0.6 }: { from: ActionLocation; to: ActionLocation; duration?: number }) {
     const fromPosition = this.getLocation(from.location, from.player);
     const toPosition = this.getLocation(to.location, to.player);
@@ -226,27 +246,28 @@ export class CardAction extends Component {
     const card = data.card || data.cards;
     return new Promise((resolve, reject) => {
       this.dealCardFromHandCard(card, from);
+      this.dealMessageInTransmission(card);
       const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
         from,
         to: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-      }).then(() => {
-        if (player.id === 0) {
-          if (card instanceof Array) {
-            for (let c of card) {
-              c.gameObject.node.scale = new Vec3(1, 1, 1);
-              this.handCardList.addData(c);
+      })
+        .then(() => {
+          if (player.id === 0) {
+            if (card instanceof Array) {
+              for (let c of card) {
+                this.handCardList.addData(c);
+              }
+            } else {
+              this.handCardList.addData(card);
             }
           } else {
-            card.gameObject.node.scale = new Vec3(1, 1, 1);
-            this.handCardList.addData(card);
+            this.removeCardNode(node);
           }
-        } else {
-          this.removeCardNode(node);
-        }
-        resolve(null);
-      });
+          resolve(null);
+        })
+        .catch((e) => {});
     });
   }
 
@@ -257,38 +278,44 @@ export class CardAction extends Component {
     const card = data.card || data.cards;
     return new Promise((resolve, reject) => {
       this.dealCardFromHandCard(card, from);
+      this.dealMessageInTransmission(card);
       const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
         from,
         to: { location: CardActionLocation.PLAYER, player },
-      }).then(() => {
-        this.moveNode({
-          node,
-          to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-        });
-        this.scaleNode({
-          node,
-          scale: new Vec3(0, 0, 1),
-        }).then(() => {
-          this.removeCardNode(node);
-          resolve(null);
-        });
-      });
+      })
+        .then(() => {
+          this.moveNode({
+            node,
+            to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+          }).catch((e) => {});
+          this.scaleNode({
+            node,
+            scale: new Vec3(0, 0, 1),
+          }).then(() => {
+            this.removeCardNode(node);
+            resolve(null);
+          });
+        })
+        .catch((e) => {});
     });
   }
 
   moveCard({ card, from, to }: { card: Card; from?: ActionLocation; to: ActionLocation }) {
     return new Promise((resolve, reject) => {
       this.dealCardFromHandCard(card, from);
+      this.dealMessageInTransmission(card);
       const node = this.addCard(<Card>card, from);
       this.moveNode({
         node,
         from,
         to,
-      }).then(() => {
-        resolve(null);
-      });
+      })
+        .then(() => {
+          resolve(null);
+        })
+        .catch((e) => {});
     });
   }
 
@@ -313,20 +340,24 @@ export class CardAction extends Component {
             from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
             node,
             to: { location: CardActionLocation.DISCARD_PILE },
-          }).then(() => {
-            this.removeCardNode(node);
-            resolve(null);
-          });
+          })
+            .then(() => {
+              this.removeCardNode(node);
+              resolve(null);
+            })
+            .catch((e) => {});
         });
       } else {
         const node = this.addCard(cardList, { location: CardActionLocation.PLAYER_HAND_CARD, player });
         this.moveNode({
           node,
           to: { location: CardActionLocation.DISCARD_PILE },
-        }).then(() => {
-          this.removeCardNode(node);
-          resolve(null);
-        });
+        })
+          .then(() => {
+            this.removeCardNode(node);
+            resolve(null);
+          })
+          .catch((e) => {});
       }
     });
   }
@@ -339,12 +370,12 @@ export class CardAction extends Component {
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
     const node = this.addCard(card, { location: CardActionLocation.PLAYER, player });
-    this.moveNode({ node, to: { location: CardActionLocation.DISCARD_PILE }, duration: 0.8 });
+    this.moveNode({ node, to: { location: CardActionLocation.DISCARD_PILE }, duration: 0.8 }).catch((e) => {});
   }
 
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     const { card, flag } = data;
-    if (!flag) {
+    if (!flag && card && card.gameObject) {
       this.setAction(
         card.gameObject.node,
         tween(card.gameObject.node)
@@ -378,9 +409,11 @@ export class CardAction extends Component {
       this.moveNode({
         node,
         to: { location: CardActionLocation.PLAYER, player: targetPlayer },
-      }).then(() => {
-        resolve(null);
-      });
+      })
+        .then(() => {
+          resolve(null);
+        })
+        .catch((e) => {});
     });
   }
 
@@ -393,9 +426,11 @@ export class CardAction extends Component {
       this.moveNode({
         node: message.gameObject.node,
         to: { location: CardActionLocation.PLAYER, player: messagePlayer },
-      }).then(() => {
-        resolve(null);
-      });
+      })
+        .then(() => {
+          resolve(null);
+        })
+        .catch((e) => {});
     });
   }
 
@@ -424,20 +459,22 @@ export class CardAction extends Component {
           this.moveNode({
             node: message.gameObject.node,
             to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-          });
+          }).catch((e) => {});
           this.scaleNode({
             node: message.gameObject.node,
             scale: new Vec3(0, 0, 1),
-          }).then(() => {
-            this.removeCardNode(message.gameObject.node);
-            resolve(null);
-          });
+          })
+            .then(() => {
+              this.removeCardNode(message.gameObject.node);
+              resolve(null);
+            })
+            .catch((e) => {});
         });
       } else {
         this.moveNode({
           node: message.gameObject.node,
           to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-        });
+        }).catch((e) => {});
         this.scaleNode({
           node: message.gameObject.node,
           scale: new Vec3(0, 0, 1),
@@ -489,10 +526,12 @@ export class CardAction extends Component {
       this.moveNode({
         node,
         to: { location: CardActionLocation.DISCARD_PILE },
-      }).then(() => {
-        this.removeCardNode(node);
-        resolve(null);
-      });
+      })
+        .then(() => {
+          this.removeCardNode(node);
+          resolve(null);
+        })
+        .catch((e) => {});
     });
   }
 }

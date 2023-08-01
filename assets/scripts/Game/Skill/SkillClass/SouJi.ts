@@ -170,6 +170,7 @@ export class SouJi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     const cardList = cards.map((card) => gameData.createCard(card));
+    const tags = cards.map(() => "手牌");
     const handCards = gameData.playerRemoveHandCard(targetPlayer, cards);
     gameData.playerAddHandCard(player, handCards);
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
@@ -180,15 +181,14 @@ export class SouJi extends ActiveSkill {
 
     if (messageCard) {
       gameData.playerAddHandCard(player, gameData.messageInTransmit);
-      const message = gameData.createCard(messageCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = null;
-      cardList.push(message);
+      cardList.push(gameData.createCard(messageCard));
+      tags.push("情报");
 
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        card: message,
+        card: gameData.messageInTransmit,
         player,
       });
+      gameData.messageInTransmit = null;
     }
 
     if (playerId !== 0) {
@@ -197,6 +197,7 @@ export class SouJi extends ActiveSkill {
         handler: "showCards",
         params: {
           cardList,
+          tags,
         },
       });
     }
@@ -207,12 +208,13 @@ export class SouJi extends ActiveSkill {
   }
 
   showCards(gui: GameUI, params) {
-    const { cardList } = params;
+    const { cardList, tags } = params;
     const showCardsWindow = gui.showCardsWindow;
     showCardsWindow.show({
       title: "展示【搜缉】拿走的牌",
       limit: 0,
       cardList,
+      tags,
       buttons: [
         {
           text: "关闭",

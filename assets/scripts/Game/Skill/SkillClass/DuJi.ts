@@ -163,7 +163,7 @@ export class DuJi extends ActiveSkill {
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
 
-    gameLog.addData(new GameLog(`【${player.seatNumber + 1}号】${player.character.name}使用技能【毒计】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【毒计】`));
   }
 
   showDrawnCard(gui: GameUI, params) {
@@ -265,13 +265,7 @@ export class DuJi extends ActiveSkill {
         });
       }
 
-      gameLog.addData(
-        new GameLog(
-          `【${player.seatNumber + 1}号】${player.character.name}让【${waitingPlayer.seatNumber + 1}号】${
-            waitingPlayer.character.name
-          }选择一项`
-        )
-      );
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}让${gameLog.formatPlayer(waitingPlayer)}选择一项`));
     }
   }
 
