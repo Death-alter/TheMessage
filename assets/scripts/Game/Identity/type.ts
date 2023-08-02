@@ -11,6 +11,8 @@ export const enum SecretTaskType {
   COLLECTOR = 2, // 双重间谍 你获得3张红色情报或者3张蓝色情报
   MUTATOR = 3, // 诱变者 当一名角色收集了三张红色情报或三张蓝色情报后，若其没有宣告胜利，则你胜利
   PIONEER = 4, // 先行者 你死亡时，已收集了至少一张红色情报或蓝色情报
+  DISTURBER = 5, // 你的回合结束时，除你以外的角色的红色和蓝色情报合计均不少于2张
+  SWEEPER = 6, // 你的回合中，一名红色和蓝色情报合计小于等于1张的人死亡
 }
 
 export interface IdentityOption {

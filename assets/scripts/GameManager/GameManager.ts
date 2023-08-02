@@ -40,8 +40,8 @@ export class GameManager extends Component {
   cardPrefab: Prefab | null = null;
   @property(Prefab)
   logPrefab: Prefab | null = null;
-  @property(Node)
-  showCardsWindow: Node | null = null;
+  @property(Prefab)
+  showCardWindowPrefab: Prefab | null = null;
   @property(Node)
   cardGroupNode: Node | null;
 
@@ -68,7 +68,16 @@ export class GameManager extends Component {
     this.gameLog.logHistory.gameObject = this.logHistory.getComponent(GameLogWindow);
     this.gameLog.logHistory.gameObject.init();
 
-    gameUI.showCardsWindow = this.showCardsWindow.getComponent(ShowCardsWindow);
+    const messagesWindowNode = instantiate(this.showCardWindowPrefab);
+    this.node.addChild(messagesWindowNode);
+    messagesWindowNode.active = false;
+    gameUI.messagesWindow = messagesWindowNode.getComponent(ShowCardsWindow);
+
+    const showCardsWindowNode = instantiate(this.showCardWindowPrefab);
+    this.node.addChild(showCardsWindowNode);
+    showCardsWindowNode.active = false;
+    gameUI.showCardsWindow = showCardsWindowNode.getComponent(ShowCardsWindow);
+
     gameUI.characterInfoWindow.getComponent(CharacterInfoWindow).init();
 
     //预加载卡图
@@ -134,7 +143,8 @@ export class GameManager extends Component {
   gameOver(data: GameEventType.GameOver) {
     this.gameData.gameObject.stopRender();
     // this.gameWindow.active = false;
-    this.gameWindow.getComponent(GameUI).showCardsWindow.node.active = false;
+    this.gameData.gameObject.showCardsWindow.node.active = false;
+    this.gameData.gameObject.messagesWindow.node.active = false;
     this.gameResultWindow
       .getComponent(Winner)
       .init(data.players.sort((a, b) => Number(b.isWinner) - Number(a.isWinner)));

@@ -7,6 +7,8 @@ import { PlayerStatus } from "./type";
 import { CardColor } from "../Card/type";
 import { Identity } from "../Identity/Identity";
 import { NoIdentity } from "../Identity/IdentityClass/NoIdentity";
+import { ProcessEventCenter } from "../../Event/EventTarget";
+import { ProcessEvent } from "../../Event/type";
 
 const { ccclass, property } = _decorator;
 
@@ -16,6 +18,8 @@ export class PlayerObject extends GameObject<Player> {
   characterPanting: Node | null = null;
   @property(Node)
   progress: Node | null = null;
+  @property(Node)
+  phaseLabel: Node | null = null;
   @property(Node)
   messageCounts: Node | null = null;
 
@@ -68,6 +72,7 @@ export class PlayerObject extends GameObject<Player> {
 
   onLoad() {
     this.progress.active = false;
+    this.phaseLabel.getComponent(Label).spacingX = 4;
   }
 
   onEnable() {
@@ -78,10 +83,12 @@ export class PlayerObject extends GameObject<Player> {
       },
       this
     );
+    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
   }
 
   onDisable() {
     this.node.getChildByPath("Border/Identity").off(Node.EventType.TOUCH_END);
+    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
   }
 
   //设置座位文字
@@ -92,12 +99,19 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   //倒计时
-  startCoundDown(seconds) {
+  startCoundDown(seconds, text) {
     this.progress.getComponent(ProgressControl).startCoundDown(seconds);
+    this.phaseLabel.getComponent(Label).string = text;
+    this.phaseLabel.active = true;
   }
 
   stopCountDown() {
     this.progress.getComponent(ProgressControl).stopCountDown();
+  }
+
+  onStopCountDown() {
+    this.phaseLabel.getComponent(Label).string = "";
+    this.phaseLabel.active = false;
   }
 
   //刷新手牌数量

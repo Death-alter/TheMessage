@@ -224,10 +224,6 @@ export class GameData extends DataBasic<GameUI> {
 
   //回合改变
   private onGetPhaseData(data: ProcessEventType.GetPhaseData) {
-    console.log(this.selfPlayer);
-    this.selfPlayer.handCards.forEach((card) => {
-      console.log(card.gameObject);
-    });
     //修改回合信息
     this.turnPlayerId = data.currentPlayerId;
     this.gamePhase = data.currentPhase;
@@ -258,7 +254,6 @@ export class GameData extends DataBasic<GameUI> {
       if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting && this.messageInTransmit) {
         //接收阶段
         const player = this.playerList[data.messagePlayerId];
-        console.log(this.messageInTransmit);
         GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
           player,
           message: this.messageInTransmit,

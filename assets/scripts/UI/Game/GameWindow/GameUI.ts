@@ -55,8 +55,6 @@ export class GameUI extends GameObject<GameData> {
   @property(Node)
   characterInfoWindow: Node | null = null;
   @property(Node)
-  showCardWindowNode: Node | null = null;
-  @property(Node)
   skillButtons: Node | null = null;
 
   public isRendering: boolean = false;
@@ -67,6 +65,7 @@ export class GameUI extends GameObject<GameData> {
   public playerObjectList: PlayerObject[] = [];
   public seq: number;
   public showCardsWindow: ShowCardsWindow;
+  public messagesWindow: ShowCardsWindow;
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
   public handCardContainer: HandCardContianer;
   private oldPlayerAction: PlayerAction;
@@ -78,7 +77,6 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onLoad() {
-    this.showCardsWindow = this.showCardWindowNode.getComponent(ShowCardsWindow);
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
     this.audioManager = new AudioMgr();
@@ -342,19 +340,7 @@ export class GameUI extends GameObject<GameData> {
 
       const messageZone = this.playerObjectList[i].node.getChildByPath("Border/Message");
       messageZone.on(Node.EventType.TOUCH_END, () => {
-        this.showCardsWindow.show({
-          title: `${this.data.gameLog.formatPlayer(player)}的情报区`,
-          limit: 0,
-          cardList: player.getMessagesCopy(),
-          buttons: [
-            {
-              text: "关闭",
-              onclick: () => {
-                this.showCardsWindow.hide();
-              },
-            },
-          ],
-        });
+        this.showMessages(player);
       });
     }
 
@@ -496,7 +482,26 @@ export class GameUI extends GameObject<GameData> {
           break;
       }
     } else {
-      this.playerObjectList[data.playerId].startCoundDown(data.second);
+      let text = "";
+      switch (this.data.gamePhase) {
+        case GamePhase.DRAW_PHASE:
+          text = "摸 牌 阶 段";
+          break;
+        case GamePhase.MAIN_PHASE:
+          text = "出 牌 阶 段";
+          break;
+        case GamePhase.SEND_PHASE_START:
+        case GamePhase.SEND_PHASE:
+          text = "传 递 阶 段";
+          break;
+        case GamePhase.FIGHT_PHASE:
+          text = "争 夺 阶 段";
+          break;
+        case GamePhase.RECEIVE_PHASE:
+          text = "接 收 阶 段";
+          break;
+      }
+      this.playerObjectList[data.playerId].startCoundDown(data.second, text);
     }
 
     const buttons = this.skillButtons.getComponent(SkillButtons);
@@ -974,6 +979,28 @@ export class GameUI extends GameObject<GameData> {
           card.onDeselected(this);
         }
       },
+    });
+  }
+
+  showMessages(player: Player);
+  showMessages(playerId: number);
+  showMessages(player: Player | number) {
+    if (!(player instanceof Player)) {
+      player = this.data.playerList[player];
+    }
+
+    this.messagesWindow.show({
+      title: `${this.data.gameLog.formatPlayer(player)}的情报区`,
+      limit: 0,
+      cardList: player.getMessagesCopy(),
+      buttons: [
+        {
+          text: "关闭",
+          onclick: () => {
+            this.messagesWindow.hide();
+          },
+        },
+      ],
     });
   }
 
