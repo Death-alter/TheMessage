@@ -67,12 +67,14 @@ export class LiYou extends Card {
         player: user,
         card: card,
       });
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(user)}把${gameLog.formatCard(card)}加入手牌`));
     } else {
       targetPlayer.addMessage(card);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,
         message: card,
       });
+      gameLog.addData(new GameLog(`${gameLog.formatCard(card)}被置入${gameLog.formatPlayer(targetPlayer)}的情报区`));
     }
   }
 }

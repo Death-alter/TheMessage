@@ -38,6 +38,7 @@ export interface CreateRoom {
     id: number;
     name: string;
     winCount: number;
+    gameCount: number;
   }[];
 }
 

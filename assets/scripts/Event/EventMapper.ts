@@ -83,6 +83,7 @@ export class EventMapper {
             id: i,
             name: data.names[i],
             winCount: data.winCounts[i],
+            gameCount: data.gameCounts[i],
           });
         }
         ProcessEventCenter.emit(ProcessEvent.CREATE_ROOM, {

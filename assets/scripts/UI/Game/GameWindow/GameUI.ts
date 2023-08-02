@@ -100,18 +100,18 @@ export class GameUI extends GameObject<GameData> {
       }
       this.tooltip.hideNextPhaseButton();
     });
-    game.on(Game.EVENT_SHOW, () => {
-      this.init(this.isRecord);
-      this.startRender();
-    });
-    game.on(Game.EVENT_HIDE, () => {
-      this.stopRender();
-    });
+    game.on(Game.EVENT_SHOW, this.onGameShow, this);
+    game.on(Game.EVENT_HIDE, this.stopRender, this);
+  }
+
+  onGameShow() {
+    this.init(this.isRecord);
+    this.startRender();
   }
 
   onDestroy(): void {
-    game.off(Game.EVENT_SHOW);
-    game.off(Game.EVENT_HIDE);
+    game.off(Game.EVENT_SHOW, this.onGameShow, this);
+    game.off(Game.EVENT_HIDE, this.stopRender, this);
   }
 
   startRender() {

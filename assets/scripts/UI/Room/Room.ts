@@ -5,12 +5,10 @@ import { PlayerInfoTemplate } from "./PlayerInfoTemplate";
 import { CreateRoom } from "../../Event/ProcessEventType";
 const { ccclass, property } = _decorator;
 
-@ccclass("PlayerInfo")
 export class PlayerInfo {
-  @property
   userName: string = "";
-  @property
-  winCounts: number = 0;
+  winCount: number = 0;
+  gameCount: number = 0;
 }
 
 @ccclass("Room")
@@ -36,7 +34,8 @@ export class PlayerList extends Component {
         if (data.players[i].name) {
           this.playerList[i] = {
             userName: data.players[i].name,
-            winCounts: data.players[i].winCount,
+            winCount: data.players[i].winCount,
+            gameCount: data.players[i].gameCount,
           };
         }
         const player = instantiate(this.playerInfoPrefab);
@@ -63,7 +62,11 @@ export class PlayerList extends Component {
 
     //有人加入房间
     ProcessEventCenter.on(ProcessEvent.JOIN_ROOM, (data) => {
-      this.playerList[data.position] = { userName: data.name, winCounts: data.winCount || 0 };
+      this.playerList[data.position] = {
+        userName: data.name,
+        winCount: data.winCount || 0,
+        gameCount: data.gameCount || 0,
+      };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
     });
 

@@ -7,15 +7,21 @@ export class PlayerInfoTemplate extends Component {
   @property(Label)
   public userName: Label | null = null;
   @property(Label)
-  public winCounts: Label | null = null;
+  public winCount: Label | null = null;
 
   init(data?: PlayerInfo) {
     if (data) {
       data.userName && (this.userName.string = data.userName);
-      data.winCounts !== null && (this.winCounts.string = "胜场：" + data?.winCounts.toString());
+      let str;
+      if (data.winCount === 0) {
+        str = `总场数：${data.gameCount}    胜率：0%`;
+      } else {
+        str = `总场数：${data.gameCount}    胜率：${((data.winCount / data.gameCount) * 100).toFixed(2)}%`;
+      }
+      this.winCount.string = str;
     } else {
       this.userName.string = "";
-      this.winCounts.string = "";
+      this.winCount.string = "";
     }
   }
 }

@@ -24,9 +24,8 @@ export class GameLogList extends DataContainer<GameLog> {
     if (this.gameObject) {
       this._list.push(data);
       this.gameObject.onDataAdded(data);
-    } else {
-      this.logHistory.addData(data);
     }
+    this.logHistory.addData(new GameLog(data.text));
   }
 
   formatCard(card: Card) {
