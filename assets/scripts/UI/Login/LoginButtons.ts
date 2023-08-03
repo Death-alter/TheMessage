@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, EditBox, sys } from "cc";
 import { ProcessEventCenter, NetworkEventCenter } from "../../Event/EventTarget";
 import config from "../../config";
-import { NetworkEventToS, ProcessEvent } from "../../Event/type";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../Event/type";
 import md5 from "ts-md5";
 const { ccclass, property } = _decorator;
 
@@ -19,6 +19,8 @@ export class LoginButtons extends Component {
   @property(Node)
   replyListNode: Node | null = null;
 
+  private logining: boolean = false;
+
   onEnable() {
     const name = sys.localStorage.getItem("userName");
     if (name) {
@@ -28,6 +30,7 @@ export class LoginButtons extends Component {
 
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
+      if (this.logining) return;
       if (this.userName.string) {
         const name = this.userName.string;
         const password = this.password.string;
@@ -39,6 +42,10 @@ export class LoginButtons extends Component {
           password: md5.Md5.hashStr(password),
           device: md5.Md5.hashStr(this.userName.string),
         });
+        this.logining = true;
+        this.scheduleOnce(() => {
+          this.logining = false;
+        }, 0.5);
       } else {
         ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: "请输入用户名" });
       }

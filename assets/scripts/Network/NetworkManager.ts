@@ -1,19 +1,13 @@
-import { _decorator, Component, director, find, game, Game, sys } from "cc";
+import { _decorator, Component, director } from "cc";
 import ws from "../Utils/WebSocket";
 import { EventMapper } from "../Event/EventMapper";
 import { NetworkEventCenter } from "../Event/EventTarget";
 import { NetworkEventToS, NetworkEventToC } from "../Event/type";
-import config from "../config";
-import md5 from "ts-md5";
-import { DataManager } from "../GameManager/DataManager";
-import { GameUI } from "../UI/Game/GameWindow/GameUI";
 
 const { ccclass } = _decorator;
 
 @ccclass("NetworkManager")
 export class NetworkManager extends Component {
-  private timer: number = 0;
-
   onLoad() {
     director.addPersistRootNode(this.node);
 
@@ -33,32 +27,11 @@ export class NetworkManager extends Component {
 
     NetworkEventCenter.on(NetworkEventToC.NOTIFY_KICKED_TOC, () => {
       director.loadScene("login", () => {
-        this.reconnect();
+        this.closeConnection();
       });
     });
 
     EventMapper.init();
-
-    // if (sys.isNative) {
-    //   game.on(Game.EVENT_HIDE, () => {
-    //     if (director.getScene().name === "game") {
-    //       this.timer = setTimeout(this.closeConnection, 15 * 1000);
-    //     }
-    //   });
-
-    //   game.on(Game.EVENT_SHOW, () => {
-    //     if (director.getScene().name === "game") {
-    //       if (ws.state !== WebSocket.OPEN) {
-    //         this.node.getComponent(DataManager).clearData();
-    //         director.loadScene("login", () => {
-    //           this.createConnection();
-    //         });
-    //       } else {
-    //         clearTimeout(this.timer);
-    //       }
-    //     }
-    //   });
-    // }
   }
 
   createConnection() {
