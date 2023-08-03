@@ -124,7 +124,15 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   onPlayerDiscardCard({ cardList, player }: GameEventType.PlayerDiscardCard) {
-    this.addData(new GameLog(`${this.formatPlayer(player)}弃了${cardList.length}张牌。`));
+    let str = `${this.formatPlayer(player)}弃了`;
+    if (cardList.length <= 3) {
+      for (let card of cardList) {
+        str += this.formatCard(card);
+      }
+    } else {
+      str += `${cardList.length}张牌。`;
+    }
+    this.addData(new GameLog(str));
   }
 
   onPlayerPlayCard({ player, targetPlayer, card }: GameEventType.PlayerPlayCard) {

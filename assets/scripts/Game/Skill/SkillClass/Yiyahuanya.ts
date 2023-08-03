@@ -9,6 +9,7 @@ import { TriggerSkill } from "../Skill";
 import { Character } from "../../Character/Character";
 import { Card } from "../../Card/Card";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { CardActionLocation } from "../../../GameManager/type";
 
 export class YiYaHuanYa extends TriggerSkill {
   constructor(character: Character) {
@@ -99,7 +100,11 @@ export class YiYaHuanYa extends TriggerSkill {
     const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);
 
-    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, { player: targetPlayer, message: handCard });
+    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+      player: targetPlayer,
+      message: handCard,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+    });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【以牙还牙】`));
     gameLog.addData(

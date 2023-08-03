@@ -1,7 +1,5 @@
 import { CardObject } from "../../Game/Card/CardObject";
-import { GamePhase } from "../../GameManager/type";
 import { IdentityType } from "../Identity/type";
-import { Card } from "./Card";
 
 export const enum CardStatus {
   FACE_DOWN = 0,

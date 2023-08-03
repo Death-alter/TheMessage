@@ -75,3 +75,7 @@ export function copyCard(card: Card) {
     return createCard(option);
   }
 }
+
+export function getCardTypeCount() {
+  Object.keys(cardsMap).length;
+}

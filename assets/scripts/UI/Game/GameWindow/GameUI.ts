@@ -25,6 +25,7 @@ import { NoIdentity } from "../../../Game/Identity/IdentityClass/NoIdentity";
 import { PlayerAction } from "../../PlayerAction";
 import { AudioMgr } from "../../Resident/AudioMgr";
 import { Sex } from "../../../Game/Character/type";
+import { EDITOR, PREVIEW } from "cc/env";
 
 const { ccclass, property } = _decorator;
 
@@ -100,8 +101,10 @@ export class GameUI extends GameObject<GameData> {
       }
       this.tooltip.hideNextPhaseButton();
     });
-    game.on(Game.EVENT_SHOW, this.onGameShow, this);
-    game.on(Game.EVENT_HIDE, this.stopRender, this);
+    if (!PREVIEW) {
+      game.on(Game.EVENT_SHOW, this.onGameShow, this);
+      game.on(Game.EVENT_HIDE, this.stopRender, this);
+    }
   }
 
   onGameShow() {
@@ -110,8 +113,10 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onDestroy(): void {
-    game.off(Game.EVENT_SHOW, this.onGameShow, this);
-    game.off(Game.EVENT_HIDE, this.stopRender, this);
+    if (!PREVIEW) {
+      game.off(Game.EVENT_SHOW, this.onGameShow, this);
+      game.off(Game.EVENT_HIDE, this.stopRender, this);
+    }
   }
 
   startRender() {
@@ -239,7 +244,7 @@ export class GameUI extends GameObject<GameData> {
     this.isRecord = isRecord;
     if (isRecord) {
       this.tooltip.showButton = false;
-      this.showCardsWindow.isActive = false;
+      // this.showCardsWindow.isActive = false;
     }
 
     //创建自己的UI
@@ -507,7 +512,7 @@ export class GameUI extends GameObject<GameData> {
     const buttons = this.skillButtons.getComponent(SkillButtons);
     this.data.selfPlayer.character.skills.forEach((skill, index) => {
       if (skill instanceof ActiveSkill) {
-        if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1) {
+        if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && !this.data.skillBanned) {
           switch (this.data.gamePhase) {
             case GamePhase.SEND_PHASE_START:
               if (this.data.turnPlayerId === 0) {
@@ -695,7 +700,7 @@ export class GameUI extends GameObject<GameData> {
   }
 
   cardCanPlayed(card) {
-    const banned = this.data.selfBanned && this.data.bannedCardTypes.indexOf(card.type) !== -1;
+    const banned = this.data.cardBanned && this.data.bannedCardTypes.indexOf(card.type) !== -1;
     return {
       canPlay: card.availablePhases.indexOf(this.data.gamePhase) !== -1 && !banned,
       banned: banned,
@@ -1004,12 +1009,12 @@ export class GameUI extends GameObject<GameData> {
     });
   }
 
-  doSendMessage() {
+  doSendMessage(direction?: CardDirection) {
     const card = this.selectedHandCards.list[0];
     const data: any = {
       cardId: card.id,
       lockPlayerId: [],
-      cardDir: card.direction,
+      cardDir: direction == null ? card.direction : direction,
       seq: this.seq,
     };
     this.selectedHandCards.lock();
@@ -1019,13 +1024,22 @@ export class GameUI extends GameObject<GameData> {
         name: "selectTarget",
         handler: () =>
           new Promise((resolve, reject) => {
+            let i;
             switch (data.cardDir) {
               case CardDirection.LEFT:
-                data.targetPlayerId = this.data.playerList.length - 1;
+                i = this.data.playerList.length - 1;
+                while (!this.data.playerList[i].isAlive) {
+                  --i;
+                }
+                data.targetPlayerId = i;
                 resolve(null);
                 break;
               case CardDirection.RIGHT:
-                data.targetPlayerId = 1;
+                i = 1;
+                while (!this.data.playerList[i].isAlive) {
+                  ++i;
+                }
+                data.targetPlayerId = i;
                 resolve(null);
                 break;
               case CardDirection.UP:

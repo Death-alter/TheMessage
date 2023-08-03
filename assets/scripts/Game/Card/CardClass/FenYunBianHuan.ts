@@ -5,7 +5,6 @@ import { GamePhase } from "../../../GameManager/type";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { GameLog } from "../../GameLog/GameLog";
-import { Player } from "../../Player/Player";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 

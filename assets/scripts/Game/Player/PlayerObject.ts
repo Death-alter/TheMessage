@@ -36,7 +36,11 @@ export class PlayerObject extends GameObject<Player> {
     super.setData(data);
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
-      this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
+      if (data.name === "惑星") {
+        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·傲视群雄";
+      } else {
+        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
+      }
       this.refreshIdentityList();
       this.refreshHandCardCount();
       this.refreshLockState();
@@ -117,6 +121,14 @@ export class PlayerObject extends GameObject<Player> {
   //刷新手牌数量
   refreshHandCardCount() {
     this.messageCounts.getChildByPath("HandCard/Label").getComponent(Label).string = this.data.handCardCount.toString();
+  }
+
+  showBannedIcon() {
+    this.node.getChildByPath("Border/Banned").active = true;
+  }
+
+  hideBannedIcon() {
+    this.node.getChildByPath("Border/Banned").active = false;
   }
 
   refreshMessageCount() {

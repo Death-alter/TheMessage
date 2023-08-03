@@ -1,6 +1,7 @@
 //toc协议，ws接收数据
 export enum NetworkEventToC {
   RECONNECT_TOC = "reconnect_toc",
+  NOTIFY_KICKED_TOC = "notify_kicked_toc",
   ERROR_CODE_TOC = "error_code_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",

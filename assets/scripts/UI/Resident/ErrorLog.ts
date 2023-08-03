@@ -1,6 +1,19 @@
-import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween, color } from "cc";
-import {ProcessEventCenter} from "../../Event/EventTarget";
-import { ProcessEvent } from "../../Event/type";
+import {
+  _decorator,
+  Component,
+  Label,
+  Graphics,
+  tween,
+  UIOpacity,
+  Node,
+  UITransform,
+  Size,
+  Tween,
+  color,
+  sys,
+} from "cc";
+import { NetworkEventCenter, ProcessEventCenter } from "../../Event/EventTarget";
+import { NetworkEventToC, ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
 
 @ccclass("ErrorLog")
@@ -23,6 +36,17 @@ export class ErrorLog extends Component {
       this.drawMask(width, 40, 5);
       this.show();
     });
+
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_KICKED_TOC, () => {
+      const labelComp = this._label.getComponent(Label);
+      const msg = "该账号已在其他设备登录";
+      labelComp.string = msg;
+      const width = msg.length * labelComp.fontSize + 20;
+      this._mask.getComponentInChildren(UITransform).setContentSize(new Size(width, 40));
+      this.drawMask(width, 40, 5);
+      this.show();
+    });
+
     tween(this._opacityTarget).hide().start();
   }
 

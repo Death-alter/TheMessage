@@ -1,4 +1,4 @@
-import { _decorator, Component, director, game, Game, sys } from "cc";
+import { _decorator, Component, director, find, game, Game, sys } from "cc";
 import ws from "../Utils/WebSocket";
 import { EventMapper } from "../Event/EventMapper";
 import { NetworkEventCenter } from "../Event/EventTarget";
@@ -6,6 +6,7 @@ import { NetworkEventToS, NetworkEventToC } from "../Event/type";
 import config from "../config";
 import md5 from "ts-md5";
 import { DataManager } from "../GameManager/DataManager";
+import { GameUI } from "../UI/Game/GameWindow/GameUI";
 
 const { ccclass } = _decorator;
 
@@ -29,6 +30,12 @@ export class NetworkManager extends Component {
         ws.send(NetworkEventToS[eventName], data);
       });
     }
+
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_KICKED_TOC, () => {
+      director.loadScene("login", () => {
+        this.reconnect();
+      });
+    });
 
     EventMapper.init();
 
@@ -59,15 +66,9 @@ export class NetworkManager extends Component {
     ws.setHeartBeatFunction(() => {
       ws.send("heart_tos");
     });
-    // ws.on("reconnect", () => {
-    //   const name = sys.localStorage.getItem("userName");
-    //   NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
-    //     version: config.version,
-    //     name,
-    //     password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
-    //     device: md5.Md5.hashStr(name),
-    //   });
-    // });
+    ws.on("disconnect", () => {
+      director.loadScene("login");
+    });
   }
 
   closeConnection() {

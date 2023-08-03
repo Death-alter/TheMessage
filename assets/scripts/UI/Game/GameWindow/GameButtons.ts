@@ -25,8 +25,9 @@ export class GameButtons extends Component {
 
     exitButton.on(Node.EventType.TOUCH_END, () => {
       find("Resident").getComponent(DataManager).clearData();
-      find("Resident").getComponent(NetworkManager).reconnect();
-      director.loadScene("login");
+      director.loadScene("login", () => {
+        find("Resident").getComponent(NetworkManager).reconnect();
+      });
     });
 
     if (find("Resident").getComponent(DataManager).isRecord) {

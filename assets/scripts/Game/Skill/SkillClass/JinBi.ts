@@ -9,6 +9,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { CardType } from "../../Card/type";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
+import { getCardTypeCount } from "../../Card";
 
 export class JinBi extends ActiveSkill {
   private usageCount: number = 0;
@@ -155,18 +156,25 @@ export class JinBi extends ActiveSkill {
 
     if (unknownCardCount === 0 && cards.length === 0) {
       if (targetPlayerId === 0) {
-        gameData.selfBanned = true;
-        gameData.bannedCardTypes = [CardType.PO_YI];
+        gameData.cardBanned = true;
+        gameData.skillBanned = true;
+        gameData.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
         GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-          gameData.selfBanned = false;
+          gameData.cardBanned = false;
+          gameData.skillBanned = false;
           gameData.bannedCardTypes = [];
+          targetPlayer.gameObject.hideBannedIcon();
         });
       }
+      targetPlayer.gameObject.showBannedIcon();
+      GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
+        targetPlayer.gameObject.hideBannedIcon();
+      });
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}被【禁闭】`));
     } else {
       const handCards = gameData.playerRemoveHandCard(
         targetPlayer,
-        cards.map((card) => card)
+        unknownCardCount > 0 ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
       );
       gameData.playerAddHandCard(player, handCards);
 

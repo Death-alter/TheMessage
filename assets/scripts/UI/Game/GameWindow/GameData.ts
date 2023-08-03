@@ -19,7 +19,8 @@ import { HandCardList } from "../../../Game/Container/HandCardList";
 
 export class GameData extends DataBasic<GameUI> {
   public selfPlayer: Player;
-  public selfBanned: boolean = false;
+  public cardBanned: boolean = false;
+  public skillBanned: boolean = false;
   public playerCount: number;
   public playerList: Player[];
   public messageInTransmit: Card | null = null;
