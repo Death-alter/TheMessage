@@ -1,9 +1,8 @@
 import { CardDirection } from "../../Card/type";
 import { PassiveSkill } from "../Skill";
 import { Character } from "../../Character/Character";
-import { PlayerAction } from "../../../UI/PlayerAction";
-import { GameEvent, NetworkEventToS } from "../../../Event/type";
-import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent } from "../../../Event/type";
+import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 
 export class LianLuo extends PassiveSkill {

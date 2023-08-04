@@ -35,6 +35,7 @@ export class CardAction extends Component {
   }
 
   private getLocation(location: CardActionLocation, player?: Player) {
+    console.log(location, player);
     switch (location) {
       case CardActionLocation.DECK:
         return this.deckNode.worldPosition;
