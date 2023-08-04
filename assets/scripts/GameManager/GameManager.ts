@@ -145,9 +145,10 @@ export class GameManager extends Component {
     // this.gameWindow.active = false;
     this.gameData.gameObject.showCardsWindow.node.active = false;
     this.gameData.gameObject.messagesWindow.node.active = false;
-    this.gameResultWindow
-      .getComponent(Winner)
-      .init(data.players.sort((a, b) => Number(b.isWinner) - Number(a.isWinner)));
+    this.gameResultWindow.getComponent(Winner).init(
+      data.players.sort((a, b) => Number(b.isWinner) - Number(a.isWinner)),
+      this.isRecord
+    );
     this.gameResultWindow.active = true;
   }
 }

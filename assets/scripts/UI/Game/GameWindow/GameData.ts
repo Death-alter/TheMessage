@@ -380,7 +380,7 @@ export class GameData extends DataBasic<GameUI> {
       const targetPlayer = this.playerList[targetPlayerId];
       const cardList = this.playerRemoveHandCard(
         player,
-        cards.map((card) => card)
+        unknownCardCount > 0 ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
       );
       this.playerAddHandCard(targetPlayer, cardList);
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList });

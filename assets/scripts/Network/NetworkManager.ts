@@ -27,7 +27,7 @@ export class NetworkManager extends Component {
 
     NetworkEventCenter.on(NetworkEventToC.NOTIFY_KICKED_TOC, () => {
       director.loadScene("login", () => {
-        this.closeConnection();
+        this.reconnect();
       });
     });
 

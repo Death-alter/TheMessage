@@ -69,9 +69,9 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.REMOVE_ONE_POSITION_TOC, (data: ProtobufType.remove_one_position_toc) => {
       ProcessEventCenter.emit(ProcessEvent.REMOVE_ROOM_POSITION, { position: data.position });
     });
-    NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, () => {
-      director.loadScene("login");
-    });
+    // NetworkEventCenter.on(NetworkEventToC.DISPLAY_RECORD_END_TOC, () => {
+    //   director.loadScene("login");
+    // });
     NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: ProtobufType.save_record_success_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SAVE_RECORD_SUCCESS, { recordId: data.recordId });
     });

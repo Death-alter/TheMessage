@@ -46,7 +46,7 @@ export class Winner extends Component {
     });
   }
 
-  init(players: GameOver["players"]) {
+  init(players: GameOver["players"], isRecord: boolean) {
     const list = this.node.getChildByName("List");
     for (let data of players) {
       const item = instantiate(this.resultItemPrefab);
@@ -69,6 +69,14 @@ export class Winner extends Component {
       if (data.isDeclarer) {
       }
       list.addChild(item);
+    }
+
+    if (isRecord) {
+      this.buttons.getChildByName("Play").active = false;
+      this.buttons.getChildByName("Exit").getComponentInChildren(Label).string = "结束播放";
+    } else {
+      this.buttons.getChildByName("Play").active = true;
+      this.buttons.getChildByName("Exit").getComponentInChildren(Label).string = "退出登录";
     }
   }
 }
