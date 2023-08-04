@@ -32,13 +32,19 @@ export class ChengFu extends PassiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, fromPlayerId, card, unknownCardCount }: skill_cheng_fu_toc) {
-    ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+    const data: any = {
       userId: fromPlayerId,
-      card: unknownCardCount > 0 ? null : card,
       cardType: unknownCardCount > 0 ? CardType.SHI_TAN : CardType.WEI_BI,
       targetPlayerId: playerId,
-      isActual: card && card.cardId > 0,
-    });
+      isActual: (card && card.cardId > 0) || unknownCardCount > 0,
+    };
+    if (unknownCardCount > 0) {
+      data.cardId = 0;
+    } else {
+      data.card = card;
+    }
+
+    ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[fromPlayerId];

@@ -25,7 +25,7 @@ import { NoIdentity } from "../../../Game/Identity/IdentityClass/NoIdentity";
 import { PlayerAction } from "../../PlayerAction";
 import { AudioMgr } from "../../Resident/AudioMgr";
 import { Sex } from "../../../Game/Character/type";
-import { EDITOR, PREVIEW } from "cc/env";
+import { PREVIEW } from "cc/env";
 
 const { ccclass, property } = _decorator;
 
@@ -531,6 +531,7 @@ export class GameUI extends GameObject<GameData> {
     this.tooltip.hideNextPhaseButton();
     this.stopSelectPlayer();
     this.clearSelectedPlayers();
+    this.selectedHandCards.lock();
     this.stopSelectHandCard();
     this.clearSelectedHandCards();
     this.handCardContainer.resetSelectCard();

@@ -425,7 +425,6 @@ export class GameData extends DataBasic<GameUI> {
     } else {
       card = this.createCardByType(data.cardType);
     }
-
     if (this.cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this.cardOnPlay = card;

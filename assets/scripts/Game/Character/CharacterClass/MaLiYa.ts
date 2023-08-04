@@ -8,7 +8,7 @@ export class MaLiYa extends Character {
     super({
       id: 31,
       name: "玛利亚",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/MaLiYa",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,

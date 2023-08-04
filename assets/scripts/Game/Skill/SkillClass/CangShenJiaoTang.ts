@@ -269,7 +269,7 @@ export class CangShenJiaoTang extends PassiveSkill {
           new GameLog(
             `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
               message
-            )}置入情报区`
+            )}加入手牌`
           )
         );
       }

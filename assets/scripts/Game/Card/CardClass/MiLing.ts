@@ -148,26 +148,28 @@ export class MiLing extends Card {
   }
 
   promptTargetPlayerChooseCard(gui: GameUI, params) {
-    const { handCardList } = params;
-    const showCardsWindow = gui.showCardsWindow;
-    showCardsWindow.show({
-      title: "选择一张情报由目标传出",
-      cardList: handCardList,
-      limit: 1,
-      buttons: [
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
-              cardId: showCardsWindow.selectedCards.list[0].id,
-              seq: gui.seq,
-            });
-            showCardsWindow.hide();
+    if (!gui.isRecord) {
+      const { handCardList } = params;
+      const showCardsWindow = gui.showCardsWindow;
+      showCardsWindow.show({
+        title: "选择一张情报由目标传出",
+        cardList: handCardList,
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              NetworkEventCenter.emit(NetworkEventToS.MI_LING_CHOOSE_CARD_TOS, {
+                cardId: showCardsWindow.selectedCards.list[0].id,
+                seq: gui.seq,
+              });
+              showCardsWindow.hide();
+            },
+            enabled: () => !!showCardsWindow.selectedCards.list.length,
           },
-          enabled: () => !!showCardsWindow.selectedCards.list.length,
-        },
-      ],
-    });
+        ],
+      });
+    }
   }
 
   onChooseCard(gameData: GameData, { playerId, targetPlayerId, card }: CardOnEffectParams) {
@@ -183,19 +185,21 @@ export class MiLing extends Card {
   }
 
   promptSendMessage(gui: GameUI, params) {
-    const { cardId } = params;
-    const handCardContainer = gui.handCardContainer;
-    gui.startSelectHandCard({
-      num: 1,
-    });
-    for (let item of handCardContainer.data.list) {
-      if ((<Card>item).id === cardId) {
-        handCardContainer.selectCard(<Card>item);
-        break;
+    if (!gui.isRecord) {
+      const { cardId } = params;
+      const handCardContainer = gui.handCardContainer;
+      gui.startSelectHandCard({
+        num: 1,
+      });
+      for (let item of handCardContainer.data.list) {
+        if ((<Card>item).id === cardId) {
+          handCardContainer.selectCard(<Card>item);
+          break;
+        }
       }
+      gui.stopSelectHandCard();
+      gui.doSendMessage();
     }
-    gui.stopSelectHandCard();
-    gui.doSendMessage();
   }
 
   secretButtonClicked(gui: GameUI, secret: number) {

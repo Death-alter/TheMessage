@@ -136,17 +136,21 @@ export class ShiTan extends Card {
     const { shiTanCard, player } = params;
     const tooltip = gui.tooltip;
     if (shiTanCard.drawCardColor.indexOf(player.identityList[0].type) !== -1) {
-      //是抽卡的身份
-      NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
-        cardId: [],
-        seq: gui.seq,
-      });
-    } else {
-      if (player.handCardCount === 0) {
+      if (!gui.isRecord) {
+        //是抽卡的身份
         NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
           cardId: [],
           seq: gui.seq,
         });
+      }
+    } else {
+      if (player.handCardCount === 0) {
+        if (!gui.isRecord) {
+          NetworkEventCenter.emit(NetworkEventToS.EXECUTE_SHI_TAN_TOS, {
+            cardId: [],
+            seq: gui.seq,
+          });
+        }
       } else {
         tooltip.setText(`请选择一张手牌丢弃`);
         gui.startSelectHandCard({ num: 1 });

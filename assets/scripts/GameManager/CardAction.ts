@@ -1,4 +1,4 @@
-import { _decorator, Component, tween, Node, Vec3, Tween, UITransform, Vec2 } from "cc";
+import { _decorator, Component, tween, Node, Vec3, Tween, UITransform, Vec2, instantiate, Prefab } from "cc";
 import { Card } from "../Game/Card/Card";
 import { DataContainer } from "../Game/Container/DataContainer";
 import { CardStatus } from "../Game/Card/type";
@@ -23,19 +23,14 @@ export class CardAction extends Component {
   deckNode: Node | null = null;
   @property(Node)
   discardPileNode: Node | null = null;
-  @property(Node)
-  line: Node | null = null;
+  @property(Prefab)
+  line: Prefab | null = null;
 
   public transmissionMessageObject: CardObject;
   public items: { [index: string]: CardActionItem } = {};
   public handCardList: HandCardList;
 
-  onLoad() {
-    this.items[this.line.uuid] = { node: this.line, data: null };
-  }
-
   private getLocation(location: CardActionLocation, player?: Player) {
-    console.log(location, player);
     switch (location) {
       case CardActionLocation.DECK:
         return this.deckNode.worldPosition;
@@ -212,25 +207,29 @@ export class CardAction extends Component {
   }
 
   showIndicantLine({ from, to, duration = 0.6 }: { from: ActionLocation; to: ActionLocation; duration?: number }) {
+    const line = instantiate(this.line);
+    this.node.addChild(line);
+    this.items[line.uuid] = { node: line, data: null };
     const fromPosition = this.getLocation(from.location, from.player);
     const toPosition = this.getLocation(to.location, to.player);
     const dx = toPosition.x - fromPosition.x;
     const dy = toPosition.y - fromPosition.y;
 
-    this.line.worldPosition = fromPosition;
-    const transform = this.line.getComponent(UITransform);
+    line.worldPosition = fromPosition;
+    const transform = line.getComponent(UITransform);
     transform.width = 0;
     const dir = new Vec2(dx, -dy);
     const degree = (dir.signAngle(new Vec2(1, 0)) / Math.PI) * 180;
-    this.line.angle = degree;
-    this.line.active = true;
+    line.angle = degree;
+    line.active = true;
     this.setAction(
-      this.line,
+      line,
       tween(transform)
         .to(duration, { width: Math.sqrt(dx * dx + dy * dy) })
         .delay(1)
         .call(() => {
-          this.line.active = false;
+          this.node.removeChild(line);
+          delete this.items[line.uuid];
         }),
       false
     );
