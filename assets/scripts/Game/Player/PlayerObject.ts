@@ -87,12 +87,10 @@ export class PlayerObject extends GameObject<Player> {
       },
       this
     );
-    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
   }
 
   onDisable() {
     this.node.getChildByPath("Border/Identity").off(Node.EventType.TOUCH_END);
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
   }
 
   //设置座位文字
@@ -103,17 +101,20 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   //倒计时
-  startCoundDown(seconds, text) {
+  startCoundDown(seconds) {
     this.progress.getComponent(ProgressControl).startCoundDown(seconds);
-    this.phaseLabel.getComponent(Label).string = text;
-    this.phaseLabel.active = true;
   }
 
   stopCountDown() {
     this.progress.getComponent(ProgressControl).stopCountDown();
   }
 
-  onStopCountDown() {
+  showPhaseText(text) {
+    this.phaseLabel.getComponent(Label).string = text;
+    this.phaseLabel.active = true;
+  }
+
+  hidePhaseText() {
     this.phaseLabel.getComponent(Label).string = "";
     this.phaseLabel.active = false;
   }

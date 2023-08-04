@@ -52,6 +52,9 @@ export class EventMapper {
       console.log(error_message);
       ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { code: data.code, msg: error_message });
     });
+    NetworkEventCenter.on(NetworkEventToC.ERROR_MESSAGE_TOC, (data: ProtobufType.error_message_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: data.msg });
+    });
 
     //流程
     NetworkEventCenter.on(NetworkEventToC.PAUSE_RECORD_TOC, (data: ProtobufType.pause_record_toc) => {

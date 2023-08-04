@@ -128,7 +128,7 @@ export class GameUI extends GameObject<GameData> {
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     ProcessEventCenter.on(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
 
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
+    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
 
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
 
@@ -487,26 +487,7 @@ export class GameUI extends GameObject<GameData> {
           break;
       }
     } else {
-      let text = "";
-      switch (this.data.gamePhase) {
-        case GamePhase.DRAW_PHASE:
-          text = "摸 牌 阶 段";
-          break;
-        case GamePhase.MAIN_PHASE:
-          text = "出 牌 阶 段";
-          break;
-        case GamePhase.SEND_PHASE_START:
-        case GamePhase.SEND_PHASE:
-          text = "传 递 阶 段";
-          break;
-        case GamePhase.FIGHT_PHASE:
-          text = "争 夺 阶 段";
-          break;
-        case GamePhase.RECEIVE_PHASE:
-          text = "接 收 阶 段";
-          break;
-      }
-      this.playerObjectList[data.playerId].startCoundDown(data.second, text);
+      this.playerObjectList[data.playerId].startCoundDown(data.second);
     }
 
     const buttons = this.skillButtons.getComponent(SkillButtons);
@@ -514,6 +495,7 @@ export class GameUI extends GameObject<GameData> {
       if (skill instanceof ActiveSkill) {
         if (skill.useablePhase.indexOf(this.data.gamePhase) !== -1 && !this.data.skillBanned) {
           switch (this.data.gamePhase) {
+            case GamePhase.MAIN_PHASE:
             case GamePhase.SEND_PHASE_START:
               if (this.data.turnPlayerId === 0) {
                 buttons.list[index].useable = true;
@@ -521,7 +503,6 @@ export class GameUI extends GameObject<GameData> {
                 buttons.list[index].useable = false;
               }
               break;
-            case GamePhase.MAIN_PHASE:
             case GamePhase.FIGHT_PHASE:
               if (data.playerId === 0) {
                 buttons.list[index].useable = true;
@@ -560,15 +541,38 @@ export class GameUI extends GameObject<GameData> {
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {
-    this.data.playerList[
-      (data.turnPlayer.id + this.data.playerList.length - 1) % this.data.playerList.length
-    ].gameObject.node
-      .getChildByName("SeatNumber")
-      .getComponent(Label).color = color("#FFFFFF");
-    data.turnPlayer.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
+    for (let player of this.data.playerList) {
+      if (player === data.turnPlayer) {
+        player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
+      } else {
+        player.gameObject.hidePhaseText();
+        player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#FFFFFF");
+      }
+    }
   }
 
-  onGamePhaseChange() {
+  onGamePhaseChange(data: GameEventType.GamePhaseChange) {
+    let text = "";
+    switch (data.phase) {
+      case GamePhase.DRAW_PHASE:
+        text = "摸 牌 阶 段";
+        break;
+      case GamePhase.MAIN_PHASE:
+        text = "出 牌 阶 段";
+        break;
+      case GamePhase.SEND_PHASE_START:
+      case GamePhase.SEND_PHASE:
+        text = "传 递 阶 段";
+        break;
+      case GamePhase.FIGHT_PHASE:
+        text = "争 夺 阶 段";
+        break;
+      case GamePhase.RECEIVE_PHASE:
+        text = "接 收 阶 段";
+        break;
+    }
+    data.turnPlayer.gameObject.showPhaseText(text);
+
     this.data.selfPlayer.character.skills.forEach((skill) => {
       if (skill instanceof ActiveSkill) {
         skill.gameObject.unlock();

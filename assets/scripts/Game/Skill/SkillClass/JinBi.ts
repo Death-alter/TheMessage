@@ -7,7 +7,6 @@ import { CardActionLocation, GamePhase, WaitingType } from "../../../GameManager
 import { GameData } from "../../../UI/Game/GameWindow/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
-import { CardType } from "../../Card/type";
 import { GameUI } from "../../../UI/Game/GameWindow/GameUI";
 import { getCardTypeCount } from "../../Card";
 

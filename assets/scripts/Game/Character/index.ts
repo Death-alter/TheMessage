@@ -34,6 +34,7 @@ import { XiaoJiu } from "./CharacterClass/XiaoJiu";
 import { BaiKunShan } from "./CharacterClass/BaiKunShan";
 import { ShangYu } from "./CharacterClass/ShangYu";
 import { CharacterObject } from "../../Game/Character/CharacterObject";
+import { MaLiYa } from "./CharacterClass/MaLiYa";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -67,6 +68,7 @@ charactersMap[27] = XiaoJiu;
 charactersMap[28] = LiNingYu;
 charactersMap[29] = BaiKunShan;
 charactersMap[30] = ShangYu;
+charactersMap[31] = MaLiYa;
 charactersMap[1020] = GuXiaoMengSP;
 charactersMap[1028] = LiNingYuSP;
 

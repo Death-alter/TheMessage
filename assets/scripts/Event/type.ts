@@ -3,6 +3,7 @@ export enum NetworkEventToC {
   RECONNECT_TOC = "reconnect_toc",
   NOTIFY_KICKED_TOC = "notify_kicked_toc",
   ERROR_CODE_TOC = "error_code_toc",
+  ERROR_MESSAGE_TOC = "error_message_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
   ADD_ORDER_TOC = "add_order_toc",
@@ -118,6 +119,9 @@ export enum NetworkEventToC {
   SKILL_WAIT_FOR_DU_JI_B_TOC = "skill_wait_for_du_ji_b_toc",
   SKILL_DU_JI_B_TOC = "skill_du_ji_b_toc",
   SKILL_DU_JI_C_TOC = "skill_du_ji_c_toc",
+  SKILL_CANG_SHEN_JIAO_TANG_A_TOC = "skill_cang_shen_jiao_tang_a_toc",
+  SKILL_CANG_SHEN_JIAO_TANG_B_TOC = "skill_cang_shen_jiao_tang_b_toc",
+  SKILL_CANG_SHEN_JIAO_TANG_C_TOC = "skill_cang_shen_jiao_tang_c_toc"
 }
 
 //tos协议，ws发送数据
@@ -207,6 +211,8 @@ export enum NetworkEventToS {
   SKILL_DU_JI_A_TOS = "skill_du_ji_a_tos",
   SKILL_DU_JI_B_TOS = "skill_du_ji_b_tos",
   SKILL_DU_JI_C_TOS = "skill_du_ji_c_tos",
+  SKILL_CANG_SHEN_JIAO_TANG_B_TOS = "skill_cang_shen_jiao_tang_b_tos",
+  SKILL_CANG_SHEN_JIAO_TANG_C_TOS = "skill_cang_shen_jiao_tang_c_tos"
 }
 
 //程序事件，用于程序控制
