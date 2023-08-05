@@ -1,9 +1,9 @@
-import { NetworkEventCenter, ProcessEventCenter } from "./EventTarget";
+import { NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "./EventTarget";
 import * as ProtobufType from "../../protobuf/proto.d";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "./type";
+import { NetworkEventToC, ProcessEvent, UIEvent } from "./type";
 import { _decorator, director } from "cc";
-import { CardType } from "../Game/Card/type";
-import { WaitingType } from "../GameManager/type";
+import { WaitingType } from "../Manager/type";
+import { CardType } from "../Components/Card/type";
 
 //把网络协议映射为程序事件
 
@@ -118,7 +118,7 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.START_LOAD_GAME_SCENE);
     });
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_SELECT_ROLE_TOC, (data: ProtobufType.wait_for_select_role_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.START_SELECT_CHARACTER, {
+      UIEventCenter.emit(UIEvent.START_CHOOSE_CHARACTER, {
         playerCount: data.playerCount,
         identity: data.identity,
         secretTask: data.secretTask,

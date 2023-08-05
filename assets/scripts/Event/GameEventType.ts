@@ -1,10 +1,10 @@
-import { Card } from "../Game/Card/Card";
-import { CardDirection } from "../Game/Card/type";
-import { CharacterStatus } from "../Game/Character/type";
-import { Identity } from "../Game/Identity/Identity";
-import { Player } from "../Game/Player/Player";
-import { Skill } from "../Game/Skill/Skill";
-import { ActionLocation, GamePhase } from "../GameManager/type";
+import { Card } from "../Components/Card/Card";
+import { CardDirection } from "../Components/Card/type";
+import { CharacterStatus } from "../Components/Chatacter/type";
+import { Identity } from "../Components/Identity/Identity";
+import { Player } from "../Components/Player/Player";
+import { Skill } from "../Components/Skill/Skill";
+import { ActionLocation, GamePhase } from "../Manager/type";
 
 export interface GameInit {
   playerList: Player[];

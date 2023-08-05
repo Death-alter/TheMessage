@@ -121,7 +121,7 @@ export enum NetworkEventToC {
   SKILL_DU_JI_C_TOC = "skill_du_ji_c_toc",
   SKILL_CANG_SHEN_JIAO_TANG_A_TOC = "skill_cang_shen_jiao_tang_a_toc",
   SKILL_CANG_SHEN_JIAO_TANG_B_TOC = "skill_cang_shen_jiao_tang_b_toc",
-  SKILL_CANG_SHEN_JIAO_TANG_C_TOC = "skill_cang_shen_jiao_tang_c_toc"
+  SKILL_CANG_SHEN_JIAO_TANG_C_TOC = "skill_cang_shen_jiao_tang_c_toc",
 }
 
 //tos协议，ws发送数据
@@ -212,7 +212,7 @@ export enum NetworkEventToS {
   SKILL_DU_JI_B_TOS = "skill_du_ji_b_tos",
   SKILL_DU_JI_C_TOS = "skill_du_ji_c_tos",
   SKILL_CANG_SHEN_JIAO_TANG_B_TOS = "skill_cang_shen_jiao_tang_b_tos",
-  SKILL_CANG_SHEN_JIAO_TANG_C_TOS = "skill_cang_shen_jiao_tang_c_tos"
+  SKILL_CANG_SHEN_JIAO_TANG_C_TOS = "skill_cang_shen_jiao_tang_c_tos",
 }
 
 //程序事件，用于程序控制
@@ -306,4 +306,18 @@ export enum GameEvent {
   GAME_OVER = "game_over",
 }
 
-export enum SpecialGameEvent {}
+//UI事件
+export enum UIEvent {
+  START_SELECT_PLAYER = "start_select_player",
+  CANCEL_SELECT_PLAYER = "cancel_select_player",
+  SELECT_player_COMPLETE = "select_player_complete",
+  START_SELECT_HAND_CARD = "start_select_hand_card",
+  CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
+  SELECT_HAND_CARD_COMPLETE = "select_hand_card_complete",
+  START_CHOOSE_CHARACTER = "start_choose_character",
+  STOP_CHOOSE_CHARACTER = "stop_choose_character",
+  START_SHOW_CARDS = "start_show_cards",
+  STOP_SHOW_CARDS = "stop_show_cards",
+  START_SHOW_MESSAGES = "start_show_messages",
+  STOP_SHOW_MESSAGES = "stop_show_messages",
+}

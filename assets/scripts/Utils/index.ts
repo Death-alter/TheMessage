@@ -1,5 +1,5 @@
-import { Card } from "../Game/Card/Card";
-import { CardColor } from "../Game/Card/type";
+import { Card } from "../Components/Card/Card";
+import { CardColor } from "../Components/Card/type";
 
 export function getCardColorText(card: Card);
 export function getCardColorText(color: CardColor);

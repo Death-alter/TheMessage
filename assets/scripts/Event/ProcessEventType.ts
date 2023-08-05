@@ -1,8 +1,8 @@
 import { card } from "../../protobuf/proto";
-import { CardDirection, CardOnEffectParams, CardType } from "../Game/Card/type";
-import { CharacterType } from "../Game/Character/type";
-import { IdentityType, SecretTaskType } from "../Game/Identity/type";
-import { GamePhase, WaitingType } from "../GameManager/type";
+import { CardDirection, CardType, CardOnEffectParams } from "../Components/Card/type";
+import { CharacterType } from "../Components/Chatacter/type";
+import { IdentityType, SecretTaskType } from "../Components/Identity/type";
+import { GamePhase, WaitingType } from "../Manager/type";
 
 export interface NetworkError {
   code?: number;
@@ -51,14 +51,6 @@ export interface JoinRoom {
 
 export interface LeaveRoom {
   position: number;
-}
-
-export interface StartSelectCharacter {
-  playerCount: number;
-  identity: IdentityType;
-  secretTask: SecretTaskType;
-  characterIdList: CharacterType[];
-  waitingSecond: number;
 }
 
 export interface GetAutoPlayStatus {
