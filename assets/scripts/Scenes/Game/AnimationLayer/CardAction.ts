@@ -417,7 +417,6 @@ export class CardAction extends Component {
   //接收情报动画
   receiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
     return new Promise((resolve, reject) => {
-      console.log(this.transmissionMessageObject);
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }

@@ -111,12 +111,6 @@ export class Player extends DataBasic<PlayerObject> {
     this.gameObject?.refreshHandCardCount();
   }
 
-  //丢弃所有手牌
-  removeAllHandCards() {
-    this._handCardCount = 0;
-    this.gameObject?.refreshHandCardCount();
-  }
-
   //角色翻面
   flipCharacter() {
     this._character.flip();

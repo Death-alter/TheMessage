@@ -142,8 +142,6 @@ export class GameManager extends GameObject<GameData> {
         );
       }
 
-      console.log("init");
-
       this.gameLayer.init(this);
       this.animationLayer.init(this);
       this.logLayer.init(this);
@@ -204,6 +202,5 @@ export class GameManager extends GameObject<GameData> {
         this.data.handCardList.addData(card);
       }
     }
-    console.log(this.data.handCardList);
   }
 }

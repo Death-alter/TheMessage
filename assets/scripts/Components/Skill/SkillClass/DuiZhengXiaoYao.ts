@@ -183,6 +183,8 @@ export class DuiZhengXiaoYao extends ActiveSkill {
         });
       }
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}展示了两张手牌`));
+    } else {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
   }
 

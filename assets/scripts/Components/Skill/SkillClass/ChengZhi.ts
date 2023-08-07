@@ -54,17 +54,13 @@ export class ChengZhi extends TriggerSkill {
     const diePlayer = gameData.playerList[diePlayerId];
     const gameLog = gameData.gameLog;
 
-    let handCards;
+    const handCards = gameData.playerRemoveHandCard(diePlayer, cards);
     if (playerId === 0) {
-      diePlayer.removeAllHandCards();
-      handCards = cards.map((card) => gameData.createCard(card));
       this.identity = createIdentity(identity as number, secretTask as number);
-    } else {
-      handCards = diePlayer.removeAllHandCards();
-      if (diePlayerId === 0) {
-        gameData.handCardList.removeAllData();
-      }
+    } else if (diePlayerId === 0) {
+      gameData.handCardList.removeAllData();
     }
+
     gameData.playerAddHandCard(player, handCards);
 
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
@@ -138,6 +134,7 @@ export class ChengZhi extends TriggerSkill {
       }
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的身份`));
+
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
   }

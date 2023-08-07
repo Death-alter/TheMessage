@@ -31,7 +31,6 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
 
   onDataAdded(data: GameLog): void {
     if (this.showLog) {
-      console.log(this, this.node);
       if (!data.gameObject) {
         data.gameObject = GamePools.logMessagePool.get();
       }

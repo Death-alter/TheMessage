@@ -147,6 +147,7 @@ export class CangShenJiaoTang extends TriggerSkill {
                 {
                   text: "否",
                   onclick: () => {
+                    data.enable = false;
                     reject(null);
                   },
                 },
@@ -216,7 +217,7 @@ export class CangShenJiaoTang extends TriggerSkill {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
       },
       cancel: () => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, { enable: false });
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
       },
     });
     gui.uiLayer.playerAction.start();
@@ -241,9 +242,9 @@ export class CangShenJiaoTang extends TriggerSkill {
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
-
       const message = targetPlayer.removeMessage(cardId);
 
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
       if (asMessageCard) {
         player.addMessage(message);
         GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {

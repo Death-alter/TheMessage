@@ -16,7 +16,6 @@ export class HandCardList extends DataContainer<Card> {
     let index = -1;
     if (!(data instanceof Card)) {
       for (let i = 0; i < this._list.length; i++) {
-        console.log(this._list[i]);
         if (this._list[i].id === data) {
           index = i;
           break;
