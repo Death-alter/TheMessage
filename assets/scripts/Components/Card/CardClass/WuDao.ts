@@ -2,8 +2,8 @@ import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
-import { NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, UIEvent } from "../../../Event/type";
+import { NetworkEventCenter} from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameManager } from "../../../Manager/GameManager";
 
 export class WuDao extends Card {
@@ -27,7 +27,7 @@ export class WuDao extends Card {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择误导的目标`);
     const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => {
         return neighbors.indexOf(player) !== -1;
@@ -52,7 +52,7 @@ export class WuDao extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {

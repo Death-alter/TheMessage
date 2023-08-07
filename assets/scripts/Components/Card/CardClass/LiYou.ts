@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -27,7 +27,7 @@ export class LiYou extends Card {
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择要利诱的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       onSelect: (player) => {
         tooltip.setText(`是否使用利诱？`);
@@ -40,7 +40,7 @@ export class LiYou extends Card {
                 playerId: player.id,
                 seq: gui.seq,
               });
-              this.onDeselected(gui);
+              gui.gameLayer.stopSelectPlayers();
             },
           },
         ]);
@@ -49,7 +49,7 @@ export class LiYou extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { userId, targetPlayerId, targetCard, flag }: CardOnEffectParams): void {

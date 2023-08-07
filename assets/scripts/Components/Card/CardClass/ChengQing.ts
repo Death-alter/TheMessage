@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -26,38 +26,39 @@ export class ChengQing extends Card {
   }
 
   onSelectedToPlay(gui: GameManager) {
-    const tooltip = gui.uiLayer.tooltip;
+    const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
     tooltip.setText(`请选择要澄清的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => {
         return player.messageCounts[CardColor.BLACK] !== 0;
       },
       onSelect: async (player: Player) => {
-        UIEventCenter.emit(UIEvent.START_SHOW_CARDS, {
+        showCardsWindow.show({
           title: "选择一张情报弃置",
           cardList: player.getMessagesCopy(),
           limit: 1,
           buttons: [
             {
               text: "确定",
-              onclick: (window) => {
+              onclick: () => {
                 NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
                   cardId: this.id,
                   playerId: gui.gameLayer.selectedPlayers.list[0].id,
-                  targetCardId: window.selectedCards.list[0].id,
+                  targetCardId: showCardsWindow.selectedCards.list[0].id,
                   seq: gui.seq,
                 });
-                window.hide();
+                showCardsWindow.hide();
                 this.onDeselected(gui);
               },
-              enabled: (window) => !!window.selectedCards.list.length,
+              enabled: () => !!showCardsWindow.selectedCards.list.length,
             },
             {
               text: "取消",
-              onclick: (window) => {
-                window.hide();
-                UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+              onclick: () => {
+                showCardsWindow.hide();
+                gui.gameLayer.stopSelectPlayers();
               },
             },
           ],
@@ -67,7 +68,7 @@ export class ChengQing extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {

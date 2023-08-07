@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { ShiTanOption, CardType, CardOnEffectParams } from "../type";
@@ -35,7 +35,7 @@ export class ShiTan extends Card {
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择试探的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => player.id !== 0,
       onSelect: () => {
@@ -60,7 +60,7 @@ export class ShiTan extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, flag }: CardOnEffectParams) {
@@ -152,7 +152,7 @@ export class ShiTan extends Card {
         }
       } else {
         tooltip.setText(`请选择一张手牌丢弃`);
-        UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, { num: 1 });
+        gui.gameLayer.startSelectHandCards({ num: 1 });
         tooltip.buttons.setButtons([
           {
             text: "确定",

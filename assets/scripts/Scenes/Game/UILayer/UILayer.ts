@@ -193,7 +193,11 @@ export class UILayer extends Component {
     const buttons = this.skillButtons.getComponent(SkillButtons);
     this.manager.data.selfPlayer.character.skills.forEach((skill, index) => {
       if (skill instanceof ActiveSkill) {
-        if (skill.useablePhase.indexOf(this.manager.data.gamePhase) !== -1 && !this.manager.data.skillBanned) {
+        if (
+          skill.useablePhase.indexOf(this.manager.data.gamePhase) !== -1 &&
+          !this.manager.data.skillBanned &&
+          data.type !== WaitingType.PLAYER_DYING
+        ) {
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
             case GamePhase.SEND_PHASE_START:
@@ -502,7 +506,9 @@ export class UILayer extends Component {
               seq: this.seq,
             });
           },
-          enabled: !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) && this.manager.data.senderId !== 0,
+          enabled:
+            !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
+            this.manager.data.senderId !== 0,
         },
       ]);
     };

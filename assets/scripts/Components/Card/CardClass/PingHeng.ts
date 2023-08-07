@@ -1,8 +1,8 @@
 import { Card } from "../../../Components/Card/Card";
 import { CardDefaultOption, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
-import { NetworkEventToS, UIEvent } from "../../../Event/type";
-import { NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS} from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameManager } from "../../../Manager/GameManager";
 
 export class PingHeng extends Card {
@@ -25,7 +25,7 @@ export class PingHeng extends Card {
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择平衡的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => {
         return player.id !== 0;
@@ -42,7 +42,7 @@ export class PingHeng extends Card {
                 playerId: player.id,
                 seq: gui.seq,
               });
-              this.onDeselected(gui);
+              gui.gameLayer.stopSelectPlayers();
             },
           },
         ]);
@@ -51,7 +51,7 @@ export class PingHeng extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(): void {}

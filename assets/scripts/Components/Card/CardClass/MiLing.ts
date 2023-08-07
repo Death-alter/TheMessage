@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
@@ -36,7 +36,7 @@ export class MiLing extends Card {
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择密令的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player: Player) => {
         return player.handCardCount > 0 && player.id !== 0;
@@ -68,7 +68,7 @@ export class MiLing extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
@@ -130,9 +130,7 @@ export class MiLing extends Card {
     let tooltipText = "密令的暗号为" + secretText;
     tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
     tooltip.setText(tooltipText);
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-    });
+    gui.gameLayer.startSelectHandCards({ num: 1 });
     tooltip.buttons.setButtons([
       {
         text: "传递情报",
@@ -187,16 +185,15 @@ export class MiLing extends Card {
     if (!gui.isRecord) {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
-      UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-        num: 1,
-      });
+      gui.gameLayer.startSelectHandCards({ num: 1 });
       for (let item of handCardContainer.data.list) {
         if ((<Card>item).id === cardId) {
           handCardContainer.selectCard(<Card>item);
           break;
         }
       }
-      UIEventCenter.emit(UIEvent.SELECT_HAND_CARD_COMPLETE);
+      gui.gameLayer.pauseSelectPlayers();
+      gui.uiLayer.doSendMessage();
     }
   }
 

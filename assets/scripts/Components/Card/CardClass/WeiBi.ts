@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter} from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -28,7 +28,7 @@ export class WeiBi extends Card {
   onSelectedToPlay(gui: GameManager) {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择威逼的目标`);
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => {
         return player.id !== 0;
@@ -64,7 +64,7 @@ export class WeiBi extends Card {
               text: "取消",
               onclick: () => {
                 gui.showCardsWindow.hide();
-                UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+                gui.gameLayer.stopSelectPlayers();
               },
             },
           ],
@@ -74,7 +74,7 @@ export class WeiBi extends Card {
   }
 
   onDeselected(gui: GameManager) {
-    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+    gui.gameLayer.stopSelectPlayers();
   }
 
   //有人使用威逼
@@ -118,9 +118,7 @@ export class WeiBi extends Card {
     const { userText, cardTypeText, wantType } = params;
     const tooltip = gui.tooltip;
     tooltip.setText(`【${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-    });
+    gui.gameLayer.startSelectHandCards({ num: 1 });
     tooltip.buttons.setButtons([
       {
         text: "确定",

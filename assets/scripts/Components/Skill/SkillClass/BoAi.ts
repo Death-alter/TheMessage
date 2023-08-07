@@ -1,6 +1,6 @@
 import { skill_bo_ai_a_toc, skill_bo_ai_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -103,10 +103,8 @@ export class BoAi extends ActiveSkill {
   promptSelectHandCard(gui: GameManager) {
     const tooltip = gui.tooltip;
     tooltip.setText("请选择一张手牌交给另一名角色");
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-    });
-    UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+    gui.gameLayer.startSelectHandCards({ num: 1 });
+    gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player) => player.id !== 0,
     });
