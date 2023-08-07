@@ -13,13 +13,10 @@ import { Card } from "../../../Components/Card/Card";
 import { CardColor } from "../../Card/type";
 import { Character } from "../../../Components/Chatacter/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
-import { Identity } from "../../../Components/Identity/Identity";
 import { Player } from "../../../Components/Player/Player";
-import { PassiveSkill } from "../../../Components/Skill/Skill";
+import { TriggerSkill } from "../../../Components/Skill/Skill";
 
-export class CangShenJiaoTang extends PassiveSkill {
-  private identity: Identity;
-
+export class CangShenJiaoTang extends TriggerSkill {
   constructor(character: Character) {
     super({
       name: "藏身教堂",
@@ -63,41 +60,39 @@ export class CangShenJiaoTang extends PassiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, isHiddenRole, waitingSecond, seq }: skill_cang_shen_jiao_tang_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
 
-    if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: playerId,
-        second: waitingSecond,
-        type: WaitingType.HANDLE_SKILL,
-        seq: seq,
-      });
-
-      if (playerId === 0) {
-        if (isHiddenRole) {
-          GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-            skill: this,
-            handler: "chooseFlipCharacter",
-          });
-        } else {
-          GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-            skill: this,
-            handler: "chooseGetMessage",
-            params: {
-              targetPlayer,
-            },
-          });
-        }
+    if (isHiddenRole) {
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
+      if (waitingSecond > 0) {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: playerId,
+          second: waitingSecond,
+          type: WaitingType.HANDLE_SKILL,
+          seq: seq,
+        });
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "chooseFlipCharacter",
+        });
+      } else {
+        GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
       }
     } else {
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
-    }
-    if (isHiddenRole) {
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
+      if (waitingSecond > 0) {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId,
+          second: waitingSecond,
+          type: WaitingType.USE_SKILL,
+          seq: seq,
+          params: {
+            targetPlayer,
+          },
+        });
+      }
     }
   }
 
@@ -126,7 +121,7 @@ export class CangShenJiaoTang extends PassiveSkill {
     ]);
   }
 
-  chooseGetMessage(gui: GameManager, params) {
+  onTrigger(gui: GameManager, params) {
     const { targetPlayer } = params;
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;

@@ -10,48 +10,6 @@ import { CardType } from "../Components/Card/type";
 export class EventMapper {
   public static init() {
     //error
-    NetworkEventCenter.on(NetworkEventToC.ERROR_CODE_TOC, (data: ProtobufType.error_code_toc) => {
-      let error_message;
-      switch (data.code) {
-        case ProtobufType.error_code.client_version_not_match:
-          error_message = `客户端版本号不匹配,服务器版本号为${data.intParams[0]}`;
-          break;
-        case ProtobufType.error_code.no_more_room:
-          error_message = "没有更多的房间了";
-          break;
-        case ProtobufType.error_code.record_not_exists:
-          error_message = "录像不存在";
-          break;
-        case ProtobufType.error_code.load_record_failed:
-          error_message = "读取录像失败";
-          break;
-        case ProtobufType.error_code.record_version_not_match:
-          error_message = `录像的版本号不匹配,服务器版本号为${data.intParams[0]}`;
-          break;
-        case ProtobufType.error_code.name_too_long:
-          error_message = "玩家名字过长";
-          break;
-        case ProtobufType.error_code.join_room_too_fast:
-          error_message = "加入房间的请求太快";
-          break;
-        case ProtobufType.error_code.robot_not_allowed:
-          error_message = "禁止添加机器人";
-          break;
-        case ProtobufType.error_code.already_online:
-          error_message = "你已经在线，不能重复登录";
-          break;
-        case ProtobufType.error_code.no_color_message_card:
-          error_message = "场上没有这种颜色的情报";
-          break;
-        case ProtobufType.error_code.login_failed:
-          error_message = "密码错误";
-          break;
-        default:
-          error_message = "未知错误";
-      }
-      console.log(error_message);
-      ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { code: data.code, msg: error_message });
-    });
     NetworkEventCenter.on(NetworkEventToC.ERROR_MESSAGE_TOC, (data: ProtobufType.error_message_toc) => {
       ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: data.msg });
     });
