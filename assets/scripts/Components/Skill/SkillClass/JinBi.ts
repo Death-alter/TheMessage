@@ -158,6 +158,8 @@ export class JinBi extends ActiveSkill {
         gameData.cardBanned = true;
         gameData.skillBanned = true;
         gameData.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
+        targetPlayer.gameObject.showBannedIcon();
+
         GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
           gameData.cardBanned = false;
           gameData.skillBanned = false;
@@ -165,7 +167,7 @@ export class JinBi extends ActiveSkill {
           targetPlayer.gameObject.hideBannedIcon();
         });
       }
-      targetPlayer.gameObject.showBannedIcon();
+
       GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
         targetPlayer.gameObject.hideBannedIcon();
       });

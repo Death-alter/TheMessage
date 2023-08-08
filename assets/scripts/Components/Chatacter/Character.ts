@@ -10,6 +10,7 @@ export class Character extends DataBasic<CharacterObject> {
   protected _status: CharacterStatus;
   protected _sex: Sex;
   protected _skills: Skill[] = [];
+  protected _isHidden: boolean;
 
   public static readonly backSprite: string = "images/characters/Unknown";
 
@@ -49,12 +50,17 @@ export class Character extends DataBasic<CharacterObject> {
     return this._skills;
   }
 
+  get isHidden() {
+    return this._isHidden;
+  }
+
   constructor(option: CharacterOptions) {
     super();
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
+    this._isHidden = this._status === CharacterStatus.FACE_DOWN;
     this._sex = option.sex;
     if (option.gameObject) {
       this.gameObject = option.gameObject;

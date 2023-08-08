@@ -173,7 +173,9 @@ export class GameManager extends GameObject<GameData> {
   }
 
   onStartCountDown(data: StartCountDown) {
-    ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+    if (!data.isMultiply) {
+      ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+    }
     this.seq = data.seq;
   }
   onStopCountDown() {}

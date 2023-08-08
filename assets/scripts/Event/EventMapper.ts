@@ -336,24 +336,26 @@ export class EventMapper {
 
     //破译
     NetworkEventCenter.on(NetworkEventToC.USE_PO_YI_TOC, (data: ProtobufType.use_po_yi_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.playerId,
-        second: data.waitingSecond,
-        type: WaitingType.HANDLE_CARD,
-        seq: data.seq,
-      });
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.PO_YI,
         isActual: data.card !== null,
         userId: data.playerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        data: {
-          userId: data.playerId,
-          targetCard: data.messageCard,
-        },
-      });
+      if (data.waitingSecond > 0) {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.playerId,
+          second: data.waitingSecond,
+          type: WaitingType.HANDLE_CARD,
+          seq: data.seq,
+        });
+        ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+          data: {
+            userId: data.playerId,
+            targetCard: data.messageCard,
+          },
+        });
+      }
     });
     NetworkEventCenter.on(NetworkEventToC.PO_YI_SHOW_TOC, (data: ProtobufType.po_yi_show_toc) => {
       const eventData: any = {

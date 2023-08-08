@@ -117,7 +117,7 @@ export class WeiBi extends Card {
   promptChooseCard(gui: GameManager, params) {
     const { userText, cardTypeText, wantType } = params;
     const tooltip = gui.tooltip;
-    tooltip.setText(`【${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
+    tooltip.setText(`${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
     gui.gameLayer.startSelectHandCards({ num: 1 });
     tooltip.buttons.setButtons([
       {

@@ -11,7 +11,7 @@ import { SkillButtons } from "./SkillButtons";
 import { CardDirection, CardType } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
-import { CharacterInfoWindow } from "./CharacterInfoWindow";
+import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
 import { PlayerAction } from "../../../Utils/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 
@@ -182,8 +182,8 @@ export class UILayer extends Component {
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
           for (let skill of player.character.skills) {
-            if (skill instanceof TriggerSkill) {
-              skill.onTrigger(this.manager, data.params);
+            if (skill.hasOwnProperty("onTrigger")) {
+              (<TriggerSkill>skill).onTrigger(this.manager, data.params);
             }
           }
           break;

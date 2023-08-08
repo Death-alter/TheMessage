@@ -15,8 +15,8 @@ import { copyCard } from "../../../Components/Card";
 import { Card } from "../../../Components/Card/Card";
 import { CardObject } from "../../../Components/Card/CardObject";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
-import { CardInfoWindow } from "../UILayer/CardInfoWindow";
-import { CharacterInfoWindow } from "../UILayer/CharacterInfoWindow";
+import { CardInfoWindow } from "./CardInfoWindow";
+import { CharacterInfoWindow } from "./CharacterInfoWindow";
 
 const { ccclass, property } = _decorator;
 

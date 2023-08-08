@@ -86,4 +86,11 @@ export class PlayerAction {
       }
     }
   }
+
+  union(action: PlayerAction | metaAction[]) {
+    if (action instanceof PlayerAction) {
+      action = action.actions;
+    }
+    this.actions = [...this.actions, ...action];
+  }
 }

@@ -331,7 +331,9 @@ export class GameData extends DataBasic<GameManager> {
   private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
-    const card = this.playerRemoveHandCard(player, data.cardId);
+    const card = data.card
+      ? this.playerRemoveHandCard(player, data.card)
+      : this.playerRemoveHandCard(player, data.cardId);
 
     this.messageInTransmit = card;
     this._senderId = data.senderId;

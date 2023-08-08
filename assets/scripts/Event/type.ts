@@ -122,6 +122,14 @@ export enum NetworkEventToC {
   SKILL_CANG_SHEN_JIAO_TANG_A_TOC = "skill_cang_shen_jiao_tang_a_toc",
   SKILL_CANG_SHEN_JIAO_TANG_B_TOC = "skill_cang_shen_jiao_tang_b_toc",
   SKILL_CANG_SHEN_JIAO_TANG_C_TOC = "skill_cang_shen_jiao_tang_c_toc",
+  WAIT_FOR_SKILL_XIAN_FA_ZHI_REN_A_TOC = "wait_for_skill_xian_fa_zhi_ren_a_toc",
+  SKILL_XIAN_FA_ZHI_REN_A_TOC = "skill_xian_fa_zhi_ren_a_toc",
+  SKILL_XIAN_FA_ZHI_REN_B_TOC = "skill_xian_fa_zhi_ren_b_toc",
+  SKILL_LENG_XUE_XUN_LIAN_A_TOC = "skill_leng_xue_xun_lian_a_toc",
+  SKILL_LENG_XUE_XUN_LIAN_B_TOC = "skill_leng_xue_xun_lian_b_toc",
+  SKILL_GUAN_HAI_TOC = "skill_guan_hai_toc",
+  WAIT_FOR_SKILL_BI_FENG_TOC = "wait_for_skill_bi_feng_toc",
+  SKILL_BI_FENG_TOC = "skill_bi_feng_toc",
 }
 
 //tos协议，ws发送数据
@@ -213,6 +221,11 @@ export enum NetworkEventToS {
   SKILL_DU_JI_C_TOS = "skill_du_ji_c_tos",
   SKILL_CANG_SHEN_JIAO_TANG_B_TOS = "skill_cang_shen_jiao_tang_b_tos",
   SKILL_CANG_SHEN_JIAO_TANG_C_TOS = "skill_cang_shen_jiao_tang_c_tos",
+  SKILL_XIAN_FA_ZHI_REN_A_TOS = "skill_xian_fa_zhi_ren_a_tos",
+  SKILL_XIAN_FA_ZHI_REN_B_TOS = "skill_xian_fa_zhi_ren_b_tos",
+  SKILL_LENG_XUE_XUN_LIAN_A_TOS = "skill_leng_xue_xun_lian_a_tos",
+  SKILL_LENG_XUE_XUN_LIAN_B_TOS = "skill_leng_xue_xun_lian_b_tos",
+  SKILL_BI_FENG_TOS = "skill_bi_feng_tos",
 }
 
 //程序事件，用于程序控制

@@ -107,12 +107,14 @@ export interface StartCountDown {
   playerId: number;
   second: number;
   type: WaitingType;
+  isMultiply?: boolean;
   params?: { [index: string]: any };
   seq: number;
 }
 
 export interface SendMessage {
-  cardId: CardType;
+  cardId?: number;
+  card?: card;
   senderId: number;
   targetPlayerId: number;
   lockPlayerIds: number[];

@@ -26,22 +26,18 @@ export class PoYi extends Card {
 
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
-    if (gui.data.messageInTransmit.status === CardStatus.FACE_UP) {
-      tooltip.setText(`该情报无需破译`);
-    } else {
-      tooltip.setText(`是否使用破译？`);
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-              cardId: this.id,
-              seq: gui.seq,
-            });
-          },
+    tooltip.setText(`是否使用破译？`);
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+            cardId: this.id,
+            seq: gui.seq,
+          });
         },
-      ]);
-    }
+      },
+    ]);
   }
 
   onDeselected(gui: GameManager) {}

@@ -7,7 +7,7 @@ import { createCharacterById } from "../../../Components/Chatacter";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
 import { CharacterType, CharacterStatus } from "../../../Components/Chatacter/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
-import { CharacterInfoWindow } from "../UILayer/CharacterInfoWindow";
+import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { ProgressControl } from "../../../Components/Utils/ProgressControl";
 
 const { ccclass, property } = _decorator;

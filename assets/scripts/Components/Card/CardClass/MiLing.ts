@@ -105,7 +105,7 @@ export class MiLing extends Card {
     } else {
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(targetPlayer)}没有对应颜色的卡牌，由【${gameLog.formatPlayer(player)}选择一张牌传出`
+          `${gameLog.formatPlayer(targetPlayer)}没有对应颜色的卡牌，由${gameLog.formatPlayer(player)}选择一张牌传出`
         )
       );
       if (playerId === 0) {
@@ -185,6 +185,7 @@ export class MiLing extends Card {
     if (!gui.isRecord) {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
+
       gui.gameLayer.startSelectHandCards({ num: 1 });
       for (let item of handCardContainer.data.list) {
         if ((<Card>item).id === cardId) {
