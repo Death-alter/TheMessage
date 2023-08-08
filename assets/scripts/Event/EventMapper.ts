@@ -1,6 +1,6 @@
 import { NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "./EventTarget";
 import * as ProtobufType from "../../protobuf/proto.d";
-import { NetworkEventToC, ProcessEvent, UIEvent } from "./type";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "./type";
 import { _decorator, director } from "cc";
 import { WaitingType } from "../Manager/type";
 import { CardType } from "../Components/Card/type";
@@ -86,6 +86,13 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: ProtobufType.auto_play_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_AUTO_PLAY_STATUS, { enable: data.enable });
+    });
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_PLAYER_UPDATE_TOC, (data: ProtobufType.notify_player_update_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, {
+        playerId: data.playerId,
+        isAuto: data.isAuto,
+        isOffline: data.isOffline,
+      });
     });
     NetworkEventCenter.on(NetworkEventToC.SELECT_ROLE_TOC, (data: ProtobufType.select_role_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, {
@@ -336,24 +343,26 @@ export class EventMapper {
 
     //破译
     NetworkEventCenter.on(NetworkEventToC.USE_PO_YI_TOC, (data: ProtobufType.use_po_yi_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: data.playerId,
-        second: data.waitingSecond,
-        type: WaitingType.HANDLE_CARD,
-        seq: data.seq,
-      });
       ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
         card: data.card,
         cardType: CardType.PO_YI,
         isActual: data.card !== null,
         userId: data.playerId,
       });
-      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
-        data: {
-          userId: data.playerId,
-          targetCard: data.messageCard,
-        },
-      });
+      if (data.waitingSecond > 0) {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.playerId,
+          second: data.waitingSecond,
+          type: WaitingType.HANDLE_CARD,
+          seq: data.seq,
+        });
+        ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+          data: {
+            userId: data.playerId,
+            targetCard: data.messageCard,
+          },
+        });
+      }
     });
     NetworkEventCenter.on(NetworkEventToC.PO_YI_SHOW_TOC, (data: ProtobufType.po_yi_show_toc) => {
       const eventData: any = {

@@ -100,7 +100,6 @@ export interface PlayerGiveCard {
 
 export interface PlayerDie {
   player: Player;
-  handCards: Card[];
   messages: Card[];
 }
 

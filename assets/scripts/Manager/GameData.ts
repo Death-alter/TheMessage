@@ -302,6 +302,7 @@ export class GameData extends DataBasic<GameManager> {
       player,
       data.cards.map((card) => card)
     );
+    console.log(data.cards, cardList);
 
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
@@ -367,9 +368,8 @@ export class GameData extends DataBasic<GameManager> {
   //玩家死亡
   private playerDie(data: ProcessEventType.PlayerDie) {
     const player = this.playerList[data.playerId];
-    const handCards = this.playerRemoveHandCard(player, player.handCardCount);
     const messages = player.removeAllMessage();
-    GameEventCenter.emit(GameEvent.PLAYER_DIE, { player, handCards, messages });
+    GameEventCenter.emit(GameEvent.PLAYER_DIE, { player, messages });
   }
 
   //死亡给牌
