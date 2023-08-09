@@ -107,6 +107,7 @@ export class Player extends DataBasic<PlayerObject> {
 
   //弃牌
   removeHandCard(num: number) {
+    console.log(this.handCardCount, num);
     this._handCardCount -= num;
     this.gameObject?.refreshHandCardCount();
   }

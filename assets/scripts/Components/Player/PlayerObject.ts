@@ -35,7 +35,7 @@ export class PlayerObject extends GameObject<Player> {
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       if (data.name === "惑星") {
-        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·傲视群雄";
+        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·设计大师";
       } else {
         this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
       }
@@ -96,6 +96,10 @@ export class PlayerObject extends GameObject<Player> {
     if (this.data.seatNumber)
       this.node.getChildByName("SeatNumber").getComponent(Label).string =
         PlayerObject.seatNumberText[this.data.seatNumber];
+  }
+
+  setNetWorkStatusText(text) {
+    this.node.getChildByPath("Border/NetworkStatus").getComponent(Label).string = text;
   }
 
   //倒计时

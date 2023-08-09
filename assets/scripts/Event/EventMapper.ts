@@ -1,6 +1,6 @@
 import { NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "./EventTarget";
 import * as ProtobufType from "../../protobuf/proto.d";
-import { NetworkEventToC, ProcessEvent, UIEvent } from "./type";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "./type";
 import { _decorator, director } from "cc";
 import { WaitingType } from "../Manager/type";
 import { CardType } from "../Components/Card/type";
@@ -86,6 +86,13 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: ProtobufType.auto_play_toc) => {
       ProcessEventCenter.emit(ProcessEvent.GET_AUTO_PLAY_STATUS, { enable: data.enable });
+    });
+    NetworkEventCenter.on(NetworkEventToC.NOTIFY_PLAYER_UPDATE_TOC, (data: ProtobufType.notify_player_update_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, {
+        playerId: data.playerId,
+        isAuto: data.isAuto,
+        isOffline: data.isOffline,
+      });
     });
     NetworkEventCenter.on(NetworkEventToC.SELECT_ROLE_TOC, (data: ProtobufType.select_role_toc) => {
       ProcessEventCenter.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, {

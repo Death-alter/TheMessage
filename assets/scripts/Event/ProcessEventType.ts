@@ -165,3 +165,9 @@ export interface CardInProcess {
   handler?: string;
   data: CardOnEffectParams;
 }
+
+export interface PlayerNetworkStatusChange {
+  playerId: number;
+  isAuto: boolean;
+  isOffline: boolean;
+}

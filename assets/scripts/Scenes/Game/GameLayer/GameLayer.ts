@@ -10,7 +10,7 @@ import { SelectedList } from "../../../Utils/SelectedList";
 import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../../Components/Card/Card";
-import { StartCountDown } from "../../../Event/ProcessEventType";
+import { PlayerNetworkStatusChange, StartCountDown } from "../../../Event/ProcessEventType";
 
 const { ccclass, property } = _decorator;
 
@@ -131,6 +131,7 @@ export class GameLayer extends Component {
   startRender() {
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
     UIEventCenter.on(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
@@ -138,12 +139,13 @@ export class GameLayer extends Component {
     UIEventCenter.on(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
     UIEventCenter.on(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
     UIEventCenter.on(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
-    UIEventCenter.on(UIEvent.SELECT_player_COMPLETE, this.pauseSelectPlayers, this);
+    UIEventCenter.on(UIEvent.SELECT_PLAYER_COMPLETE, this.pauseSelectPlayers, this);
   }
 
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
     UIEventCenter.off(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
@@ -151,7 +153,7 @@ export class GameLayer extends Component {
     UIEventCenter.off(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
     UIEventCenter.off(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
     UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
-    UIEventCenter.off(UIEvent.SELECT_player_COMPLETE, this.pauseSelectPlayers, this);
+    UIEventCenter.off(UIEvent.SELECT_PLAYER_COMPLETE, this.pauseSelectPlayers, this);
   }
 
   onStartCountDown(data: StartCountDown) {
@@ -197,6 +199,17 @@ export class GameLayer extends Component {
         break;
     }
     data.turnPlayer.gameObject.showPhaseText(text);
+  }
+
+  onPlayerNetworkStatusChange(data: PlayerNetworkStatusChange) {
+    const player = this.manager.data.playerList[data.playerId];
+    if (data.isOffline) {
+      player.gameObject.setNetWorkStatusText("离线");
+    } else if (data.isAuto) {
+      player.gameObject.setNetWorkStatusText("托管");
+    }else{
+      player.gameObject.setNetWorkStatusText("");
+    }
   }
 
   selectPlayer(player: Player) {

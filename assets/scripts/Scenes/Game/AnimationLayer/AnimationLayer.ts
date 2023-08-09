@@ -174,8 +174,7 @@ export class AnimationLayer extends Component {
   }
 
   playerDie(data: GameEventType.PlayerDie) {
-    const { player, handCards, messages } = data;
-    this.cardAction.discardCards({ player, cardList: handCards });
+    const { player, messages } = data;
     this.cardAction.removeMessage({ player, messageList: messages });
   }
 

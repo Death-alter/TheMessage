@@ -5,6 +5,7 @@ export enum NetworkEventToC {
   ERROR_CODE_TOC = "error_code_toc",
   ERROR_MESSAGE_TOC = "error_message_toc",
   PAUSE_RECORD_TOC = "pause_record_toc",
+  NOTIFY_PLAYER_UPDATE_TOC = "notify_player_update_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
   ADD_ORDER_TOC = "add_order_toc",
   GET_ORDERS_TOC = "get_orders_toc",
@@ -232,6 +233,7 @@ export enum NetworkEventToS {
 export enum ProcessEvent {
   RECONNECT_SYNC_START = "reconnect_sync_start",
   RECONNECT_SYNC_END = "reconnect_sync_end",
+  PLAYER_NETWORK_STATUS_CHANGE = "player_network_status_change",
   NETWORK_ERROR = "network_error",
   RECORD_STATUS_CHANGE = "record_status_change",
   GET_RECORD_LIST = "get_record_list",
@@ -323,7 +325,7 @@ export enum GameEvent {
 export enum UIEvent {
   START_SELECT_PLAYER = "start_select_player",
   CANCEL_SELECT_PLAYER = "cancel_select_player",
-  SELECT_player_COMPLETE = "select_player_complete",
+  SELECT_PLAYER_COMPLETE = "select_player_complete",
   START_SELECT_HAND_CARD = "start_select_hand_card",
   CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
   SELECT_HAND_CARD_COMPLETE = "select_hand_card_complete",
