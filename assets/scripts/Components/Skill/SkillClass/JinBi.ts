@@ -80,7 +80,7 @@ export class JinBi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gui.uiLayer.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.uiLayer.playerActionManager.switchToDefault();
           this.gameObject.isOn = false;
         },
       },
@@ -158,17 +158,14 @@ export class JinBi extends ActiveSkill {
         gameData.cardBanned = true;
         gameData.skillBanned = true;
         gameData.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
-        targetPlayer.gameObject.showBannedIcon();
-
-        GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
+        GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
           gameData.cardBanned = false;
           gameData.skillBanned = false;
           gameData.bannedCardTypes = [];
-          targetPlayer.gameObject.hideBannedIcon();
         });
       }
-
-      GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
+      targetPlayer.gameObject.showBannedIcon();
+      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
         targetPlayer.gameObject.hideBannedIcon();
       });
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}被【禁闭】`));

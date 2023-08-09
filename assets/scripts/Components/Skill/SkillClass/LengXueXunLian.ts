@@ -64,7 +64,7 @@ export class LengXueXunLian extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gui.uiLayer.playerAction.start();
+          gui.uiLayer.playerActionManager.switchToDefault();
         },
       },
     ]);
@@ -113,75 +113,85 @@ export class LengXueXunLian extends ActiveSkill {
     const showCardsWindow = gui.showCardsWindow;
     const tooltip = gui.tooltip;
 
-    gui.uiLayer.playerAction = new PlayerAction({
-      actions: [
-        {
-          name: "selectCard",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              showCardsWindow.show({
-                title: "请选择一张牌作为情报传出",
-                limit: 1,
-                cardList,
-                buttons: [
+    gui.uiLayer.playerActionManager.switchTo(
+      new PlayerAction({
+        actions: [
+          {
+            name: "selectCard",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                showCardsWindow.show({
+                  title: "请选择一张牌作为情报传出",
+                  limit: 1,
+                  cardList,
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        data.sendCardId = showCardsWindow.selectedCards.list[0].id;
+                        resolve(showCardsWindow.selectedCards.list[0]);
+                        showCardsWindow.hide();
+                      },
+                      enabled: () => {
+                        if (showCardsWindow.selectedCards.list.length <= 0) return false;
+                        return Card.hasColor(cardList, CardColor.BLACK)
+                          ? Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK)
+                          : true;
+                      },
+                    },
+                  ],
+                });
+              }),
+          },
+          {
+            name: "selectPlayer",
+            handler: (card: Card) =>
+              new Promise((resolve, reject) => {
+                tooltip.setText("请选择一名角色锁定");
+                tooltip.buttons.setButtons([
                   {
                     text: "确定",
                     onclick: () => {
-                      data.sendCardId = showCardsWindow.selectedCards.list[0].id;
-                      resolve(showCardsWindow.selectedCards.list[0]);
+                      resolve(null);
                     },
-                    enabled: () => {
-                      if (showCardsWindow.selectedCards.list.length <= 0) return false;
-                      return (
-                        Card.hasColor(cardList, CardColor.BLACK) &&
-                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK)
-                      );
-                    },
+                    enabled: () => gui.selectedPlayers.list.length > 0,
                   },
-                ],
-              });
-            }),
+                ]);
+                gui.gameLayer.startSelectPlayers({
+                  num: 1,
+                  filter: (player) => player.id !== 0,
+                  onSelect: (player) => {
+                    data.lockPlayerId = player.id;
+                    let i;
+                    switch (card.direction) {
+                      case CardDirection.LEFT:
+                        i = gui.data.playerList.length - 1;
+                        while (!gui.data.playerList[i].isAlive) {
+                          --i;
+                        }
+                        data.targetPlayerId = i;
+                        break;
+                      case CardDirection.RIGHT:
+                        i = 1;
+                        while (!gui.data.playerList[i].isAlive) {
+                          ++i;
+                        }
+                        data.targetPlayerId = i;
+                        break;
+                      case CardDirection.UP:
+                        data.targetPlayerId = player.id;
+                        break;
+                    }
+                  },
+                });
+              }),
+          },
+        ],
+        complete: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, data);
         },
-        {
-          name: "selectPlayer",
-          handler: (card: Card) =>
-            new Promise((resolve, reject) => {
-              tooltip.setText("请选择一名角色锁定");
-              gui.gameLayer.startSelectPlayers({
-                num: 1,
-                onSelect: (player) => {
-                  data.lockPlayerId = player.id;
-                  let i;
-                  switch (card.direction) {
-                    case CardDirection.LEFT:
-                      i = gui.data.playerList.length - 1;
-                      while (!gui.data.playerList[i].isAlive) {
-                        --i;
-                      }
-                      data.targetPlayerId = i;
-                      break;
-                    case CardDirection.RIGHT:
-                      i = 1;
-                      while (!gui.data.playerList[i].isAlive) {
-                        ++i;
-                      }
-                      data.targetPlayerId = i;
-                      break;
-                    case CardDirection.UP:
-                      data.targetPlayerId = player.id;
-                      break;
-                  }
-                  resolve(null);
-                },
-              });
-            }),
-        },
-      ],
-      complete: () => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, data);
-      },
-    });
-    gui.uiLayer.playerAction.start();
+      })
+    );
   }
 
   showCards(gui: GameManager, params) {
@@ -205,19 +215,18 @@ export class LengXueXunLian extends ActiveSkill {
 
   onEffectB(
     gameData: GameData,
-    { sendCard, senderId, targetPlayerId, lockPlayerIds, cardDir, handCard }: skill_leng_xue_xun_lian_b_toc
+    { sendCard, senderId, targetPlayerId, lockPlayerId, handCard }: skill_leng_xue_xun_lian_b_toc
   ) {
     const player = gameData.playerList[senderId];
     const card = gameData.createCard(handCard);
     const gameLog = gameData.gameLog;
-    const message = gameData.createCard(sendCard);
 
     ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
-      card: message,
+      card: sendCard,
       senderId: senderId,
       targetPlayerId: targetPlayerId,
-      lockPlayerIds: lockPlayerIds,
-      direction: cardDir,
+      lockPlayerIds: [lockPlayerId],
+      direction: sendCard.cardDir,
     });
 
     gameData.playerAddHandCard(player, card);
@@ -230,6 +239,10 @@ export class LengXueXunLian extends ActiveSkill {
 
     gameData.cardBanned = true;
     gameData.bannedCardTypes.push(CardType.DIAO_BAO);
+    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+      gameData.cardBanned = false;
+      gameData.bannedCardTypes = [];
+    });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}令所有角色本回合中不能使用【调包】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card)}加入手牌`));

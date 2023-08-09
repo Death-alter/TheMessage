@@ -90,7 +90,7 @@ export class DuJi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gui.uiLayer.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+          gui.uiLayer.playerActionManager.switchToDefault();
           this.gameObject.isOn = false;
         },
       },

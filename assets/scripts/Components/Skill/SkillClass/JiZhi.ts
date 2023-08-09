@@ -67,11 +67,7 @@ export class JiZhi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          if (gui.data.gamePhase === GamePhase.FIGHT_PHASE) {
-            gui.uiLayer.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
-          } else {
-            gui.uiLayer.promptUseChengQing("玩家濒死，是否使用澄清？", this.dyingPlayerId);
-          }
+          gui.uiLayer.playerActionManager.switchToDefault();
           this.gameObject.isOn = false;
         },
       },

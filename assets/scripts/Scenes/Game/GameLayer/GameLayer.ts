@@ -134,6 +134,7 @@ export class GameLayer extends Component {
     ProcessEventCenter.on(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
+    GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     UIEventCenter.on(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
     UIEventCenter.on(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
     UIEventCenter.on(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
@@ -148,6 +149,7 @@ export class GameLayer extends Component {
     ProcessEventCenter.off(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
+    GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     UIEventCenter.off(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
     UIEventCenter.off(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
     UIEventCenter.off(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
@@ -207,7 +209,7 @@ export class GameLayer extends Component {
       player.gameObject.setNetWorkStatusText("离线");
     } else if (data.isAuto) {
       player.gameObject.setNetWorkStatusText("托管");
-    }else{
+    } else {
       player.gameObject.setNetWorkStatusText("");
     }
   }

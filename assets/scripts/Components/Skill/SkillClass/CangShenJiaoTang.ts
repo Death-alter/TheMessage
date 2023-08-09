@@ -129,98 +129,99 @@ export class CangShenJiaoTang extends TriggerSkill {
       seq: gui.seq,
     };
 
-    gui.uiLayer.playerAction = new PlayerAction({
-      actions: [
-        {
-          name: "chooseUse",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              tooltip.setText("是否获得一张黑色情报？");
-              tooltip.buttons.setButtons([
-                {
-                  text: "是",
-                  onclick: () => {
-                    data.enable = true;
-                    resolve(null);
-                  },
-                },
-                {
-                  text: "否",
-                  onclick: () => {
-                    data.enable = false;
-                    reject(null);
-                  },
-                },
-              ]);
-            }),
-        },
-        {
-          name: "chooseMessage",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              showCardsWindow.show({
-                title: "请选择一张黑色情报",
-                limit: 1,
-                cardList: targetPlayer.getMessagesCopy(),
-                buttons: [
+    gui.uiLayer.playerActionManager.switchTo(
+      new PlayerAction({
+        actions: [
+          {
+            name: "chooseUse",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                tooltip.setText("是否获得一张黑色情报？");
+                tooltip.buttons.setButtons([
                   {
-                    text: "确定",
+                    text: "是",
                     onclick: () => {
-                      data.cardId = showCardsWindow.selectedCards.list[0].id;
-                      showCardsWindow.hide();
+                      data.enable = true;
                       resolve(null);
                     },
-                    enabled: () =>
-                      showCardsWindow.selectedCards.list.length &&
-                      Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                   },
                   {
-                    text: "取消",
+                    text: "否",
                     onclick: () => {
+                      data.enable = false;
                       reject(null);
                     },
                   },
-                ],
-              });
-            }),
-        },
-        {
-          name: "chooseAction",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              if (targetPlayer.id === 0) {
-                data.asMessageCard = false;
-                resolve(null);
-              } else {
-                tooltip.setText("请选择一项");
-                tooltip.buttons.setButtons([
-                  {
-                    text: "加入手牌",
-                    onclick: () => {
-                      data.asMessageCard = false;
-                      resolve(null);
-                    },
-                  },
-                  {
-                    text: "置入情报区",
-                    onclick: () => {
-                      data.asMessageCard = true;
-                      resolve(null);
-                    },
-                  },
                 ]);
-              }
-            }),
+              }),
+          },
+          {
+            name: "chooseMessage",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                showCardsWindow.show({
+                  title: "请选择一张黑色情报",
+                  limit: 1,
+                  cardList: targetPlayer.getMessagesCopy(),
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        data.cardId = showCardsWindow.selectedCards.list[0].id;
+                        showCardsWindow.hide();
+                        resolve(null);
+                      },
+                      enabled: () =>
+                        showCardsWindow.selectedCards.list.length &&
+                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                    },
+                    {
+                      text: "取消",
+                      onclick: () => {
+                        reject(null);
+                      },
+                    },
+                  ],
+                });
+              }),
+          },
+          {
+            name: "chooseAction",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                if (targetPlayer.id === 0) {
+                  data.asMessageCard = false;
+                  resolve(null);
+                } else {
+                  tooltip.setText("请选择一项");
+                  tooltip.buttons.setButtons([
+                    {
+                      text: "加入手牌",
+                      onclick: () => {
+                        data.asMessageCard = false;
+                        resolve(null);
+                      },
+                    },
+                    {
+                      text: "置入情报区",
+                      onclick: () => {
+                        data.asMessageCard = true;
+                        resolve(null);
+                      },
+                    },
+                  ]);
+                }
+              }),
+          },
+        ],
+        complete: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
         },
-      ],
-      complete: () => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
-      },
-      cancel: () => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
-      },
-    });
-    gui.uiLayer.playerAction.start();
+        cancel: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CANG_SHEN_JIAO_TANG_C_TOS, data);
+        },
+      })
+    );
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, enable }: skill_cang_shen_jiao_tang_b_toc) {

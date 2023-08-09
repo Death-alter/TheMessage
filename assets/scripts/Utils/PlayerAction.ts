@@ -43,8 +43,12 @@ export class PlayerAction {
   }
 
   start(params?) {
-    this.index = 0;
+    this.reset();
     this.handleAction(params);
+  }
+
+  reset() {
+    this.index = 0;
   }
 
   next(params?) {
@@ -54,6 +58,7 @@ export class PlayerAction {
     } else {
       if (this.complete) {
         this.complete(params);
+        this.reset();
       }
     }
   }
@@ -92,5 +97,55 @@ export class PlayerAction {
       action = action.actions;
     }
     this.actions = [...this.actions, ...action];
+  }
+}
+
+interface PlayerActionManagerOption {
+  onclear: () => void;
+  onswitch: () => void;
+}
+
+export class PlayerActionManager {
+  private defaultAction: PlayerAction;
+  private defaultController: (action: PlayerAction) => void;
+  private currentAction: PlayerAction;
+  private currentController: (action: PlayerAction) => void;
+  private onclear: () => void;
+  private onswitch: () => void;
+
+  constructor(option: PlayerActionManagerOption) {
+    this.onclear = option.onclear;
+    this.onswitch = option.onswitch;
+  }
+
+  setDefaultAction(action: PlayerAction, controller?: (action: PlayerAction) => void) {
+    this.defaultAction = action;
+    if (controller) {
+      this.defaultController = controller;
+    }
+  }
+
+  switchToDefault() {
+    this.onswitch();
+    this.defaultController && this.defaultController(this.defaultAction);
+    this.defaultAction.reset();
+    this.defaultAction.start();
+  }
+
+  switchTo(action: PlayerAction, controller?: (action: PlayerAction) => void) {
+    this.currentAction = action;
+    if (controller) {
+      this.currentController = controller;
+    }
+    this.onswitch();
+    this.currentController && this.currentController(this.currentAction);
+    this.currentAction.reset();
+    this.currentAction.start();
+  }
+
+  clearAction() {
+    this.defaultAction = null;
+    this.currentAction = null;
+    this.onclear();
   }
 }

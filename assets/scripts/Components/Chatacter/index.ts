@@ -38,6 +38,8 @@ import { MaLiYa } from "./CharacterClass/MaLiYa";
 import { QianMin } from "./CharacterClass/QianMin";
 import { ChiJingHai } from "./CharacterClass/ChiJingHai";
 import { HanMeiSP } from "./CharacterClass/HanMeiSP";
+import { QinYuanYuan } from "./CharacterClass/QinYuanYuan";
+import { LianYuanSP } from "./CharacterClass/LianYuanSP";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -74,6 +76,8 @@ charactersMap[30] = ShangYu;
 charactersMap[31] = MaLiYa;
 charactersMap[32] = QianMin;
 charactersMap[33] = ChiJingHai;
+charactersMap[34] = QinYuanYuan;
+charactersMap[1003] = LianYuanSP;
 charactersMap[1014] = HanMeiSP;
 charactersMap[1020] = GuXiaoMengSP;
 charactersMap[1028] = LiNingYuSP;

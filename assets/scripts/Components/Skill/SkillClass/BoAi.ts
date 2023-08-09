@@ -70,7 +70,7 @@ export class BoAi extends ActiveSkill {
       {
         text: "取消",
         onclick: () => {
-          gui.uiLayer.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+          gui.uiLayer.playerActionManager.switchToDefault();
           this.gameObject.isOn = false;
         },
       },

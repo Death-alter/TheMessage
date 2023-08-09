@@ -66,17 +66,7 @@ export class SkillButton extends GameObject<Skill> {
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
           if (this.isOn) {
             this.isOn = false;
-            switch (gui.data.gamePhase) {
-              case GamePhase.MAIN_PHASE:
-                gui.uiLayer.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
-                break;
-              case GamePhase.SEND_PHASE_START:
-                gui.uiLayer.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
-                break;
-              case GamePhase.FIGHT_PHASE:
-                gui.uiLayer.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
-                break;
-            }
+            gui.uiLayer.playerActionManager.switchToDefault();
           } else {
             this.isOn = true;
             skill.onUse(gui);

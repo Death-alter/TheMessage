@@ -10,13 +10,13 @@ import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
 
-export class XianFaZhiRen extends ActiveSkill {
+export class RuBiZhiShi extends ActiveSkill {
   constructor(character: Character) {
     super({
-      name: "先发制人",
+      name: "如臂指使",
       character,
       description:
-        "一张牌因角色技能置入情报区后，或争夺阶段，你可以翻开此角色牌，然后弃置一名角色情报区中的一张情报，并令一张角色牌本回合所有技能无效，若其是面朝下的隐藏角色牌，你可以将其翻开。",
+        "一名角色濒死时，或争夺阶段，你可以翻开此角色牌，查看一名角色的手牌，然后可以从中选择一张弃置，或选择一张符合使用时机的牌，由该角色使用（若如【误导】等需要做出选择的，则由你选择）。",
       useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }

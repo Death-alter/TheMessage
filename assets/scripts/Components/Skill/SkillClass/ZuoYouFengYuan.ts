@@ -1,21 +1,22 @@
-import { skill_tou_tian_toc } from "../../../../protobuf/proto";
+import { ActiveSkill } from "../Skill";
+import { Character } from "../../Chatacter/Character";
+import { skill_zuo_you_feng_yuan_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { Character } from "../../../Components/Chatacter/Character";
-import { GameLog } from "../../../Components/GameLog/GameLog";
-import { Player } from "../../../Components/Player/Player";
-import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 
-export class TouTian extends ActiveSkill {
+export class ZuoYouFengYuan extends ActiveSkill {
   constructor(character: Character) {
     super({
-      name: "偷天",
+      name: "左右逢源",
       character,
-      description: "争夺阶段，你可以翻开此角色牌，然后视为你使用了一张【截获】。",
+      description:
+        "争夺阶段，你可以翻开此角色牌，然后指定两名角色，他们弃置所有手牌，然后摸三张牌（由你指定的角色先摸）。",
       useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }
@@ -26,7 +27,7 @@ export class TouTian extends ActiveSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_TOU_TIAN_TOC,
+      NetworkEventToC.SKILL_ZUO_YOU_FENG_YUAN_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -35,25 +36,25 @@ export class TouTian extends ActiveSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_TOU_TIAN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_ZUO_YOU_FENG_YUAN_TOC);
   }
 
   onUse(gui: GameManager) {
     const tooltip = gui.tooltip;
-    if (gui.data.messagePlayerId === 0) {
-      tooltip.setText(`情报在你面前，不能使用【偷天】`);
-    } else {
-      tooltip.setText(`是否使用【偷天】？`);
-    }
+    tooltip.setText(`请选择两名角色`);
+    gui.gameLayer.startSelectPlayers({
+      num: 2,
+    });
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_ZUO_YOU_FENG_YUAN_TOS, {
+            targetPlayerIds: gui.selectedPlayers.list.map((player) => player.id),
             seq: gui.seq,
           });
         },
-        enabled: gui.data.messagePlayerId !== 0,
+        enabled: () => gui.selectedPlayers.list.length === 2,
       },
       {
         text: "取消",
@@ -65,12 +66,18 @@ export class TouTian extends ActiveSkill {
     ]);
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
+  onEffect(gameData: GameData, { playerId, targetPlayerIds }: skill_zuo_you_feng_yuan_toc) {
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【偷天】`));
+    const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
+    const targetPlayer2 = gameData.playerList[targetPlayerIds[1]];
+
+    new GameLog(
+      `${gameLog.formatPlayer(player)}使用【左右逢源】，指定${gameLog.formatPlayer(
+        targetPlayer1
+      )}、${gameLog.formatPlayer(targetPlayer2)}`
+    );
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

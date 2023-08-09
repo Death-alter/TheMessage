@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Sprite, color } from "cc";
+import { _decorator, Label, Node, Sprite, color, random } from "cc";
 import { Player } from "./Player";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
@@ -35,7 +35,9 @@ export class PlayerObject extends GameObject<Player> {
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
       if (data.name === "惑星") {
-        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·设计大师";
+        const arr = ["傲视群雄", "设计大师", "复读机"];
+        const n = Math.floor(Math.random() * arr.length);
+        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·" + arr[n];
       } else {
         this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
       }

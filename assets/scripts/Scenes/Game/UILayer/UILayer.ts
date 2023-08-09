@@ -12,7 +12,7 @@ import { CardDirection, CardType } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
 import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
-import { PlayerAction } from "../../../Utils/PlayerAction";
+import { PlayerAction, PlayerActionManager } from "../../../Utils/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 
 const { ccclass, property } = _decorator;
@@ -26,8 +26,7 @@ export class UILayer extends Component {
 
   public manager: GameManager;
   public tooltip: Tooltip;
-  private oldPlayerAction: PlayerAction;
-  public playerAction: PlayerAction;
+  public playerActionManager: PlayerActionManager;
 
   get selectedHandCards() {
     return this.manager.data && this.manager.data.handCardList.selectedCards;
@@ -44,6 +43,21 @@ export class UILayer extends Component {
   init(manager: GameManager) {
     this.manager = manager;
     this.tooltip = this.toolTipNode.getComponent(Tooltip);
+
+    this.playerActionManager = new PlayerActionManager({
+      onclear: () => {
+        this.tooltip.setText("");
+        this.tooltip.buttons.setButtons([]);
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+      },
+      onswitch: () => {
+        this.tooltip.setText("");
+        this.tooltip.buttons.setButtons([]);
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+      },
+    });
 
     if (this.manager.isRecord) {
       this.tooltip.showButton = false;
@@ -71,7 +85,6 @@ export class UILayer extends Component {
           });
           break;
       }
-      this.tooltip.hideNextPhaseButton();
     });
   }
 
@@ -145,17 +158,29 @@ export class UILayer extends Component {
             case GamePhase.MAIN_PHASE:
               this.tooltip.setNextPhaseButtonText("传递阶段");
               this.tooltip.showNextPhaseButton();
-              this.promptUseHandCard("出牌阶段，请选择要使用的卡牌");
+              this.playerActionManager.setDefaultAction(
+                this.createUseHandCardAction("出牌阶段，请选择要使用的卡牌"),
+                this.useHandCardActionController.bind(this)
+              );
+              this.playerActionManager.switchToDefault();
               break;
             case GamePhase.FIGHT_PHASE:
               this.tooltip.setNextPhaseButtonText("跳过");
               this.tooltip.showNextPhaseButton();
-              this.promptUseHandCard("争夺阶段，请选择要使用的卡牌");
+              this.playerActionManager.setDefaultAction(
+                this.createUseHandCardAction("争夺阶段，请选择要使用的卡牌"),
+                this.useHandCardActionController.bind(this)
+              );
+              this.playerActionManager.switchToDefault();
               break;
           }
           break;
         case WaitingType.SEND_MESSAGE:
-          this.promptSendMessage("传递阶段，请选择要传递的情报或要使用的卡牌");
+          this.playerActionManager.setDefaultAction(
+            this.createSendMessageAction(),
+            this.sendMessageActionController.bind(this)
+          );
+          this.playerActionManager.switchToDefault();
           break;
         case WaitingType.RECEIVE_MESSAGE:
           let text = "";
@@ -170,19 +195,25 @@ export class UILayer extends Component {
               text = "右";
               break;
           }
+          this.playerActionManager.setDefaultAction(
+            this.createReceiveMessageAction(`情报传递到你面前，方向向${text}，是否接收情报？`),
+            this.receiveMessageActionController.bind(this)
+          );
+          this.playerActionManager.switchToDefault();
 
-          this.promptReceiveMessage(`情报传递到你面前，方向向${text}，是否接收情报？`);
           break;
         case WaitingType.PLAYER_DYING:
-          this.promptUseChengQing("玩家濒死，是否使用澄清？", data.params.diePlayerId);
+          this.playerActionManager.setDefaultAction(this.createPlayerDyingAction(data.params.diePlayerId));
+          this.playerActionManager.switchToDefault();
           break;
         case WaitingType.GIVE_CARD:
-          this.promptDieGiveCard("你已死亡，请选择最多三张手牌交给其他角色");
+          this.playerActionManager.setDefaultAction(this.createDieGiveCardAction());
+          this.playerActionManager.switchToDefault();
           break;
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
           for (let skill of player.character.skills) {
-            if (skill.hasOwnProperty("onTrigger")) {
+            if (skill instanceof TriggerSkill || skill.hasOwnProperty("onTrigger")) {
               (<TriggerSkill>skill).onTrigger(this.manager, data.params);
             }
           }
@@ -200,13 +231,13 @@ export class UILayer extends Component {
         ) {
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
-            case GamePhase.SEND_PHASE_START:
               if (this.manager.data.turnPlayerId === 0) {
                 buttons.list[index].useable = true;
               } else {
                 buttons.list[index].useable = false;
               }
               break;
+            case GamePhase.SEND_PHASE_START:
             case GamePhase.FIGHT_PHASE:
               if (data.playerId === 0) {
                 buttons.list[index].useable = true;
@@ -229,7 +260,7 @@ export class UILayer extends Component {
   }
 
   onStopCountDown() {
-    this.tooltip.hide();
+    this.playerActionManager.clearAction();
     this.tooltip.hideNextPhaseButton();
   }
 
@@ -261,19 +292,8 @@ export class UILayer extends Component {
     };
   }
 
-  savePlayerAction() {
-    this.oldPlayerAction = this.playerAction;
-    this.playerAction = null;
-  }
-
-  restorePlayerAction() {
-    this.playerAction = this.oldPlayerAction;
-    this.oldPlayerAction = null;
-    this.playerAction.handleAction();
-  }
-
-  promptUseHandCard(tooltipText) {
-    this.playerAction = new PlayerAction({
+  createUseHandCardAction(tooltipText) {
+    return new PlayerAction({
       actions: [
         {
           name: "setText",
@@ -301,28 +321,32 @@ export class UILayer extends Component {
         },
       ],
     });
+  }
 
-    this.playerAction.start();
+  useHandCardActionController(action: PlayerAction) {
     UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
       num: 1,
       onSelect: (card: Card) => {
-        this.playerAction.next(card);
+        action.next(card);
       },
       onDeselect: (card: Card) => {
         card.onDeselected(this.manager);
-        this.playerAction.prev();
+        action.prev();
       },
     });
   }
 
-  promptUseChengQing(tooltipText, playerId) {
-    this.playerAction = new PlayerAction({
+  createPlayerDyingAction(playerId) {
+    return new PlayerAction({
       actions: [
         {
           name: "setTooltip",
           handler: () =>
             new Promise((resolve, reject) => {
-              this.tooltip.setText(tooltipText);
+              const player = this.manager.data.playerList[playerId];
+              const gameLog = this.manager.data.gameLog;
+
+              this.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
               UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, { num: 1 });
               this.tooltip.buttons.setButtons([
                 {
@@ -389,17 +413,16 @@ export class UILayer extends Component {
         });
       },
     });
-    this.playerAction.start();
   }
 
-  promptDieGiveCard(tooltipText) {
-    this.playerAction = new PlayerAction({
+  createDieGiveCardAction() {
+    return new PlayerAction({
       actions: [
         {
           name: "setTooltip",
           handler: () =>
             new Promise((resolve, reject) => {
-              this.tooltip.setText(tooltipText);
+              this.tooltip.setText("你已死亡，请选择最多三张手牌交给其他角色");
               UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, { num: 3 });
               UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
                 num: 1,
@@ -438,80 +461,140 @@ export class UILayer extends Component {
         });
       },
     });
-    this.playerAction.start();
   }
 
-  promptSendMessage(tooltipText) {
-    this.tooltip.setText(tooltipText);
-    this.tooltip.buttons.setButtons([]);
+  createSendMessageAction() {
+    return new PlayerAction({
+      actions: [
+        {
+          name: "setText",
+          handler: () =>
+            new Promise(() => {
+              this.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
+              this.tooltip.buttons.setButtons([]);
+            }),
+        },
+        {
+          name: "sendMessage",
+          handler: (card: Card) =>
+            new Promise(() => {
+              this.tooltip.setText("请选择一项操作");
+              if (this.cardCanPlayed(card).canPlay) {
+                this.tooltip.buttons.setButtons([
+                  {
+                    text: card.name,
+                    onclick: () => {
+                      card.onSelectedToPlay(this.manager);
+                    },
+                  },
+                  {
+                    text: "传递情报",
+                    onclick: () => {
+                      this.doSendMessage();
+                    },
+                  },
+                ]);
+              } else {
+                this.tooltip.buttons.setButtons([
+                  {
+                    text: "传递情报",
+                    onclick: () => {
+                      this.doSendMessage();
+                    },
+                  },
+                ]);
+              }
+            }),
+        },
+      ],
+    });
+  }
+
+  sendMessageActionController(action: PlayerAction) {
     UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
       num: 1,
       onSelect: (card: Card) => {
-        this.tooltip.setText("请选择一项操作");
-        if (this.cardCanPlayed(card).canPlay) {
-          this.tooltip.buttons.setButtons([
-            {
-              text: card.name,
-              onclick: () => {
-                card.onSelectedToPlay(this.manager);
-              },
-            },
-            {
-              text: "传递情报",
-              onclick: () => {
-                this.doSendMessage();
-              },
-            },
-          ]);
-        } else {
-          this.tooltip.buttons.setButtons([
-            {
-              text: "传递情报",
-              onclick: () => {
-                this.doSendMessage();
-              },
-            },
-          ]);
-        }
+        action.next(card);
       },
       onDeselect: (card: Card) => {
-        this.tooltip.setText(tooltipText);
-        this.tooltip.buttons.setButtons([]);
-        UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
         if (card.availablePhases.indexOf(this.manager.data.gamePhase) !== -1) {
           card.onDeselected(this.manager);
         }
+        action.prev();
+      },
+    });
+  }
+
+  createReceiveMessageAction(tooltipText) {
+    return new PlayerAction({
+      actions: [
+        {
+          name: "receiveMessage",
+          handler: () =>
+            new Promise(() => {
+              this.tooltip.setText(tooltipText);
+              this.tooltip.buttons.setButtons([
+                {
+                  text: "接收情报",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                      receive: true,
+                      seq: this.seq,
+                    });
+                  },
+                },
+                {
+                  text: "不接收",
+                  onclick: () => {
+                    NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                      receive: false,
+                      seq: this.seq,
+                    });
+                  },
+                  enabled:
+                    !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
+                    this.manager.data.senderId !== 0,
+                },
+              ]);
+            }),
+        },
+        {
+          name: "playCard",
+          handler: (card: Card) =>
+            new Promise(() => {
+              const flag = this.cardCanPlayed(card);
+              if (flag.canPlay) {
+                card.onSelectedToPlay(this.manager);
+              } else {
+                if (flag.banned) {
+                  this.tooltip.setText("这张卡被禁用了");
+                } else {
+                  this.tooltip.setText("现在不能使用这张卡");
+                }
+              }
+            }),
+        },
+      ],
+    });
+  }
+
+  receiveMessageActionController(action: PlayerAction) {
+    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
+      num: 1,
+      onSelect: (card: Card) => {
+        action.next(card);
+      },
+      onDeselect: (card: Card) => {
+        if (this.cardCanPlayed(card).canPlay) {
+          card.onDeselected(this.manager);
+        }
+        action.prev();
       },
     });
   }
 
   promptReceiveMessage(tooltipText) {
-    const setTooltip = () => {
-      this.tooltip.setText(tooltipText);
-      this.tooltip.buttons.setButtons([
-        {
-          text: "接收情报",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-              receive: true,
-              seq: this.seq,
-            });
-          },
-        },
-        {
-          text: "不接收",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-              receive: false,
-              seq: this.seq,
-            });
-          },
-          enabled:
-            !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
-            this.manager.data.senderId !== 0,
-        },
-      ]);
-    };
+    const setTooltip = () => {};
 
     setTooltip();
     UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
@@ -637,19 +720,18 @@ export class UILayer extends Component {
           }),
       });
     }
+    this.playerActionManager.switchTo(
+      new PlayerAction({
+        actions,
+        complete: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
 
-    this.playerAction = new PlayerAction({
-      actions,
-      complete: () => {
-        NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, data);
-
-        this.scheduleOnce(() => {
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
-        }, 0);
-      },
-    });
-
-    this.playerAction.start();
+          this.scheduleOnce(() => {
+            UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
+            UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+          }, 0);
+        },
+      })
+    );
   }
 }

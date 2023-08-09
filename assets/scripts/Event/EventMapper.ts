@@ -1,6 +1,6 @@
 import { NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "./EventTarget";
 import * as ProtobufType from "../../protobuf/proto.d";
-import { NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "./type";
+import { NetworkEventToC, ProcessEvent, UIEvent } from "./type";
 import { _decorator, director } from "cc";
 import { WaitingType } from "../Manager/type";
 import { CardType } from "../Components/Card/type";

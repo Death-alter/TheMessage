@@ -335,6 +335,8 @@ export class GameData extends DataBasic<GameManager> {
     const card = data.card
       ? this.playerRemoveHandCard(player, data.card)
       : this.playerRemoveHandCard(player, data.cardId);
+    console.log(data.card, data.cardId);
+    console.log(card);
 
     this.messageInTransmit = card;
     this._senderId = data.senderId;

@@ -101,11 +101,11 @@ export class QiangLing extends TriggerSkill {
     const gameLog = gameData.gameLog;
     const cards = types.map((type) => gameData.createCardByType(<number>type));
 
-    gameData.bannedCardTypes = [...gameData.bannedCardTypes, ...(<number[]>types)];
     gameData.cardBanned = true;
-    GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-      gameData.bannedCardTypes = [];
+    gameData.bannedCardTypes = [...gameData.bannedCardTypes, ...(<number[]>types)];
+    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
       gameData.cardBanned = false;
+      gameData.bannedCardTypes = [];
     });
 
     let str = `${gameLog.formatPlayer(player)}使用技能【强令】，宣言`;
