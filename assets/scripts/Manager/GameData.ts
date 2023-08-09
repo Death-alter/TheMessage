@@ -302,7 +302,6 @@ export class GameData extends DataBasic<GameManager> {
       player,
       data.cards.map((card) => card)
     );
-    console.log(data.cards, cardList);
 
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }

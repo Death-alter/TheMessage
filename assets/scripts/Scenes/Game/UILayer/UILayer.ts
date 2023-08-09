@@ -51,7 +51,12 @@ export class UILayer extends Component {
         UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
         UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
       },
-      onswitch: () => {},
+      onswitch: () => {
+        this.tooltip.setText("");
+        this.tooltip.buttons.setButtons([]);
+        UIEventCenter.emit(UIEvent.SELECT_HAND_CARD_COMPLETE);
+        UIEventCenter.emit(UIEvent.SELECT_PLAYER_COMPLETE);
+      },
     });
 
     if (this.manager.isRecord) {
@@ -257,9 +262,6 @@ export class UILayer extends Component {
   onStopCountDown() {
     this.playerActionManager.clearAction();
     this.tooltip.hideNextPhaseButton();
-    for (let skill of this.manager.data.selfPlayer.character.skills) {
-      skill.gameObject.isOn = false;
-    }
   }
 
   playerUseSkill(skill: Skill) {
@@ -591,33 +593,6 @@ export class UILayer extends Component {
     });
   }
 
-  promptReceiveMessage(tooltipText) {
-    const setTooltip = () => {};
-
-    setTooltip();
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-      onSelect: (card: Card) => {
-        const flag = this.cardCanPlayed(card);
-        if (flag.canPlay) {
-          card.onSelectedToPlay(this.manager);
-        } else {
-          if (flag.banned) {
-            this.tooltip.setText("这张卡被禁用了");
-          } else {
-            this.tooltip.setText("现在不能使用这张卡");
-          }
-        }
-      },
-      onDeselect: (card: Card) => {
-        setTooltip();
-        if (this.cardCanPlayed(card).canPlay) {
-          card.onDeselected(this.manager);
-        }
-      },
-    });
-  }
-
   doSendMessage() {
     this.playerActionManager.switchTo(this.createDoSendMessageAction());
   }
@@ -629,7 +604,6 @@ export class UILayer extends Component {
         name: "selectTarget",
         handler: (direction?: CardDirection) =>
           new Promise((resolve, reject) => {
-            console.log(this.selectedHandCards.list[0], c);
             const card = this.selectedHandCards.list[0] || c;
             const data: any = {
               cardId: card.id,

@@ -20,6 +20,7 @@ import { NetworkEventToS } from "../../../Event/type";
 import config from "../../../config";
 import md5 from "ts-md5";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
+import { DataManager } from "../../../Manager/DataManager";
 const { ccclass, property } = _decorator;
 
 @ccclass("Winner")

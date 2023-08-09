@@ -97,7 +97,7 @@ export class MiLing extends Card {
         const color: CardColor = card.secretColor[secret];
         GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
           card: this,
-          handler: "promptPlayerChooseCard",
+          handler: "promptTargetPlayerChooseCard",
           params: {
             color,
             secretText,
@@ -116,7 +116,7 @@ export class MiLing extends Card {
         });
         GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
           card: this,
-          handler: "promptTargetPlayerChooseCard",
+          handler: "promptPlayerChooseCard",
           params: {
             handCardList,
           },
@@ -125,15 +125,16 @@ export class MiLing extends Card {
     }
   }
 
-  promptPlayerChooseCard(gui: GameManager, params) {
+  promptTargetPlayerChooseCard(gui: GameManager, params) {
     const { secretText, color } = params;
     const handCardList = gui.data.handCardList;
     const tooltip = gui.tooltip;
-
+    gui.uiLayer.playerActionManager.clearAction();
     gui.uiLayer.playerActionManager.setDefaultAction(
       new PlayerAction({
         actions: [
           {
+            name: "selectCard",
             handler: () =>
               new Promise((resolve, reject) => {
                 let tooltipText = "密令的暗号为" + secretText;
@@ -161,7 +162,7 @@ export class MiLing extends Card {
     gui.uiLayer.playerActionManager.switchToDefault();
   }
 
-  promptTargetPlayerChooseCard(gui: GameManager, params) {
+  promptPlayerChooseCard(gui: GameManager, params) {
     if (!gui.isRecord) {
       const { handCardList } = params;
       const showCardsWindow = gui.showCardsWindow;
@@ -202,7 +203,7 @@ export class MiLing extends Card {
     if (!gui.isRecord) {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
-
+      gui.uiLayer.playerActionManager.clearAction();
       gui.uiLayer.playerActionManager.setDefaultAction(
         new PlayerAction({
           actions: [

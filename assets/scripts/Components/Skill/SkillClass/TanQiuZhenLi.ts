@@ -132,7 +132,7 @@ export class TanQiuZhenLi extends ActiveSkill {
                       },
                       enabled: () => {
                         if (showCardsWindow.selectedCards.list.length === 0) return false;
-                        const colorCounts = player.messageCounts;
+                        const colorCounts = gui.data.selfPlayer.messageCounts;
                         for (let color of showCardsWindow.selectedCards.list[0].color) {
                           ++colorCounts[color];
                         }

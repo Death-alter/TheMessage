@@ -529,6 +529,13 @@ export class EventMapper {
 
     //密令
     NetworkEventCenter.on(NetworkEventToC.USE_MI_LING_TOC, (data: ProtobufType.use_mi_ling_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+        card: data.card,
+        cardType: CardType.MI_LING,
+        userId: data.playerId,
+        isActual: true,
+        targetPlayerId: data.targetPlayerId,
+      });
       if (data.hasColor) {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.targetPlayerId,
@@ -545,13 +552,6 @@ export class EventMapper {
         });
       }
 
-      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
-        card: data.card,
-        cardType: CardType.MI_LING,
-        userId: data.playerId,
-        isActual: true,
-        targetPlayerId: data.targetPlayerId,
-      });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {
           playerId: data.playerId,

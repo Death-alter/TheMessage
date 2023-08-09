@@ -122,6 +122,8 @@ export class PlayerActionManager {
     this.defaultAction = action;
     if (controller) {
       this.defaultController = controller;
+    } else {
+      this.defaultController = null;
     }
   }
 
@@ -136,6 +138,8 @@ export class PlayerActionManager {
     this.currentAction = action;
     if (controller) {
       this.currentController = controller;
+    } else {
+      this.currentController = null;
     }
     this.onswitch();
     this.currentController && this.currentController(this.currentAction);

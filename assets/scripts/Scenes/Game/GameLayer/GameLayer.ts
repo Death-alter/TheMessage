@@ -43,8 +43,10 @@ export class GameLayer extends Component {
 
     //创建自己的UI
     this.playerObjectList = [];
-    const selfNode = this.node.getChildByPath("Self/Player");
-    this.manager.data.playerList[0].gameObject = selfNode.getComponent(PlayerObject);
+    const selfNode = this.node.getChildByPath("Self/SelfPlayer");
+    const self = instantiate(this.playerPrefab);
+    selfNode.addChild(self);
+    this.manager.data.playerList[0].gameObject = self.getComponent(PlayerObject);
     this.playerObjectList.push(this.manager.data.playerList[0].gameObject);
 
     //初始化手牌UI

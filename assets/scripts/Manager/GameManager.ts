@@ -86,6 +86,7 @@ export class GameManager extends GameObject<GameData> {
     const dataManager = find("Resident").getComponent(DataManager);
     this.data = dataManager.gameData;
     this.isRecord = dataManager.isRecord;
+
     this.gameLog = dataManager.gameLog;
 
     this.gameLayer.node.active = false;
@@ -122,9 +123,11 @@ export class GameManager extends GameObject<GameData> {
 
   onDisable() {
     //移除事件监听
+
     this.popupLayer.stopRender();
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);
+    ProcessEventCenter.emit(ProcessEvent.START_UNLOAD_GAME_SCENE);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init, this);
     GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver, this);
   }

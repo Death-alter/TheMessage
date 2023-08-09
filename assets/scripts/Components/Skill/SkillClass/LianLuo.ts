@@ -20,7 +20,6 @@ export class LianLuo extends PassiveSkill {
   init(gameData: GameData, player) {
     GameEventCenter.on(GameEvent.GAME_INIT, () => {
       if (player.id === 0) {
-        console.log(gameData.gameObject.uiLayer);
         gameData.gameObject.uiLayer.createDoSendMessageAction = function () {
           const c = this.selectedHandCards.list[0];
           const actions = [
@@ -55,7 +54,6 @@ export class LianLuo extends PassiveSkill {
               name: "selectTarget",
               handler: (direction: CardDirection) =>
                 new Promise((resolve, reject) => {
-                  console.log(this.selectedHandCards.list[0], c);
                   const card = this.selectedHandCards.list[0] || c;
                   const data: any = {
                     cardId: card.id,
@@ -176,4 +174,6 @@ export class LianLuo extends PassiveSkill {
   dispose() {
     GameEventCenter.off(GameEvent.GAME_INIT);
   }
+
+  replaceDefault() {}
 }

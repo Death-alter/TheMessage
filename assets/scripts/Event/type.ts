@@ -259,6 +259,7 @@ export enum ProcessEvent {
   REMOVE_ROBOT = "remove_robot",
   CREATE_ROOM = "create_room",
   START_LOAD_GAME_SCENE = "start_load_game_scene",
+  START_UNLOAD_GAME_SCENE = "start_unload_game_scene",
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
   CONFORM_SELECT_CHARACTER = "conform_select_character",

@@ -26,6 +26,13 @@ export class DataManager extends Component {
       },
       this
     );
+    ProcessEventCenter.on(
+      ProcessEvent.START_UNLOAD_GAME_SCENE,
+      () => {
+        this.isRecord = false;
+      },
+      this
+    );
 
     NetworkEventCenter.on(
       NetworkEventToS.DISPLAY_RECORD_TOS,
@@ -50,6 +57,11 @@ export class DataManager extends Component {
 
   clearData() {
     if (this.gameData) {
+      for (let player of this.gameData.playerList) {
+        for (let skill of player.character.skills) {
+          skill.dispose();
+        }
+      }
       this.gameData.unregisterEvents();
       this.gameData = null;
     }
@@ -59,8 +71,6 @@ export class DataManager extends Component {
       this.gameLog = null;
       this.logHistory = null;
     }
-
-    this.isRecord = false;
   }
 
   resetData() {
