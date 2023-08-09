@@ -89,7 +89,9 @@ export class BiFeng extends TriggerSkill {
     }
 
     ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
-
+    gameLog.addData(
+      new GameLog(`${gameLog.formatPlayer(player)}使用【避风】`)
+    );
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(gameData.createCard(card))}被无效`)
     );

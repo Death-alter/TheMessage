@@ -9,6 +9,7 @@ import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
 import { Player } from "../../Player/Player";
 import { GameLog } from "../../GameLog/GameLog";
+import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -36,6 +37,7 @@ export class MiLing extends Card {
   onSelectedToPlay(gui: GameManager): void {
     const tooltip = gui.tooltip;
     tooltip.setText(`请选择密令的目标`);
+    tooltip.buttons.setButtons([]);
     gui.gameLayer.startSelectPlayers({
       num: 1,
       filter: (player: Player) => {
@@ -127,21 +129,36 @@ export class MiLing extends Card {
     const { secretText, color } = params;
     const handCardList = gui.data.handCardList;
     const tooltip = gui.tooltip;
-    let tooltipText = "密令的暗号为" + secretText;
-    tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
-    tooltip.setText(tooltipText);
-    gui.gameLayer.startSelectHandCards({ num: 1 });
-    tooltip.buttons.setButtons([
-      {
-        text: "传递情报",
-        onclick: () => {
-          gui.uiLayer.doSendMessage();
-        },
-        enabled: () => {
-          return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
-        },
-      },
-    ]);
+
+    gui.uiLayer.playerActionManager.setDefaultAction(
+      new PlayerAction({
+        actions: [
+          {
+            handler: () =>
+              new Promise((resolve, reject) => {
+                let tooltipText = "密令的暗号为" + secretText;
+                tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
+                tooltip.setText(tooltipText);
+                gui.gameLayer.startSelectHandCards({ num: 1 });
+                tooltip.buttons.setButtons([
+                  {
+                    text: "传递情报",
+                    onclick: () => {
+                      resolve(null);
+                    },
+                    enabled: () => {
+                      return (
+                        handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color)
+                      );
+                    },
+                  },
+                ]);
+              }),
+          },
+        ],
+      }).union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
+    );
+    gui.uiLayer.playerActionManager.switchToDefault();
   }
 
   promptTargetPlayerChooseCard(gui: GameManager, params) {
@@ -186,15 +203,27 @@ export class MiLing extends Card {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
 
-      gui.gameLayer.startSelectHandCards({ num: 1 });
-      for (let item of handCardContainer.data.list) {
-        if ((<Card>item).id === cardId) {
-          handCardContainer.selectCard(<Card>item);
-          break;
-        }
-      }
-      gui.gameLayer.pauseSelectPlayers();
-      gui.uiLayer.doSendMessage();
+      gui.uiLayer.playerActionManager.setDefaultAction(
+        new PlayerAction({
+          actions: [
+            {
+              handler: () =>
+                new Promise((resolve, reject) => {
+                  gui.gameLayer.startSelectHandCards({ num: 1 });
+                  for (let item of handCardContainer.data.list) {
+                    if ((<Card>item).id === cardId) {
+                      handCardContainer.selectCard(<Card>item);
+                      break;
+                    }
+                  }
+                  gui.gameLayer.pauseSelectPlayers();
+                  resolve(null);
+                }),
+            },
+          ],
+        }).union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
+      );
+      gui.uiLayer.playerActionManager.switchToDefault();
     }
   }
 

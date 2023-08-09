@@ -6,8 +6,8 @@ export interface metaAction {
 export class PlayerAction {
   private actions: metaAction[];
   private index: number = 0;
-  private complete: (params?) => void;
-  private cancel: (params?) => void;
+  public complete: (params?) => void;
+  public cancel: (params?) => void;
 
   get steps() {
     return this.actions.length;
@@ -92,11 +92,11 @@ export class PlayerAction {
     }
   }
 
-  union(action: PlayerAction | metaAction[]) {
-    if (action instanceof PlayerAction) {
-      action = action.actions;
-    }
-    this.actions = [...this.actions, ...action];
+  union(action: PlayerAction) {
+    this.actions = [...this.actions, ...action.actions];
+    this.complete = action.complete;
+    this.cancel = action.cancel;
+    return this;
   }
 }
 

@@ -158,10 +158,10 @@ export class CardObject extends GameObject<Card> {
   }
 
   flip() {
-    return new Promise((reslove, reject) => {
+    return new Promise((resolve, reject) => {
       const node = this.node.getChildByName("Inner");
       if (!this.data || this.data instanceof UnknownCard) {
-        reslove(null);
+        resolve(null);
       } else {
         //翻面动画
         tween(node)
@@ -174,7 +174,7 @@ export class CardObject extends GameObject<Card> {
           .to(0.2, { scale: new Vec3(1, 1, 1) })
           .delay(0.1)
           .call(() => {
-            reslove(null);
+            resolve(null);
           })
           .start();
       }

@@ -20,7 +20,7 @@ class ProtoHelper {
   }
 
   static decode(data: Blob | ArrayBuffer) {
-    return new Promise((reslove, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         if (sys.isNative) {
           const buffer = <ArrayBuffer>data;
@@ -31,7 +31,7 @@ class ProtoHelper {
             protoName += String.fromCharCode(bufView[i]);
           }
           const dataBuffer = buffer.slice(length + 2);
-          reslove({
+          resolve({
             protoName,
             data: proto[protoName].decode(new Uint8Array(dataBuffer)),
           });
@@ -47,7 +47,7 @@ class ProtoHelper {
               protoName += String.fromCharCode(bufView[i]);
             }
             const dataBuffer = buffer.slice(length + 2);
-            reslove({
+            resolve({
               protoName,
               data: proto[protoName].decode(new Uint8Array(dataBuffer)),
             });

@@ -1,9 +1,4 @@
-import {
-  skill_bo_ai_b_toc,
-  skill_tan_qiu_zhen_li_a_toc,
-  skill_tan_qiu_zhen_li_b_toc,
-  skill_xin_si_chao_toc,
-} from "../../../../protobuf/proto";
+import { skill_tan_qiu_zhen_li_a_toc, skill_tan_qiu_zhen_li_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
@@ -16,7 +11,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction";
 import { CardColor } from "../../Card/type";
 import { copyCard } from "../../Card";
-import { Card } from "../../Card/Card";
 
 export class TanQiuZhenLi extends ActiveSkill {
   private usageCount: number = 0;
@@ -67,19 +61,32 @@ export class TanQiuZhenLi extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
     const data: any = {};
+
+    let total = 0;
+    for (let player of gui.data.playerList) {
+      if (player.id !== 0) {
+        total += player.messageCounts.total;
+      }
+    }
+
+    if (total === 0) {
+      tooltip.setText(`其他人没有情报，不能使用【探求真理】`);
+      return;
+    }
+
     gui.uiLayer.playerActionManager.switchTo(
       new PlayerAction({
         actions: [
           {
             name: "confirmUse",
             handler: () =>
-              new Promise((reslove, reject) => {
+              new Promise((resolve, reject) => {
                 tooltip.setText(`是否使用【探求真理】`);
                 tooltip.buttons.setButtons([
                   {
                     text: "确定",
                     onclick: () => {
-                      reslove(null);
+                      resolve(null);
                     },
                   },
                   {
@@ -94,15 +101,15 @@ export class TanQiuZhenLi extends ActiveSkill {
           {
             name: "selectPlayer",
             handler: () =>
-              new Promise((reslove, reject) => {
-                gui.showCardsWindow.show();
+              new Promise((resolve, reject) => {
                 tooltip.setText(`请选择一名角色`);
+                tooltip.buttons.setButtons([]);
                 gui.gameLayer.startSelectPlayers({
                   num: 1,
-                  filter: (player) => player.id !== 0,
+                  filter: (player) => player.id !== 0 && player.messageCounts.total > 0,
                   onSelect: (player) => {
                     data.targetPlayerId = player.id;
-                    reslove(player);
+                    resolve(player);
                   },
                 });
               }),
@@ -110,17 +117,18 @@ export class TanQiuZhenLi extends ActiveSkill {
           {
             name: "selectMessage",
             handler: (player: Player) =>
-              new Promise((reslove, reject) => {
+              new Promise((resolve, reject) => {
                 showCardsWindow.show({
+                  title: "请选择一张情报",
                   limit: 1,
                   cardList: player.getMessagesCopy(),
                   buttons: [
                     {
                       text: "确定",
                       onclick: () => {
-                        showCardsWindow.hide();
                         data.cardId = showCardsWindow.selectedCards.list[0].id;
-                        reslove(null);
+                        showCardsWindow.hide();
+                        resolve(null);
                       },
                       enabled: () => {
                         if (showCardsWindow.selectedCards.list.length === 0) return false;
@@ -226,7 +234,7 @@ export class TanQiuZhenLi extends ActiveSkill {
           {
             name: "confirmUse",
             handler: () =>
-              new Promise((reslove, reject) => {
+              new Promise((resolve, reject) => {
                 let flag = false;
                 for (let card of [...handCards, ...messages]) {
                   if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
@@ -239,7 +247,7 @@ export class TanQiuZhenLi extends ActiveSkill {
                     {
                       text: "是",
                       onclick: () => {
-                        reslove(null);
+                        resolve(null);
                       },
                       enabled: flag,
                     },
@@ -266,7 +274,7 @@ export class TanQiuZhenLi extends ActiveSkill {
           {
             name: "selectCard",
             handler: () =>
-              new Promise((reslove, reject) => {
+              new Promise((resolve, reject) => {
                 showCardsWindow.show({
                   title: "请选择一张纯黑色牌",
                   limit: 1,
@@ -283,7 +291,8 @@ export class TanQiuZhenLi extends ActiveSkill {
                         } else {
                           data.fromHand = false;
                         }
-                        reslove(null);
+                        showCardsWindow.hide();
+                        resolve(null);
                       },
                       enabled: () =>
                         showCardsWindow.selectedCards.list.length > 0 &&
@@ -302,7 +311,7 @@ export class TanQiuZhenLi extends ActiveSkill {
           },
         ],
         complete: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_A_TOS, {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_B_TOS, {
             enable: true,
             cardId: data.cardId,
             fromHand: data.fromHand,

@@ -299,7 +299,6 @@ export class CardAction extends Component {
     return new Promise((resolve, reject) => {
       if (player.id === 0) {
         cardList.forEach((card) => {
-          this.handCardList.removeData(card);
           card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
           const node = this.addCard(card);
           this.moveNode({
@@ -332,7 +331,6 @@ export class CardAction extends Component {
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
     if (player.id === 0 && card.id != null) {
-      this.handCardList.removeData(card);
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
     }
     const node = this.addCard(card, { location: CardActionLocation.PLAYER, player });
@@ -364,9 +362,10 @@ export class CardAction extends Component {
 
   playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
     return new Promise(async (resolve, reject) => {
+      if (!message.gameObject) {
+        message.gameObject = GamePools.cardPool.get();
+      }
       if (player.id === 0) {
-        this.handCardList.removeData(message);
-        message.status = CardStatus.FACE_DOWN;
         message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       }
 

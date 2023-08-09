@@ -34,7 +34,7 @@ export class ProgressControl extends Component {
   }
 
   private playProgressAnimation(seconds) {
-    return new Promise((reslove, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const bar = this.node.getChildByName("Bar");
         const barTransform = bar.getComponent(UITransform);
@@ -46,7 +46,7 @@ export class ProgressControl extends Component {
             {
               onComplete: () => {
                 this.node.active = false;
-                reslove(null);
+                resolve(null);
               },
             }
           )

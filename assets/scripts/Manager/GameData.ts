@@ -332,16 +332,15 @@ export class GameData extends DataBasic<GameManager> {
   private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
-    const card = data.card
-      ? this.playerRemoveHandCard(player, data.card)
-      : this.playerRemoveHandCard(player, data.cardId);
-    console.log(data.card, data.cardId);
-    console.log(card);
+    const card = data.card ? this.createCard(data.card) : this.playerRemoveHandCard(player, data.cardId);
 
     this.messageInTransmit = card;
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
       this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
+    }
+    if (!data.card && data.senderId === 0) {
+      card.status = CardStatus.FACE_DOWN;
     }
 
     GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, {

@@ -151,6 +151,7 @@ export class GameManager extends GameObject<GameData> {
       this.popupLayer.stopSelectCharacter();
 
       this.startRender();
+      GameEventCenter.emit(GameEvent.GAME_INIT);
     }
   }
 
