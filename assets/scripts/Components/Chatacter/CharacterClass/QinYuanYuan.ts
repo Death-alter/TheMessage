@@ -8,8 +8,8 @@ export class QinYuanYuan extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 34,
-      name: "秦园园",
-      sprite: "images/characters/NoPanting",
+      name: "秦圆圆",
+      sprite: "images/characters/QinYuanYuan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,

@@ -29,24 +29,12 @@ export class XianFaZhiRen extends ActiveSkill {
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_SKILL_XIAN_FA_ZHI_REN_A_TOC,
       (data) => {
-        if (player.id === 0) {
-          ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-            playerId: data.playerId,
-            second: data.waitingSecond,
-            type: WaitingType.USE_SKILL,
-            seq: data.seq,
-          });
-        } else {
-          gameData.playerList.forEach((player) => {
-            if (player.id !== 0) {
-              ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-                playerId: data.player.id,
-                second: data.waitingSecond,
-                isMultiply: true,
-              });
-            }
-          });
-        }
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: 0,
+          second: data.waitingSecond,
+          type: WaitingType.USE_SKILL,
+          seq: data.seq,
+        });
       },
       this
     );
@@ -122,6 +110,7 @@ export class XianFaZhiRen extends ActiveSkill {
       {
         text: "确定",
         onclick: () => {
+          tooltip.buttons.setButtons([]);
           this.onUse(gui);
         },
       },

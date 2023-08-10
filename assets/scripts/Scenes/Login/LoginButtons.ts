@@ -1,8 +1,10 @@
 import { _decorator, Component, Node, EditBox, sys } from "cc";
 import { ProcessEventCenter, NetworkEventCenter } from "../../Event/EventTarget";
+import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../Event/type";
+import { ReplayList } from "./ReplayList";
 import config from "../../config";
-import { NetworkEventToS, ProcessEvent } from "../../Event/type";
 import md5 from "ts-md5";
+
 const { ccclass, property } = _decorator;
 
 @ccclass("LoginButtons")
@@ -64,9 +66,20 @@ export class LoginButtons extends Component {
 
     //reply按钮
     this.node.getChildByName("Reply").on(Node.EventType.TOUCH_END, (event) => {
-      this.replyListNode.active = true;
+      NetworkEventCenter.emit(NetworkEventToS.GET_RECORD_LIST_TOS, {
+        version: config.version,
+      });
+
+      NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, this.showReplayList, this);
     });
   }
 
-  onDisable() {}
+  onDisable() {
+    NetworkEventCenter.off(NetworkEventToC.GET_RECORD_LIST_TOC, this.showReplayList, this);
+  }
+
+  showReplayList(data) {
+    this.replyListNode.active = true;
+    this.replyListNode.getComponent(ReplayList).renderRecordList(data);
+  }
 }

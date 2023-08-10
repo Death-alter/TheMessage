@@ -1,6 +1,11 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import { skill_xian_fa_zhi_ren_a_toc, skill_xian_fa_zhi_ren_b_toc } from "../../../../protobuf/proto";
+import {
+  skill_ru_bi_zhi_shi_a_toc,
+  skill_ru_bi_zhi_shi_b_toc,
+  skill_xian_fa_zhi_ren_a_toc,
+  skill_xian_fa_zhi_ren_b_toc,
+} from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
@@ -27,220 +32,169 @@ export class RuBiZhiShi extends ActiveSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.WAIT_FOR_SKILL_XIAN_FA_ZHI_REN_A_TOC,
-      (data) => {
-        if (player.id === 0) {
-          ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-            playerId: data.playerId,
-            second: data.waitingSecond,
-            type: WaitingType.USE_SKILL,
-            seq: data.seq,
-          });
-        } else {
-          gameData.playerList.forEach((player) => {
-            if (player.id !== 0) {
-              ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-                playerId: data.player.id,
-                second: data.waitingSecond,
-                isMultiply: true,
-              });
-            }
-          });
-        }
-      },
-      this
-    );
-    NetworkEventCenter.on(
-      NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_A_TOC,
+      NetworkEventToC.SKILL_RU_BI_ZHI_SHI_A_TOC,
       (data) => {
         this.onEffectA(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_B_TOC,
+      NetworkEventToC.SKILL_RU_BI_ZHI_SHI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
       this
     );
+
+    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.WAIT_FOR_SKILL_XIAN_FA_ZHI_REN_A_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_A_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_RU_BI_ZHI_SHI_A_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_RU_BI_ZHI_SHI_B_TOC);
+    NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
+  }
+
+  onPlayerDying() {
+    if (this.gameObject) {
+      this.gameObject.useable = true;
+      ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
+        this.gameObject.useable = false;
+      });
+    }
   }
 
   onUse(gui: GameManager) {
     const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
 
-    let total = 0;
-    for (let player of gui.data.playerList) {
-      total += player.messageCounts.total;
-    }
-
-    if (total === 0) {
-      tooltip.setText(`场上没有情报，不能使用【先发制人】`);
-      return;
-    }
-
-    tooltip.setText(`请选择一名角色`);
+    tooltip.setText(`请选择要查看手牌的角色`);
     gui.gameLayer.startSelectPlayers({
       num: 1,
-      filter: (player) => player.messageCounts.total > 0,
-      onSelect: (player) => {
-        showCardsWindow.show({
-          title: "请选择一张情报弃置",
-          limit: 1,
-          cardList: player.getMessagesCopy(),
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
-                  enable: true,
-                  targetPlayerId: player.id,
-                  cardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gui.seq,
-                });
-                showCardsWindow.hide();
-              },
-              enabled: () => showCardsWindow.selectedCards.list.length > 0,
-            },
-          ],
-        });
-      },
     });
-  }
-
-  onTrigger(gui: GameManager, params) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【先发制人】？`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
         onclick: () => {
-          this.onUse(gui);
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_BI_ZHI_SHI_A_TOS, {
+            targetPlayerId: gui.selectedPlayers.list[0].id,
+            seq: gui.seq,
+          });
+        },
+        enabled: () => {
+          return gui.selectedPlayers.list.length === 1;
         },
       },
       {
         text: "取消",
         onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
+          gui.uiLayer.playerActionManager.switchToDefault();
+          this.gameObject.isOn = false;
         },
       },
     ]);
   }
 
-  onEffectA(
-    gameData: GameData,
-    { enable, playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_xian_fa_zhi_ren_a_toc
-  ) {
-    if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-      const player = gameData.playerList[playerId];
-      const targetPlayer = gameData.playerList[targetPlayerId];
-      const gameLog = gameData.gameLog;
+  onEffectA(gameData: GameData, { playerId, targetPlayerId, cards, waitingSecond, seq }: skill_ru_bi_zhi_shi_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
 
-      const message = targetPlayer.removeMessage(cardId);
+    const player = gameData.playerList[playerId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+    const gameLog = gameData.gameLog;
 
-      GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: targetPlayer, messageList: [message] });
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId,
+      second: waitingSecond,
+      type: WaitingType.HANDLE_SKILL,
+      seq: seq,
+    });
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【先发制人】`));
-      gameLog.addData(
-        new GameLog(
-          `${gameLog.formatPlayer(player)}弃置${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}`
-        )
-      );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【如臂指使】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌}`));
 
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId,
-        second: waitingSecond,
-        type: WaitingType.HANDLE_SKILL,
-        seq: seq,
+    if (playerId === 0) {
+      const handCards = cards.map((card) => gameData.createCard(card));
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseCard",
+        params: {
+          handCards,
+        },
       });
-
-      if (playerId === 0) {
-        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-          skill: this,
-          handler: "promptChoosePlayer",
-        });
-      }
     }
   }
 
-  promptChoosePlayer(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("请选择一名角色");
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      onSelect: (player) => {
-        if (player.character.status === CharacterStatus.FACE_DOWN) {
-          tooltip.setText("是否将该角色翻开？");
-          tooltip.buttons.setButtons([
-            {
-              text: "是",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-                  targetPlayerId: player.id,
-                  faceUp: true,
-                  seq: gui.seq,
-                });
-              },
-            },
-            {
-              text: "否",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-                  targetPlayerId: player.id,
-                  faceUp: false,
-                  seq: gui.seq,
-                });
-              },
-            },
-          ]);
-        } else {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-            targetPlayerId: player.id,
-            faceUp: false,
-            seq: gui.seq,
-          });
-        }
-      },
-      onDeselect: () => {
-        tooltip.setText("请选择一名角色");
-        tooltip.buttons.setButtons([]);
-      },
+  promptChooseCard(gui: GameManager, params) {
+    const { handCards } = params;
+    const showCardsWindow = gui.showCardsWindow;
+
+    showCardsWindow.show({
+      title: "请选择一张手牌",
+      limit: 1,
+      cardList: handCards,
+      buttons: [
+        {
+          text: "弃置",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_BI_ZHI_SHI_B_TOS, {
+              enable: true,
+              cardId: showCardsWindow.selectedCards.list[0].id,
+              useCard: false,
+              seq: gui.seq,
+            });
+            showCardsWindow.hide();
+          },
+          enabled: () => showCardsWindow.selectedCards.list.length > 0,
+        },
+        {
+          text: "使用",
+          onclick: () => {
+            showCardsWindow.selectedCards.list[0].onSelectedToPlay(gui);
+            showCardsWindow.hide();
+          },
+          enabled: () =>
+            showCardsWindow.selectedCards.list.length > 0 &&
+            gui.uiLayer.cardCanPlayed(showCardsWindow.selectedCards.list[0]).canPlay,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_BI_ZHI_SHI_B_TOS, {
+              enable: false,
+              seq: gui.seq,
+            });
+            showCardsWindow.hide();
+          },
+        },
+      ],
     });
   }
 
-  onEffectB(gameData: GameData, { playerId, targetPlayerId, faceUp }: skill_xian_fa_zhi_ren_b_toc) {
+  onEffectB(gameData: GameData, { enable, card, useCard, targetPlayerId }: skill_ru_bi_zhi_shi_b_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    if (targetPlayerId === 0) {
-      gameData.skillBanned = true;
-      GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-        gameData.skillBanned = false;
-      });
-    }
-    targetPlayer.gameObject.showBannedIcon();
-    GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-      targetPlayer.gameObject.hideBannedIcon();
-    });
+    const handCard = gameData.createCard(card);
 
-    let str = `${gameLog.formatPlayer(player)}令${gameLog.formatPlayer(targetPlayer)}的技能无效`;
-    if (faceUp) {
-      str += "，并翻开该角色";
+    if (enable) {
+      if (useCard) {
+        gameLog.addData(
+          new GameLog(
+            `${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
+              handCard
+            )}`
+          )
+        );
+      } else {
+        gameLog.addData(
+          new GameLog(
+            `${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
+              handCard
+            )}`
+          )
+        );
+      }
     }
-
-    gameLog.addData(new GameLog(str));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

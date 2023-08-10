@@ -133,6 +133,7 @@ export class GameLayer extends Component {
   startRender() {
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.UNKNOWN_WAITING, this.onUnknownWaiting, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
@@ -148,6 +149,7 @@ export class GameLayer extends Component {
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.off(ProcessEvent.UNKNOWN_WAITING, this.onUnknownWaiting, this);
     ProcessEventCenter.off(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
@@ -169,6 +171,13 @@ export class GameLayer extends Component {
   onStopCountDown() {
     this.stopSelectHandCards();
     this.stopSelectPlayers();
+  }
+
+  onUnknownWaiting(second) {
+    for (let playerObject of this.playerObjectList)
+      if (playerObject.data.id !== 0) {
+        playerObject.startCoundDown(second);
+      }
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {

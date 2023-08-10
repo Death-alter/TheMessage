@@ -9,7 +9,7 @@ export class ChiJingHai extends Character {
     super({
       id: 33,
       name: "池镜海",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/ChiJingHai",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

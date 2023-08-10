@@ -47,6 +47,10 @@ export class WS {
     return this.ws && this.state === WebSocket.CONNECTING;
   }
 
+  get connected() {
+    return this.ws && this.state === WebSocket.OPEN;
+  }
+
   createConnection() {
     return new Promise((resolve, reject) => {
       if (this.connecting) {

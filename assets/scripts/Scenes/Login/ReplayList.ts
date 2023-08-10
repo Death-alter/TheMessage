@@ -15,17 +15,6 @@ export class ReplayList extends Component {
     });
   }
 
-  onEnable() {
-    NetworkEventCenter.on(NetworkEventToC.GET_RECORD_LIST_TOC, this.renderRecordList, this);
-    NetworkEventCenter.emit(NetworkEventToS.GET_RECORD_LIST_TOS, {
-      version: config.version,
-    });
-  }
-
-  onDisable(): void {
-    NetworkEventCenter.off(NetworkEventToC.GET_RECORD_LIST_TOC, this.renderRecordList, this);
-  }
-
   renderRecordList({ records }) {
     const viewContent = this.node.getChildByPath("ScrollView/view/content");
     viewContent.removeAllChildren();

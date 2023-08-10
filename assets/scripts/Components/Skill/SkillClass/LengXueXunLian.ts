@@ -82,7 +82,7 @@ export class LengXueXunLian extends ActiveSkill {
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId,
       second: waitingSecond,
-      type: WaitingType.USE_SKILL,
+      type: WaitingType.HANDLE_SKILL,
       seq: seq,
     });
 
@@ -147,6 +147,46 @@ export class LengXueXunLian extends ActiveSkill {
             name: "selectPlayer",
             handler: (card: Card) =>
               new Promise((resolve, reject) => {
+                if (card.direction === CardDirection.UP) {
+                  tooltip.setText("请选择要传递情报的目标");
+                  tooltip.buttons.setButtons([
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        resolve(null);
+                      },
+                      enabled: () => gui.selectedPlayers.list.length > 0,
+                    },
+                  ]);
+                  gui.gameLayer.startSelectPlayers({
+                    num: 1,
+                    filter: (player) => player.id !== 0,
+                    onSelect: (player) => {
+                      data.targetPlayerId = player.id;
+                    },
+                  });
+                } else {
+                  let i;
+                  if (card.direction === CardDirection.LEFT) {
+                    i = gui.data.playerList.length - 1;
+                    while (!gui.data.playerList[i].isAlive) {
+                      --i;
+                    }
+                  } else {
+                    i = 1;
+                    while (!gui.data.playerList[i].isAlive) {
+                      ++i;
+                    }
+                  }
+                  data.targetPlayerId = i;
+                  resolve(null);
+                }
+              }),
+          },
+          {
+            name: "selectLockPlayer",
+            handler: () =>
+              new Promise((resolve, reject) => {
                 tooltip.setText("请选择一名角色锁定");
                 tooltip.buttons.setButtons([
                   {
@@ -162,26 +202,6 @@ export class LengXueXunLian extends ActiveSkill {
                   filter: (player) => player.id !== 0,
                   onSelect: (player) => {
                     data.lockPlayerId = player.id;
-                    let i;
-                    switch (card.direction) {
-                      case CardDirection.LEFT:
-                        i = gui.data.playerList.length - 1;
-                        while (!gui.data.playerList[i].isAlive) {
-                          --i;
-                        }
-                        data.targetPlayerId = i;
-                        break;
-                      case CardDirection.RIGHT:
-                        i = 1;
-                        while (!gui.data.playerList[i].isAlive) {
-                          ++i;
-                        }
-                        data.targetPlayerId = i;
-                        break;
-                      case CardDirection.UP:
-                        data.targetPlayerId = player.id;
-                        break;
-                    }
                   },
                 });
               }),

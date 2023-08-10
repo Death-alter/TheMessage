@@ -92,7 +92,6 @@ export class UILayer extends Component {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-
     //使用技能
     GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
 
@@ -213,7 +212,7 @@ export class UILayer extends Component {
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
           for (let skill of player.character.skills) {
-            if (skill instanceof TriggerSkill || skill.hasOwnProperty("onTrigger")) {
+            if (skill instanceof TriggerSkill || "onTrigger" in skill) {
               (<TriggerSkill>skill).onTrigger(this.manager, data.params);
             }
           }
@@ -632,7 +631,16 @@ export class UILayer extends Component {
                 break;
               case CardDirection.UP:
                 this.tooltip.setText("请选择要传递情报的目标");
-                this.tooltip.buttons.setButtons([]);
+                this.tooltip.buttons.setButtons([
+                  {
+                    text: "确定",
+                    onclick: () => {
+                      UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+                      resolve(data);
+                    },
+                    enabled: () => this.selectedPlayers.list.length > 0,
+                  },
+                ]);
                 UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
                   num: 1,
                   filter: (player) => {
@@ -640,7 +648,6 @@ export class UILayer extends Component {
                   },
                   onSelect: (player) => {
                     data.targetPlayerId = player.id;
-                    resolve(data);
                   },
                 });
                 break;
@@ -652,21 +659,13 @@ export class UILayer extends Component {
         handler: (data) =>
           new Promise((resolve, reject) => {
             if (data.lockable) {
-              switch (data.cardDir) {
-                case CardDirection.LEFT:
-                case CardDirection.RIGHT:
-                  this.tooltip.setText("请选择一名角色锁定");
-                  UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-                    num: 1,
-                    filter: (player) => {
-                      return player.id !== 0;
-                    },
-                  });
-                  break;
-                case CardDirection.UP:
-                  this.tooltip.setText("是否锁定该角色");
-                  break;
-              }
+              this.tooltip.setText("请选择一名角色锁定");
+              UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+                num: 1,
+                filter: (player) => {
+                  return player.id !== 0;
+                },
+              });
               this.tooltip.buttons.setButtons([
                 {
                   text: "锁定",

@@ -563,6 +563,7 @@ export class EventMapper {
         },
       });
     });
+
     NetworkEventCenter.on(NetworkEventToC.MI_LING_CHOOSE_CARD_TOC, (data: ProtobufType.mi_ling_choose_card_toc) => {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: data.targetPlayerId,
@@ -580,149 +581,9 @@ export class EventMapper {
       });
     });
 
-    //技能
-
-    //毛不拔【奇货可居】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_QI_HUO_KE_JU_TOC, (data) => {});
-
-    //肥原龙川【诡诈】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_GUI_ZHA_TOC, (data) => {});
-
-    //王魁【以牙还牙】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_YI_YA_HUAN_YA_TOC, (data) => {});
-
-    //韩梅【移花接木】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_YI_YA_HUAN_YA_TOC, (data) => {});
-
-    //鄭文先
-    //【偷天】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_TOU_TIAN_TOC, (data) => {});
-    //【换日】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_HUAN_RI_TOC, (data) => {});
-
-    //鬼脚【急送】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JI_SONG_TOC, (data) => {});
-
-    //邵秀【绵里藏针】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MIAN_LI_CANG_ZHEN_TOC, (data) => {});
-
-    //金生火【谨慎】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIN_SHEN_TOC, (data) => {});
-
-    //白菲菲【怜悯】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_LIAN_MIN_TOC, (data) => {});
-
-    //广播使用【腹黑】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_FU_HEI_TOC, (data) => {});
-
-    //端木静【新思潮】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_XIN_SI_CHAO_TOC, (data) => {});
-
-    //【视死】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_SHI_SI_TOC, (data) => {});
-
-    //老汉【如归】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_RU_GUI_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_RU_GUI_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_ZHUAN_JIAO_TOC, (data) => {});
-
-    //白小年【转交】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_ZHUAN_JIAO_TOC, (data) => {});
-    //【明饵】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MING_ER_TOC, (data) => {});
-
-    //顾小梦
-    //【集智】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JI_ZHI_TOC, (data) => {});
-    //【承志】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_CHENG_ZHI_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_CHENG_ZHI_TOC, (data) => {});
-
-    //【就计】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIU_JI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIU_JI_B_TOC, (data) => {});
-
-    //【城府】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_CHENG_FU_TOC, (data) => {});
-
-    //李宁玉【遗信】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_YI_XIN_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_YI_XIN_TOC, (data) => {});
-
-    //【知音】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_ZHI_YIN_TOC, (data) => {});
-
-    //程小蝶【惊梦】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JING_MENG_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JING_MENG_B_TOC, (data) => {});
-
-    //商玉【借刀杀人】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIE_DAO_SHA_REN_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIE_DAO_SHA_REN_B_TOC, (data) => {});
-
-    //裴玲【交际】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIAO_JI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIAO_JI_B_TOC, (data) => {});
-
-    //连鸢【妙笔巧辩】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MIAO_BI_QIAO_BIAN_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MIAO_BI_QIAO_BIAN_B_TOC, (data) => {});
-
-    //王田香【禁闭】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIN_BI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIN_BI_B_TOC, (data) => {});
-
-    //阿芙罗拉【妙手】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MIAO_SHOU_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_MIAO_SHOU_B_TOC, (data) => {});
-
-    //玄青子【金口一开】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIN_KOU_YI_KAI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIN_KOU_YI_KAI_B_TOC, (data) => {});
-
-    // 王富贵【江湖令】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIANG_HU_LING_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_B_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIANG_HU_LING_B_TOC, (data) => {});
-
-    //SP顾小梦【羁绊】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JI_BAN_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JI_BAN_B_TOC, (data) => {});
-
-    //【诱导】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_YOU_DAO_TOC, (data) => {});
-
-    //白沧浪【博爱】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_BO_AI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_BO_AI_B_TOC, (data) => {});
-
-    //小九【广发报】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_GUANG_FA_BAO_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_GUANG_FA_BAO_B_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_GUANG_FA_BAO_B_TOC, (data) => {});
-
-    //【强令】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_QIANG_LING_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_QIANG_LING_TOC, (data) => {});
-
-    //吴志国【坚韧】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIAN_REN_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_JIAN_REN_B_TOC, (data) => {});
-
-    //李醒【搜辑】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_SOU_JI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_SOU_JI_B_TOC, (data) => {});
-
-    //黄济仁【对症下药】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DUI_ZHENG_XIA_YAO_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DUI_ZHENG_XIA_YAO_B_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DUI_ZHENG_XIA_YAO_C_TOC, (data) => {});
-
-    //白昆山【毒计】
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DU_JI_A_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_WAIT_FOR_DU_JI_B_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DU_JI_B_TOC, (data) => {});
-    NetworkEventCenter.on(NetworkEventToC.SKILL_DU_JI_C_TOC, (data) => {});
+    NetworkEventCenter.on(NetworkEventToC.UNKNOWN_WAITING_TOC, (data: ProtobufType.unknown_waiting_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+      ProcessEventCenter.emit(ProcessEvent.UNKNOWN_WAITING, data.waitingSecond);
+    });
   }
 }

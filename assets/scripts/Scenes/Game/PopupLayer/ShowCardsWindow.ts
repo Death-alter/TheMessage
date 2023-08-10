@@ -45,7 +45,7 @@ export class ShowCardsWindow extends Component {
       if (title) {
         this.setTitle(title);
       }
-      if (cardList && cardList.length) {
+      if (cardList) {
         this.setCardList(cardList, tags);
       }
       if (buttons) {

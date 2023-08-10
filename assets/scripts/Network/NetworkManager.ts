@@ -1,8 +1,8 @@
 import { _decorator, Component, director } from "cc";
 import ws from "../Utils/WebSocket";
 import { EventMapper } from "../Event/EventMapper";
-import { NetworkEventCenter } from "../Event/EventTarget";
-import { NetworkEventToS, NetworkEventToC } from "../Event/type";
+import { NetworkEventCenter, ProcessEventCenter } from "../Event/EventTarget";
+import { NetworkEventToS, NetworkEventToC, ProcessEvent } from "../Event/type";
 
 const { ccclass } = _decorator;
 
@@ -21,7 +21,11 @@ export class NetworkManager extends Component {
 
     for (let eventName in NetworkEventToS) {
       NetworkEventCenter.on(NetworkEventToS[eventName], (data) => {
-        ws.send(NetworkEventToS[eventName], data);
+        if (ws.connected) {
+          ws.send(NetworkEventToS[eventName], data);
+        } else {
+          ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: "未能连接到服务器，请重启应用程序" });
+        }
       });
     }
 

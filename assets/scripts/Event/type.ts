@@ -54,6 +54,7 @@ export enum NetworkEventToC {
   FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC = "feng_yun_bian_huan_choose_card_toc",
   USE_MI_LING_TOC = "use_mi_ling_toc",
   MI_LING_CHOOSE_CARD_TOC = "mi_ling_choose_card_toc",
+  UNKNOWN_WAITING_TOC = "unknown_waiting_toc",
   SKILL_QI_HUO_KE_JU_TOC = "skill_qi_huo_ke_ju_toc",
   SKILL_GUI_ZHA_TOC = "skill_gui_zha_toc",
   SKILL_YI_YA_HUAN_YA_TOC = "skill_yi_ya_huan_ya_toc",
@@ -136,7 +137,10 @@ export enum NetworkEventToC {
   SKILL_TAN_QIU_ZHEN_LI_B_TOC = "skill_tan_qiu_zhen_li_b_toc",
   SKILL_RU_BI_ZHI_SHI_A_TOC = "skill_ru_bi_zhi_shi_a_toc",
   SKILL_RU_BI_ZHI_SHI_B_TOC = "skill_ru_bi_zhi_shi_b_toc",
-  SKILL_SHEN_CANG_TOC = "skill_shen_cang_toc ",
+  SKILL_SHEN_CANG_TOC = "skill_shen_cang_toc",
+  SKILL_GONG_FEN_TOC = "skill_gong_fen_toc",
+  SKILL_HUO_XIN_A_TOC = "skill_huo_xin_a_toc",
+  SKILL_HUO_XIN_B_TOC = "skill_huo_xin_b_toc",
 }
 
 //tos协议，ws发送数据
@@ -238,6 +242,9 @@ export enum NetworkEventToS {
   SKILL_TAN_QIU_ZHEN_LI_B_TOS = "skill_tan_qiu_zhen_li_b_tos",
   SKILL_RU_BI_ZHI_SHI_A_TOS = "skill_ru_bi_zhi_shi_a_tos",
   SKILL_RU_BI_ZHI_SHI_B_TOS = "skill_ru_bi_zhi_shi_b_tos",
+  SKILL_GONG_FEN_TOS = "skill_gong_fen_tos",
+  SKILL_HUO_XIN_A_TOS = "skill_huo_xin_a_tos",
+  SKILL_HUO_XIN_B_TOS = "skill_huo_xin_b_tos",
 }
 
 //程序事件，用于程序控制
@@ -285,6 +292,7 @@ export enum ProcessEvent {
   CARD_IN_PROCESS = "card_in_process",
   CARD_HANDLE_FINISH = "card_handle_finish",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
+  UNKNOWN_WAITING = "unknown_waiting",
 }
 
 //游戏事件

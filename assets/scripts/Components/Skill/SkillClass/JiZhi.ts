@@ -11,7 +11,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
 
 export class JiZhi extends ActiveSkill {
-  private dyingPlayerId: number = -1;
 
   constructor(character: Character) {
     super({
@@ -45,7 +44,6 @@ export class JiZhi extends ActiveSkill {
   onPlayerDying(data) {
     if (this.gameObject) {
       this.gameObject.useable = true;
-      this.dyingPlayerId = data.diePlayerId;
       ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
         this.gameObject.useable = false;
       });
