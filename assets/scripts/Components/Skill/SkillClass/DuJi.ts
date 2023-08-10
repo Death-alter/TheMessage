@@ -163,7 +163,15 @@ export class DuJi extends ActiveSkill {
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【毒计】`));
+    gameLog.addData(
+      new GameLog(
+        `${gameLog.formatPlayer(player)}使用技能【毒计】，指定${gameLog.formatPlayer(
+          targetPlayer1
+        )}和${gameLog.formatPlayer(targetPlayer2)}`
+      )
+    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer1)}抽取了${gameLog.formatCard(card2)}`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer2)}抽取了${gameLog.formatCard(card1)}`));
   }
 
   showDrawnCard(gui: GameManager, params) {

@@ -54,10 +54,14 @@ export class ChengZhi extends TriggerSkill {
     const diePlayer = gameData.playerList[diePlayerId];
     const gameLog = gameData.gameLog;
 
-    const handCards = gameData.playerRemoveHandCard(diePlayer, cards);
+    let handCards;
     if (playerId === 0) {
+      handCards = gameData.playerRemoveHandCard(diePlayer, cards);
       this.identity = createIdentity(identity as number, secretTask as number);
-    } else if (diePlayerId === 0) {
+    } else {
+      handCards = gameData.playerRemoveHandCard(diePlayer, new Array(diePlayer.handCardCount));
+    }
+    if (diePlayerId === 0) {
       gameData.handCardList.removeAllData();
     }
 
@@ -116,7 +120,6 @@ export class ChengZhi extends TriggerSkill {
       const gameLog = gameData.gameLog;
 
       const noIdentity = createIdentity(IdentityType.HAS_NO_IDENTITY);
-      diePlayer.confirmIdentity(noIdentity);
 
       if (playerId === 0) {
         player.confirmIdentity(this.identity);
@@ -132,6 +135,8 @@ export class ChengZhi extends TriggerSkill {
       } else {
         player.setIdentityList(diePlayer.identityList);
       }
+
+      diePlayer.confirmIdentity(noIdentity);
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的身份`));
 

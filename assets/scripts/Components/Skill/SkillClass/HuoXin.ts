@@ -1,4 +1,4 @@
-import { skill_huo_xin_a_toc, skill_huo_xin_b_toc, skill_xin_si_chao_toc } from "../../../../protobuf/proto";
+import { skill_huo_xin_a_toc, skill_huo_xin_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";

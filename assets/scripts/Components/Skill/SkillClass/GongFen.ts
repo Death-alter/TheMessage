@@ -1,4 +1,4 @@
-import { skill_gong_fen_toc, skill_tou_tian_toc } from "../../../../protobuf/proto";
+import { skill_gong_fen_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
