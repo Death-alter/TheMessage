@@ -60,6 +60,7 @@ export class PopupLayer extends Component {
   startRender() {
     ProcessEventCenter.on(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
     UIEventCenter.on(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
+    UIEventCenter.on(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
     UIEventCenter.on(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
     UIEventCenter.on(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.on(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
@@ -68,18 +69,26 @@ export class PopupLayer extends Component {
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
     UIEventCenter.off(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
+    UIEventCenter.off(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
     UIEventCenter.off(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
     UIEventCenter.off(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.off(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
   }
 
   startSelectCharacter(data: StartSelectCharacter) {
+    console.log(data);
     if (this.manager.syncStatus === SyncStatus.NO_SYNC) {
-      this.selectCharacterWindow.getComponent(SelectCharacter).init({
-        identity: createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType),
-        roles: (<number[]>data.characterIdList) as CharacterType[],
-        waitingSecond: data.waitingSecond,
-      });
+      this.selectCharacterWindow.getComponent(SelectCharacter).init(
+        {
+          identity: createIdentity(
+            (<number>data.identity) as IdentityType,
+            (<number>data.secretTask) as SecretTaskType
+          ),
+          roles: (<number[]>data.characterIdList) as CharacterType[],
+          waitingSecond: data.waitingSecond,
+        },
+        data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter
+      );
     }
   }
 

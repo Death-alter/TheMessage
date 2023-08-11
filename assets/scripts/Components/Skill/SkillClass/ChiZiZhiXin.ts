@@ -150,7 +150,7 @@ export class ChiZiZhiXin extends TriggerSkill {
 
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: player,
-        card: handCard,
+        message: handCard,
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
       });
 

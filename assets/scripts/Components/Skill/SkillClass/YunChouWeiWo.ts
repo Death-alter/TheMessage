@@ -62,11 +62,11 @@ export class YunChouWeiWo extends ActiveSkill {
       {
         text: "确定",
         onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_A_TOS, {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_YUN_CHOU_WEI_WO_A_TOS, {
             seq: gui.seq,
           });
         },
-        enabled: gui.data.deckCardCount < 5,
+        enabled: gui.data.deckCardCount >= 5,
       },
       {
         text: "取消",
@@ -133,6 +133,7 @@ export class YunChouWeiWo extends ActiveSkill {
                             --i;
                           }
                         }
+                        showCardsWindow.hide();
                         resolve(list);
                       },
                       enabled: () => showCardsWindow.selectedCards.list.length === 3,
@@ -145,6 +146,7 @@ export class YunChouWeiWo extends ActiveSkill {
             name: "chooseOrder",
             handler: (list: Card[]) =>
               new Promise((resolve, reject) => {
+                console.log(list);
                 showCardsWindow.show({
                   title: "请选择放在上方的牌",
                   limit: 1,
@@ -155,6 +157,7 @@ export class YunChouWeiWo extends ActiveSkill {
                       onclick: () => {
                         if (list[0] !== showCardsWindow.selectedCards.list[0]) {
                           list.reverse();
+                          console.log(list);
                         }
                         const cardIds = list.map((card) => card.id);
                         showCardsWindow.hide();
@@ -185,7 +188,8 @@ export class YunChouWeiWo extends ActiveSkill {
     if (playerId === 0) {
       cardList = cards.map((card) => gameData.createCard(card));
     } else {
-      cardList = new Array(3).map(() => gameData.createCard());
+      cardList = [];
+      for (let i = 0; i < 3; i++) [cardList.push(gameData.createCard())];
     }
 
     gameData.playerAddHandCard(player, cardList);

@@ -28,6 +28,11 @@ export class Tooltip extends Component {
     if (!flag) {
       this.nextPhase.active = false;
       this.buttonNode.active = false;
+    } else {
+      if (this.textNode.active) {
+        this.nextPhase.active = true;
+      }
+      this.buttonNode.active = true;
     }
   }
 

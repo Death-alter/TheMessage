@@ -103,6 +103,7 @@ export default class DynamicButtons extends Component {
         }
       }
     }
+    console.log(this.node);
     return this.node.children;
   }
 

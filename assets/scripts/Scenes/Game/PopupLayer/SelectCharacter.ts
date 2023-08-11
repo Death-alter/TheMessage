@@ -13,7 +13,7 @@ import { ProgressControl } from "../../../Components/Utils/ProgressControl";
 const { ccclass, property } = _decorator;
 
 interface InitOption {
-  identity: Identity;
+  identity?: Identity;
   roles: CharacterType[];
   waitingSecond: number;
 }
@@ -39,28 +39,32 @@ export class SelectCharacter extends Component {
   private characterList: Character[] = [];
   private selectedCharacterIndex: number;
 
-  init(data: InitOption) {
+  init(data: InitOption, conform) {
     //生成提示文字
     const { identity, roles, waitingSecond } = data;
-    let text = `你的身份是：<color=${identity.color}>${identity.name}</color>`;
-    if (identity instanceof MysteriousPerson) {
-      text += `\n机密任务：${identity.secretTaskText}`;
+    if (identity) {
+      let text = `你的身份是：<color=${identity.color}>${identity.name}</color>`;
+      if (identity instanceof MysteriousPerson) {
+        text += `\n机密任务：${identity.secretTaskText}`;
+      }
+      this.infoText.getComponent(RichText).string = text;
+    } else {
+      this.infoText.getComponent(RichText).string = "请选择一名角色";
     }
-    this.infoText.getComponent(RichText).string = text;
 
     //生成角色
     this.characterTypes = roles;
+    this.charcaterNodeList.removeAllChildren();
+    this.selectedCharacterIndex = -1;
     for (let i = 0; i < roles.length; i++) {
       const character = createCharacterById(roles[i]);
       character.status = CharacterStatus.FACE_UP;
       this.characterList.push(character);
-      if (i === 0) {
-        character.gameObject = this.charcaterNode.getChildByName("CharacterPanting").getComponent(CharacterObject);
-      } else {
-        const node = instantiate(this.charcaterNode);
-        character.gameObject = node.getChildByName("CharacterPanting").getComponent(CharacterObject);
-        this.charcaterNodeList.addChild(node);
-      }
+
+      const node = instantiate(this.charcaterNode);
+      character.gameObject = node.getChildByName("CharacterPanting").getComponent(CharacterObject);
+      this.charcaterNodeList.addChild(node);
+
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       if (sys.isMobile) {
         character.gameObject.node.on("longtap", (event) => {
@@ -110,33 +114,30 @@ export class SelectCharacter extends Component {
 
     //按钮绑定点击事件
     this.confirmButton.node.on(Node.EventType.TOUCH_END, (event) => {
-      this.confirmCharacter();
+      if (this.selectedCharacterIndex == undefined) return;
+      conform(this.characterTypes[this.selectedCharacterIndex]);
     });
 
     //显示窗口并开始倒计时
     this.show();
 
     //倒计时结束自动选择当前选中人物
-    this.node
-      .getChildByName("Progress")
-      .getComponent(ProgressControl)
-      .startCoundDown(waitingSecond, () => {
-        this.confirmCharacter();
-      });
+    this.node.getChildByName("Progress").getComponent(ProgressControl).startCoundDown(waitingSecond);
+    // () => {
+    //   if (this.selectedCharacterIndex == undefined) return;
+    //   conform(this.characterTypes[this.selectedCharacterIndex]);
+    // }
   }
 
   show() {
     this.node.active = true;
+    this.confirmButton.node.active = true;
     ProcessEventCenter.on(ProcessEvent.CONFORM_SELECT_CHARACTER, (data) => {
-      let index = this.characterTypes.indexOf(data.role);
       for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
         const node = this.charcaterNodeList.children[i];
-        if (i !== index) {
-          this.charcaterNodeList.removeChild(node);
-          --i;
-          --index;
-        }
+        node.off(Node.EventType.TOUCH_END);
       }
+      this.confirmButton.node.off(Node.EventType.TOUCH_END);
       this.confirmButton.node.active = false;
     });
   }
@@ -148,10 +149,9 @@ export class SelectCharacter extends Component {
   }
 
   //倒计时进度条动画
-  confirmCharacter() {
-    if (this.selectedCharacterIndex == undefined) return;
+  confirmCharacter(role) {
     NetworkEventCenter.emit(NetworkEventToS.SELECT_ROLE_TOS, {
-      role: this.characterTypes[this.selectedCharacterIndex],
+      role,
     });
   }
 }

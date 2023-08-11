@@ -64,7 +64,7 @@ export class UILayer extends Component {
       // this.showCardsWindow.isActive = false;
     }
 
-    this.skillButtons.getComponent(SkillButtons).init(this.manager, this.manager.data.selfPlayer.character.skills);
+    this.setSKills();
     this.setSelfIdentityUI();
 
     this.tooltip.nextPhase.on(Node.EventType.TOUCH_END, () => {
@@ -93,6 +93,7 @@ export class UILayer extends Component {
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
+    UIEventCenter.on(UIEvent.UPDATE_SKILL_BUTTONS, this.setSKills, this);
     //使用技能
     GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
 
@@ -107,6 +108,7 @@ export class UILayer extends Component {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
+    UIEventCenter.off(UIEvent.UPDATE_SKILL_BUTTONS, this.setSKills, this);
     GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
     GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
     GameEventCenter.off(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
@@ -148,6 +150,10 @@ export class UILayer extends Component {
     } else if (this.manager.data.identity instanceof NoIdentity) {
       identityNode.active = false;
     }
+  }
+
+  setSKills() {
+    this.skillButtons.getComponent(SkillButtons).init(this.manager, this.manager.data.selfPlayer.character.skills);
   }
 
   onStartCountDown(data: ProcessEventType.StartCountDown) {
@@ -286,7 +292,9 @@ export class UILayer extends Component {
   }
 
   onAutoPlayStatusChange({ enable }) {
-    if (!enable) this.playerActionManager.switchToDefault();
+    if (!enable) {
+      this.playerActionManager.switchToDefault();
+    }
   }
 
   playerUseSkill(skill: Skill) {
