@@ -190,7 +190,7 @@ export class HuoXin extends ActiveSkill {
       );
     } else {
       ProcessEventCenter.emit(ProcessEvent.DISCARD_CARDS, {
-        playerId: targetPlayer,
+        playerId: targetPlayerId,
         cards: [discardCard],
       });
       gameLog.addData(
