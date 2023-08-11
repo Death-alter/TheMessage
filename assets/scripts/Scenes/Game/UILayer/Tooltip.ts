@@ -34,19 +34,17 @@ export class Tooltip extends Component {
   onLoad() {
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
     this.nextPhase.active = false;
-    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, ({ enable }) => {
-      this.showButton = !enable;
-    });
   }
 
   onEnable() {
     this.progressBar.active = false;
     this.hide();
-
+    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   onDisable() {
+    ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
@@ -59,6 +57,10 @@ export class Tooltip extends Component {
 
   setText(text?: string) {
     this.textNode.getComponent(Label).string = text;
+  }
+
+  toogleShowButton({ enable }) {
+    this.showButton = !enable;
   }
 
   show() {

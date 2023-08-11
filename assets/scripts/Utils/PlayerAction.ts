@@ -128,6 +128,7 @@ export class PlayerActionManager {
   }
 
   switchToDefault() {
+    if (!this.defaultAction) return;
     this.onswitch();
     this.defaultController && this.defaultController(this.defaultAction);
     this.defaultAction.reset();

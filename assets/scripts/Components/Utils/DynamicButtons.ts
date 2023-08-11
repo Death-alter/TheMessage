@@ -1,4 +1,4 @@
-import { _decorator, Component, NodePool, instantiate, resources, Prefab, Label, Button, Node } from "cc";
+import { _decorator, Component, NodePool, instantiate, resources, Prefab, Label, Button, Node, UITransform } from "cc";
 const { ccclass, property } = _decorator;
 
 export interface ButtonConfig {
@@ -81,6 +81,9 @@ export default class DynamicButtons extends Component {
     for (let i = 0; i < buttons.length; i++) {
       const button = this.node.children[i];
       const config = buttons[i];
+      if (config.text.length > 3) {
+        button.getComponent(UITransform).width = 20 * config.text.length + 36;
+      }
       button.getChildByName("Label").getComponent(Label).string = config.text;
       button.off(Node.EventType.TOUCH_END);
       button.on(

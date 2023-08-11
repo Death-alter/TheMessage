@@ -92,6 +92,7 @@ export class UILayer extends Component {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
     //使用技能
     GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
 
@@ -105,6 +106,7 @@ export class UILayer extends Component {
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
     GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
     GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
     GameEventCenter.off(GameEvent.SKILL_HANDLE_FINISH, this.afterPlayerUseSkill, this);
@@ -155,19 +157,39 @@ export class UILayer extends Component {
         case WaitingType.PLAY_CARD:
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
-              this.tooltip.setNextPhaseButtonText("传递阶段");
-              this.tooltip.showNextPhaseButton();
               this.playerActionManager.setDefaultAction(
-                this.createUseHandCardAction("出牌阶段，请选择要使用的卡牌"),
+                new PlayerAction({
+                  actions: [
+                    {
+                      name: "setPhaseButton",
+                      handler: () =>
+                        new Promise((resolve, reject) => {
+                          this.tooltip.setNextPhaseButtonText("传递阶段");
+                          this.tooltip.showNextPhaseButton();
+                          resolve(null);
+                        }),
+                    },
+                  ],
+                }).union(this.createUseHandCardAction("出牌阶段，请选择要使用的卡牌")),
                 this.useHandCardActionController.bind(this)
               );
               this.playerActionManager.switchToDefault();
               break;
             case GamePhase.FIGHT_PHASE:
-              this.tooltip.setNextPhaseButtonText("跳过");
-              this.tooltip.showNextPhaseButton();
               this.playerActionManager.setDefaultAction(
-                this.createUseHandCardAction("争夺阶段，请选择要使用的卡牌"),
+                new PlayerAction({
+                  actions: [
+                    {
+                      name: "setPhaseButton",
+                      handler: () =>
+                        new Promise((resolve, reject) => {
+                          this.tooltip.setNextPhaseButtonText("跳过");
+                          this.tooltip.showNextPhaseButton();
+                          resolve(null);
+                        }),
+                    },
+                  ],
+                }).union(this.createUseHandCardAction("争夺阶段，请选择要使用的卡牌")),
                 this.useHandCardActionController.bind(this)
               );
               this.playerActionManager.switchToDefault();
@@ -261,6 +283,10 @@ export class UILayer extends Component {
   onStopCountDown() {
     this.playerActionManager.clearAction();
     this.tooltip.hideNextPhaseButton();
+  }
+
+  onAutoPlayStatusChange({ enable }) {
+    if (!enable) this.playerActionManager.switchToDefault();
   }
 
   playerUseSkill(skill: Skill) {

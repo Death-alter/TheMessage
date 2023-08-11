@@ -43,6 +43,10 @@ import { LianYuanSP } from "./CharacterClass/LianYuanSP";
 import { ChengXiaoDieSP } from "./CharacterClass/ChengXiaoDieSP";
 import { ShengLaoBan } from "./CharacterClass/ShengLaoBan";
 import { GaoQiaoZhiZi } from "./CharacterClass/GaoQiaoZhiZi";
+import { JianXianSheng } from "./CharacterClass/JianXianSheng";
+import { LaoHu } from "./CharacterClass/LaoHu";
+import { DuanMuJingSP } from "./CharacterClass/DuanMuJingSP";
+import { XiaoJiuSP } from "./CharacterClass/XiaoJiuSP";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -82,10 +86,14 @@ charactersMap[33] = ChiJingHai;
 charactersMap[34] = QinYuanYuan;
 charactersMap[35] = ShengLaoBan;
 charactersMap[36] = GaoQiaoZhiZi;
+charactersMap[37] = JianXianSheng;
+charactersMap[38] = LaoHu;
 charactersMap[1002] = ChengXiaoDieSP;
 charactersMap[1003] = LianYuanSP;
 charactersMap[1014] = HanMeiSP;
 charactersMap[1020] = GuXiaoMengSP;
+charactersMap[1022] = DuanMuJingSP;
+charactersMap[1027] = XiaoJiuSP;
 charactersMap[1028] = LiNingYuSP;
 
 export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {

@@ -170,31 +170,31 @@ export class RuBiZhiShi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { enable, card, useCard, targetPlayerId }: skill_ru_bi_zhi_shi_b_toc) {
-    const gameLog = gameData.gameLog;
-    const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
+    // const gameLog = gameData.gameLog;
+    // const player = gameData.playerList[playerId];
+    // const targetPlayer = gameData.playerList[targetPlayerId];
 
-    const handCard = gameData.createCard(card);
+    // const handCard = gameData.createCard(card);
 
-    if (enable) {
-      if (useCard) {
-        gameLog.addData(
-          new GameLog(
-            `${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
-              handCard
-            )}`
-          )
-        );
-      } else {
-        gameLog.addData(
-          new GameLog(
-            `${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
-              handCard
-            )}`
-          )
-        );
-      }
-    }
+    // if (enable) {
+    //   if (useCard) {
+    //     gameLog.addData(
+    //       new GameLog(
+    //         `${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
+    //           handCard
+    //         )}`
+    //       )
+    //     );
+    //   } else {
+    //     gameLog.addData(
+    //       new GameLog(
+    //         `${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
+    //           handCard
+    //         )}`
+    //       )
+    //     );
+    //   }
+    // }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

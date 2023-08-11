@@ -8,7 +8,7 @@ export class ChengXiaoDieSP extends Character {
     super({
       id: 1002,
       name: "SP程小蝶",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/ChengXiaoDieSP",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       gameObject: gameObject,

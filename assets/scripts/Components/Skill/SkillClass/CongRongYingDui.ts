@@ -1,0 +1,142 @@
+import { TriggerSkill } from "../Skill";
+import { Character } from "../../Chatacter/Character";
+import { skill_cong_rong_ying_dui_toc } from "../../../../protobuf/proto";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, ProcessEvent, NetworkEventToS, GameEvent } from "../../../Event/type";
+import { WaitingType, CardActionLocation } from "../../../Manager/type";
+import { GameData } from "../../../Manager/GameData";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
+import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction";
+
+export class CongRongYingDui extends TriggerSkill {
+  constructor(character: Character) {
+    super({
+      name: "从容应对",
+      character,
+      description:
+        "你对一名角色使用的【试探】结算后，或一名角色对你使用的【试探】结算后，你可以抽取该角色的一张手牌，或令你和该角色各摸一张牌。",
+    });
+  }
+
+  init(gameData: GameData, player: Player) {
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_CONG_RONG_YING_DUI_TOC,
+      (data) => {
+        this.onEffect(gameData, data);
+      },
+      this
+    );
+    NetworkEventCenter.on(
+      NetworkEventToC.WAIT_FOR_SKILL_CONG_RONG_YING_DUI_TOC,
+      (data) => {
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.playerId,
+          second: data.waitingSecond,
+          type: WaitingType.USE_SKILL,
+          seq: data.seq,
+        });
+      },
+      this
+    );
+  }
+
+  dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_YI_XIN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_YI_XIN_TOC);
+  }
+
+  onTrigger(gui: GameManager, params): void {
+    const tooltip = gui.tooltip;
+
+    gui.uiLayer.playerActionManager.switchTo(
+      new PlayerAction({
+        actions: [
+          {
+            name: "chooseUse",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                tooltip.setText("【试探】已结算，是否使用【从容应对】");
+                tooltip.buttons.setButtons([
+                  {
+                    text: "是",
+                    onclick: () => {
+                      resolve({ enable: true });
+                    },
+                  },
+                  {
+                    text: "否",
+                    onclick: () => {
+                      reject(null);
+                    },
+                  },
+                ]);
+              }),
+          },
+          {
+            name: "chooseAction",
+            handler: (data) =>
+              new Promise((resolve, reject) => {
+                tooltip.setText("请选择一项操作");
+                tooltip.buttons.setButtons([
+                  {
+                    text: "抽取手牌",
+                    onclick: () => {
+                      resolve({ ...data, drawCard: false });
+                    },
+                  },
+                  {
+                    text: "摸一张牌",
+                    onclick: () => {
+                      resolve({ ...data, drawCard: true });
+                    },
+                  },
+                ]);
+              }),
+          },
+        ],
+        complete: (data) => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
+            ...data,
+            seq: gui.seq,
+          });
+        },
+        cancel: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
+            enable: false,
+            seq: gui.seq,
+          });
+        },
+      })
+    );
+  }
+
+  onEffect(gameData: GameData, { playerId, targetPlayerId, card, enable, drawCard }: skill_cong_rong_ying_dui_toc) {
+    if (enable) {
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
+      const player = gameData.playerList[playerId];
+      const targetPlayer = gameData.playerList[targetPlayerId];
+      const gameLog = gameData.gameLog;
+
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【从容应对】`));
+
+      if (!drawCard) {
+        const handCard = gameData.playerRemoveHandCard(targetPlayer, card);
+        gameData.playerAddHandCard(player, handCard);
+        GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+          player: player,
+          card: handCard,
+          from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+        });
+
+        gameLog.addData(
+          new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
+        );
+      }
+
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    }
+  }
+}

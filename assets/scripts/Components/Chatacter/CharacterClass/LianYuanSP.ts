@@ -8,7 +8,7 @@ export class LianYuanSP extends Character {
     super({
       id: 1003,
       name: "SP连鸢",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/LianYuanSP",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,
