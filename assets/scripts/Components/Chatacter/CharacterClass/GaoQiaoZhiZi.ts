@@ -8,7 +8,7 @@ export class GaoQiaoZhiZi extends Character {
     super({
       id: 36,
       name: "高桥智子",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/GaoQiaoZhiZi",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,

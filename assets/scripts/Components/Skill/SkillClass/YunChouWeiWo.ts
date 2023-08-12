@@ -146,7 +146,6 @@ export class YunChouWeiWo extends ActiveSkill {
             name: "chooseOrder",
             handler: (list: Card[]) =>
               new Promise((resolve, reject) => {
-                console.log(list);
                 showCardsWindow.show({
                   title: "请选择放在上方的牌",
                   limit: 1,
@@ -157,7 +156,6 @@ export class YunChouWeiWo extends ActiveSkill {
                       onclick: () => {
                         if (list[0] !== showCardsWindow.selectedCards.list[0]) {
                           list.reverse();
-                          console.log(list);
                         }
                         const cardIds = list.map((card) => card.id);
                         showCardsWindow.hide();

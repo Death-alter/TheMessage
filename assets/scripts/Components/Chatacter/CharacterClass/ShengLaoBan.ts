@@ -9,7 +9,7 @@ export class ShengLaoBan extends Character {
     super({
       id: 35,
       name: "盛老板",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/ShengLaoBan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       gameObject: gameObject,

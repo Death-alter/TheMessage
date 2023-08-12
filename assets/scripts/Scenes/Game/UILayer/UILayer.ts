@@ -704,15 +704,7 @@ export class UILayer extends Component {
                 {
                   text: "锁定",
                   onclick: () => {
-                    switch (data.cardDir) {
-                      case CardDirection.LEFT:
-                      case CardDirection.RIGHT:
-                        data.lockPlayerId = [this.selectedPlayers.list[0].id];
-                        break;
-                      case CardDirection.UP:
-                        data.lockPlayerId = [data.targetPlayerId];
-                        break;
-                    }
+                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
                     resolve(data);
                   },
                   enabled: () => {

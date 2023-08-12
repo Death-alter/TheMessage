@@ -8,7 +8,7 @@ export class XiaoJiuSP extends Character {
     super({
       id: 1027,
       name: "SP小九",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/XiaoJiuSP",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

@@ -14,7 +14,6 @@ export class JieHuo extends Card {
       id: option.id,
       name: "截获",
       type: CardType.JIE_HUO,
-      src: "JieHuo",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

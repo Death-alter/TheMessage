@@ -8,7 +8,7 @@ export class QianMin extends Character {
     super({
       id: 32,
       name: "钱敏",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/QianMin",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       gameObject: gameObject,

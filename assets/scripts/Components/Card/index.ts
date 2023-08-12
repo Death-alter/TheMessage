@@ -9,12 +9,13 @@ import { PoYi } from "./CardClass/PoYi";
 import { JieHuo } from "./CardClass/JieHuo";
 import { DiaoBao } from "./CardClass/DiaoBao";
 import { WuDao } from "./CardClass/WuDao";
-import { FenYunBianHuan } from "./CardClass/FenYunBianHuan";
+import { FengYunBianHuan } from "./CardClass/FengYunBianHuan";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
 import { MiLing } from "./CardClass/MiLing";
 import { IdentityType } from "../Identity/type";
 import { CardObject } from "./CardObject";
+import { Sex } from "../Chatacter/type";
 
 interface createCardOption {
   id?: number;
@@ -29,18 +30,32 @@ interface createCardOption {
 }
 
 const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption | MiLingOption): Card } } = {};
+const cardsAudioMap: { [index: number]: string } = {};
 
-cardsMap[0] = ChengQing;
-cardsMap[1] = ShiTan;
-cardsMap[2] = WeiBi;
-cardsMap[3] = LiYou;
-cardsMap[4] = PingHeng;
-cardsMap[5] = PoYi;
-cardsMap[6] = JieHuo;
-cardsMap[7] = DiaoBao;
-cardsMap[8] = WuDao;
-cardsMap[9] = FenYunBianHuan;
-cardsMap[10] = MiLing;
+cardsMap[CardType.CHENG_QING] = ChengQing;
+cardsMap[CardType.SHI_TAN] = ShiTan;
+cardsMap[CardType.WEI_BI] = WeiBi;
+cardsMap[CardType.LI_YOU] = LiYou;
+cardsMap[CardType.PING_HENG] = PingHeng;
+cardsMap[CardType.PO_YI] = PoYi;
+cardsMap[CardType.JIE_HUO] = JieHuo;
+cardsMap[CardType.DIAO_BAO] = DiaoBao;
+cardsMap[CardType.WU_DAO] = WuDao;
+cardsMap[CardType.FENG_YUN_BIAN_HUAN] = FengYunBianHuan;
+cardsMap[CardType.MI_LING] = MiLing;
+
+cardsAudioMap[CardType.UNKNOWN] = "CardBack";
+cardsAudioMap[CardType.CHENG_QING] = "ChengQing";
+cardsAudioMap[CardType.SHI_TAN] = "ShiTan";
+cardsAudioMap[CardType.WEI_BI] = "WeiBi";
+cardsAudioMap[CardType.LI_YOU] = "LiYou";
+cardsAudioMap[CardType.PING_HENG] = "PingHeng";
+cardsAudioMap[CardType.PO_YI] = "PoYi";
+cardsAudioMap[CardType.JIE_HUO] = "JieHuo";
+cardsAudioMap[CardType.DIAO_BAO] = "DiaoBao";
+cardsAudioMap[CardType.WU_DAO] = "WuDao";
+cardsAudioMap[CardType.FENG_YUN_BIAN_HUAN] = "FengYunBianHuan";
+cardsAudioMap[CardType.MI_LING] = "MiLing";
 
 export function createCard(option: createCardOption): Card {
   if (cardsMap[option.type]) {
@@ -78,4 +93,18 @@ export function copyCard(card: Card) {
 
 export function getCardTypeCount() {
   Object.keys(cardsMap).length;
+}
+
+export function getCardTypeText(type: CardType) {
+  return cardsAudioMap[type];
+}
+
+export function getCardAudioSrc(param: Card | CardType, sex: Sex) {
+  const sexText = sex === Sex.FAMALE ? "woman" : "man";
+
+  if (param instanceof Card) {
+    return `audio/cards/${cardsAudioMap[param.type]}_${sexText}`;
+  } else {
+    return `audio/cards/${cardsAudioMap[param]}_${sexText}`;
+  }
 }

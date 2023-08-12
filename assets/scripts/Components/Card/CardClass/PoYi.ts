@@ -15,7 +15,6 @@ export class PoYi extends Card {
       id: option.id,
       name: "破译",
       type: CardType.PO_YI,
-      src: "PoYi",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

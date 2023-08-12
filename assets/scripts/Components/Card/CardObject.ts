@@ -21,6 +21,7 @@ import { ShiTan } from "./CardClass/ShiTan";
 import { MiLing } from "./CardClass/MiLing";
 import { Identity } from "../Identity/Identity";
 import { GameManager } from "../../Manager/GameManager";
+import { getCardTypeText } from "./index";
 
 const { ccclass, property } = _decorator;
 
@@ -82,7 +83,7 @@ export class CardObject extends GameObject<Card> {
       coverNode.active = true;
     } else {
       imageNode.active = true;
-      resources.load(`images/cards/${card.src}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+      resources.load(`images/cards/${getCardTypeText(card.type)}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
       });
 

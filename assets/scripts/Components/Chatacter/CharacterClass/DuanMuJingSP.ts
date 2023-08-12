@@ -8,7 +8,7 @@ export class DuanMuJingSP extends Character {
     super({
       id: 1022,
       name: "SP端木静",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/DuanMuJingSP",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,

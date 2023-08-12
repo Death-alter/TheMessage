@@ -3,8 +3,6 @@ import { Character } from "../../Chatacter/Character";
 import {
   skill_ru_bi_zhi_shi_a_toc,
   skill_ru_bi_zhi_shi_b_toc,
-  skill_xian_fa_zhi_ren_a_toc,
-  skill_xian_fa_zhi_ren_b_toc,
 } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";

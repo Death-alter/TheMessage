@@ -8,7 +8,7 @@ export class HanMeiSP extends Character {
     super({
       id: 1014,
       name: "SP韩梅",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/HanMeiSP",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,

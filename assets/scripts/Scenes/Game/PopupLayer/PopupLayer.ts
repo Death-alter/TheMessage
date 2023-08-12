@@ -76,7 +76,6 @@ export class PopupLayer extends Component {
   }
 
   startSelectCharacter(data: StartSelectCharacter) {
-    console.log(data);
     if (this.manager.syncStatus === SyncStatus.NO_SYNC) {
       this.selectCharacterWindow.getComponent(SelectCharacter).init(
         {

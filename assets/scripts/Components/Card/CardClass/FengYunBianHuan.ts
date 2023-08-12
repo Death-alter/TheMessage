@@ -4,11 +4,11 @@ import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { Card } from "../../../Components/Card/Card";
+import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GameLog } from "../../GameLog/GameLog";
 
-export class FenYunBianHuan extends Card {
+export class FengYunBianHuan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
 
   private cardList: Card[];
@@ -18,7 +18,6 @@ export class FenYunBianHuan extends Card {
       id: option.id,
       name: "风云变幻",
       type: CardType.FENG_YUN_BIAN_HUAN,
-      src: "FengYunBianHuan",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

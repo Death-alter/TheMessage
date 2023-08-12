@@ -1,5 +1,5 @@
 import { Card } from "../Components/Card/Card";
-import { CardDirection } from "../Components/Card/type";
+import { CardDirection, CardType } from "../Components/Card/type";
 import { CharacterStatus } from "../Components/Chatacter/type";
 import { Identity } from "../Components/Identity/Identity";
 import { Player } from "../Components/Player/Player";
@@ -122,6 +122,7 @@ export interface PlayerPlayCard {
   player: Player;
   targetPlayer?: Player;
   card: Card;
+  cardType?: CardType;
 }
 
 export interface CardOnEffect {

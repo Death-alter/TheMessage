@@ -22,7 +22,6 @@ export class ShiTan extends Card {
       id: option.id,
       name: "试探",
       type: CardType.SHI_TAN,
-      src: "ShiTan",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

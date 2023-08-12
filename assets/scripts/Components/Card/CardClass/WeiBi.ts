@@ -16,7 +16,6 @@ export class WeiBi extends Card {
       id: option.id,
       name: "威逼",
       type: CardType.WEI_BI,
-      src: "WeiBi",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

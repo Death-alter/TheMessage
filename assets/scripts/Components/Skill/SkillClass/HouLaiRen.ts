@@ -192,7 +192,9 @@ export class HouLaiRen extends ActiveSkill {
     for (let skill of player.character.skills) {
       skill.dispose();
     }
+
     const character = createCharacterById(<number>role);
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把角色更换为【${character.name}】`));
     player.character = character;
 
     for (let skill of character.skills) {
@@ -200,8 +202,6 @@ export class HouLaiRen extends ActiveSkill {
     }
 
     UIEventCenter.emit(UIEvent.UPDATE_SKILL_BUTTONS);
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把角色更换为【${character.name}】`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

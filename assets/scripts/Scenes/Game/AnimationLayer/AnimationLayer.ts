@@ -8,6 +8,7 @@ import { CardActionLocation } from "../../../Manager/type";
 import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
 import { Sex } from "../../../Components/Chatacter/type";
 import { GameManager } from "../../../Manager/GameManager";
+import { getCardAudioSrc } from "../../../Components/Card";
 
 const { ccclass, property } = _decorator;
 
@@ -183,11 +184,9 @@ export class AnimationLayer extends Component {
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
-    if (data.player.character.sex === Sex.FAMALE) {
-      this.audioManager.playOneShot(`audio/cards/${data.card.src}_woman`, 2);
-    } else {
-      this.audioManager.playOneShot(`audio/cards/${data.card.src}_man`, 2);
-    }
+    console.log(data);
+    this.audioManager.playOneShot(getCardAudioSrc(data.cardType || data.card, data.player.character.sex));
+
     if (data.targetPlayer) {
       this.cardAction.showIndicantLine({
         from: { location: CardActionLocation.PLAYER, player: data.player },

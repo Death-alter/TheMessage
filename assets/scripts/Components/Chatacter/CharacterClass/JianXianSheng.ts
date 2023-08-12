@@ -8,7 +8,7 @@ export class JianXianSheng extends Character {
     super({
       id: 37,
       name: "简先生",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/JianXianSheng",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

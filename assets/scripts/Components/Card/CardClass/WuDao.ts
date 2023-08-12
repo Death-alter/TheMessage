@@ -14,7 +14,6 @@ export class WuDao extends Card {
       id: option.id,
       name: "误导",
       type: CardType.WU_DAO,
-      src: "WuDao",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

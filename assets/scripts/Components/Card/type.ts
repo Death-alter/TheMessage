@@ -37,7 +37,6 @@ export interface CardOption {
   id?: number;
   name: string;
   type: CardType;
-  src: string;
   status?: CardStatus;
   color?: CardColor[];
   direction?: CardDirection;

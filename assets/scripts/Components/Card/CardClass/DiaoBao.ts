@@ -16,7 +16,6 @@ export class DiaoBao extends Card {
       id: option.id,
       name: "调包",
       type: CardType.DIAO_BAO,
-      src: "DiaoBao",
       direction: option.direction,
       color: option.color,
       lockable: option.lockable,

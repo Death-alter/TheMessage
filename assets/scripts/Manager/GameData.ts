@@ -430,7 +430,7 @@ export class GameData extends DataBasic<GameManager> {
     if (this.cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this.cardOnPlay = card;
-        const eventData: any = { player: this.playerList[data.userId], card };
+        const eventData: any = { player: this.playerList[data.userId], card, cardType: data.cardType };
         if (data.targetPlayerId != null) {
           eventData.targetPlayer = this.playerList[data.targetPlayerId];
         }
@@ -438,7 +438,7 @@ export class GameData extends DataBasic<GameManager> {
       });
     } else {
       this.cardOnPlay = card;
-      const eventData: any = { player: this.playerList[data.userId], card };
+      const eventData: any = { player: this.playerList[data.userId], card, cardType: data.cardType };
       if (data.targetPlayerId != null) {
         eventData.targetPlayer = this.playerList[data.targetPlayerId];
       }

@@ -12,7 +12,6 @@ export abstract class Card extends DataBasic<CardObject> {
   protected _id: number;
   protected _name: string;
   protected _type: CardType;
-  protected _src: string;
   protected _status: CardStatus;
   protected _direction: CardDirection;
   protected _color: CardColor[];
@@ -32,10 +31,6 @@ export abstract class Card extends DataBasic<CardObject> {
 
   get type() {
     return this._type;
-  }
-
-  get src() {
-    return this._src;
   }
 
   get status() {
@@ -65,7 +60,6 @@ export abstract class Card extends DataBasic<CardObject> {
     super();
     this._id = option.id;
     this._name = option.name;
-    this._src = option.src;
     this._type = option.type;
     this._status = option.status == null ? CardStatus.FACE_UP : option.status;
     this._direction = option.direction;
