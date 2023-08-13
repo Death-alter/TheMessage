@@ -23,7 +23,7 @@
   },
   "build": {
     "asar": true,
-    "productName": "fengsheng",
+    "productName": "风声",
     "appId": "com.fengsheng.app",
     "files": [
       "main.js",

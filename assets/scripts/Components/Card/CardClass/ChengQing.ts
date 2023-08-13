@@ -3,13 +3,13 @@ import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
-import { Player } from "../../Player/Player";
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class ChengQing extends Card {
-  public readonly availablePhases = [GamePhase.MAIN_PHASE];
+  public readonly availablePhases = [GamePhase.MAIN_PHASE, GamePhase.RECEIVE_PHASE];
 
   constructor(option: CardDefaultOption) {
     super({
@@ -27,47 +27,73 @@ export class ChengQing extends Card {
   onSelectedToPlay(gui: GameManager) {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
-    tooltip.setText(`请选择要澄清的目标`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => {
-        return player.messageCounts[CardColor.BLACK] !== 0;
-      },
-      onSelect: async (player: Player) => {
-        showCardsWindow.show({
-          title: "选择一张情报弃置",
-          cardList: player.getMessagesCopy(),
-          limit: 1,
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
-                  cardId: this.id,
-                  playerId: gui.gameLayer.selectedPlayers.list[0].id,
-                  targetCardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gui.seq,
+
+    gui.uiLayer.playerActionManager.switchTo(
+      new PlayerAction({
+        actions: [
+          {
+            name: "selectPlayer",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                tooltip.setText(`请选择要澄清的目标`);
+                gui.gameLayer.startSelectPlayers({
+                  num: 1,
+                  onSelect: (player) => {
+                    resolve({ player });
+                  },
                 });
-                showCardsWindow.hide();
-                this.onDeselected(gui);
-              },
-              enabled: () => !!showCardsWindow.selectedCards.list.length,
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                showCardsWindow.hide();
-                gui.gameLayer.stopSelectPlayers();
-              },
-            },
-          ],
-        });
-      },
-    });
+              }),
+          },
+          {
+            name: "selectCard",
+            handler: ({ player }) =>
+              new Promise((resolve, reject) => {
+                showCardsWindow.show({
+                  title: "选择一张黑色情报弃置",
+                  cardList: player.getMessagesCopy(),
+                  limit: 1,
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        resolve({
+                          playerId: player.id,
+                          targetCardId: showCardsWindow.selectedCards.list[0].id,
+                        });
+                        showCardsWindow.hide();
+                      },
+                      enabled: () =>
+                        !!showCardsWindow.selectedCards.list.length &&
+                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                    },
+                    {
+                      text: "取消",
+                      onclick: () => {
+                        showCardsWindow.hide();
+                        gui.gameLayer.stopSelectPlayers();
+                        reject();
+                      },
+                    },
+                  ],
+                });
+              }),
+          },
+        ],
+        complete: (data) => {
+          NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
+            cardId: this.id,
+            playerId: data.playerId,
+            targetCardId: data.targetCardId,
+            seq: gui.seq,
+          });
+        },
+      })
+    );
   }
 
   onDeselected(gui: GameManager) {
-    gui.gameLayer.stopSelectPlayers();
+    gui.showCardsWindow.hide();
+    gui.uiLayer.playerActionManager.switchToDefault();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, targetCardId }: CardOnEffectParams) {

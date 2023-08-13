@@ -107,9 +107,7 @@ interface PlayerActionManagerOption {
 
 export class PlayerActionManager {
   private defaultAction: PlayerAction;
-  private defaultController: (action: PlayerAction) => void;
   private currentAction: PlayerAction;
-  private currentController: (action: PlayerAction) => void;
   private onclear: () => void;
   private onswitch: () => void;
 
@@ -118,32 +116,20 @@ export class PlayerActionManager {
     this.onswitch = option.onswitch;
   }
 
-  setDefaultAction(action: PlayerAction, controller?: (action: PlayerAction) => void) {
+  setDefaultAction(action: PlayerAction) {
     this.defaultAction = action;
-    if (controller) {
-      this.defaultController = controller;
-    } else {
-      this.defaultController = null;
-    }
   }
 
   switchToDefault() {
     if (!this.defaultAction) return;
     this.onswitch();
-    this.defaultController && this.defaultController(this.defaultAction);
     this.defaultAction.reset();
     this.defaultAction.start();
   }
 
-  switchTo(action: PlayerAction, controller?: (action: PlayerAction) => void) {
+  switchTo(action: PlayerAction) {
     this.currentAction = action;
-    if (controller) {
-      this.currentController = controller;
-    } else {
-      this.currentController = null;
-    }
     this.onswitch();
-    this.currentController && this.currentController(this.currentAction);
     this.currentAction.reset();
     this.currentAction.start();
   }

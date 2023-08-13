@@ -1,5 +1,5 @@
-import { GameEventCenter, NetworkEventCenter} from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
@@ -7,6 +7,7 @@ import { GamePhase } from "../../../Manager/type";
 import { CardPlayed } from "../../../Event/ProcessEventType";
 import { GameManager } from "../../../Manager/GameManager";
 import { GameLog } from "../../GameLog/GameLog";
+import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -26,53 +27,79 @@ export class WeiBi extends Card {
 
   onSelectedToPlay(gui: GameManager) {
     const tooltip = gui.tooltip;
-    tooltip.setText(`请选择威逼的目标`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => {
-        return player.id !== 0;
-      },
-      onSelect: () => {
-        const showCardsWindow = gui.showCardsWindow;
-        showCardsWindow.show({
-          title: "选择目标交给你的卡牌种类",
-          cardList: [
-            gui.data.createCardByType(CardType.JIE_HUO),
-            gui.data.createCardByType(CardType.WU_DAO),
-            gui.data.createCardByType(CardType.DIAO_BAO),
-            gui.data.createCardByType(CardType.CHENG_QING),
-          ],
-          limit: 1,
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                const player = gui.selectedPlayers.list[0];
-                NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
-                  cardId: this.id,
-                  playerId: player.id,
-                  wantType: showCardsWindow.selectedCards.list[0].type,
-                  seq: gui.seq,
+    const showCardsWindow = gui.showCardsWindow;
+
+    gui.uiLayer.playerActionManager.switchTo(
+      new PlayerAction({
+        actions: [
+          {
+            name: "selectPlayer",
+            handler: () =>
+              new Promise((resolve, reject) => {
+                tooltip.setText(`请选择威逼的目标`);
+                gui.gameLayer.startSelectPlayers({
+                  num: 1,
+                  filter: (player) => {
+                    return player.id !== 0;
+                  },
+                  onSelect: (player) => {
+                    resolve({ player });
+                  },
                 });
-                showCardsWindow.hide();
-                this.onDeselected(gui);
-              },
-              enabled: () => !!gui.showCardsWindow.selectedCards.list.length,
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                gui.showCardsWindow.hide();
-                gui.gameLayer.stopSelectPlayers();
-              },
-            },
-          ],
-        });
-      },
-    });
+              }),
+          },
+          {
+            name: "selectCard",
+            handler: ({ player }) =>
+              new Promise((resolve, reject) => {
+                showCardsWindow.show({
+                  title: "选择目标交给你的卡牌种类",
+                  cardList: [
+                    gui.data.createCardByType(CardType.JIE_HUO),
+                    gui.data.createCardByType(CardType.WU_DAO),
+                    gui.data.createCardByType(CardType.DIAO_BAO),
+                    gui.data.createCardByType(CardType.CHENG_QING),
+                  ],
+                  limit: 1,
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        resolve({
+                          playerId: player.id,
+                          wantType: showCardsWindow.selectedCards.list[0].type,
+                        });
+                        showCardsWindow.hide();
+                      },
+                      enabled: () => !!showCardsWindow.selectedCards.list.length,
+                    },
+                    {
+                      text: "取消",
+                      onclick: () => {
+                        showCardsWindow.hide();
+                        gui.gameLayer.stopSelectPlayers();
+                        reject();
+                      },
+                    },
+                  ],
+                });
+              }),
+          },
+        ],
+        complete: (data) => {
+          NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
+            cardId: this.id,
+            playerId: data.playerId,
+            wantType: data.wantType,
+            seq: gui.seq,
+          });
+        },
+      })
+    );
   }
 
   onDeselected(gui: GameManager) {
+    gui.showCardsWindow.hide();
     gui.gameLayer.stopSelectPlayers();
   }
 

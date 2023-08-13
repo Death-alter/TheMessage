@@ -54,8 +54,8 @@ export class UILayer extends Component {
       onswitch: () => {
         this.tooltip.setText("");
         this.tooltip.buttons.setButtons([]);
-        UIEventCenter.emit(UIEvent.SELECT_HAND_CARD_COMPLETE);
-        UIEventCenter.emit(UIEvent.SELECT_PLAYER_COMPLETE);
+        // UIEventCenter.emit(UIEvent.SELECT_HAND_CARD_COMPLETE);
+        // UIEventCenter.emit(UIEvent.SELECT_PLAYER_COMPLETE);
       },
     });
 
@@ -176,8 +176,7 @@ export class UILayer extends Component {
                         }),
                     },
                   ],
-                }).union(this.createUseHandCardAction("出牌阶段，请选择要使用的卡牌")),
-                this.useHandCardActionController.bind(this)
+                }).union(this.createUseHandCardAction("出牌阶段，请选择要使用的卡牌"))
               );
               this.playerActionManager.switchToDefault();
               break;
@@ -195,18 +194,14 @@ export class UILayer extends Component {
                         }),
                     },
                   ],
-                }).union(this.createUseHandCardAction("争夺阶段，请选择要使用的卡牌")),
-                this.useHandCardActionController.bind(this)
+                }).union(this.createUseHandCardAction("争夺阶段，请选择要使用的卡牌"))
               );
               this.playerActionManager.switchToDefault();
               break;
           }
           break;
         case WaitingType.SEND_MESSAGE:
-          this.playerActionManager.setDefaultAction(
-            this.createSendMessageAction(),
-            this.sendMessageActionController.bind(this)
-          );
+          this.playerActionManager.setDefaultAction(this.createSendMessageAction());
           this.playerActionManager.switchToDefault();
           break;
         case WaitingType.RECEIVE_MESSAGE:
@@ -223,8 +218,7 @@ export class UILayer extends Component {
               break;
           }
           this.playerActionManager.setDefaultAction(
-            this.createReceiveMessageAction(`情报传递到你面前，方向向${text}，是否接收情报？`),
-            this.receiveMessageActionController.bind(this)
+            this.createReceiveMessageAction(`情报传递到你面前，方向向${text}，是否接收情报？`)
           );
           this.playerActionManager.switchToDefault();
 
@@ -329,43 +323,32 @@ export class UILayer extends Component {
     return new PlayerAction({
       actions: [
         {
-          name: "setText",
+          name: "promptUseHandCard",
           handler: () =>
             new Promise(() => {
               this.tooltip.setText(tooltipText);
               this.tooltip.buttons.setButtons([]);
-            }),
-        },
-        {
-          name: "playCard",
-          handler: (card: Card) =>
-            new Promise(() => {
-              const flag = this.cardCanPlayed(card);
-              if (flag.canPlay) {
-                card.onSelectedToPlay(this.manager);
-              } else {
-                if (flag.banned) {
-                  this.tooltip.setText("这张卡被禁用了");
-                } else {
-                  this.tooltip.setText("现在不能使用这张卡");
-                }
-              }
+              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
+                num: 1,
+                onSelect: (card: Card) => {
+                  const flag = this.cardCanPlayed(card);
+                  if (flag.canPlay) {
+                    card.onSelectedToPlay(this.manager);
+                  } else {
+                    if (flag.banned) {
+                      this.tooltip.setText("这张卡被禁用了");
+                    } else {
+                      this.tooltip.setText("现在不能使用这张卡");
+                    }
+                  }
+                },
+                onDeselect: (card: Card) => {
+                  card.onDeselected(this.manager);
+                },
+              });
             }),
         },
       ],
-    });
-  }
-
-  useHandCardActionController(action: PlayerAction) {
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-      onSelect: (card: Card) => {
-        action.next(card);
-      },
-      onDeselect: (card: Card) => {
-        card.onDeselected(this.manager);
-        action.prev();
-      },
     });
   }
 
@@ -500,61 +483,50 @@ export class UILayer extends Component {
     return new PlayerAction({
       actions: [
         {
-          name: "setText",
+          name: "promptSendMessage",
           handler: () =>
             new Promise(() => {
               this.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
               this.tooltip.buttons.setButtons([]);
-            }),
-        },
-        {
-          name: "sendMessage",
-          handler: (card: Card) =>
-            new Promise(() => {
-              this.tooltip.setText("请选择一项操作");
-              if (this.cardCanPlayed(card).canPlay) {
-                this.tooltip.buttons.setButtons([
-                  {
-                    text: card.name,
-                    onclick: () => {
-                      card.onSelectedToPlay(this.manager);
-                    },
-                  },
-                  {
-                    text: "传递情报",
-                    onclick: () => {
-                      this.doSendMessage();
-                    },
-                  },
-                ]);
-              } else {
-                this.tooltip.buttons.setButtons([
-                  {
-                    text: "传递情报",
-                    onclick: () => {
-                      this.doSendMessage();
-                    },
-                  },
-                ]);
-              }
+              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
+                num: 1,
+                onSelect: (card: Card) => {
+                  this.tooltip.setText("请选择一项操作");
+                  if (this.cardCanPlayed(card).canPlay) {
+                    this.tooltip.buttons.setButtons([
+                      {
+                        text: card.name,
+                        onclick: () => {
+                          card.onSelectedToPlay(this.manager);
+                        },
+                      },
+                      {
+                        text: "传递情报",
+                        onclick: () => {
+                          this.doSendMessage();
+                        },
+                      },
+                    ]);
+                  } else {
+                    this.tooltip.buttons.setButtons([
+                      {
+                        text: "传递情报",
+                        onclick: () => {
+                          this.doSendMessage();
+                        },
+                      },
+                    ]);
+                  }
+                },
+                onDeselect: (card: Card) => {
+                  if (card.availablePhases.indexOf(this.manager.data.gamePhase) !== -1) {
+                    card.onDeselected(this.manager);
+                  }
+                },
+              });
             }),
         },
       ],
-    });
-  }
-
-  sendMessageActionController(action: PlayerAction) {
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-      onSelect: (card: Card) => {
-        action.next(card);
-      },
-      onDeselect: (card: Card) => {
-        if (card.availablePhases.indexOf(this.manager.data.gamePhase) !== -1) {
-          card.onDeselected(this.manager);
-        }
-        action.prev();
-      },
     });
   }
 
@@ -562,7 +534,7 @@ export class UILayer extends Component {
     return new PlayerAction({
       actions: [
         {
-          name: "receiveMessage",
+          name: "promptReceiveMessage",
           handler: () =>
             new Promise(() => {
               this.tooltip.setText(tooltipText);
@@ -589,40 +561,29 @@ export class UILayer extends Component {
                     this.manager.data.senderId !== 0,
                 },
               ]);
-            }),
-        },
-        {
-          name: "playCard",
-          handler: (card: Card) =>
-            new Promise(() => {
-              const flag = this.cardCanPlayed(card);
-              if (flag.canPlay) {
-                card.onSelectedToPlay(this.manager);
-              } else {
-                if (flag.banned) {
-                  this.tooltip.setText("这张卡被禁用了");
-                } else {
-                  this.tooltip.setText("现在不能使用这张卡");
-                }
-              }
+              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
+                num: 1,
+                onSelect: (card: Card) => {
+                  const flag = this.cardCanPlayed(card);
+                  if (flag.canPlay) {
+                    card.onSelectedToPlay(this.manager);
+                  } else {
+                    if (flag.banned) {
+                      this.tooltip.setText("这张卡被禁用了");
+                    } else {
+                      this.tooltip.setText("现在不能使用这张卡");
+                    }
+                  }
+                },
+                onDeselect: (card: Card) => {
+                  if (this.cardCanPlayed(card).canPlay) {
+                    card.onDeselected(this.manager);
+                  }
+                },
+              });
             }),
         },
       ],
-    });
-  }
-
-  receiveMessageActionController(action: PlayerAction) {
-    UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-      num: 1,
-      onSelect: (card: Card) => {
-        action.next(card);
-      },
-      onDeselect: (card: Card) => {
-        if (this.cardCanPlayed(card).canPlay) {
-          card.onDeselected(this.manager);
-        }
-        action.prev();
-      },
     });
   }
 

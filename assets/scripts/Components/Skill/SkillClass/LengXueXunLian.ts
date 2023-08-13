@@ -153,6 +153,7 @@ export class LengXueXunLian extends ActiveSkill {
                     {
                       text: "确定",
                       onclick: () => {
+                        gui.gameLayer.stopSelectPlayers();
                         resolve(null);
                       },
                       enabled: () => gui.selectedPlayers.list.length > 0,

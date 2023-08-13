@@ -43,8 +43,8 @@ export class CongRongYingDui extends TriggerSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_YI_XIN_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_YI_XIN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_CONG_RONG_YING_DUI_TOC);
+    NetworkEventCenter.off(NetworkEventToC.WAIT_FOR_SKILL_CONG_RONG_YING_DUI_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {

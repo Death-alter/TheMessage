@@ -1,6 +1,6 @@
-import { skill_chi_zi_zhi_xin_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
+import { skill_chi_zi_zhi_xin_a_toc, skill_chi_zi_zhi_xin_b_toc } from "../../../../protobuf/proto";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { TriggerSkill } from "../Skill";
 import { GameLog } from "../../GameLog/GameLog";
@@ -8,14 +8,10 @@ import { Player } from "../../Player/Player";
 import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction";
-import { PlayerReceiveMessage } from "../../../Event/GameEventType";
-import { CardColor } from "../../Card/type";
 import { Card } from "../../Card/Card";
-import { CardActionLocation } from "../../../Manager/type";
+import { CardActionLocation, WaitingType } from "../../../Manager/type";
 
 export class ChiZiZhiXin extends TriggerSkill {
-  private color: CardColor[] = [];
-
   constructor(character: Character) {
     super({
       name: "赤子之心",
@@ -27,53 +23,78 @@ export class ChiZiZhiXin extends TriggerSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_TOC,
+      NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_A_TOC,
       (data) => {
-        this.onEffect(gameData, data);
+        this.onEffectA(gameData, data);
       },
       this
     );
-    GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onReceiveMessage, this);
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_B_TOC,
+      (data) => {
+        this.onEffectB(gameData, data);
+      },
+      this
+    );
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_TOC);
-    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onReceiveMessage, this);
-  }
-
-  onReceiveMessage(data: PlayerReceiveMessage) {
-    this.color = data.message.color;
+    NetworkEventCenter.off(NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_A_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_CHI_ZI_ZHI_XIN_B_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
+    tooltip.setText(`你传出的非黑色情报被接收，是否使用【赤子之心】？`);
+    tooltip.buttons.setButtons([
+      {
+        text: "是",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_A_TOS, {
+            seq: gui.seq,
+          });
+        },
+      },
+      {
+        text: "否",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+            seq: gui.seq,
+          });
+        },
+      },
+    ]);
+  }
+
+  onEffectA(gameData: GameData, { playerId, messageCard, waitingSecond, seq }: skill_chi_zi_zhi_xin_a_toc) {
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId: playerId,
+      second: waitingSecond,
+      type: WaitingType.USE_SKILL,
+      seq: seq,
+    });
+
+    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+      skill: this,
+      handler: "promptChooseAction",
+      params: {
+        message: gameData.createCard(messageCard),
+      },
+    });
+  }
+
+  promptChooseAction(gui: GameManager, params: { message: Card }) {
+    const tooltip = gui.tooltip;
+    const { message } = params;
+
     gui.uiLayer.playerActionManager.switchTo(
       new PlayerAction({
         actions: [
           {
-            name: "chooseUse",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText(`你传出的非黑色情报被接收，是否使用【赤子之心】？`);
-                tooltip.buttons.setButtons([
-                  {
-                    text: "是",
-                    onclick: () => {
-                      resolve(null);
-                    },
-                  },
-                  {
-                    text: "否",
-                    onclick: () => {
-                      reject(null);
-                    },
-                  },
-                ]);
-              }),
-          },
-          {
             name: "chooseAction",
-            handler: (data) =>
+            handler: () =>
               new Promise((resolve, reject) => {
                 tooltip.setText("请选择一项操作");
                 tooltip.buttons.setButtons([
@@ -88,6 +109,7 @@ export class ChiZiZhiXin extends TriggerSkill {
                     onclick: () => {
                       resolve({ drawCard: false });
                     },
+                    enabled: () => Card.hasColor(gui.data.handCardList.list, message.color[0]),
                   },
                 ]);
               }),
@@ -109,7 +131,7 @@ export class ChiZiZhiXin extends TriggerSkill {
                       },
                       enabled: () => {
                         if (gui.selectedHandCards.list.length === 0) return false;
-                        for (let c of this.color) {
+                        for (let c of message.color) {
                           if (Card.hasColor(gui.selectedHandCards.list[0], c)) {
                             return true;
                           }
@@ -123,23 +145,17 @@ export class ChiZiZhiXin extends TriggerSkill {
           },
         ],
         complete: (data) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_TOS, {
+          NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
             ...data,
             seq: gui.seq,
           });
         },
-        cancel: () => {
-          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gui.seq,
-          });
-        },
+        cancel: () => {},
       })
     );
   }
 
-  onEffect(gameData: GameData, { playerId, card, drawCard }: skill_chi_zi_zhi_xin_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
+  onEffectB(gameData: GameData, { playerId, card, drawCard }: skill_chi_zi_zhi_xin_b_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【赤子之心】`));

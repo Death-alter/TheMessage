@@ -278,9 +278,13 @@ export class GameLayer extends Component {
     }
     if (onSelect) {
       ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onSelect);
+    } else {
+      ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
     }
     if (onDeselect) {
       ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_PLAYER, onDeselect);
+    } else {
+      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
     }
   }
 
@@ -313,9 +317,13 @@ export class GameLayer extends Component {
     this.selectedHandCards.unlock();
     if (onSelect) {
       ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, onSelect);
+    } else {
+      ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD, onSelect);
     }
     if (onDeselect) {
       ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
+    } else {
+      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
     }
   }
 

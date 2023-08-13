@@ -1,9 +1,6 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import {
-  skill_ru_bi_zhi_shi_a_toc,
-  skill_ru_bi_zhi_shi_b_toc,
-} from "../../../../protobuf/proto";
+import { skill_ru_bi_zhi_shi_a_toc, skill_ru_bi_zhi_shi_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
@@ -12,8 +9,12 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { CardColor, CardType } from "../../Card/type";
+import { Card } from "../../Card/Card";
 
 export class RuBiZhiShi extends ActiveSkill {
+  private dyingPlayerId: number;
+
   constructor(character: Character) {
     super({
       name: "如臂指使",
@@ -53,7 +54,8 @@ export class RuBiZhiShi extends ActiveSkill {
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
   }
 
-  onPlayerDying() {
+  onPlayerDying(data) {
+    this.dyingPlayerId = data.diePlayerId;
     if (this.gameObject) {
       this.gameObject.useable = true;
       ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
@@ -116,13 +118,14 @@ export class RuBiZhiShi extends ActiveSkill {
         handler: "promptChooseCard",
         params: {
           handCards,
+          targetPlayer,
         },
       });
     }
   }
 
   promptChooseCard(gui: GameManager, params) {
-    const { handCards } = params;
+    const { handCards, targetPlayer } = params;
     const showCardsWindow = gui.showCardsWindow;
 
     showCardsWindow.show({
@@ -146,12 +149,72 @@ export class RuBiZhiShi extends ActiveSkill {
         {
           text: "使用",
           onclick: () => {
-            showCardsWindow.selectedCards.list[0].onSelectedToPlay(gui);
-            showCardsWindow.hide();
+            const card = showCardsWindow.selectedCards.list[0];
+            switch (card.type) {
+              case CardType.JIE_HUO:
+                showCardsWindow.hide();
+                NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
+                  cardId: card.id,
+                  seq: gui.seq,
+                });
+                break;
+              case CardType.DIAO_BAO:
+                showCardsWindow.hide();
+                NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
+                  cardId: card.id,
+                  seq: gui.seq,
+                });
+                break;
+              case CardType.CHENG_QING:
+                const player = gui.data.playerList[this.dyingPlayerId];
+                showCardsWindow.show({
+                  title: "选择一张情报弃置",
+                  cardList: player.getMessagesCopy(),
+                  limit: 1,
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                          use: true,
+                          cardId: card.id,
+                          targetCardId: showCardsWindow.selectedCards.list[0].id,
+                          seq: gui.seq,
+                        });
+                        showCardsWindow.hide();
+                      },
+                      enabled: () =>
+                        showCardsWindow.selectedCards.list.length > 0 &&
+                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                    },
+                  ],
+                });
+                break;
+              default:
+                card.onSelectedToPlay(gui);
+                showCardsWindow.hide();
+            }
           },
-          enabled: () =>
-            showCardsWindow.selectedCards.list.length > 0 &&
-            gui.uiLayer.cardCanPlayed(showCardsWindow.selectedCards.list[0]).canPlay,
+          enabled: () => {
+            if (
+              showCardsWindow.selectedCards.list.length === 0 ||
+              !gui.uiLayer.cardCanPlayed(showCardsWindow.selectedCards.list[0]).canPlay
+            ) {
+              return false;
+            }
+            switch (showCardsWindow.selectedCards.list[0].type) {
+              case CardType.JIE_HUO:
+                return gui.data.messagePlayerId !== targetPlayer.id;
+              case CardType.CHENG_QING:
+                for (let player of gui.data.playerList) {
+                  if (player.messageCounts[CardColor.BLACK] > 0) {
+                    return true;
+                  }
+                }
+                return false;
+            }
+            return true;
+          },
         },
         {
           text: "取消",
@@ -167,32 +230,22 @@ export class RuBiZhiShi extends ActiveSkill {
     });
   }
 
-  onEffectB(gameData: GameData, { enable, card, useCard, targetPlayerId }: skill_ru_bi_zhi_shi_b_toc) {
-    // const gameLog = gameData.gameLog;
-    // const player = gameData.playerList[playerId];
-    // const targetPlayer = gameData.playerList[targetPlayerId];
+  onEffectB(gameData: GameData, { enable, useCard, playerId, targetPlayerId }: skill_ru_bi_zhi_shi_b_toc) {
+    const gameLog = gameData.gameLog;
+    const player = gameData.playerList[playerId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
 
-    // const handCard = gameData.createCard(card);
-
-    // if (enable) {
-    //   if (useCard) {
-    //     gameLog.addData(
-    //       new GameLog(
-    //         `${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
-    //           handCard
-    //         )}`
-    //       )
-    //     );
-    //   } else {
-    //     gameLog.addData(
-    //       new GameLog(
-    //         `${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
-    //           handCard
-    //         )}`
-    //       )
-    //     );
-    //   }
-    // }
+    if (enable) {
+      if (useCard) {
+        gameLog.addData(
+          new GameLog(`${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌`)
+        );
+      } else {
+        gameLog.addData(
+          new GameLog(`${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌`)
+        );
+      }
+    }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

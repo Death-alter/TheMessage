@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, globalShortcut } = require("electron");
 
 const createWindow = () => {
   const config = {
@@ -12,8 +12,18 @@ const createWindow = () => {
 
   win.removeMenu();
   win.setAspectRatio(16 / 9);
-  win.loadFile("build/web-mobile/index.html");
-  // win.webContents.openDevTools()  // 打开控制台
+  win.loadFile("build/web-mobile/index.html").then(() => [
+    win.setTitle("风声")
+  ])
+  globalShortcut.register('Ctrl+Shift+C', () => {
+    // 打开控制台
+    if (win.webContents.isDevToolsOpened()) {
+      win.webContents.closeDevTools()
+    } else {
+      win.webContents.openDevTools()
+    }
+
+  })
 };
 
 app.whenReady().then(() => {

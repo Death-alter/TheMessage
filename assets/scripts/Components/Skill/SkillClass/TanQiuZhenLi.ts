@@ -286,7 +286,7 @@ export class TanQiuZhenLi extends ActiveSkill {
                       onclick: () => {
                         data.cardId = showCardsWindow.selectedCards.list[0].id;
                         const index = showCardsWindow.cardList.list.indexOf(showCardsWindow.selectedCards.list[0]);
-                        if (index <= handCards.length) {
+                        if (index < handCards.length) {
                           data.fromHand = true;
                         } else {
                           data.fromHand = false;
