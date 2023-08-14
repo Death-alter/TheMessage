@@ -1,10 +1,25 @@
+import { GameManager } from "../../Manager/GameManager";
 import { PlayerActionStep } from "./PlayerActionStep";
+import DefaultStepsCreator from "./DefaultStepsCreator";
 
 export abstract class PlayerActionStepManager {
-  static steps: { [index: number | string]: PlayerActionStep };
+  static steps: { [index: number | string]: PlayerActionStep } = {};
 
-  static getStep(stepName: string);
-  static getStep(stepId: number);
+  static init(gui: GameManager) {
+    for (let name in DefaultStepsCreator) {
+      this.addStep(
+        new PlayerActionStep({
+          name,
+          handler: DefaultStepsCreator[name](gui),
+        })
+      );
+    }
+  }
+
+  static dispose() {
+    this.steps = {};
+  }
+
   static getStep(index: string | number) {
     return this.steps[index];
   }

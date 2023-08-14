@@ -1,17 +1,28 @@
+import { PlayerActionStepManager } from "./PlayerActionManager";
 import { PlayerActionStep } from "./PlayerActionStep";
+
+export type PlayerActionStepType = string | number | PlayerActionStep;
+
+export interface PlayerActionStepRoute {
+  step: PlayerActionStepType;
+  next: PlayerActionStepRoute[] | (() => void);
+}
 
 export interface PlayerActionOption {
   name?: string;
+  stepRoute: PlayerActionStepRoute;
 }
 
-export interface ConstantPlayerActionOption extends PlayerActionOption {
-  steps: PlayerActionStep[];
+export interface PlayerActionStepNode {
+  step: PlayerActionStep;
+  next: number[] | (() => void);
+  prev: number;
 }
 
 export abstract class PlayerAction {
-  protected _name: string = "";
-  protected complete: (data: any) => void;
-  protected cancel: (data: any) => void;
+  private _name: string = "";
+  private index: number = 0;
+  private stepList: PlayerActionStepNode[] = [];
 
   get name() {
     return this._name;
@@ -21,81 +32,25 @@ export abstract class PlayerAction {
     if (option.name) this._name = option.name;
   }
 
-  onComplete(callback: () => void) {
-    this.complete = callback;
-  }
+  resolveRoute(route: PlayerActionStepRoute) {
+    const node: PlayerActionStepNode = {
+      step: route.step instanceof PlayerActionStep ? route.step : PlayerActionStepManager.getStep(route.step),
+      next: [],
+      prev: -1,
+    };
+    this.stepList.push(node);
+    const index = this.stepList.length - 1;
 
-  onCancel(callback: () => void) {
-    this.cancel = callback;
-  }
-}
-
-export class DynamicPlayerAction extends PlayerAction {
-  private stepStack: PlayerActionStep[] = [];
-
-  get currentStep() {
-    return this.stepStack[this.stepStack.length - 1];
-  }
-
-  constructor(option: PlayerActionOption) {
-    super(option);
-  }
-
-  next(data: any, step: PlayerActionStep) {
-    if (step) {
-      this.stepStack.push(step);
-      step.handler(this.next.bind(this), this.prev.bind(this));
-    } else {
-      if (this.complete) this.complete(data);
-      this.stepStack = [];
+    if (route.next instanceof Array) {
+      for (let i in route.next) {
+        (<number[]>node.next).push(this.resolveRoute(route.next[i]));
+      }
     }
+
+    return index;
   }
 
-  prev(data: any) {
-    if (this.stepStack.length > 1) {
-      this.stepStack.pop();
-      this.currentStep.handler(this.next.bind(this), this.prev.bind(this));
-    } else {
-      if (this.cancel) this.cancel(data);
-      this.stepStack = [];
-    }
-  }
-}
-
-export class ConstantPlayerAction extends PlayerAction {
-  private index: number = 0;
-  private steps: PlayerActionStep[];
-
-  get currentStep() {
-    return this.steps[this.index];
-  }
-
-  constructor(option: ConstantPlayerActionOption) {
-    super(option);
-    if (option.steps) this.steps = option.steps;
-  }
-
-  next(data: any) {
-    if (this.index < this.steps.length - 1) {
-      ++this.index;
-      this.currentStep.handler(this.next.bind(this), this.prev.bind(this), () => {
-        this.next(data);
-      });
-    } else {
-      if (this.complete) this.complete(data);
-      this.index = 0;
-    }
-  }
-
-  prev(data: any) {
-    if (this.index > 0) {
-      --this.index;
-      this.currentStep.handler(this.next.bind(this), this.prev.bind(this), () => {
-        this.prev(data);
-      });
-    } else {
-      if (this.cancel) this.cancel(data);
-      this.index = 0;
-    }
+  createStepNode(step) {
+    return;
   }
 }

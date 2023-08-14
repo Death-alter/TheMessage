@@ -3,7 +3,8 @@ export interface PlayerActionStepOption {
   handler: (
     next: (value?: any, step?: PlayerActionStep | number | string) => void,
     prev: (value?: any) => void,
-    pass?: () => void
+    repeat: (value?: any) => void,
+    pass: () => void
   ) => void;
 }
 
@@ -12,7 +13,12 @@ export class PlayerActionStep {
 
   private _id: number;
   private _name: string = "";
-  private _handler: (next: (value?: any) => void, prev: (value?: any) => void, pass?: () => void) => void;
+  private _handler: (
+    next: (value?: any) => void,
+    prev: (value?: any) => void,
+    repeat: (value?: any) => void,
+    pass: () => void
+  ) => void;
 
   get id() {
     return this._id;

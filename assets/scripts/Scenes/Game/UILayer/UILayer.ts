@@ -319,6 +319,14 @@ export class UILayer extends Component {
     };
   }
 
+  clearUIState() {
+    this.tooltip.hideNextPhaseButton();
+    this.tooltip.setText("");
+    this.tooltip.buttons.setButtons([]);
+    UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
+    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+  }
+
   createUseHandCardAction(tooltipText) {
     return new PlayerAction({
       actions: [
