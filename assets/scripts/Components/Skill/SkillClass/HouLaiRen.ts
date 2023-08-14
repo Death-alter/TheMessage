@@ -3,7 +3,6 @@ import { Character } from "../../Chatacter/Character";
 import {
   skill_hou_lai_ren_a_toc,
   skill_hou_lai_ren_b_toc,
-  skill_tou_tian_toc,
   wait_for_cheng_qing_toc,
 } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
