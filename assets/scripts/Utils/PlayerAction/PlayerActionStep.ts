@@ -1,11 +1,16 @@
+export type PlayerActionStepHandler = (
+  data: any,
+  fs: {
+    next: (index?: number, data?: any) => void;
+    prev: (data?: any) => void;
+    repeat: (data?: any) => void;
+    pass: (data?: any) => void;
+  }
+) => void;
+
 export interface PlayerActionStepOption {
   name?: string;
-  handler: (
-    next: (value?: any, step?: PlayerActionStep | number | string) => void,
-    prev: (value?: any) => void,
-    repeat: (value?: any) => void,
-    pass: () => void
-  ) => void;
+  handler: PlayerActionStepHandler;
 }
 
 export class PlayerActionStep {
@@ -13,12 +18,7 @@ export class PlayerActionStep {
 
   private _id: number;
   private _name: string = "";
-  private _handler: (
-    next: (value?: any) => void,
-    prev: (value?: any) => void,
-    repeat: (value?: any) => void,
-    pass: () => void
-  ) => void;
+  private _handler: PlayerActionStepHandler;
 
   get id() {
     return this._id;
