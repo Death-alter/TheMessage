@@ -1,5 +1,6 @@
 import { Card } from "../../Components/Card/Card";
 import { CardDirection, CardType } from "../../Components/Card/type";
+import { HandCardContianer } from "../../Components/Container/HandCardContianer";
 import { GameManager } from "../../Manager/GameManager";
 import { PlayerActionStepHandler } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
@@ -7,32 +8,32 @@ import { PlayerActionStepName } from "./type";
 const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionStepHandler } = {
   [PlayerActionStepName.SET_MAIN_PHASE_TOOLTIP]:
     (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { pass }) => {
       gui.tooltip.setNextPhaseButtonText("传递阶段");
       gui.tooltip.showNextPhaseButton();
       gui.tooltip.setText("出牌阶段，请选择要使用的卡牌");
       gui.tooltip.buttons.setButtons([]);
-      next();
+      pass();
     },
   [PlayerActionStepName.SET_FIGHT_PHASE_TOOLTIP]:
     (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { pass }) => {
       gui.tooltip.setNextPhaseButtonText("跳过");
       gui.tooltip.showNextPhaseButton();
       gui.tooltip.setText("争夺阶段，请选择要使用的卡牌");
       gui.tooltip.buttons.setButtons([]);
-      next();
+      pass();
     },
   [PlayerActionStepName.SET_SEND_MESSAGE_TOOLTIP]:
     (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { pass }) => {
       gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
       gui.tooltip.buttons.setButtons([]);
-      next();
+      pass();
     },
   [PlayerActionStepName.SET_RECEIVE_MESSAGE_TOOLTIP]:
     (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { pass }) => {
       let text = "";
       switch (gui.data.messageDirection) {
         case CardDirection.UP:
@@ -46,7 +47,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           break;
       }
       gui.tooltip.setText(`情报传递到你面前，方向向${text}，是否接收情报？`);
-      next();
+      pass();
     },
 
   [PlayerActionStepName.SET_PLAYER_DYING_TOOLTIP]:
@@ -114,13 +115,32 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     },
   [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
-    (data, { next, repeat }) => {
+    (data, { next, prev }) => {
       gui.gameLayer.startSelectHandCards({
         num: 1,
         onSelect: (card: Card) => {
           const flag = gui.uiLayer.cardCanPlayed(card);
           if (flag.canPlay) {
-            next(0, card);
+            gui.tooltip.setText(`是否使用【${card.name}】`);
+            gui.tooltip.buttons.setButtons([
+              {
+                text: "确定",
+                onclick: () => {
+                  next(0, card);
+                },
+                enabled: () =>
+                  gui.selectedHandCards.list[0] &&
+                  gui.selectedHandCards.list[0].type === CardType.CHENG_QING &&
+                  gui.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  (<HandCardContianer>gui.data.handCardList.gameObject).selectCard(gui.selectedHandCards.list[0]);
+                  prev();
+                },
+              },
+            ]);
           } else {
             if (flag.banned) {
               gui.tooltip.setText("这张卡被禁用了");
@@ -130,8 +150,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           }
         },
         onDeselect: (card: Card) => {
-          gui.uiLayer.clearUIState();
-          repeat();
+          gui.gameLayer.stopSelectPlayers();
         },
       });
     },
