@@ -17,6 +17,7 @@ import { LogLayer } from "../Scenes/Game/LogLayer/LogLayer";
 import { PopupLayer } from "../Scenes/Game/PopupLayer/PopupLayer";
 import { UILayer } from "../Scenes/Game/UILayer/UILayer";
 import { StartCountDown } from "../Event/ProcessEventType";
+import { PlayerActionManager, PlayerActionStepManager } from "../Utils/PlayerAction/PlayerActionManager";
 
 const { ccclass, property } = _decorator;
 
@@ -119,11 +120,16 @@ export class GameManager extends GameObject<GameData> {
 
     this.popupLayer.init(this);
     this.popupLayer.startRender();
+
+    PlayerActionStepManager.init(this);
+    PlayerActionManager.init(this);
   }
 
   onDisable() {
     //移除事件监听
 
+    PlayerActionStepManager.dispose();
+    PlayerActionManager.dispose();
     this.popupLayer.stopRender();
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);

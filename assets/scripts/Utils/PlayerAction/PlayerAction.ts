@@ -5,11 +5,12 @@ export type PlayerActionStepType = string | number | PlayerActionStep;
 
 export interface PlayerActionStepRoute {
   step: PlayerActionStepType;
-  next?: PlayerActionStepRoute[] | (() => void);
+  next?: PlayerActionStepRoute[] | ((data?: any) => void);
 }
 
 export interface PlayerActionOption {
   name?: string;
+  auto?: boolean;
   stepRoute: PlayerActionStepRoute;
 }
 
@@ -96,15 +97,22 @@ export class PlayerAction {
     } else {
       if (this.currentStep.next) {
         this.currentStep.next(data);
+        this.index = 0;
       }
-      this.complete && this.complete(data);
+      if (this.complete) {
+        this.complete(data);
+        this.complete = null;
+      }
     }
   }
 
   prev(data?: any) {
     this.direction = 1;
     if (this.currentStep.prev === -1) {
-      this.cancel && this.cancel(data);
+      if (this.cancel) {
+        this.cancel(data);
+        this.cancel = null;
+      }
     } else {
       this.index = this.currentStep.prev;
       this.handleStep(data);

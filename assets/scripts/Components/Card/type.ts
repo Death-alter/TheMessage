@@ -33,6 +33,12 @@ export const enum CardDirection {
   RIGHT = 2,
 }
 
+export const enum CardUsableStatus {
+  UNUSEABLE = 0,
+  USABLE = 1,
+  BANNED = 2,
+}
+
 export interface CardOption {
   id?: number;
   name: string;

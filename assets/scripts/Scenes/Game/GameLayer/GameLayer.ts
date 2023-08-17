@@ -11,6 +11,7 @@ import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../../Components/Card/Card";
 import { PlayerNetworkStatusChange, StartCountDown } from "../../../Event/ProcessEventType";
+import { CardUsableStatus } from "../../../Components/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -308,13 +309,16 @@ export class GameLayer extends Component {
   //开始选择手牌
   startSelectHandCards(option: {
     num?: number;
-    filter?: (card: Card) => boolean;
+    filter?: (card: Card) => CardUsableStatus;
     onSelect?: (card: Card) => void;
     onDeselect?: (card: Card) => void;
   }) {
     const { num, filter, onSelect, onDeselect } = option;
     this.selectedHandCards.limit = num || 1;
     this.selectedHandCards.unlock();
+    if (filter) {
+      this.handCardContainer.setHandCardsUsable(filter);
+    }
     if (onSelect) {
       ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, onSelect);
     } else {
@@ -336,6 +340,7 @@ export class GameLayer extends Component {
   stopSelectHandCards() {
     this.selectedHandCards.limit = 0;
     this.selectedHandCards.unlock();
+    this.handCardContainer.refreshHandCardsUseable();
     this.handCardContainer.resetSelectCard();
     this.pauseSelectHandCards();
   }

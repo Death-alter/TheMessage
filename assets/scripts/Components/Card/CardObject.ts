@@ -13,7 +13,7 @@ import {
   find,
   sys,
 } from "cc";
-import { CardDirection, CardStatus } from "./type";
+import { CardDirection, CardStatus, CardUsableStatus } from "./type";
 import { GameObject } from "../../GameObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
@@ -27,7 +27,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardObject")
 export class CardObject extends GameObject<Card> {
-  private touchStartTime: number = 0;
+  private _usableStatus: CardUsableStatus = CardUsableStatus.USABLE;
 
   get data() {
     return this._data;
@@ -40,13 +40,19 @@ export class CardObject extends GameObject<Card> {
     }
   }
 
+  get usableStatus() {
+    return this._usableStatus;
+  }
+
+  set usableStatus(status: CardUsableStatus) {
+    this._usableStatus = status;
+    this.refreshUseable(status);
+  }
+
   onEnable() {
     if (sys.isMobile) {
       this.node.on("longtap", () => {
-        const deltaTime = new Date().getTime() - this.touchStartTime;
-        if (deltaTime > 500) {
-          find("Canvas").getComponent(GameManager).popupLayer.showCardInfo(this.data);
-        }
+        find("Canvas").getComponent(GameManager).popupLayer.showCardInfo(this.data);
       });
     } else {
       this.node.on(Node.EventType.MOUSE_ENTER, () => {
@@ -155,6 +161,26 @@ export class CardObject extends GameObject<Card> {
       } else {
         otherNode.active = false;
       }
+    }
+  }
+
+  refreshUseable(status: CardUsableStatus) {
+    const coverNode = this.node.getChildByPath("Cover");
+    const bannedNode = this.node.getChildByPath("Banned");
+
+    switch (status) {
+      case CardUsableStatus.USABLE:
+        coverNode.active = false;
+        bannedNode.active = false;
+        break;
+      case CardUsableStatus.UNUSEABLE:
+        coverNode.active = true;
+        bannedNode.active = false;
+        break;
+      case CardUsableStatus.BANNED:
+        coverNode.active = true;
+        bannedNode.active = true;
+        break;
     }
   }
 

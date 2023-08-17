@@ -7,6 +7,7 @@ import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
 import GamePools from "../Pool/GamePools";
 import { OuterGlow } from "../Utils/OuterGlow";
+import { CardUsableStatus } from "../Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -22,6 +23,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   private _maxLength: number;
   private _childWith: number;
   private _width: number;
+  private filter: (card: Card) => CardUsableStatus;
 
   onEnable() {
     this.node.on(Node.EventType.SIZE_CHANGED, () => {
@@ -60,10 +62,12 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     card.gameObject.node.on(
       Node.EventType.TOUCH_END,
       (event) => {
+        if (card.gameObject.usableStatus !== CardUsableStatus.USABLE) return;
         this.selectCard(card);
       },
       this
     );
+    if (this.filter) card.gameObject.usableStatus = this.filter(card);
     this.scheduleOnce(this.refresh, 0);
   }
 
@@ -150,6 +154,20 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     }
     // this.scheduleOnce(this.refresh, 0);
     this.refresh();
+  }
+
+  setHandCardsUsable(filter: (card: Card) => CardUsableStatus) {
+    this.filter = filter;
+    for (let handCard of this.data.list) {
+      handCard.gameObject.usableStatus = filter(<Card>handCard);
+    }
+  }
+
+  refreshHandCardsUseable() {
+    this.filter = null;
+    for (let handCard of this.data.list) {
+      handCard.gameObject.usableStatus = CardUsableStatus.USABLE;
+    }
   }
 
   resetSelectCard() {

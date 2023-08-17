@@ -1,6 +1,8 @@
 export enum PlayerActionName {
   MAIN_PHASE_ACTION = "mainPhaseAction",
   FIGHT_PHASE_ACTION = "fightPhaseAction",
+  SEND_MESSAGE_ACTION = "sendMessageAction",
+  RECEIVE_MESSAGE_ACTION = "receiveMessageAction"
 }
 
 export enum PlayerActionStepName {
