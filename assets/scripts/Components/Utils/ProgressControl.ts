@@ -17,7 +17,7 @@ export class ProgressControl extends Component {
   }
 
   //倒计时
-  startCoundDown(seconds, callback?: Function) {
+  startCountDown(seconds, callback?: Function) {
     this.stopCountDown();
     this.node.active = true;
     this.playProgressAnimation(seconds).then(() => {

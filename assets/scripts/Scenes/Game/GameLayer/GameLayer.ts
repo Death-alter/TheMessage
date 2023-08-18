@@ -165,7 +165,7 @@ export class GameLayer extends Component {
 
   onStartCountDown(data: StartCountDown) {
     if (data.playerId !== 0) {
-      this.playerObjectList[data.playerId].startCoundDown(data.second);
+      this.playerObjectList[data.playerId].startCountDown(data.second);
     }
   }
 
@@ -177,7 +177,7 @@ export class GameLayer extends Component {
   onUnknownWaiting(second) {
     for (let playerObject of this.playerObjectList)
       if (playerObject.data.id !== 0) {
-        playerObject.startCoundDown(second);
+        playerObject.startCountDown(second);
       }
   }
 

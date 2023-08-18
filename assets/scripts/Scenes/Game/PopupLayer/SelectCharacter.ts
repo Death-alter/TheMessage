@@ -122,7 +122,7 @@ export class SelectCharacter extends Component {
     this.show();
 
     //倒计时结束自动选择当前选中人物
-    this.node.getChildByName("Progress").getComponent(ProgressControl).startCoundDown(waitingSecond);
+    this.node.getChildByName("Progress").getComponent(ProgressControl).startCountDown(waitingSecond);
     // () => {
     //   if (this.selectedCharacterIndex == undefined) return;
     //   conform(this.characterTypes[this.selectedCharacterIndex]);

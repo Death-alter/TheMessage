@@ -145,7 +145,7 @@ export class UILayer extends Component {
 
   onStartCountDown(data: ProcessEventType.StartCountDown) {
     if (data.playerId === 0) {
-      this.tooltip.startCoundDown(data.second);
+      this.tooltip.startCountDown(data.second);
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.manager.data.gamePhase) {
@@ -169,12 +169,12 @@ export class UILayer extends Component {
 
           break;
         case WaitingType.PLAYER_DYING:
-          this.playerActionManager.setDefaultAction(this.createPlayerDyingAction(data.params.diePlayerId));
-          this.playerActionManager.switchToDefault();
+          this.playerAction = PlayerActionManager.getAction(PlayerActionName.PLAYER_DYING_ACTION);
+          this.playerAction.start();
           break;
         case WaitingType.GIVE_CARD:
-          this.playerActionManager.setDefaultAction(this.createDieGiveCardAction());
-          this.playerActionManager.switchToDefault();
+          this.playerAction = PlayerActionManager.getAction(PlayerActionName.PLAYER_DIE_GIVE_CARD_ACTION);
+          this.playerAction.start();
           break;
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
@@ -226,7 +226,9 @@ export class UILayer extends Component {
   }
 
   onStopCountDown() {
-    this.playerActionManager.clearAction();
+    // this.playerActionManager.clearAction();
+    this.playerAction = null;
+    this.clearUIState();
     this.tooltip.hideNextPhaseButton();
   }
 
@@ -281,190 +283,6 @@ export class UILayer extends Component {
     this.tooltip.buttons.setButtons([]);
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
-  }
-
-  createPlayerDyingAction(playerId) {
-    return new PlayerAction({
-      actions: [
-        {
-          name: "setTooltip",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              const player = this.manager.data.playerList[playerId];
-              const gameLog = this.manager.data.gameLog;
-
-              this.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
-              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, { num: 1 });
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "澄清",
-                  onclick: () => {
-                    resolve(null);
-                  },
-                  enabled: () =>
-                    this.selectedHandCards.list[0] &&
-                    this.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-                    this.manager.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    reject(null);
-                  },
-                },
-              ]);
-            }),
-        },
-        {
-          name: "showCards",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              const player = this.manager.data.playerList[playerId];
-              UIEventCenter.emit(UIEvent.START_SHOW_CARDS, {
-                title: "选择一张情报弃置",
-                cardList: player.getMessagesCopy(),
-                limit: 1,
-                buttons: [
-                  {
-                    text: "确定",
-                    onclick: (window) => {
-                      resolve(window.selectedCards.list[0].id);
-                      window.hide();
-                    },
-                  },
-                  {
-                    text: "取消",
-                    onclick: (window) => {
-                      reject(null);
-                      window.hide();
-                    },
-                  },
-                ],
-              });
-            }),
-        },
-      ],
-      complete: (targetCardId) => {
-        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-          use: true,
-          cardId: this.selectedHandCards.list[0].id,
-          targetCardId,
-          seq: this.seq,
-        });
-      },
-      cancel: () => {
-        UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
-        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-          use: false,
-          seq: this.seq,
-        });
-      },
-    });
-  }
-
-  createDieGiveCardAction() {
-    return new PlayerAction({
-      actions: [
-        {
-          name: "setTooltip",
-          handler: () =>
-            new Promise((resolve, reject) => {
-              this.tooltip.setText("你已死亡，请选择最多三张手牌交给其他角色");
-              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, { num: 3 });
-              UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-                num: 1,
-                filter: (player) => player.id !== 0,
-              });
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "确定",
-                  onclick: () => {
-                    resolve(null);
-                  },
-                  enabled: () => this.selectedHandCards.list.length > 0 && this.selectedPlayers.list.length > 0,
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    reject(null);
-                  },
-                },
-              ]);
-            }),
-        },
-      ],
-      complete: () => {
-        NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
-          targetPlayerId: this.selectedPlayers.list[0].id,
-          cardId: this.selectedHandCards.list.map((card) => card.id),
-          seq: this.seq,
-        });
-      },
-      cancel: () => {
-        NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
-          targetPlayerId: 0,
-          cardId: [],
-          seq: this.seq,
-        });
-      },
-    });
-  }
-
-  createReceiveMessageAction(tooltipText) {
-    return new PlayerAction({
-      actions: [
-        {
-          name: "promptReceiveMessage",
-          handler: () =>
-            new Promise(() => {
-              this.tooltip.setText(tooltipText);
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "接收情报",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-                      receive: true,
-                      seq: this.seq,
-                    });
-                  },
-                },
-                {
-                  text: "不接收",
-                  onclick: () => {
-                    NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-                      receive: false,
-                      seq: this.seq,
-                    });
-                  },
-                  enabled:
-                    !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
-                    this.manager.data.senderId !== 0,
-                },
-              ]);
-              UIEventCenter.emit(UIEvent.START_SELECT_HAND_CARD, {
-                num: 1,
-                onSelect: (card: Card) => {
-                  const flag = this.cardCanPlayed(card);
-                  if (flag.canPlay) {
-                    card.onSelectedToPlay(this.manager);
-                  } else {
-                    if (flag.banned) {
-                      this.tooltip.setText("这张卡被禁用了");
-                    } else {
-                      this.tooltip.setText("现在不能使用这张卡");
-                    }
-                  }
-                },
-                onDeselect: (card: Card) => {
-                  if (this.cardCanPlayed(card).canPlay) {
-                    card.onDeselected(this.manager);
-                  }
-                },
-              });
-            }),
-        },
-      ],
-    });
   }
 
   doSendMessage() {

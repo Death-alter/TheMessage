@@ -1,11 +1,12 @@
 import { PlayerActionStepManager } from "./PlayerActionManager";
 import { PlayerActionStep } from "./PlayerActionStep";
+import { PlayerActionName } from "./type";
 
 export type PlayerActionStepType = string | number | PlayerActionStep;
 
 export interface PlayerActionStepRoute {
   step: PlayerActionStepType;
-  next?: PlayerActionStepRoute[] | ((data?: any) => void);
+  next?: (PlayerActionStepRoute | ((data?: any) => void))[];
 }
 
 export interface PlayerActionOption {
@@ -16,7 +17,7 @@ export interface PlayerActionOption {
 
 export interface PlayerActionStepNode {
   step: PlayerActionStep;
-  next: number[] | ((data?: any) => void);
+  next: (number | ((data?: any) => void))[];
   prev: number;
 }
 
@@ -59,16 +60,17 @@ export class PlayerAction {
     this.stepList.push(node);
     const index = this.stepList.length - 1;
 
-    if (route.next instanceof Array) {
+    if (route.next) {
       for (let i in route.next) {
-        (<number[]>node.next).push(this.resolveRoute(route.next[i], index));
+        const item = route.next[i];
+        if (item instanceof Function) {
+          node.next.push(item);
+        } else {
+          node.next.push(this.resolveRoute(item, index));
+        }
       }
     } else {
-      if (route.next) {
-        node.next = route.next;
-      } else {
-        delete node.next;
-      }
+      delete node.next;
     }
 
     return index;
@@ -80,6 +82,7 @@ export class PlayerAction {
       prev: this.prev.bind(this),
       repeat: this.handleStep.bind(this),
       pass: this.pass.bind(this),
+      switch: this.switch.bind(this),
     });
   }
 
@@ -91,18 +94,34 @@ export class PlayerAction {
   next(index?: number, data?: any) {
     this.direction = 0;
     if (index == null) index = 0;
-    if (this.currentStep.next instanceof Array) {
-      this.index = this.currentStep.next[index];
-      this.handleStep(data);
-    } else {
-      if (this.currentStep.next) {
-        this.currentStep.next(data);
-        this.index = 0;
-      }
+
+    const i = this.currentStep.next[index];
+    if (i instanceof Function) {
+      i();
+      this.index = 0;
       if (this.complete) {
         this.complete(data);
         this.complete = null;
       }
+    } else {
+      this.index = i;
+      this.handleStep(data);
+    }
+  }
+
+  switch(index?: number, data?: any) {
+    if (index == null) return;
+    const target = this.stepList[this.currentStep.prev].next[index];
+    if (target instanceof Function) {
+      target();
+      this.index = 0;
+      if (this.complete) {
+        this.complete(data);
+        this.complete = null;
+      }
+    } else {
+      this.index = target;
+      this.handleStep(data);
     }
   }
 

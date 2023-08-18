@@ -8,9 +8,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SET_MAIN_PHASE_TOOLTIP]:
     (gui: GameManager) =>
     (data, { next }) => {
+      gui.tooltip.showNextPhaseButton("出牌阶段");
       const f = () => {
-        gui.tooltip.setNextPhaseButtonText("出牌阶段");
-        gui.tooltip.showNextPhaseButton();
         gui.tooltip.setText("出牌阶段，请选择要使用的卡牌");
         gui.tooltip.buttons.setButtons([]);
       };
@@ -20,9 +19,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SET_FIGHT_PHASE_TOOLTIP]:
     (gui: GameManager) =>
     (data, { next }) => {
+      gui.tooltip.showNextPhaseButton("跳过");
       const f = () => {
-        gui.tooltip.setNextPhaseButtonText("跳过");
-        gui.tooltip.showNextPhaseButton();
         gui.tooltip.setText("争夺阶段，请选择要使用的卡牌");
         gui.tooltip.buttons.setButtons([]);
       };
@@ -74,7 +72,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
 
   [PlayerActionStepName.SET_PLAYER_DYING_TOOLTIP]:
     (gui: GameManager) =>
-    (playerId, { next, prev }) => {
+    ({ playerId }, { next, prev }) => {
       const player = gui.data.playerList[playerId];
       const gameLog = gui.data.gameLog;
 
@@ -84,7 +82,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "澄清",
           onclick: () => {
-            next?.(0);
+            next(0);
           },
           enabled: () =>
             gui.selectedHandCards.list[0] &&
@@ -99,10 +97,35 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       ]);
     },
+  [PlayerActionStepName.SET_DIE_GIVE_CARD_TOOLTIP]:
+    (gui: GameManager) =>
+    (data, { next }) => {
+      gui.tooltip.setText("你已死亡，请选择最多三张手牌交给其他角色");
+      gui.gameLayer.startSelectHandCards({ num: 3 });
+      gui.gameLayer.startSelectPlayers({
+        num: 1,
+        filter: (player) => player.id !== 0,
+      });
+      gui.tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            next(0);
+          },
+          enabled: () => gui.selectedHandCards.list.length > 0 && gui.selectedPlayers.list.length > 0,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            next(1);
+          },
+        },
+      ]);
+    },
 
   [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
-    (f, { next, prev }) => {
+    ({ f }, { next, prev }) => {
       gui.gameLayer.startSelectHandCards({
         num: 1,
         filter: (card) => gui.uiLayer.getCardUsableStatus(card),
@@ -124,7 +147,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     },
   [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
     (gui: GameManager) =>
-    (f, { next, prev }) => {
+    ({ f }, { next, prev }) => {
       gui.gameLayer.startSelectHandCards({
         num: 1,
         onSelect: (card: Card) => {
@@ -150,7 +173,62 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       });
     },
+  [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
+    (gui: GameManager) =>
+    ({ playerId }, { next }) => {
+      const player = gui.data.playerList[playerId];
+      const showCardsWindow = gui.showCardsWindow;
 
+      showCardsWindow.show({
+        title: "请选择一张情报",
+        cardList: player.getMessagesCopy(),
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              next(0, { cardId: showCardsWindow.selectedCards.list[0].id });
+              showCardsWindow.hide();
+            },
+          },
+          {
+            text: "取消",
+            onclick: () => {
+              next(1);
+              showCardsWindow.hide();
+            },
+          },
+        ],
+      });
+    },
+    [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
+    (gui: GameManager) =>
+    ({ playerId }, { next }) => {
+      const player = gui.data.playerList[playerId];
+      const showCardsWindow = gui.showCardsWindow;
+
+      showCardsWindow.show({
+        title: "请选择一张情报",
+        cardList: player.getMessagesCopy(),
+        limit: 1,
+        buttons: [
+          {
+            text: "确定",
+            onclick: () => {
+              next(0, { cardId: showCardsWindow.selectedCards.list[0].id });
+              showCardsWindow.hide();
+            },
+          },
+          {
+            text: "取消",
+            onclick: () => {
+              next(1);
+              showCardsWindow.hide();
+            },
+          },
+        ],
+      });
+    },
   [PlayerActionStepName.SELECT_PLAYER]:
     (gui: GameManager) =>
     (data, { next, prev }) => {
@@ -163,12 +241,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     (gui: GameManager) =>
     (card: Card, { next, prev }) => {
       card.onSelectedToPlay(gui);
-      next();
-    },
-  [PlayerActionStepName.DO_SEND_MESSAGE]:
-    (gui: GameManager) =>
-    (data, { next, prev }) => {
-      gui.uiLayer.doSendMessage();
       next();
     },
 

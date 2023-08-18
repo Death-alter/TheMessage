@@ -53,8 +53,8 @@ export class Tooltip extends Component {
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
-  startCoundDown(second: number) {
-    this.progressBar.getComponent(ProgressControl).startCoundDown(second, () => {
+  startCountDown(second: number) {
+    this.progressBar.getComponent(ProgressControl).startCountDown(second, () => {
       this.hide();
     });
     this.show();
@@ -78,15 +78,15 @@ export class Tooltip extends Component {
     if (this.showButton) this.buttonNode.active = false;
   }
 
-  showNextPhaseButton() {
-    if (this.showButton) this.nextPhase.active = true;
+  showNextPhaseButton(text: string) {
+    if (this.showButton) {
+      this.nextPhase.getComponentInChildren(Label).string = text;
+      this.nextPhase.active = true;
+    }
   }
 
   hideNextPhaseButton() {
-    if (this.showButton) this.nextPhase.active = false;
-  }
-
-  setNextPhaseButtonText(text: string) {
-    this.nextPhase.getComponentInChildren(Label).string = text;
+    this.nextPhase.getComponentInChildren(Label).string = "";
+    this.nextPhase.active = false;
   }
 }

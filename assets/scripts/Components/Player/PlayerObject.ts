@@ -105,8 +105,8 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   //倒计时
-  startCoundDown(seconds) {
-    this.progress.getComponent(ProgressControl).startCoundDown(seconds);
+  startCountDown(seconds) {
+    this.progress.getComponent(ProgressControl).startCountDown(seconds);
   }
 
   stopCountDown() {
