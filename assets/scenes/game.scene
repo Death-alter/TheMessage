@@ -80,10 +80,10 @@
         "__id__": 51
       },
       {
-        "__id__": 119
+        "__id__": 159
       },
       {
-        "__id__": 159
+        "__id__": 119
       }
     ],
     "_active": true,
@@ -6039,11 +6039,6 @@
     "__type__": "4ffe0ZLF5BJqY7kY0tCnpzM",
     "_name": "",
     "_objFlags": 0,
-    "__editorExtras__": {
-      "mountedRoot": {
-        "__id__": 172
-      }
-    },
     "node": {
       "__id__": 172
     },
