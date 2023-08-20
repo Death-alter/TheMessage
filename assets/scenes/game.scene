@@ -80,10 +80,10 @@
         "__id__": 51
       },
       {
-        "__id__": 159
+        "__id__": 119
       },
       {
-        "__id__": 119
+        "__id__": 159
       }
     ],
     "_active": true,
@@ -188,7 +188,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 401.62754303599377,
+    "_orthoHeight": 401.1267605633803,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -6039,6 +6039,11 @@
     "__type__": "4ffe0ZLF5BJqY7kY0tCnpzM",
     "_name": "",
     "_objFlags": 0,
+    "__editorExtras__": {
+      "mountedRoot": {
+        "__id__": 172
+      }
+    },
     "node": {
       "__id__": 172
     },
