@@ -69,7 +69,7 @@ export class FengYunBianHuan extends Card {
       showCardsWindow.show({
         title: `等待${gameLog.formatPlayer(player)}选择一张牌`,
         cardList: this.cardList,
-        limit: 1,
+        limit: 0,
         buttons: [],
       });
     } else {

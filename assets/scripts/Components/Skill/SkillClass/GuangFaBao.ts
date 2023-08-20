@@ -133,16 +133,21 @@ export class GuangFaBao extends ActiveSkill {
           if (gui.selectedPlayers.list.length === 0) return false;
           const targetPlayer = gui.selectedPlayers.list[0];
           const colorCounts = targetPlayer.messageCounts;
+          const counts = {};
           for (let card of gui.selectedHandCards.list) {
             for (let color of card.color) {
-              ++colorCounts[color];
+              if (!counts[color]) {
+                counts[color] = 0;
+              }
+              ++counts[color];
             }
           }
-          if (colorCounts[CardColor.BLACK] < 3 && colorCounts[CardColor.BLUE] < 3 && colorCounts[CardColor.RED] < 3) {
-            return true;
-          } else {
-            return false;
+          for (let i in counts) {
+            if (counts[i] + colorCounts[i] >= 3) {
+              return false;
+            }
           }
+          return true;
         },
       },
       {

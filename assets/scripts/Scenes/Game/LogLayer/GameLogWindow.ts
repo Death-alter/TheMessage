@@ -13,7 +13,9 @@ export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
   public viewContent: Node;
 
   onEnable() {
-    this.getComponentInChildren(ScrollView).scrollToBottom(0);
+    this.scheduleOnce(() => {
+      this.getComponentInChildren(ScrollView).scrollToBottom(0);
+    });
   }
 
   init() {

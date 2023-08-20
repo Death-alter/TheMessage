@@ -133,13 +133,15 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_bo_ai_b_toc) {
-    const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
+    if (targetPlayerId !== 0) {
+      const player = gameData.playerList[playerId];
+      const targetPlayer = gameData.playerList[targetPlayerId];
 
-    const handCard = gameData.playerRemoveHandCard(player, card);
-    gameData.playerAddHandCard(targetPlayer, handCard);
+      const handCard = gameData.playerRemoveHandCard(player, card);
+      gameData.playerAddHandCard(targetPlayer, handCard);
 
-    GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
+      GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
+    }
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
   }

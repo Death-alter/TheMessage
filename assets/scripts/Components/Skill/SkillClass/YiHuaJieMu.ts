@@ -80,10 +80,12 @@ export class YiHuaJieMu extends ActiveSkill {
       seq: seq,
     });
 
-    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-      skill: this,
-      handler: "promptSelectMessage",
-    });
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptSelectMessage",
+      });
+    }
   }
 
   promptSelectMessage(gui: GameManager) {

@@ -1,4 +1,5 @@
 import {
+  card,
   skill_du_ji_a_toc,
   skill_du_ji_b_toc,
   skill_du_ji_c_toc,
@@ -18,6 +19,8 @@ import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 
 export class DuJi extends ActiveSkill {
+  private cards: card[] = [];
+
   get useable() {
     return this.character.status === CharacterStatus.FACE_DOWN;
   }
@@ -107,45 +110,43 @@ export class DuJi extends ActiveSkill {
 
     const card1 = gameData.playerRemoveHandCard(targetPlayer1, cards[0]);
     const card2 = gameData.playerRemoveHandCard(targetPlayer2, cards[1]);
+    this.cards = cards;
 
     let blackCount = 0;
 
-    if (Card.hasColor(card1, CardColor.BLACK)) {
-      gameData.playerAddHandCard(targetPlayer2, card1);
-      ++blackCount;
+    gameLog.addData(
+      new GameLog(
+        `${gameLog.formatPlayer(player)}使用技能【毒计】，指定${gameLog.formatPlayer(
+          targetPlayer1
+        )}和${gameLog.formatPlayer(targetPlayer2)}`
+      )
+    );
 
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player: targetPlayer2,
-        card: card1,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-      });
-    } else {
-      gameData.playerAddHandCard(player, card1);
-
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player,
-        card: card1,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
-      });
-    }
+    //第一个人抽
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer1)}抽取了${gameLog.formatCard(card2)}`));
     if (Card.hasColor(card2, CardColor.BLACK)) {
-      gameData.playerAddHandCard(targetPlayer1, card2);
       ++blackCount;
-
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player: targetPlayer1,
-        card: card2,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-      });
-    } else {
-      gameData.playerAddHandCard(player, card2);
-
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player: player,
-        card: card2,
-        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
-      });
     }
+    gameData.playerAddHandCard(player, card2);
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player: player,
+      card: card2,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer2 },
+    });
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card2)}加入手牌`));
+
+    //第二个人抽
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer2)}抽取了${gameLog.formatCard(card1)}`));
+    if (Card.hasColor(card1, CardColor.BLACK)) {
+      ++blackCount;
+    }
+    gameData.playerAddHandCard(player, card1);
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      player,
+      card: card1,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer1 },
+    });
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card1)}加入手牌`));
 
     const cardList = cards.map((card) => gameData.createCard(card));
     const tags = targetPlayerIds.map((id) => gameLog.formatPlayer(gameData.playerList[id]));
@@ -162,16 +163,6 @@ export class DuJi extends ActiveSkill {
     if (blackCount === 0) {
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
-
-    gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(player)}使用技能【毒计】，指定${gameLog.formatPlayer(
-          targetPlayer1
-        )}和${gameLog.formatPlayer(targetPlayer2)}`
-      )
-    );
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer1)}抽取了${gameLog.formatCard(card2)}`));
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer2)}抽取了${gameLog.formatCard(card1)}`));
   }
 
   showDrawnCard(gui: GameManager, params) {
@@ -272,8 +263,9 @@ export class DuJi extends ActiveSkill {
           handler: "promptSelectPlayer",
         });
       }
-
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}让${gameLog.formatPlayer(waitingPlayer)}选择一项`));
+    } else {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
     }
   }
 
@@ -306,14 +298,15 @@ export class DuJi extends ActiveSkill {
     const gameLog = gameData.gameLog;
     const waitingPlayer = gameData.playerList[waitingPlayerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+    const player = gameData.playerList[playerId];
 
-    const handCard = gameData.playerRemoveHandCard(waitingPlayer, card);
+    const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);
 
     GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
       player: targetPlayer,
       message: handCard,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: waitingPlayer },
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
     });
 
     gameLog.addData(
