@@ -97,6 +97,8 @@ message join_room_toc {
   uint32 position = 2;
   uint32 win_count = 3;
   uint32 game_count = 4;
+  string rank = 5;
+  int32  score = 6;
 }
 
 // 通知谁离开的房间
