@@ -132,8 +132,8 @@ export class BoAi extends ActiveSkill {
     ]);
   }
 
-  onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_bo_ai_b_toc) {
-    if (targetPlayerId !== 0) {
+  onEffectB(gameData: GameData, { playerId, targetPlayerId, card, enable }: skill_bo_ai_b_toc) {
+    if (enable) {
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
