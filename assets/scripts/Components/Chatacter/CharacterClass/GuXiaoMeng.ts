@@ -8,7 +8,7 @@ import { WeiSheng } from "../../Skill/SkillClass/WeiSheng";
 export class GuXiaoMeng extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 28,
+      id: 20,
       name: "顾小梦",
       sprite: "images/characters/GuXiaoMeng",
       status: CharacterStatus.FACE_DOWN,
