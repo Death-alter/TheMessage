@@ -34,11 +34,14 @@ export interface SaveRecordSuccess {
 export interface CreateRoom {
   myPosition: number;
   onlineCount: number;
+  notice: string;
   players: {
     id: number;
     name: string;
     winCount: number;
     gameCount: number;
+    rank: string;
+    score: number;
   }[];
 }
 
@@ -141,6 +144,9 @@ export interface PlayerWin {
     secretTask: SecretTaskType;
     isWinner: boolean;
     isDeclarer: boolean;
+    addScore: number;
+    score: number;
+    rank: string;
   }[];
 }
 

@@ -48,6 +48,7 @@ export class GameLayer extends Component {
     const self = instantiate(this.playerPrefab);
     selfNode.addChild(self);
     this.manager.data.playerList[0].gameObject = self.getComponent(PlayerObject);
+    this.manager.data.playerList[0].gameObject.setSeat();
     this.playerObjectList.push(this.manager.data.playerList[0].gameObject);
 
     //初始化手牌UI

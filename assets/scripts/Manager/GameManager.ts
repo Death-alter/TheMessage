@@ -197,10 +197,7 @@ export class GameManager extends GameObject<GameData> {
     // this.gameWindow.active = false;
     this.popupLayer.showCardsWindow.node.active = false;
     this.popupLayer.messagesWindow.node.active = false;
-    this.popupLayer.showGameResult(
-      data.players.sort((a, b) => Number(b.isWinner) - Number(a.isWinner)),
-      this.isRecord
-    );
+    this.popupLayer.showGameResult(data.players, this.isRecord);
   }
 
   syncHandCard(data) {

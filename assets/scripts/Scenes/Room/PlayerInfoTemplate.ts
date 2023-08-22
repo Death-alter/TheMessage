@@ -12,13 +12,11 @@ export class PlayerInfoTemplate extends Component {
   init(data?: PlayerInfo) {
     if (data) {
       data.userName && (this.userName.string = data.userName);
-      let str;
-      if (data.winCount === 0) {
-        str = `总场数：${data.gameCount}    胜率：0%`;
+      if (data.rank) {
+        this.winCount.string = `段位：${data.rank}（${data.score}）`;
       } else {
-        str = `总场数：${data.gameCount}    胜率：${((data.winCount / data.gameCount) * 100).toFixed(2)}%`;
+        this.winCount.string = `机器人`;
       }
-      this.winCount.string = str;
     } else {
       this.userName.string = "";
       this.winCount.string = "";

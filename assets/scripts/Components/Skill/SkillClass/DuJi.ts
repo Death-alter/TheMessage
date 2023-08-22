@@ -149,7 +149,7 @@ export class DuJi extends ActiveSkill {
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card1)}加入手牌`));
 
     const cardList = cards.map((card) => gameData.createCard(card));
-    const tags = targetPlayerIds.map((id) => gameLog.formatPlayer(gameData.playerList[id]));
+    const tags = targetPlayerIds.map((id) => `${gameLog.formatPlayer(gameData.playerList[id])}抽到的牌`).reverse();
 
     GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
       skill: this,
