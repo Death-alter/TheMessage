@@ -255,11 +255,15 @@ export class GameData extends DataBasic<GameManager> {
       if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting && this.messageInTransmit) {
         //接收阶段
         const player = this.playerList[data.messagePlayerId];
-        GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
-          player,
-          message: this.messageInTransmit,
-        });
-        player.addMessage(this.messageInTransmit);
+        if (player.isAlive) {
+          GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
+            player,
+            message: this.messageInTransmit,
+          });
+          player.addMessage(this.messageInTransmit);
+        } else {
+          GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, this.messageInTransmit);
+        }
         this.messageInTransmit = null;
       }
     }
