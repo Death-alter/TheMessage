@@ -402,6 +402,9 @@ export class GameData extends DataBasic<GameManager> {
           identity: createIdentity(item.identity, item.secretTask),
           isWinner: item.isWinner,
           isDeclarer: item.isDeclarer,
+          addScore: item.addScore,
+          score: item.score,
+          rank: item.rank,
         };
       }),
     });

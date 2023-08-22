@@ -231,7 +231,10 @@ export class EventMapper {
           identity: data.identity[i],
           secretTask: data.secretTasks[i],
           isWinner: data.winnerIds.indexOf(i) !== -1,
-          isDeclarer: data.declarePlayerIds.indexOf(1) !== -1,
+          isDeclarer: data.declarePlayerIds.indexOf(i) !== -1,
+          addScore: data.addScore[i],
+          score: data.newScore[i],
+          rank: data.newRank[i],
         });
       }
       ProcessEventCenter.emit(ProcessEvent.PLAYER_WIN, { players });

@@ -144,6 +144,9 @@ export interface PlayerWin {
     secretTask: SecretTaskType;
     isWinner: boolean;
     isDeclarer: boolean;
+    addScore: number;
+    score: number;
+    rank: string;
   }[];
 }
 

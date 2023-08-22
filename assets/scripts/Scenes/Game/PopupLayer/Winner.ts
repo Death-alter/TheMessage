@@ -1,32 +1,18 @@
-import {
-  _decorator,
-  Component,
-  director,
-  instantiate,
-  Label,
-  Node,
-  NodeEventType,
-  Prefab,
-  RichText,
-  Sprite,
-  color,
-  find,
-  sys,
-} from "cc";
-import { GameOver } from "../../../Event/GameEventType";
+import { _decorator, Component, director, instantiate, Label, Node, NodeEventType, Prefab, find, sys } from "cc";
 import { NetworkManager } from "../../../Network/NetworkManager";
 import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS } from "../../../Event/type";
 import config from "../../../config";
 import md5 from "ts-md5";
-import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
-import { DataManager } from "../../../Manager/DataManager";
+import { WinnerPlayer, WinnerTemplate } from "./WinnerPlayerTemplate";
+import { Lurker } from "../../../Components/Identity/IdentityClass/Lurker";
+import { Agent } from "../../../Components/Identity/IdentityClass/Agent";
 const { ccclass, property } = _decorator;
 
 @ccclass("Winner")
 export class Winner extends Component {
   @property(Prefab)
-  resultItemPrefab: Prefab | null = null;
+  winnerPlayerIndoPrefab: Prefab | null = null;
   @property(Node)
   buttons: Node | null = null;
 
@@ -47,29 +33,41 @@ export class Winner extends Component {
     });
   }
 
-  init(players: GameOver["players"], isRecord: boolean) {
-    const list = this.node.getChildByName("List");
-    for (let data of players) {
-      const item = instantiate(this.resultItemPrefab);
-      item.getChildByName("Player").getComponent(Label).string = `${data.player.seatNumber + 1}号玩家(${
-        data.player.character.name
-      })`;
-      const identityLabel = item.getChildByPath("Identity/Label").getComponent(Label);
-      identityLabel.string = data.identity.name;
-      identityLabel.color = color(data.identity.color);
-      item.getChildByName("SecretTask").getComponent(RichText).string =
-        data.identity instanceof MysteriousPerson ? `<color=black>${data.identity.secretTaskText}</color=black>` : "";
+  init(winners: WinnerTemplate[], isRecord: boolean) {
+    const list = this.node.getChildByPath("List/Players");
+    const list2 = this.node.getChildByPath("List2/Players");
+    const list3 = this.node.getChildByPath("List3/Players");
 
-      if (data.isWinner) {
-        item.getComponent(Sprite).color = color("#6DFF70");
-        item.getChildByName("Flag").getComponent(Label).string = "赢";
+    const luckerList = [];
+    const agentList = [];
+    const mysteriousPersonList = [];
+
+    for (let winner of winners) {
+      if (winner.identity instanceof Lurker) {
+        luckerList.push(winner);
+      } else if (winner.identity instanceof Agent) {
+        agentList.push(winner);
       } else {
-        item.getComponent(Sprite).color = color("#FF8181");
-        item.getChildByName("Flag").getComponent(Label).string = "输";
+        mysteriousPersonList.push(winner);
       }
-      if (data.isDeclarer) {
-      }
-      list.addChild(item);
+    }
+
+    for (let item of luckerList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+      const node = instantiate(this.winnerPlayerIndoPrefab);
+      node.getComponent(WinnerPlayer).init(item);
+      list.addChild(node);
+    }
+
+    for (let item of agentList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+      const node = instantiate(this.winnerPlayerIndoPrefab);
+      node.getComponent(WinnerPlayer).init(item);
+      list2.addChild(node);
+    }
+
+    for (let item of mysteriousPersonList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+      const node = instantiate(this.winnerPlayerIndoPrefab);
+      node.getComponent(WinnerPlayer).init(item);
+      list3.addChild(node);
     }
 
     if (isRecord) {
