@@ -1,4 +1,15 @@
-import { _decorator, Component, Node, Label, color, Vec3, HorizontalTextAlignment, LabelOutline } from "cc";
+import {
+  _decorator,
+  Component,
+  Node,
+  Label,
+  color,
+  Vec3,
+  HorizontalTextAlignment,
+  LabelOutline,
+  Overflow,
+  UITransform,
+} from "cc";
 import { Card } from "../../../Components/Card/Card";
 import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
 import { DataContainer } from "../../../Components/Container/DataContainer";
@@ -100,6 +111,8 @@ export class ShowCardsWindow extends Component {
     labelComponent.fontSize = 14;
     labelComponent.lineHeight = 16;
     labelComponent.horizontalAlign = HorizontalTextAlignment.CENTER;
+    labelComponent.overflow = Overflow.RESIZE_HEIGHT;
+    label.getComponent(UITransform).width = 100;
     card.gameObject.node.addChild(label);
     label.position = new Vec3(0, -50, 0);
     const outerline = label.getComponent(LabelOutline);

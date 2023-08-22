@@ -5,10 +5,12 @@ import { PlayerInfoTemplate } from "./PlayerInfoTemplate";
 import { CreateRoom } from "../../Event/ProcessEventType";
 const { ccclass, property } = _decorator;
 
-export class PlayerInfo {
-  userName: string = "";
-  winCount: number = 0;
-  gameCount: number = 0;
+export interface PlayerInfo {
+  userName: string;
+  winCount: number;
+  gameCount: number;
+  rank: string;
+  score: number;
 }
 
 @ccclass("Room")
@@ -19,28 +21,43 @@ export class PlayerList extends Component {
   playerListNode: Node | null = null;
   @property(Node)
   onlineCountNode: Node | null = null;
+  @property(Node)
+  noticeNode: Node | null = null;
+  @property(Node)
+  countDownNode: Node | null = null;
 
   private playerList: PlayerInfo[] = [];
   private onlineCount: number = 0;
+  private timer: number = 0;
 
   protected onEnable(): void {
     //收到房间信息
     ProcessEventCenter.on(ProcessEvent.CREATE_ROOM, (data: CreateRoom) => {
+      let isFull = true;
       this.playerList = new Array(data.players.length);
       this.onlineCount = data.onlineCount;
       this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
         "当前在线人数：" + this.onlineCount.toString();
+      this.noticeNode.getComponent(Label).string = data.notice;
       for (let i = 0; i < data.players.length; i++) {
         if (data.players[i].name) {
           this.playerList[i] = {
             userName: data.players[i].name,
             winCount: data.players[i].winCount,
             gameCount: data.players[i].gameCount,
+            rank: data.players[i].rank,
+            score: data.players[i].score,
           };
+        } else {
+          isFull = false;
         }
         const player = instantiate(this.playerInfoPrefab);
         this.playerListNode.addChild(player);
         player.getComponent(PlayerInfoTemplate).init(this.playerList[i]);
+      }
+
+      if (isFull) {
+        this.setGameStartCountDown();
       }
       this.refreshPlayerListUI();
     });
@@ -51,6 +68,7 @@ export class PlayerList extends Component {
       const player = instantiate(this.playerInfoPrefab);
       this.playerListNode.addChild(player);
       this.refreshPlayerListUI();
+      this.removeGameStartCountDown();
     });
 
     //收到移除空位
@@ -58,6 +76,7 @@ export class PlayerList extends Component {
       this.playerList.splice(data.position, 1);
       this.playerListNode.removeChild(this.playerListNode.children[data.position]);
       this.refreshPlayerListUI();
+      this.setGameStartCountDown();
     });
 
     //有人加入房间
@@ -66,14 +85,18 @@ export class PlayerList extends Component {
         userName: data.name,
         winCount: data.winCount || 0,
         gameCount: data.gameCount || 0,
+        rank: data.rank || "",
+        score: data.score || 0,
       };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
+      this.setGameStartCountDown();
     });
 
     //有人离开房间
     ProcessEventCenter.on(ProcessEvent.LEAVE_ROOM, (data) => {
       this.playerList[data.position] = undefined;
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init();
+      this.removeGameStartCountDown();
     });
 
     //更新在线人数
@@ -98,5 +121,33 @@ export class PlayerList extends Component {
 
   private refreshPlayerListUI() {
     this.playerListNode.getComponent(UITransform).height = 70 * this.playerList.length;
+  }
+
+  private setGameStartCountDown() {
+    if (this.timer) return;
+    for (let item of this.playerList) {
+      if (!item || !item.userName) return;
+    }
+    const countDownText = this.countDownNode.getComponent(Label);
+    let s = 5;
+    countDownText.string = `游戏将在${s}秒后开始`;
+    this.countDownNode.active = true;
+    this.timer = setInterval(() => {
+      --s;
+      if (s > 0) {
+        countDownText.string = `游戏将在${s}秒后开始`;
+      } else {
+        countDownText.string = `游戏即将开始`;
+        clearInterval(this.timer);
+        this.timer = 0;
+      }
+    }, 1000);
+  }
+
+  private removeGameStartCountDown() {
+    if (!this.timer) return;
+    this.countDownNode.active = false;
+    clearInterval(this.timer);
+    this.timer = 0;
   }
 }

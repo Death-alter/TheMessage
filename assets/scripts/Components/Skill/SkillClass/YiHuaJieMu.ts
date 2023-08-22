@@ -192,7 +192,7 @@ export class YiHuaJieMu extends ActiveSkill {
     } else {
       toPlayer.addMessage(message);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
-        player,
+        player: toPlayer,
         message,
         from: { location: CardActionLocation.PLAYER, player: fromPlayer },
       });
