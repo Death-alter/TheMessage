@@ -1,13 +1,17 @@
 export type PlayerActionStepHandler = (
   data: any,
   fs: {
-    next: (index?: number, data?: any) => void;
-    prev: (data?: any) => void;
-    repeat: (data?: any) => void;
-    pass: (data?: any) => void;
-    switch: (index?: number, data?: any) => void;
+    next: (data?: PlayerActionStepData) => void;
+    prev: () => void;
   }
 ) => void;
+
+export interface PlayerActionStepData {
+  stepName?: string;
+  step?: PlayerActionStep;
+  params?: { [index: string]: any };
+  [index: string]: any;
+}
 
 export interface PlayerActionStepOption {
   name?: string;

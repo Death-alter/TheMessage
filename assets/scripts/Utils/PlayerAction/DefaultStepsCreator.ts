@@ -1,45 +1,75 @@
 import { Card } from "../../Components/Card/Card";
 import { CardDirection, CardType } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
-import { PlayerActionStepHandler } from "./PlayerActionStep";
+import { PlayerActionStep, PlayerActionStepHandler } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
 
 const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionStepHandler } = {
-  [PlayerActionStepName.SET_MAIN_PHASE_TOOLTIP]:
+  [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
-    (data, { next }) => {
-      gui.tooltip.showNextPhaseButton("出牌阶段");
-      const f = () => {
-        gui.tooltip.setText("出牌阶段，请选择要使用的卡牌");
-        gui.tooltip.buttons.setButtons([]);
-      };
-      f();
-      next(0, f);
+    ({ params }, { next, prev }) => {
+      gui.tooltip.setText(params.tooltipText);
+      gui.tooltip.buttons.setButtons([]);
+      gui.gameLayer.startSelectHandCards({
+        num: 1,
+        filter: (card) => gui.uiLayer.getCardUsableStatus(card),
+        onSelect: (card: Card) => {
+          gui.tooltip.setText(`是否使用【${card.name}】`);
+          gui.tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next();
+              },
+            },
+          ]);
+        },
+        onDeselect: (card: Card) => {
+          gui.tooltip.setText(params.tooltipText);
+          gui.tooltip.buttons.setButtons([]);
+        },
+      });
     },
-  [PlayerActionStepName.SET_FIGHT_PHASE_TOOLTIP]:
+  [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
     (gui: GameManager) =>
-    (data, { next }) => {
-      gui.tooltip.showNextPhaseButton("跳过");
-      const f = () => {
-        gui.tooltip.setText("争夺阶段，请选择要使用的卡牌");
-        gui.tooltip.buttons.setButtons([]);
-      };
-      f();
-      next(0, f);
+    ({ params }, { next, prev }) => {
+      gui.tooltip.setText(params.tooltipText);
+      gui.tooltip.buttons.setButtons([]);
+      gui.gameLayer.startSelectHandCards({
+        num: 1,
+        onSelect: (card: Card) => {
+          gui.tooltip.setText(`请选择一项操作`);
+          gui.tooltip.buttons.setButtons([
+            {
+              text: "使用卡牌",
+              onclick: () => {
+                next({
+                  step: card.actionStep,
+                  card,
+                });
+              },
+              enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay,
+            },
+            {
+              text: "传递情报",
+              onclick: () => {
+                next({
+                  stepName: PlayerActionStepName.DO_SEND_MESSAGE,
+                  card,
+                });
+              },
+            },
+          ]);
+        },
+        onDeselect: (card: Card) => {
+          gui.tooltip.setText(params.tooltipText);
+          gui.tooltip.buttons.setButtons([]);
+        },
+      });
     },
-  [PlayerActionStepName.SET_SEND_MESSAGE_TOOLTIP]:
+  [PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT]:
     (gui: GameManager) =>
-    (data, { next }) => {
-      const f = () => {
-        gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
-        gui.tooltip.buttons.setButtons([]);
-      };
-      f();
-      next(0, f);
-    },
-  [PlayerActionStepName.SET_RECEIVE_MESSAGE_TOOLTIP]:
-    (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { next, prev }) => {
       let text = "";
       switch (gui.data.messageDirection) {
         case CardDirection.UP:
@@ -57,15 +87,42 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "接收情报",
           onclick: () => {
-            next(0, true);
+            next({ receive: true });
           },
         },
         {
           text: "不接收",
           onclick: () => {
-            next(0, false);
+            next({ receive: false });
           },
           enabled: !(gui.data.lockedPlayer && gui.data.lockedPlayer.id === 0) && gui.data.senderId !== 0,
+        },
+      ]);
+    },
+  [PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT]:
+    (gui: GameManager) =>
+    ({ playerId }, { next, prev }) => {
+      const player = gui.data.playerList[playerId];
+      const gameLog = gui.data.gameLog;
+
+      gui.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
+      gui.gameLayer.startSelectHandCards({ num: 1 });
+      gui.tooltip.buttons.setButtons([
+        {
+          text: "澄清",
+          onclick: () => {
+            next(0);
+          },
+          enabled: () =>
+            gui.selectedHandCards.list[0] &&
+            gui.selectedHandCards.list[0].type === CardType.CHENG_QING &&
+            gui.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            next(1);
+          },
         },
       ]);
     },
@@ -122,57 +179,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       ]);
     },
-
-  [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
-    (gui: GameManager) =>
-    ({ f }, { next, prev }) => {
-      gui.gameLayer.startSelectHandCards({
-        num: 1,
-        filter: (card) => gui.uiLayer.getCardUsableStatus(card),
-        onSelect: (card: Card) => {
-          gui.tooltip.setText(`是否使用【${card.name}】`);
-          gui.tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                next(0, card);
-              },
-            },
-          ]);
-        },
-        onDeselect: (card: Card) => {
-          f();
-        },
-      });
-    },
-  [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
-    (gui: GameManager) =>
-    ({ f }, { next, prev }) => {
-      gui.gameLayer.startSelectHandCards({
-        num: 1,
-        onSelect: (card: Card) => {
-          gui.tooltip.setText(`请选择一项操作`);
-          gui.tooltip.buttons.setButtons([
-            {
-              text: "使用卡牌",
-              onclick: () => {
-                next(0, card);
-              },
-              enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay,
-            },
-            {
-              text: "传递情报",
-              onclick: () => {
-                next(1, card);
-              },
-            },
-          ]);
-        },
-        onDeselect: (card: Card) => {
-          f();
-        },
-      });
-    },
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
     ({ playerId }, { next }) => {
@@ -201,7 +207,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         ],
       });
     },
-    [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
+  [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
     (gui: GameManager) =>
     ({ playerId }, { next }) => {
       const player = gui.data.playerList[playerId];

@@ -12,10 +12,9 @@ import { CardDirection, CardType, CardUsableStatus } from "../../../Components/C
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
 import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
-import { PlayerActionManager } from "../../../Utils/PlayerAction/PlayerActionManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
-import { PlayerActionName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 const { ccclass, property } = _decorator;
 
@@ -28,7 +27,6 @@ export class UILayer extends Component {
 
   public manager: GameManager;
   public tooltip: Tooltip;
-  public playerAction: PlayerAction;
 
   get selectedHandCards() {
     return this.manager.data && this.manager.data.handCardList.selectedCards;
@@ -150,18 +148,23 @@ export class UILayer extends Component {
         case WaitingType.PLAY_CARD:
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
-              this.playerAction = PlayerActionManager.getAction(PlayerActionName.MAIN_PHASE_ACTION);
-              this.playerAction.start();
+              this.tooltip.showNextPhaseButton("争夺阶段");
+              PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY, {
+                tooltipText: "出牌阶段，请选择要使用的卡牌",
+              }).start();
               break;
             case GamePhase.FIGHT_PHASE:
-              this.playerAction = PlayerActionManager.getAction(PlayerActionName.FIGHT_PHASE_ACTION);
-              this.playerAction.start();
+              this.tooltip.showNextPhaseButton("跳过");
+              PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY, {
+                tooltipText: "争夺阶段，请选择要使用的卡牌",
+              }).start();
               break;
           }
           break;
         case WaitingType.SEND_MESSAGE:
-          this.playerAction = PlayerActionManager.getAction(PlayerActionName.SEND_MESSAGE_ACTION);
-          this.playerAction.start();
+          PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_SEND, {
+            tooltipText: "传递阶段，请选择要传递的情报或要使用的卡牌",
+          }).start();
           break;
         case WaitingType.RECEIVE_MESSAGE:
           this.playerAction = PlayerActionManager.getAction(PlayerActionName.RECEIVE_MESSAGE_ACTION);

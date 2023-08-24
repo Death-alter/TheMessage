@@ -1,156 +1,138 @@
 import { PlayerActionStepManager } from "./PlayerActionManager";
-import { PlayerActionStep } from "./PlayerActionStep";
-import { PlayerActionName } from "./type";
+import { PlayerActionStep, PlayerActionStepData } from "./PlayerActionStep";
 
-export type PlayerActionStepType = string | number | PlayerActionStep;
+export abstract class PlayerAction {
+  private static index: number = -1;
+  private static stepList: PlayerActionStep[] = [];
+  private static defaultData: { [index: string]: any }[] = [];
+  private static stepStack: PlayerActionStep[] = [];
+  private static dataStack: PlayerActionStepData[] = [];
 
-export interface PlayerActionStepRoute {
-  step: PlayerActionStepType;
-  next?: (PlayerActionStepRoute | ((data?: any) => void))[];
-}
+  private static complete: (data?: PlayerActionStepData[]) => void;
+  private static cancel: (data?: PlayerActionStepData[]) => void;
+  private static stepChange: (data?: PlayerActionStepData[]) => void;
 
-export interface PlayerActionOption {
-  name?: string;
-  auto?: boolean;
-  stepRoute: PlayerActionStepRoute;
-}
-
-export interface PlayerActionStepNode {
-  step: PlayerActionStep;
-  next: (number | ((data?: any) => void))[];
-  prev: number;
-}
-
-export class PlayerAction {
-  static currentId = 0;
-
-  private _id: number;
-  private _name: string = "";
-  private index: number = 0;
-  private stepList: PlayerActionStepNode[] = [];
-  private direction: number = 0; //0代表正向，1代表反向
-
-  private complete: (data?: any) => void;
-  private cancel: (data?: any) => void;
-
-  get id() {
-    return this._id;
-  }
-
-  get name() {
-    return this._name;
-  }
-
-  get currentStep() {
-    return this.stepList[this.index];
-  }
-
-  constructor(option: PlayerActionOption) {
-    this._id = PlayerAction.currentId++;
-    if (option.name) this._name = option.name;
-    this.resolveRoute(option.stepRoute);
-  }
-
-  private resolveRoute(route: PlayerActionStepRoute, prev?: number) {
-    const node: PlayerActionStepNode = {
-      step: route.step instanceof PlayerActionStep ? route.step : PlayerActionStepManager.getStep(route.step),
-      next: [],
-      prev: prev != null ? prev : -1,
-    };
-    this.stepList.push(node);
-    const index = this.stepList.length - 1;
-
-    if (route.next) {
-      for (let i in route.next) {
-        const item = route.next[i];
-        if (item instanceof Function) {
-          node.next.push(item);
-        } else {
-          node.next.push(this.resolveRoute(item, index));
-        }
-      }
+  private static get currentStep() {
+    if (this.stepStack.length > 0) {
+      return this.stepStack[this.stepStack.length - 1];
     } else {
-      delete node.next;
+      return null;
+    }
+  }
+
+  private static get currentData() {
+    if (this.dataStack.length > 0) {
+      return this.dataStack[this.dataStack.length - 1];
+    } else {
+      return null;
+    }
+  }
+
+  static start(data?: PlayerActionStepData) {
+    let nextStep;
+    if (data.stepName) {
+      nextStep = PlayerActionStepManager.getStep(data.stepName);
+    } else if (data.step) {
+      nextStep = data.step;
+    } else {
+      this.index = 0;
+      nextStep = this.stepList[this.index];
     }
 
-    return index;
+    if (!nextStep) {
+      return;
+    }
+
+    this.stepStack.push(this.stepList[this.index]);
+    this.dataStack.push({ params: data });
+    this.handleStep();
+
+    return this;
   }
 
-  private handleStep(data?: any) {
-    this.currentStep.step.handler(data, {
+  static next(data?: PlayerActionStepData) {
+    let nextStep;
+    if (data.stepName) {
+      nextStep = PlayerActionStepManager.getStep(data.stepName);
+    } else if (data.step) {
+      nextStep = data.step;
+    } else {
+      ++this.index;
+      nextStep = this.stepList[this.index];
+      if (!data.params) data.params = this.defaultData[this.index];
+    }
+
+    this.dataStack.push(data);
+    this.stepChange?.();
+
+    if (!nextStep) {
+      this.complete?.(this.dataStack);
+    } else {
+      this.stepStack.push(nextStep);
+      this.handleStep();
+    }
+
+    return this;
+  }
+
+  static prev() {
+    this.stepChange?.();
+    if (this.currentStep) {
+      this.dataStack.pop();
+      const step = this.stepStack.pop();
+      if (step === this.stepList[this.index]) {
+        --this.index;
+      }
+      this.handleStep();
+    } else {
+      this.cancel?.(this.dataStack);
+    }
+
+    return this;
+  }
+
+  private static handleStep() {
+    this.currentStep.handler(this.currentData, {
       next: this.next.bind(this),
       prev: this.prev.bind(this),
-      repeat: this.handleStep.bind(this),
-      pass: this.pass.bind(this),
-      switch: this.switch.bind(this),
     });
   }
 
-  start(data?: any) {
-    this.index = 0;
-    this.handleStep(data);
-  }
-
-  next(index?: number, data?: any) {
-    this.direction = 0;
-    if (index == null) index = 0;
-
-    const i = this.currentStep.next[index];
-    if (i instanceof Function) {
-      i();
-      this.index = 0;
-      if (this.complete) {
-        this.complete(data);
-        this.complete = null;
+  static addStep(step: string | PlayerActionStep, data?: PlayerActionStepData) {
+    if (step instanceof PlayerActionStep) {
+      this.stepList.push(step);
+    } else {
+      const s = PlayerActionStepManager.getStep(step);
+      if (step) {
+        this.stepList.push(s);
+      } else {
+        throw new Error("未找到Step：" + step);
       }
-    } else {
-      this.index = i;
-      this.handleStep(data);
     }
+    this.defaultData.push(data);
+
+    return this;
   }
 
-  switch(index?: number, data?: any) {
-    if (index == null) return;
-    const target = this.stepList[this.currentStep.prev].next[index];
-    if (target instanceof Function) {
-      target();
-      this.index = 0;
-      if (this.complete) {
-        this.complete(data);
-        this.complete = null;
-      }
-    } else {
-      this.index = target;
-      this.handleStep(data);
-    }
+  static clear() {
+    this.index = -1;
+    this.stepList = [];
+    this.stepStack = [];
+    this.dataStack = [];
+    this.stepChange?.();
+
+    return this;
   }
 
-  prev(data?: any) {
-    this.direction = 1;
-    if (this.currentStep.prev === -1) {
-      if (this.cancel) {
-        this.cancel(data);
-        this.cancel = null;
-      }
-    } else {
-      this.index = this.currentStep.prev;
-      this.handleStep(data);
-    }
-  }
-
-  pass(data?: any) {
-    if (this.direction === 0) {
-      this.next(data);
-    } else {
-      this.prev(data);
-    }
-  }
-
-  onComplete(callback: () => void) {
+  static onComplete(callback: (data?: PlayerActionStepData[]) => void) {
     this.complete = callback;
   }
 
-  onCancel(callback: () => void) {
+  static onCancel(callback: (data?: PlayerActionStepData[]) => void) {
     this.cancel = callback;
+  }
+
+  static onStepChange(callback: (data?: PlayerActionStepData[]) => void) {
+    this.stepChange = callback;
   }
 }
