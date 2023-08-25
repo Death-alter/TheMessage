@@ -28,8 +28,10 @@ export class LongTap extends Component {
   }
 
   onDisable() {
-    this.node.off(Node.EventType.TOUCH_START);
-    this.node.off(Node.EventType.TOUCH_END);
-    this.node.off(Node.EventType.TOUCH_CANCEL);
+    if (sys.isMobile) {
+      this.node.off(Node.EventType.TOUCH_START);
+      this.node.off(Node.EventType.TOUCH_END);
+      this.node.off(Node.EventType.TOUCH_CANCEL);
+    }
   }
 }
