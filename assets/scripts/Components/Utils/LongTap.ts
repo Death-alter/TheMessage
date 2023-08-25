@@ -6,7 +6,7 @@ export class LongTap extends Component {
   private touchStartTime: number;
   private isOnTouch: boolean;
 
-  onLoad() {
+  onEnable() {
     if (sys.isMobile) {
       this.node.on(Node.EventType.TOUCH_START, () => {
         this.touchStartTime = new Date().getTime();
@@ -25,5 +25,11 @@ export class LongTap extends Component {
         this.isOnTouch = false;
       });
     }
+  }
+
+  onDisable() {
+    this.node.off(Node.EventType.TOUCH_START);
+    this.node.off(Node.EventType.TOUCH_END);
+    this.node.off(Node.EventType.TOUCH_CANCEL);
   }
 }
