@@ -171,7 +171,11 @@ export class GameManager extends GameObject<GameData> {
     this.logLayer.startRender();
     this.uiLayer.startRender();
     PlayerAction.onStepChange((data) => {
-      this.uiLayer.clearUIState();
+      this.gameLayer.pauseSelectHandCards();
+      this.gameLayer.pauseSelectPlayers();
+      this.popupLayer.showCardsWindow.hide();
+      this.tooltip.setText("");
+      this.tooltip.buttons.setButtons([]);
     });
   }
 

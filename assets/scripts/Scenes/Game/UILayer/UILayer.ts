@@ -335,109 +335,12 @@ export class UILayer extends Component {
         },
       }),
       { message, direction: params.direction }
-    ).addStep(
-      new PlayerActionStep({
-        name: "selectLockTarget",
-        handler: ({ defaultData }, { next, prev }) => {
-          if (defaultData.message.lockable) {
-            this.tooltip.setText("请选择一名角色锁定");
-            UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-              num: 1,
-              filter: (player) => {
-                return player.id !== 0;
-              },
-            });
-            this.tooltip.buttons.setButtons([
-              {
-                text: "锁定",
-                onclick: () => {
-                  next({
-                    lockPlayerId: [this.selectedPlayers.list[0].id],
-                  });
-                },
-                enabled: () => {
-                  return this.selectedPlayers.list.length === 1;
-                },
-              },
-              {
-                text: "不锁定",
-                onclick: () => {
-                  next();
-                },
-              },
-            ]);
-          } else {
-            next();
-          }
-        },
-      }),
-      { message }
-    );
-  }
-
-  createDoSendMessageAction() {
-    const c = this.selectedHandCards.list[0];
-    const actions = [
-      {
-        name: "selectTarget",
-        handler: (direction?: CardDirection) =>
-          new Promise((resolve, reject) => {
-            const card = this.selectedHandCards.list[0] || c;
-            const data: any = {
-              cardId: card.id,
-              lockPlayerId: [],
-              cardDir: direction == null ? card.direction : direction,
-              seq: this.seq,
-              lockable: card.lockable,
-            };
-            let i;
-            switch (data.cardDir) {
-              case CardDirection.LEFT:
-                i = this.manager.data.playerList.length - 1;
-                while (!this.manager.data.playerList[i].isAlive) {
-                  --i;
-                }
-                data.targetPlayerId = i;
-                resolve(data);
-                break;
-              case CardDirection.RIGHT:
-                i = 1;
-                while (!this.manager.data.playerList[i].isAlive) {
-                  ++i;
-                }
-                data.targetPlayerId = i;
-                resolve(data);
-                break;
-              case CardDirection.UP:
-                this.tooltip.setText("请选择要传递情报的目标");
-                this.tooltip.buttons.setButtons([
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
-                      resolve(data);
-                    },
-                    enabled: () => this.selectedPlayers.list.length > 0,
-                  },
-                ]);
-                UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-                  num: 1,
-                  filter: (player) => {
-                    return player.id !== 0;
-                  },
-                  onSelect: (player) => {
-                    data.targetPlayerId = player.id;
-                  },
-                });
-                break;
-            }
-          }),
-      },
-      {
-        name: "confirmLock",
-        handler: (data) =>
-          new Promise((resolve, reject) => {
-            if (data.lockable) {
+    )
+      .addStep(
+        new PlayerActionStep({
+          name: "selectLockTarget",
+          handler: ({ defaultData }, { next, prev }) => {
+            if (defaultData.message.lockable) {
               this.tooltip.setText("请选择一名角色锁定");
               UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
                 num: 1,
@@ -449,8 +352,9 @@ export class UILayer extends Component {
                 {
                   text: "锁定",
                   onclick: () => {
-                    data.lockPlayerId = [this.selectedPlayers.list[0].id];
-                    resolve(data);
+                    next({
+                      lockPlayerId: [this.selectedPlayers.list[0].id],
+                    });
                   },
                   enabled: () => {
                     return this.selectedPlayers.list.length === 1;
@@ -459,32 +363,30 @@ export class UILayer extends Component {
                 {
                   text: "不锁定",
                   onclick: () => {
-                    resolve(data);
+                    next();
                   },
                 },
               ]);
             } else {
-              resolve(data);
+              next();
             }
-          }),
-      },
-    ];
-    return new PlayerAction({
-      actions,
-      complete: (data) => {
+          },
+        }),
+        { message }
+      )
+      .onComplete((stepData) => {
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-          cardId: data.cardId,
-          lockPlayerId: data.lockPlayerId,
-          targetPlayerId: data.targetPlayerId,
-          cardDir: data.cardDir,
-          seq: data.seq,
+          cardId: stepData[0].card.id,
+          lockPlayerId: stepData[2].lockPlayerId,
+          targetPlayerId: stepData[1].targetPlayerId,
+          cardDir: params.direction || message.direction,
+          seq: this.seq,
         });
 
         this.scheduleOnce(() => {
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
         }, 0);
-      },
-    });
+      });
   }
 }

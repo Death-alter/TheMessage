@@ -72,8 +72,6 @@ export abstract class Card extends DataBasic<CardObject> {
 
   onSelectedToPlay(gui: GameManager): void {}
 
-  onDeselected(gui: GameManager): void {}
-
   onEffect(gameData: GameData, params: CardOnEffectParams): boolean | void {
     return true;
   }
