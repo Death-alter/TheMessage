@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, Prefab, color, UITransform } from "cc";
+import { _decorator, Component, Label, Node, Prefab, color, UITransform, Sprite } from "cc";
 import { Player } from "../../../Components/Player/Player";
 import { Identity } from "../../../Components/Identity/Identity";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
@@ -6,6 +6,8 @@ import { CharacterStatus } from "../../../Components/Chatacter/type";
 import { PlayerObject } from "../../../Components/Player/PlayerObject";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { createCharacterById } from "../../../Components/Chatacter";
+import { Lurker } from "../../../Components/Identity/IdentityClass/Lurker";
+import { Agent } from "../../../Components/Identity/IdentityClass/Agent";
 const { ccclass, property } = _decorator;
 
 export interface WinnerTemplate {
@@ -40,13 +42,19 @@ export class WinnerPlayer extends Component {
     }
 
     const identityNode = this.node.getChildByName("Identity");
-    if (data.identity instanceof MysteriousPerson) {
-      identityNode.active = true;
-      identityNode.getComponent(UITransform).height = data.identity.name.length * 22;
-      identityNode.getComponentInChildren(Label).string = data.identity.name;
+    identityNode.getComponent(UITransform).height = data.identity.name.length * 22;
+    identityNode.getComponentInChildren(Label).string = data.identity.name;
+    const spriteComponent = identityNode.getComponent(Sprite);
+    if (data.identity instanceof Lurker) {
+      spriteComponent.color = color("#e10602");
+    } else if (data.identity instanceof Agent) {
+      spriteComponent.color = color("#2932e1");
+    } else if (data.identity instanceof MysteriousPerson) {
+      spriteComponent.color = color("#068820");
     } else {
-      identityNode.active = false;
+      spriteComponent.color = color("#ffffff");
     }
+    identityNode.active = true;
 
     const scoreChage = this.node.getChildByName("ScoreChange").getComponent(Label);
     if (data.addScore === 0) {

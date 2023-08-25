@@ -7,6 +7,7 @@ import md5 from "ts-md5";
 import { WinnerPlayer, WinnerTemplate } from "./WinnerPlayerTemplate";
 import { Lurker } from "../../../Components/Identity/IdentityClass/Lurker";
 import { Agent } from "../../../Components/Identity/IdentityClass/Agent";
+import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 const { ccclass, property } = _decorator;
 
 @ccclass("Winner")
@@ -34,21 +35,22 @@ export class Winner extends Component {
   }
 
   init(winners: WinnerTemplate[], isRecord: boolean) {
-    const list = this.node.getChildByPath("List/Players");
-    const list2 = this.node.getChildByPath("List2/Players");
-    const list3 = this.node.getChildByPath("List3/Players");
+    const list = this.node.getChildByPath("List");
 
     const luckerList = [];
     const agentList = [];
     const mysteriousPersonList = [];
+    const noIdeneityList = [];
 
     for (let winner of winners) {
       if (winner.identity instanceof Lurker) {
         luckerList.push(winner);
       } else if (winner.identity instanceof Agent) {
         agentList.push(winner);
-      } else {
+      } else if (winner.identity instanceof MysteriousPerson) {
         mysteriousPersonList.push(winner);
+      } else {
+        noIdeneityList.push(winner);
       }
     }
 
@@ -61,13 +63,19 @@ export class Winner extends Component {
     for (let item of agentList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
-      list2.addChild(node);
+      list.addChild(node);
     }
 
     for (let item of mysteriousPersonList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
-      list3.addChild(node);
+      list.addChild(node);
+    }
+
+    for (let item of noIdeneityList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+      const node = instantiate(this.winnerPlayerIndoPrefab);
+      node.getComponent(WinnerPlayer).init(item);
+      list.addChild(node);
     }
 
     if (isRecord) {

@@ -66,9 +66,7 @@ export class CardObject extends GameObject<Card> {
 
   onDisable() {
     if (sys.isMobile) {
-      this.node.off(Node.EventType.TOUCH_START);
-      this.node.off(Node.EventType.TOUCH_END);
-      this.node.off(Node.EventType.TOUCH_CANCEL);
+      this.node.off("longtap");
     } else {
       this.node.off(Node.EventType.MOUSE_ENTER);
       this.node.off(Node.EventType.MOUSE_LEAVE);
