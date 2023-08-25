@@ -1,4 +1,4 @@
-import { PlayerActionStepManager } from "./PlayerActionManager";
+import { PlayerActionStepManager } from "./PlayerActionStepManager";
 import { PlayerActionStep, PlayerActionStepData } from "./PlayerActionStep";
 
 export abstract class PlayerAction {

@@ -111,7 +111,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "澄清",
           onclick: () => {
-            next(0);
+            next({
+              card: gui.selectedHandCards.list[0],
+            });
           },
           enabled: () =>
             gui.selectedHandCards.list[0] &&
@@ -121,42 +123,14 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "取消",
           onclick: () => {
-            next(1);
+            prev();
           },
         },
       ]);
     },
-
-  [PlayerActionStepName.SET_PLAYER_DYING_TOOLTIP]:
+  [PlayerActionStepName.SELECT_DIE_GIVE_CARDS]:
     (gui: GameManager) =>
-    ({ playerId }, { next, prev }) => {
-      const player = gui.data.playerList[playerId];
-      const gameLog = gui.data.gameLog;
-
-      gui.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
-      gui.gameLayer.startSelectHandCards({ num: 1 });
-      gui.tooltip.buttons.setButtons([
-        {
-          text: "澄清",
-          onclick: () => {
-            next(0);
-          },
-          enabled: () =>
-            gui.selectedHandCards.list[0] &&
-            gui.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-            gui.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            next(1);
-          },
-        },
-      ]);
-    },
-  [PlayerActionStepName.SET_DIE_GIVE_CARD_TOOLTIP]:
-    (gui: GameManager) =>
-    (data, { next }) => {
+    (data, { next, prev }) => {
       gui.tooltip.setText("你已死亡，请选择最多三张手牌交给其他角色");
       gui.gameLayer.startSelectHandCards({ num: 3 });
       gui.gameLayer.startSelectPlayers({
@@ -167,18 +141,22 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "确定",
           onclick: () => {
-            next(0);
+            next({
+              targetPlayer: gui.selectedPlayers.list[0],
+              cards: [...gui.selectedHandCards.list],
+            });
           },
           enabled: () => gui.selectedHandCards.list.length > 0 && gui.selectedPlayers.list.length > 0,
         },
         {
           text: "取消",
           onclick: () => {
-            next(1);
+            prev();
           },
         },
       ]);
     },
+
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
     ({ playerId }, { next }) => {

@@ -15,6 +15,7 @@ import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 const { ccclass, property } = _decorator;
 
@@ -77,7 +78,6 @@ export class UILayer extends Component {
     //读条
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
     UIEventCenter.on(UIEvent.UPDATE_SKILL_BUTTONS, this.setSKills, this);
     //使用技能
     GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
@@ -92,7 +92,6 @@ export class UILayer extends Component {
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.onAutoPlayStatusChange, this);
     UIEventCenter.off(UIEvent.UPDATE_SKILL_BUTTONS, this.setSKills, this);
     GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.playerUseSkill, this);
     GameEventCenter.off(GameEvent.SKILL_ON_EFFECT, this.skillOnEffect, this);
@@ -144,6 +143,8 @@ export class UILayer extends Component {
   onStartCountDown(data: ProcessEventType.StartCountDown) {
     if (data.playerId === 0) {
       this.tooltip.startCountDown(data.second);
+      PlayerAction.clear();
+
       switch (data.type) {
         case WaitingType.PLAY_CARD:
           switch (this.manager.data.gamePhase) {
@@ -167,17 +168,20 @@ export class UILayer extends Component {
           }).start();
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          this.playerAction = PlayerActionManager.getAction(PlayerActionName.RECEIVE_MESSAGE_ACTION);
-          this.playerAction.start();
+          PlayerAction.addStep(PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT, {
+            playerId: data.params.diePlayerId,
+          }).start();
 
           break;
         case WaitingType.PLAYER_DYING:
-          this.playerAction = PlayerActionManager.getAction(PlayerActionName.PLAYER_DYING_ACTION);
-          this.playerAction.start();
+          PlayerAction.addStep(PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT, {
+            playerId: data.params.diePlayerId,
+          }).start();
           break;
         case WaitingType.GIVE_CARD:
-          this.playerAction = PlayerActionManager.getAction(PlayerActionName.PLAYER_DIE_GIVE_CARD_ACTION);
-          this.playerAction.start();
+          PlayerAction.addStep(PlayerActionStepName.SELECT_DIE_GIVE_CARDS, {
+            playerId: data.params.diePlayerId,
+          }).start();
           break;
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
@@ -229,16 +233,8 @@ export class UILayer extends Component {
   }
 
   onStopCountDown() {
-    // this.playerActionManager.clearAction();
-    this.playerAction = null;
     this.clearUIState();
     this.tooltip.hideNextPhaseButton();
-  }
-
-  onAutoPlayStatusChange({ enable }) {
-    if (!enable) {
-      this.playerAction.start();
-    }
   }
 
   playerUseSkill(skill: Skill) {
@@ -288,8 +284,95 @@ export class UILayer extends Component {
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
-  doSendMessage() {
-    this.playerActionManager.switchTo(this.createDoSendMessageAction());
+  doSendMessage(message, params) {
+    PlayerAction.addStep(
+      new PlayerActionStep({
+        name: "selectMessageTarget",
+        handler: ({ defaultData }, { next, prev }) => {
+          const dir = defaultData.direction || defaultData.message.direction;
+          let i;
+          switch (dir) {
+            case CardDirection.LEFT:
+              i = this.manager.data.playerList.length - 1;
+              while (!this.manager.data.playerList[i].isAlive) {
+                --i;
+              }
+              next({
+                targetPlayerId: i,
+              });
+              break;
+            case CardDirection.RIGHT:
+              i = 1;
+              while (!this.manager.data.playerList[i].isAlive) {
+                ++i;
+              }
+              next({
+                targetPlayerId: i,
+              });
+              break;
+            case CardDirection.UP:
+              this.tooltip.setText("请选择要传递情报的目标");
+              this.tooltip.buttons.setButtons([
+                {
+                  text: "确定",
+                  onclick: () => {
+                    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+                    next({
+                      targetPlayerId: this.selectedPlayers.list[0].id,
+                    });
+                  },
+                  enabled: () => this.selectedPlayers.list.length > 0,
+                },
+              ]);
+              UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+                num: 1,
+                filter: (player) => {
+                  return player.id !== 0;
+                },
+              });
+              break;
+          }
+        },
+      }),
+      { message, direction: params.direction }
+    ).addStep(
+      new PlayerActionStep({
+        name: "selectLockTarget",
+        handler: ({ defaultData }, { next, prev }) => {
+          if (defaultData.message.lockable) {
+            this.tooltip.setText("请选择一名角色锁定");
+            UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
+              num: 1,
+              filter: (player) => {
+                return player.id !== 0;
+              },
+            });
+            this.tooltip.buttons.setButtons([
+              {
+                text: "锁定",
+                onclick: () => {
+                  next({
+                    lockPlayerId: [this.selectedPlayers.list[0].id],
+                  });
+                },
+                enabled: () => {
+                  return this.selectedPlayers.list.length === 1;
+                },
+              },
+              {
+                text: "不锁定",
+                onclick: () => {
+                  next();
+                },
+              },
+            ]);
+          } else {
+            next();
+          }
+        },
+      }),
+      { message }
+    );
   }
 
   createDoSendMessageAction() {
