@@ -1,21 +1,27 @@
 export type PlayerActionStepHandler = (
-  data: any,
+  data: PlayerActionStepData,
   fs: {
-    next: (data?: PlayerActionStepData) => void;
+    next: (data?: { [index: string]: any }) => void;
     prev: () => void;
   }
 ) => void;
 
+export type PlayerActionStepDataResolver = (data: { [index: string]: any }) => { [index: string]: any };
+
 export interface PlayerActionStepData {
-  stepName?: string;
-  step?: PlayerActionStep;
-  params?: { [index: string]: any };
-  [index: string]: any;
+  initial?: { [index: string]: any };
+  current?: { [index: string]: any };
+}
+
+export interface PlayerActionStepNextParams {
+  step?: PlayerActionStep | string;
+  data?: { [index: string]: any };
 }
 
 export interface PlayerActionStepOption {
   name?: string;
   handler: PlayerActionStepHandler;
+  resolver?: PlayerActionStepDataResolver;
 }
 
 export class PlayerActionStep {
@@ -24,6 +30,7 @@ export class PlayerActionStep {
   private _id: number;
   private _name: string = "";
   private _handler: PlayerActionStepHandler;
+  private _resolver: PlayerActionStepDataResolver;
 
   get id() {
     return this._id;
@@ -37,9 +44,14 @@ export class PlayerActionStep {
     return this._handler;
   }
 
+  get resolver() {
+    return this._resolver;
+  }
+
   constructor(option: PlayerActionStepOption) {
     this._id = PlayerActionStep.currentId++;
     if (option.name) this._name = option.name;
     this._handler = option.handler;
+    if (option.resolver) this._resolver = option.resolver;
   }
 }

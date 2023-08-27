@@ -1,16 +1,16 @@
 import { PlayerActionStepManager } from "./PlayerActionStepManager";
-import { PlayerActionStep, PlayerActionStepData } from "./PlayerActionStep";
+import { PlayerActionStep, PlayerActionStepNextParams, PlayerActionStepData } from "./PlayerActionStep";
 
 export abstract class PlayerAction {
   private static index: number = -1;
   private static stepList: PlayerActionStep[] = [];
-  private static defaultData: { [index: string]: any }[] = [];
-  private static stepStack: PlayerActionStep[] = [];
-  private static dataStack: PlayerActionStepData[] = [];
+  private static dataList: { [index: string]: any }[] = [];
 
-  private static complete: (data?: PlayerActionStepData[]) => void;
-  private static cancel: (data?: PlayerActionStepData[]) => void;
-  private static stepChange: (data?: PlayerActionStepData[]) => void;
+  private static stepStack: PlayerActionStep[] = [];
+  private static dataStack: { [index: string]: any }[] = [];
+
+  private static complete: (data?: { [index: string]: any }[]) => void;
+  private static cancel: (data?: { [index: string]: any }[]) => void;
 
   private static get currentStep() {
     if (this.stepStack.length > 0) {
@@ -28,14 +28,16 @@ export abstract class PlayerAction {
     }
   }
 
-  static start(data?: PlayerActionStepData) {
+  static start({ step, data }: PlayerActionStepNextParams) {
     let nextStep;
-    if (data.stepName) {
-      nextStep = PlayerActionStepManager.getStep(data.stepName);
-    } else if (data.step) {
-      nextStep = data.step;
+    if (step) {
+      if (step instanceof PlayerActionStep) {
+        nextStep = step;
+      } else {
+        nextStep = PlayerActionStepManager.getStep(step);
+      }
     } else {
-      this.index = 0;
+      ++this.index;
       nextStep = this.stepList[this.index];
     }
 
@@ -44,26 +46,26 @@ export abstract class PlayerAction {
     }
 
     this.stepStack.push(this.stepList[this.index]);
-    this.dataStack.push({ params: data });
+    this.dataStack.push(data);
     this.handleStep();
 
     return this;
   }
 
-  static next(data?: PlayerActionStepData) {
+  static next({ step, data }: PlayerActionStepNextParams) {
     let nextStep;
-    if (data.stepName) {
-      nextStep = PlayerActionStepManager.getStep(data.stepName);
-    } else if (data.step) {
-      nextStep = data.step;
+    if (step) {
+      if (step instanceof PlayerActionStep) {
+        nextStep = step;
+      } else {
+        nextStep = PlayerActionStepManager.getStep(step);
+      }
     } else {
       ++this.index;
       nextStep = this.stepList[this.index];
-      if (!data.params) data.params = this.defaultData[this.index];
     }
 
     this.dataStack.push(data);
-    this.stepChange?.();
 
     if (!nextStep) {
       this.complete?.(this.dataStack);
@@ -76,9 +78,8 @@ export abstract class PlayerAction {
   }
 
   static prev() {
-    this.stepChange?.();
-    if (this.currentStep) {
-      this.dataStack.pop();
+    this.dataStack.pop();
+    if (this.stepStack.length > 0) {
       const step = this.stepStack.pop();
       if (step === this.stepList[this.index]) {
         --this.index;
@@ -91,14 +92,42 @@ export abstract class PlayerAction {
     return this;
   }
 
-  private static handleStep() {
-    this.currentStep.handler(this.currentData, {
-      next: this.next.bind(this),
-      prev: this.prev.bind(this),
-    });
+  private static stepNext(data: { [index: string]: any }) {
+    if (this.index >= this.stepList.length) {
+      this.complete?.(this.dataStack);
+    } else {
+      this.stepStack.push(this.stepList[this.index]);
+      this.dataStack.push(data);
+      this.handleStep();
+    }
   }
 
-  static addStep(step: string | PlayerActionStep, data?: PlayerActionStepData) {
+  private static handleStep() {
+    if (this.currentStep === this.stepList[this.index]) {
+      this.currentStep.handler(
+        {
+          initial: this.dataList[this.index],
+          current: this.currentStep.resolver ? this.currentStep.resolver(this.currentData) : this.currentData,
+        },
+        {
+          next: this.stepNext.bind(this),
+          prev: this.prev.bind(this),
+        }
+      );
+    } else {
+      this.currentStep.handler(
+        {
+          current: this.currentStep.resolver ? this.currentStep.resolver(this.currentData) : this.currentData,
+        },
+        {
+          next: this.stepNext.bind(this),
+          prev: this.prev.bind(this),
+        }
+      );
+    }
+  }
+
+  static addStep(step: string | PlayerActionStep, data?: { [index: string]: any }) {
     if (step instanceof PlayerActionStep) {
       this.stepList.push(step);
     } else {
@@ -109,7 +138,7 @@ export abstract class PlayerAction {
         throw new Error("未找到Step：" + step);
       }
     }
-    this.defaultData.push(data);
+    this.dataList.push(data);
 
     return this;
   }
@@ -119,20 +148,16 @@ export abstract class PlayerAction {
     this.stepList = [];
     this.stepStack = [];
     this.dataStack = [];
-    this.stepChange?.();
+    this.dataList = [];
 
     return this;
   }
 
-  static onComplete(callback: (data?: PlayerActionStepData[]) => void) {
+  static onComplete(callback: (data?: { [index: string]: any }[]) => void) {
     this.complete = callback;
   }
 
-  static onCancel(callback: (data?: PlayerActionStepData[]) => void) {
+  static onCancel(callback: (data?: { [index: string]: any }[]) => void) {
     this.cancel = callback;
-  }
-
-  static onStepChange(callback: (data?: PlayerActionStepData[]) => void) {
-    this.stepChange = callback;
   }
 }

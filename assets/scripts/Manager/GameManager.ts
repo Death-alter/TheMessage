@@ -170,13 +170,6 @@ export class GameManager extends GameObject<GameData> {
     this.animationLayer.startRender();
     this.logLayer.startRender();
     this.uiLayer.startRender();
-    PlayerAction.onStepChange((data) => {
-      this.gameLayer.pauseSelectHandCards();
-      this.gameLayer.pauseSelectPlayers();
-      this.popupLayer.showCardsWindow.hide();
-      this.tooltip.setText("");
-      this.tooltip.buttons.setButtons([]);
-    });
   }
 
   stopRender() {
@@ -186,7 +179,6 @@ export class GameManager extends GameObject<GameData> {
     this.animationLayer.stopRender();
     this.logLayer.stopRender();
     this.uiLayer.stopRender();
-    PlayerAction.onStepChange(null);
   }
 
   onStartCountDown(data: StartCountDown) {

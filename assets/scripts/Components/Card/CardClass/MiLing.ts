@@ -9,7 +9,9 @@ import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
 import { Player } from "../../Player/Player";
 import { GameLog } from "../../GameLog/GameLog";
-import { PlayerAction } from "../../../Utils/PlayerAction";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -34,42 +36,56 @@ export class MiLing extends Card {
   }
 
   onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择密令的目标`);
-    tooltip.buttons.setButtons([]);
-    gui.gameLayer.startSelectPlayers({
+    PlayerAction.addStep(PlayerActionStepName.SELECT_PLAYER, {
+      tooltipText: "请选择密令的目标",
       num: 1,
       filter: (player: Player) => {
         return player.handCardCount > 0 && player.id !== 0;
       },
-      onSelect: () => {
-        tooltip.setText(`请选择一个暗号`);
-        tooltip.buttons.setButtons([
-          {
-            text: "东风",
-            onclick: () => {
-              this.secretButtonClicked(gui, 0);
-            },
+      enabled: () => gui.selectedPlayers.list.length > 0,
+    })
+      .addStep(
+        new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            const tooltip = gui.tooltip;
+            tooltip.setText("请选择一个暗号");
+            tooltip.buttons.setButtons([
+              {
+                text: "东风",
+                onclick: () => {
+                  next({ secret: 0 });
+                },
+              },
+              {
+                text: "西风",
+                onclick: () => {
+                  next({ secret: 1 });
+                },
+              },
+              {
+                text: "静风",
+                onclick: () => {
+                  next({ secret: 2 });
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  prev();
+                },
+              },
+            ]);
           },
-          {
-            text: "西风",
-            onclick: () => {
-              this.secretButtonClicked(gui, 1);
-            },
-          },
-          {
-            text: "静风",
-            onclick: () => {
-              this.secretButtonClicked(gui, 2);
-            },
-          },
-        ]);
-      },
-    });
-  }
-
-  onDeselected(gui: GameManager) {
-    gui.gameLayer.stopSelectPlayers();
+        })
+      )
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
+          cardId: data[0].card.id,
+          targetPlayerId: data[1].selectedPlayers[0].id,
+          secret: data[2],
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, secret, card, hasColor, handCards }: CardOnEffectParams) {
@@ -128,37 +144,33 @@ export class MiLing extends Card {
     const { secretText, color } = params;
     const handCardList = gui.data.handCardList;
     const tooltip = gui.tooltip;
-    gui.uiLayer.playerActionManager.clearAction();
-    gui.uiLayer.playerActionManager.setDefaultAction(
-      new PlayerAction({
-        actions: [
-          {
-            name: "selectCard",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                let tooltipText = "密令的暗号为" + secretText;
-                tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
-                tooltip.setText(tooltipText);
-                gui.gameLayer.startSelectHandCards({ num: 1 });
-                tooltip.buttons.setButtons([
-                  {
-                    text: "传递情报",
-                    onclick: () => {
-                      resolve(null);
-                    },
-                    enabled: () => {
-                      return (
-                        handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color)
-                      );
-                    },
-                  },
-                ]);
-              }),
-          },
-        ],
-      }).union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
+
+    PlayerAction.addStep(
+      new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          let tooltipText = "密令的暗号为" + secretText;
+          tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
+          tooltip.setText(tooltipText);
+          gui.gameLayer.startSelectHandCards({ num: 1 });
+          tooltip.buttons.setButtons([
+            {
+              text: "传递情报",
+              onclick: () => {
+                next({ message: gui.selectedHandCards.list[0] });
+              },
+              enabled: () => {
+                return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
+              },
+            },
+          ]);
+        },
+      })
     );
-    gui.uiLayer.playerActionManager.switchToDefault();
+
+    // gui.uiLayer.playerActionManager.clearAction();
+    // gui.uiLayer.playerActionManager.setDefaultAction(
+    //   new PlayerAction().union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
+    // );
   }
 
   promptPlayerChooseCard(gui: GameManager, params) {
@@ -225,17 +237,5 @@ export class MiLing extends Card {
       );
       gui.uiLayer.playerActionManager.switchToDefault();
     }
-  }
-
-  secretButtonClicked(gui: GameManager, secret: number) {
-    const card = gui.selectedHandCards.list[0];
-    const player = gui.selectedPlayers.list[0];
-    NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
-      cardId: card.id,
-      targetPlayerId: player.id,
-      secret,
-      seq: gui.seq,
-    });
-    this.onDeselected(gui);
   }
 }

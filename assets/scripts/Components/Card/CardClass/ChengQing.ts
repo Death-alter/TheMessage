@@ -8,6 +8,8 @@ import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../t
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { Player } from "../../Player/Player";
 
 export class ChengQing extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE, GamePhase.RECEIVE_PHASE];
@@ -28,34 +30,11 @@ export class ChengQing extends Card {
   onSelectedToPlay(gui: GameManager) {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
-    PlayerAction.addStep(
-      new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          tooltip.setText(`请选择要澄清的目标`);
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            onSelect: (player) => {
-              next({ player });
-            },
-          });
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                next({ player: gui.selectedPlayers.list[0] });
-              },
-              enabled: gui.selectedPlayers.list.length > 0,
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                prev();
-              },
-            },
-          ]);
-        },
-      })
-    )
+    PlayerAction.addStep(PlayerActionStepName.SELECT_PLAYER, {
+      num: 1,
+      filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
+      enabled: () => gui.selectedPlayers.list.length > 0,
+    })
       .addStep(
         new PlayerActionStep({
           handler: ({ player }, { next, prev }) => {
