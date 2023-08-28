@@ -132,6 +132,8 @@ export abstract class PlayerAction {
     this.list = [];
     this.tempList = [];
     this.dataList = [];
+    this.complete = null;
+    this.cancel = null;
 
     return this;
   }

@@ -8,7 +8,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      console.log(initial);
       gui.tooltip.setText(initial.tooltipText);
       gui.tooltip.buttons.setButtons([]);
       gui.gameLayer.startSelectHandCards({
@@ -46,13 +45,15 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "使用卡牌",
               onclick: () => {
-                next({ card });
+                card.onPlay(gui);
+                next();
               },
               enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay,
             },
             {
               text: "传递情报",
               onclick: () => {
+                gui.uiLayer.doSendMessage();
                 next({ message: card });
               },
             },
@@ -210,7 +211,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
     ({ initial, current }, { next, prev }) => {
-      const player = gui.data.playerList[current.playerId];
+      const player = gui.data.playerList[initial.playerId || current.playerId];
       const showCardsWindow = gui.showCardsWindow;
 
       showCardsWindow.show({

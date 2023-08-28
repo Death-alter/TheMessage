@@ -16,7 +16,6 @@ export abstract class PlayerActionStepManager {
   }
 
   static getStep(stepName: PlayerActionStepName, resolver?: PlayerActionStepDataResolver) {
-    console.log(stepName, DefaultStepsCreator[stepName](this.gui));
     return new PlayerActionStep({
       name: stepName,
       handler: DefaultStepsCreator[stepName](this.gui),

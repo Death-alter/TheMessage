@@ -184,7 +184,7 @@ export class AnimationLayer extends Component {
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
-    console.log(data);
+
     this.audioManager.playOneShot(getCardAudioSrc(data.cardType || data.card, data.player.character.sex));
 
     if (data.targetPlayer) {

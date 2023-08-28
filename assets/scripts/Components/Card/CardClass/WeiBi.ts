@@ -58,10 +58,11 @@ export class WeiBi extends Card {
                 {
                   text: "确定",
                   onclick: () => {
+                    const type = showCardsWindow.selectedCards.list[0];
                     showCardsWindow.hide();
                     gui.gameLayer.pauseSelectPlayers();
                     next({
-                      wantType: showCardsWindow.selectedCards.list[0].type,
+                      wantType: type,
                     });
                   },
                   enabled: () => !!showCardsWindow.selectedCards.list.length,
@@ -159,7 +160,6 @@ export class WeiBi extends Card {
       }),
     })
       .onComplete((data) => {
-        console.log(data);
         NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
           cardId: data[0].cardId,
           seq: gui.seq,

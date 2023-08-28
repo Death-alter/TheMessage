@@ -148,7 +148,7 @@ export class UILayer extends Component {
         case WaitingType.PLAY_CARD:
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
-              this.tooltip.showNextPhaseButton("争夺阶段");
+              this.tooltip.showNextPhaseButton("传递情报");
               PlayerAction.addStep({
                 step: PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY,
                 data: {
@@ -173,12 +173,17 @@ export class UILayer extends Component {
             data: {
               tooltipText: "传递阶段，请选择要传递的情报或要使用的卡牌",
             },
-          });
-          this.doSendMessage();
-          PlayerAction.start();
+          }).start();
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT }).start();
+          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT })
+            .onComplete((data) => {
+              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                receive: data[0].receive,
+                seq: this.seq,
+              });
+            })
+            .start();
           break;
         case WaitingType.PLAYER_DYING:
           PlayerAction.addStep({
@@ -186,7 +191,28 @@ export class UILayer extends Component {
             data: {
               playerId: data.params.diePlayerId,
             },
-          }).start();
+          })
+            .addStep({
+              step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+              data: {
+                playerId: data.params.diePlayerId,
+              },
+            })
+            .onComplete((data) => {
+              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                use: true,
+                cardId: data[0].cardId,
+                targetCardId: data[1].cardId,
+                seq: this.seq,
+              });
+            })
+            .onCancel(() => {
+              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                use: false,
+                seq: this.seq,
+              });
+            })
+            .start();
           break;
         case WaitingType.GIVE_CARD:
           PlayerAction.addStep({ step: PlayerActionStepName.SELECT_DIE_GIVE_CARDS }).start();
@@ -297,8 +323,8 @@ export class UILayer extends Component {
       .addStep({ step: PlayerActionStepName.SELECT_LOCK_TARGET })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-          cardId: data[2].card.id,
-          lockPlayerId: data[0].lockPlayerId,
+          cardId: data[2].message.id,
+          lockPlayerId: data[0] && data[0].lockPlayerId,
           targetPlayerId: data[1].targetPlayerId,
           cardDir: data[2].direction || data[2].message.direction,
           seq: this.seq,
