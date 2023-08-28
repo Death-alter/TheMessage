@@ -57,11 +57,14 @@ export class DataManager extends Component {
 
   clearData() {
     if (this.gameData) {
-      for (let player of this.gameData.playerList) {
-        for (let skill of player.character.skills) {
-          skill.dispose();
+      if (this.gameData.playerList) {
+        for (let player of this.gameData.playerList) {
+          for (let skill of player.character.skills) {
+            skill.dispose();
+          }
         }
       }
+
       this.gameData.unregisterEvents();
       this.gameData = null;
     }
