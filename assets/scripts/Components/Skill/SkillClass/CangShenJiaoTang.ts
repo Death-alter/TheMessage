@@ -8,7 +8,6 @@ import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../..
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 import { Card } from "../../../Components/Card/Card";
 import { CardColor } from "../../Card/type";
 import { Character } from "../../../Components/Chatacter/Character";

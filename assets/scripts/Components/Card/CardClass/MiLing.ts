@@ -2,7 +2,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
-import { CardColor, CardOnEffectParams, CardType, MiLingOption } from "../type";
+import { CardColor, CardOnEffectParams, CardType, CardUsableStatus, MiLingOption } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { getCardColorText } from "../../../Utils";
 import { GameManager } from "../../../Manager/GameManager";
@@ -35,17 +35,20 @@ export class MiLing extends Card {
     this._secretColor = option.secretColor;
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    PlayerAction.addStep(PlayerActionStepName.SELECT_PLAYER, {
-      tooltipText: "请选择密令的目标",
-      num: 1,
-      filter: (player: Player) => {
-        return player.handCardCount > 0 && player.id !== 0;
+  onPlay(gui: GameManager): void {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择密令的目标",
+        num: 1,
+        filter: (player: Player) => {
+          return player.handCardCount > 0 && player.id !== 0;
+        },
+        enabled: () => gui.selectedPlayers.list.length > 0,
       },
-      enabled: () => gui.selectedPlayers.list.length > 0,
     })
-      .addStep(
-        new PlayerActionStep({
+      .addTempStep({
+        step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
             const tooltip = gui.tooltip;
             tooltip.setText("请选择一个暗号");
@@ -76,13 +79,13 @@ export class MiLing extends Card {
               },
             ]);
           },
-        })
-      )
+        }),
+      })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
-          cardId: data[0].card.id,
-          targetPlayerId: data[1].selectedPlayers[0].id,
-          secret: data[2],
+          cardId: this.id,
+          targetPlayerId: data[1].players[0].id,
+          secret: data[0],
           seq: gui.seq,
         });
       });
@@ -145,13 +148,22 @@ export class MiLing extends Card {
     const handCardList = gui.data.handCardList;
     const tooltip = gui.tooltip;
 
-    PlayerAction.addStep(
-      new PlayerActionStep({
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           let tooltipText = "密令的暗号为" + secretText;
           tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
           tooltip.setText(tooltipText);
-          gui.gameLayer.startSelectHandCards({ num: 1 });
+          gui.gameLayer.startSelectHandCards({
+            num: 1,
+            filter: (card) => {
+              if (Card.hasColor(card, color)) {
+                return CardUsableStatus.USABLE;
+              } else {
+                return CardUsableStatus.UNUSEABLE;
+              }
+            },
+          });
           tooltip.buttons.setButtons([
             {
               text: "传递情报",
@@ -164,13 +176,10 @@ export class MiLing extends Card {
             },
           ]);
         },
-      })
-    );
-
-    // gui.uiLayer.playerActionManager.clearAction();
-    // gui.uiLayer.playerActionManager.setDefaultAction(
-    //   new PlayerAction().union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
-    // );
+      }),
+    });
+    gui.uiLayer.doSendMessage();
+    PlayerAction.start();
   }
 
   promptPlayerChooseCard(gui: GameManager, params) {
@@ -214,28 +223,23 @@ export class MiLing extends Card {
     if (!gui.isRecord) {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
-      gui.uiLayer.playerActionManager.clearAction();
-      gui.uiLayer.playerActionManager.setDefaultAction(
-        new PlayerAction({
-          actions: [
-            {
-              handler: () =>
-                new Promise((resolve, reject) => {
-                  gui.gameLayer.startSelectHandCards({ num: 1 });
-                  for (let item of handCardContainer.data.list) {
-                    if ((<Card>item).id === cardId) {
-                      handCardContainer.selectCard(<Card>item);
-                      break;
-                    }
-                  }
-                  gui.gameLayer.pauseSelectPlayers();
-                  resolve(null);
-                }),
-            },
-          ],
-        }).union(gui.uiLayer.createDoSendMessageAction.apply(gui.uiLayer))
-      );
-      gui.uiLayer.playerActionManager.switchToDefault();
+      PlayerAction.addStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            let message;
+            gui.gameLayer.startSelectHandCards({ num: 1 });
+            for (let item of handCardContainer.data.list) {
+              if ((<Card>item).id === cardId) {
+                message = item;
+                handCardContainer.selectCard(<Card>item);
+                break;
+              }
+            }
+            gui.gameLayer.pauseSelectPlayers();
+            next({ message });
+          },
+        }),
+      });
     }
   }
 }

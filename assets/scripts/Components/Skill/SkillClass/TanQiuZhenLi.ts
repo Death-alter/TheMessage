@@ -8,7 +8,6 @@ import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 import { CardColor } from "../../Card/type";
 import { copyCard } from "../../Card";
 

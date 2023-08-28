@@ -7,6 +7,8 @@ import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GameLog } from "../../GameLog/GameLog";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class FengYunBianHuan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -26,20 +28,11 @@ export class FengYunBianHuan extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用风云变幻？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.USE_FENG_YUN_BIAN_HUAN_TOS, {
-            cardId: this.id,
-            seq: gui.seq,
-          });
-        },
-      },
-    ]);
+  onPlay(gui: GameManager): void {
+    NetworkEventCenter.emit(NetworkEventToS.USE_FENG_YUN_BIAN_HUAN_TOS, {
+      cardId: this.id,
+      seq: gui.seq,
+    });
   }
 
   onShowCards(gameData: GameData, { cards }: CardOnEffectParams) {

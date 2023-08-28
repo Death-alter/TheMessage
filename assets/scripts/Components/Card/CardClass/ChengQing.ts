@@ -27,20 +27,22 @@ export class ChengQing extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager) {
-    const tooltip = gui.tooltip;
+  onPlay(gui: GameManager) {
     const showCardsWindow = gui.showCardsWindow;
-    PlayerAction.addStep(PlayerActionStepName.SELECT_PLAYER, {
-      num: 1,
-      filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
-      enabled: () => gui.selectedPlayers.list.length > 0,
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        num: 1,
+        filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
+        enabled: () => gui.selectedPlayers.list.length > 0,
+      },
     })
-      .addStep(
-        new PlayerActionStep({
-          handler: ({ player }, { next, prev }) => {
+      .addTempStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
             showCardsWindow.show({
               title: "选择一张黑色情报弃置",
-              cardList: player.getMessagesCopy(),
+              cardList: current.players[0].getMessagesCopy(),
               limit: 1,
               buttons: [
                 {
@@ -66,13 +68,13 @@ export class ChengQing extends Card {
               ],
             });
           },
-        })
-      )
+        }),
+      })
       .onComplete((stepData) => {
         NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
           cardId: this.id,
           playerId: stepData[1].playerId,
-          targetCardId: stepData[2].targetCardId,
+          targetCardId: stepData[0].targetCardId,
           seq: gui.seq,
         });
       });

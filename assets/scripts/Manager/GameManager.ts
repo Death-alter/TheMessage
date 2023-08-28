@@ -18,7 +18,6 @@ import { PopupLayer } from "../Scenes/Game/PopupLayer/PopupLayer";
 import { UILayer } from "../Scenes/Game/UILayer/UILayer";
 import { StartCountDown } from "../Event/ProcessEventType";
 import { PlayerActionStepManager } from "../Utils/PlayerAction/PlayerActionStepManager";
-import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 
 const { ccclass, property } = _decorator;
 

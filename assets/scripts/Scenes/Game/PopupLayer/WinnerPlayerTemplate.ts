@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, Prefab, color, UITransform, Sprite } from "cc";
+import { _decorator, Component, Label, Node, color, UITransform, Sprite } from "cc";
 import { Player } from "../../../Components/Player/Player";
 import { Identity } from "../../../Components/Identity/Identity";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";

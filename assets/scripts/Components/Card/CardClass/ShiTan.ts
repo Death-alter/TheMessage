@@ -8,6 +8,8 @@ import { IdentityType } from "../../Identity/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
 import { GameLog } from "../../GameLog/GameLog";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -31,35 +33,24 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择试探的目标`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => player.id !== 0,
-      onSelect: () => {
-        tooltip.setText(`是否使用试探？`);
-        tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              const card = gui.selectedHandCards.list[0];
-              const player = gui.selectedPlayers.list[0];
-              NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
-                cardId: card.id,
-                playerId: player.id,
-                seq: gui.seq,
-              });
-              this.onDeselected(gui);
-            },
-          },
-        ]);
+  onPlay(gui: GameManager): void {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择试探的目标",
+        num: 1,
+        filter: (player) => {
+          return player.id !== 0;
+        },
+        enabled: () => gui.selectedPlayers.list.length > 0,
       },
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.USE_SHI_TAN_TOS, {
+        cardId: this.id,
+        playerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-  }
-
-  onDeselected(gui: GameManager) {
-    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId, flag }: CardOnEffectParams) {

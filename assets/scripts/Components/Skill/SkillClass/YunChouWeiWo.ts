@@ -9,7 +9,6 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 import { Card } from "../../Card/Card";
 
 export class YunChouWeiWo extends ActiveSkill {

@@ -10,7 +10,6 @@ import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Card } from "../../Card/Card";
 import { CardColor, CardDirection, CardType } from "../../Card/type";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class LengXueXunLian extends ActiveSkill {
   constructor(character: Character) {

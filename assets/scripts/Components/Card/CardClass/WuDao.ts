@@ -2,9 +2,11 @@ import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
-import { NetworkEventCenter} from "../../../Event/EventTarget";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS } from "../../../Event/type";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class WuDao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
@@ -22,36 +24,25 @@ export class WuDao extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择误导的目标`);
+  onPlay(gui: GameManager): void {
     const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => {
-        return neighbors.indexOf(player) !== -1;
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择误导的目标",
+        num: 1,
+        filter: (player) => {
+          return neighbors.indexOf(player) !== -1;
+        },
+        enabled: () => gui.selectedPlayers.list.length > 0,
       },
-      onSelect: (player) => {
-        tooltip.setText(`是否使用误导？`);
-        tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
-                cardId: this.id,
-                targetPlayerId: player.id,
-                seq: gui.seq,
-              });
-              this.onDeselected(gui);
-            },
-          },
-        ]);
-      },
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
+        cardId: this.id,
+        targetPlayerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-  }
-
-  onDeselected(gui: GameManager) {
-    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {

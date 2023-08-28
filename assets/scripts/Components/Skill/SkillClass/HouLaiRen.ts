@@ -12,7 +12,6 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 import { CardColor } from "../../Card/type";
 import { WaitingType } from "../../../Manager/type";
 import { createCharacterById } from "../../Chatacter";

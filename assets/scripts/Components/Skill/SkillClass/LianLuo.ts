@@ -4,7 +4,6 @@ import { Character } from "../../../Components/Chatacter/Character";
 import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class LianLuo extends PassiveSkill {
   doSendMessage: Function;

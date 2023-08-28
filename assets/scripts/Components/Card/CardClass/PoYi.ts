@@ -23,23 +23,12 @@ export class PoYi extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用破译？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
-            cardId: this.id,
-            seq: gui.seq,
-          });
-        },
-      },
-    ]);
+  onPlay(gui: GameManager): void {
+    NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
+      cardId: this.id,
+      seq: gui.seq,
+    });
   }
-
-  onDeselected(gui: GameManager) {}
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
     if (userId === 0) {

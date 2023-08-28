@@ -24,20 +24,11 @@ export class DiaoBao extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用调包？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
-            cardId: this.id,
-            seq: gui.seq,
-          });
-        },
-      },
-    ]);
+  onPlay(gui: GameManager): void {
+    NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
+      cardId: this.id,
+      seq: gui.seq,
+    });
   }
 
   onEffect(gameData: GameData, { cardId, oldMessageCard }: CardOnEffectParams) {

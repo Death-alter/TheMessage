@@ -2,10 +2,13 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { Player } from "../../Player/Player";
 
 export class LiYou extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -23,32 +26,21 @@ export class LiYou extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择要利诱的目标`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      onSelect: (player) => {
-        tooltip.setText(`是否使用利诱？`);
-        tooltip.buttons.setButtons([
-          {
-            text: "确定",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.USE_LI_YOU_TOS, {
-                cardId: this.id,
-                playerId: player.id,
-                seq: gui.seq,
-              });
-              gui.gameLayer.stopSelectPlayers();
-            },
-          },
-        ]);
+  onPlay(gui: GameManager): void {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择利诱的目标",
+        num: 1,
+        enabled: () => gui.selectedPlayers.list.length > 0,
       },
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.USE_LI_YOU_TOS, {
+        cardId: this.id,
+        playerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-  }
-
-  onDeselected(gui: GameManager) {
-    gui.gameLayer.stopSelectPlayers();
   }
 
   onEffect(gameData: GameData, { userId, targetPlayerId, targetCard, flag }: CardOnEffectParams): void {

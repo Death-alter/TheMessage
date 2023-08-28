@@ -22,21 +22,11 @@ export class JieHuo extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager): void {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用截获？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
-            cardId: this.id,
-            seq: gui.seq,
-          });
-        },
-        enabled: () => gui.data.messagePlayerId !== 0,
-      },
-    ]);
+  onPlay(gui: GameManager): void {
+    NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
+      cardId: this.id,
+      seq: gui.seq,
+    });
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {

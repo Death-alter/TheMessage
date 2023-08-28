@@ -8,14 +8,13 @@ import { Card } from "../../../Components/Card/Card";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { ActiveSkill, PassiveSkill, Skill, TriggerSkill } from "../../../Components/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
-import { CardDirection, CardType, CardUsableStatus } from "../../../Components/Card/type";
+import { CardUsableStatus } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
 import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 const { ccclass, property } = _decorator;
 
@@ -150,38 +149,47 @@ export class UILayer extends Component {
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
               this.tooltip.showNextPhaseButton("争夺阶段");
-              PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY, {
-                tooltipText: "出牌阶段，请选择要使用的卡牌",
+              PlayerAction.addStep({
+                step: PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY,
+                data: {
+                  tooltipText: "出牌阶段，请选择要使用的卡牌",
+                },
               }).start();
               break;
             case GamePhase.FIGHT_PHASE:
               this.tooltip.showNextPhaseButton("跳过");
-              PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY, {
-                tooltipText: "争夺阶段，请选择要使用的卡牌",
+              PlayerAction.addStep({
+                step: PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY,
+                data: {
+                  tooltipText: "争夺阶段，请选择要使用的卡牌",
+                },
               }).start();
               break;
           }
           break;
         case WaitingType.SEND_MESSAGE:
-          PlayerAction.addStep(PlayerActionStepName.SELECT_HAND_CARD_TO_SEND, {
-            tooltipText: "传递阶段，请选择要传递的情报或要使用的卡牌",
-          }).start();
+          PlayerAction.addStep({
+            step: PlayerActionStepName.SELECT_HAND_CARD_TO_SEND,
+            data: {
+              tooltipText: "传递阶段，请选择要传递的情报或要使用的卡牌",
+            },
+          });
+          this.doSendMessage();
+          PlayerAction.start();
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          PlayerAction.addStep(PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT, {
-            playerId: data.params.diePlayerId,
-          }).start();
-
+          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT }).start();
           break;
         case WaitingType.PLAYER_DYING:
-          PlayerAction.addStep(PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT, {
-            playerId: data.params.diePlayerId,
+          PlayerAction.addStep({
+            step: PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT,
+            data: {
+              playerId: data.params.diePlayerId,
+            },
           }).start();
           break;
         case WaitingType.GIVE_CARD:
-          PlayerAction.addStep(PlayerActionStepName.SELECT_DIE_GIVE_CARDS, {
-            playerId: data.params.diePlayerId,
-          }).start();
+          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_DIE_GIVE_CARDS }).start();
           break;
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
@@ -284,102 +292,15 @@ export class UILayer extends Component {
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
-  doSendMessage(message, params) {
-    PlayerAction.addStep(
-      new PlayerActionStep({
-        name: "selectMessageTarget",
-        handler: ({ defaultData }, { next, prev }) => {
-          const dir = defaultData.direction || defaultData.message.direction;
-          let i;
-          switch (dir) {
-            case CardDirection.LEFT:
-              i = this.manager.data.playerList.length - 1;
-              while (!this.manager.data.playerList[i].isAlive) {
-                --i;
-              }
-              next({
-                targetPlayerId: i,
-              });
-              break;
-            case CardDirection.RIGHT:
-              i = 1;
-              while (!this.manager.data.playerList[i].isAlive) {
-                ++i;
-              }
-              next({
-                targetPlayerId: i,
-              });
-              break;
-            case CardDirection.UP:
-              this.tooltip.setText("请选择要传递情报的目标");
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "确定",
-                  onclick: () => {
-                    UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
-                    next({
-                      targetPlayerId: this.selectedPlayers.list[0].id,
-                    });
-                  },
-                  enabled: () => this.selectedPlayers.list.length > 0,
-                },
-              ]);
-              UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-                num: 1,
-                filter: (player) => {
-                  return player.id !== 0;
-                },
-              });
-              break;
-          }
-        },
-      }),
-      { message, direction: params.direction }
-    )
-      .addStep(
-        new PlayerActionStep({
-          name: "selectLockTarget",
-          handler: ({ defaultData }, { next, prev }) => {
-            if (defaultData.message.lockable) {
-              this.tooltip.setText("请选择一名角色锁定");
-              UIEventCenter.emit(UIEvent.START_SELECT_PLAYER, {
-                num: 1,
-                filter: (player) => {
-                  return player.id !== 0;
-                },
-              });
-              this.tooltip.buttons.setButtons([
-                {
-                  text: "锁定",
-                  onclick: () => {
-                    next({
-                      lockPlayerId: [this.selectedPlayers.list[0].id],
-                    });
-                  },
-                  enabled: () => {
-                    return this.selectedPlayers.list.length === 1;
-                  },
-                },
-                {
-                  text: "不锁定",
-                  onclick: () => {
-                    next();
-                  },
-                },
-              ]);
-            } else {
-              next();
-            }
-          },
-        }),
-        { message }
-      )
-      .onComplete((stepData) => {
+  doSendMessage() {
+    PlayerAction.addStep({ step: PlayerActionStepName.SELECT_MESSAGE_TARGET })
+      .addStep({ step: PlayerActionStepName.SELECT_LOCK_TARGET })
+      .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-          cardId: stepData[0].card.id,
-          lockPlayerId: stepData[2].lockPlayerId,
-          targetPlayerId: stepData[1].targetPlayerId,
-          cardDir: params.direction || message.direction,
+          cardId: data[2].card.id,
+          lockPlayerId: data[0].lockPlayerId,
+          targetPlayerId: data[1].targetPlayerId,
+          cardDir: data[2].direction || data[2].message.direction,
           seq: this.seq,
         });
 

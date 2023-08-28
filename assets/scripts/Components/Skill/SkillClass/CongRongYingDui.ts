@@ -8,7 +8,6 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class CongRongYingDui extends TriggerSkill {
   constructor(character: Character) {

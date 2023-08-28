@@ -1,7 +1,6 @@
 import { _decorator, Node, Label, Sprite, color, Vec2, UITransform } from "cc";
 import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
 import { GameObject } from "../../GameObject";
-import { GamePhase } from "../../Manager/type";
 import { GameManager } from "../../Manager/GameManager";
 import { UIEventCenter } from "../../Event/EventTarget";
 import { UIEvent } from "../../Event/type";

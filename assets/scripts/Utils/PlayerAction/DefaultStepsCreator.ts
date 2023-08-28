@@ -1,13 +1,14 @@
 import { Card } from "../../Components/Card/Card";
 import { CardDirection, CardType } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
-import { PlayerActionStep, PlayerActionStepHandler } from "./PlayerActionStep";
+import { PlayerActionStepHandler } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
 
 const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionStepHandler } = {
   [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
+      console.log(initial);
       gui.tooltip.setText(initial.tooltipText);
       gui.tooltip.buttons.setButtons([]);
       gui.gameLayer.startSelectHandCards({
@@ -19,7 +20,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "确定",
               onclick: () => {
-                next({ card });
+                card.onPlay(gui);
+                next();
               },
             },
           ]);
@@ -151,7 +153,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       ]);
     },
-  [PlayerActionStepName.SELECT_PLAYER]:
+  [PlayerActionStepName.SELECT_PLAYERS]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
       const { tooltipText, num, filter, enabled } = initial;
@@ -165,7 +167,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           text: "确定",
           onclick: () => {
             gui.gameLayer.pauseSelectPlayers();
-            next({ selectedPlayers: [...gui.selectedPlayers.list] });
+            next({ players: [...gui.selectedPlayers.list] });
           },
           enabled: enabled || true,
         },
@@ -173,6 +175,33 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           text: "取消",
           onclick: () => {
             gui.gameLayer.stopSelectPlayers();
+            prev();
+          },
+        },
+      ]);
+    },
+  [PlayerActionStepName.SELECT_HAND_CARDS]:
+    (gui: GameManager) =>
+    ({ initial }, { next, prev }) => {
+      const { tooltipText, num, filter, enabled } = initial;
+      gui.tooltip.setText(tooltipText || "请选择一张牌");
+      gui.gameLayer.startSelectHandCards({
+        num: num || 1,
+        filter,
+      });
+      gui.tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            gui.gameLayer.pauseSelectHandCards();
+            next({ players: [...gui.selectedHandCards.list] });
+          },
+          enabled: enabled || true,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            gui.gameLayer.stopSelectHandCards();
             prev();
           },
         },
@@ -205,6 +234,100 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           },
         ],
       });
+    },
+  [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
+    (gui: GameManager) =>
+    ({ current }, { next, prev, passOnPrev }) => {
+      const dir = current.direction || current.message.direction;
+      let i;
+      switch (dir) {
+        case CardDirection.LEFT:
+          passOnPrev(() => {
+            i = gui.data.playerList.length - 1;
+            while (!gui.data.playerList[i].isAlive) {
+              --i;
+            }
+            next({
+              targetPlayerId: i,
+            });
+          });
+          break;
+        case CardDirection.RIGHT:
+          passOnPrev(() => {
+            i = 1;
+            while (!gui.data.playerList[i].isAlive) {
+              ++i;
+            }
+            next({
+              targetPlayerId: i,
+            });
+          });
+          break;
+        case CardDirection.UP:
+          gui.gameLayer.startSelectPlayers({
+            num: 1,
+            filter: (player) => {
+              return player.id !== 0;
+            },
+          });
+          gui.tooltip.setText("请选择要传递情报的目标");
+          gui.tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                gui.gameLayer.pauseSelectPlayers();
+                next({
+                  targetPlayerId: gui.selectedPlayers.list[0].id,
+                });
+              },
+              enabled: () => gui.selectedPlayers.list.length > 0,
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                gui.gameLayer.stopSelectPlayers();
+                prev();
+              },
+            },
+          ]);
+          break;
+      }
+    },
+  [PlayerActionStepName.SELECT_LOCK_TARGET]:
+    (gui: GameManager) =>
+    ({ current }, { next, prev }) => {
+      gui.tooltip.setText("请选择一名角色锁定");
+      gui.gameLayer.startSelectPlayers({
+        num: 1,
+        filter: (player) => {
+          return player.id !== 0;
+        },
+      });
+      gui.tooltip.buttons.setButtons([
+        {
+          text: "锁定",
+          onclick: () => {
+            next({
+              lockPlayerId: [gui.selectedPlayers.list[0].id],
+            });
+          },
+          enabled: () => {
+            return gui.selectedPlayers.list.length === 1;
+          },
+        },
+        {
+          text: "不锁定",
+          onclick: () => {
+            next();
+          },
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            prev();
+          },
+        },
+      ]);
     },
 };
 

@@ -3,6 +3,8 @@ export type PlayerActionStepHandler = (
   fs: {
     next: (data?: { [index: string]: any }) => void;
     prev: () => void;
+    passOnNext: (f: () => void) => void;
+    passOnPrev: (f: () => void) => void;
   }
 ) => void;
 
@@ -11,11 +13,6 @@ export type PlayerActionStepDataResolver = (data: { [index: string]: any }) => {
 export interface PlayerActionStepData {
   initial?: { [index: string]: any };
   current?: { [index: string]: any };
-}
-
-export interface PlayerActionStepNextParams {
-  step?: PlayerActionStep | string;
-  data?: { [index: string]: any };
 }
 
 export interface PlayerActionStepOption {

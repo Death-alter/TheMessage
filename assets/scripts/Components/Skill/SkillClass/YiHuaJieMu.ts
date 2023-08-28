@@ -9,7 +9,6 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
-import { PlayerAction } from "../../../Utils/PlayerAction";
 
 export class YiHuaJieMu extends ActiveSkill {
   constructor(character: Character) {

@@ -1,13 +1,15 @@
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType, CardUsableStatus } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { CardPlayed } from "../../../Event/ProcessEventType";
 import { GameManager } from "../../../Manager/GameManager";
 import { GameLog } from "../../GameLog/GameLog";
-import { PlayerAction } from "../../../Utils/PlayerAction";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -25,82 +27,66 @@ export class WeiBi extends Card {
     });
   }
 
-  onSelectedToPlay(gui: GameManager) {
+  onPlay(gui: GameManager) {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "selectPlayer",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText(`请选择威逼的目标`);
-                gui.gameLayer.startSelectPlayers({
-                  num: 1,
-                  filter: (player) => {
-                    return player.id !== 0;
-                  },
-                  onSelect: (player) => {
-                    resolve({ player });
-                  },
-                });
-              }),
-          },
-          {
-            name: "selectCard",
-            handler: ({ player }) =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "选择目标交给你的卡牌种类",
-                  cardList: [
-                    gui.data.createCardByType(CardType.JIE_HUO),
-                    gui.data.createCardByType(CardType.WU_DAO),
-                    gui.data.createCardByType(CardType.DIAO_BAO),
-                    gui.data.createCardByType(CardType.CHENG_QING),
-                  ],
-                  limit: 1,
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        resolve({
-                          playerId: player.id,
-                          wantType: showCardsWindow.selectedCards.list[0].type,
-                        });
-                        showCardsWindow.hide();
-                      },
-                      enabled: () => !!showCardsWindow.selectedCards.list.length,
-                    },
-                    {
-                      text: "取消",
-                      onclick: () => {
-                        showCardsWindow.hide();
-                        gui.gameLayer.stopSelectPlayers();
-                        reject();
-                      },
-                    },
-                  ],
-                });
-              }),
-          },
-        ],
-        complete: (data) => {
-          NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
-            cardId: this.id,
-            playerId: data.playerId,
-            wantType: data.wantType,
-            seq: gui.seq,
-          });
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择威逼的目标",
+        num: 1,
+        filter: (player) => {
+          return player.id !== 0;
         },
+        enabled: () => gui.selectedPlayers.list.length > 0,
+      },
+    })
+      .addTempStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            showCardsWindow.show({
+              title: "选择目标交给你的卡牌种类",
+              cardList: [
+                gui.data.createCardByType(CardType.JIE_HUO),
+                gui.data.createCardByType(CardType.WU_DAO),
+                gui.data.createCardByType(CardType.DIAO_BAO),
+                gui.data.createCardByType(CardType.CHENG_QING),
+              ],
+              limit: 1,
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    gui.gameLayer.pauseSelectPlayers();
+                    next({
+                      wantType: showCardsWindow.selectedCards.list[0].type,
+                    });
+                  },
+                  enabled: () => !!showCardsWindow.selectedCards.list.length,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    gui.gameLayer.stopSelectPlayers();
+                    prev();
+                  },
+                },
+              ],
+            });
+          },
+        }),
       })
-    );
-  }
-
-  onDeselected(gui: GameManager) {
-    gui.showCardsWindow.hide();
-    gui.gameLayer.stopSelectPlayers();
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
+          cardId: this.id,
+          playerId: data[1].playerId,
+          wantType: data[0].wantType,
+          seq: gui.seq,
+        });
+      });
   }
 
   //有人使用威逼
@@ -142,24 +128,44 @@ export class WeiBi extends Card {
 
   promptChooseCard(gui: GameManager, params) {
     const { userText, cardTypeText, wantType } = params;
-    const tooltip = gui.tooltip;
-    tooltip.setText(`${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
-    gui.gameLayer.startSelectHandCards({ num: 1 });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
-            cardId: gui.selectedHandCards.list[0].id,
-            seq: gui.seq,
+
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`${userText} 对你使用威逼，请选择一张【${cardTypeText}】交给该玩家`);
+          gui.gameLayer.startSelectHandCards({
+            num: 1,
+            filter: (card) => {
+              if (card.type === wantType) {
+                return CardUsableStatus.USABLE;
+              } else {
+                return CardUsableStatus.UNUSEABLE;
+              }
+            },
           });
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next({ cardId: gui.selectedHandCards.list[0].id });
+              },
+              enabled: () => {
+                return gui.selectedHandCards.list.length > 0;
+              },
+            },
+          ]);
         },
-        enabled: () => {
-          return gui.selectedHandCards.list.length === 1 && gui.selectedHandCards.list[0].type === wantType;
-        },
-      },
-    ]);
-    tooltip.show();
+      }),
+    })
+      .onComplete((data) => {
+        console.log(data);
+        NetworkEventCenter.emit(NetworkEventToS.WEI_BI_GIVE_CARD_TOS, {
+          cardId: data[0].cardId,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   //威逼给牌

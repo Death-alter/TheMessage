@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Sprite, color, random } from "cc";
+import { _decorator, Label, Node, Sprite, color } from "cc";
 import { Player } from "./Player";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
