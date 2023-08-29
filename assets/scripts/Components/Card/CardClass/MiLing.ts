@@ -35,6 +35,16 @@ export class MiLing extends Card {
     this._secretColor = option.secretColor;
   }
 
+  canPlay(gui: GameManager) {
+    for (let i = 1; i < gui.data.playerList.length; i++) {
+      const player = gui.data.playerList[i];
+      if (player.handCardCount > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   onPlay(gui: GameManager): void {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
@@ -239,7 +249,7 @@ export class MiLing extends Card {
             next({ message });
           },
         }),
-      });
+      }).start();
     }
   }
 }

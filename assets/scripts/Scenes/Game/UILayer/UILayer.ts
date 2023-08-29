@@ -199,7 +199,7 @@ export class UILayer extends Component {
               },
             })
             .onComplete((data) => {
-              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+              NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                 use: true,
                 cardId: data[0].cardId,
                 targetCardId: data[1].cardId,
@@ -207,7 +207,7 @@ export class UILayer extends Component {
               });
             })
             .onCancel(() => {
-              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+              NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                 use: false,
                 seq: this.seq,
               });

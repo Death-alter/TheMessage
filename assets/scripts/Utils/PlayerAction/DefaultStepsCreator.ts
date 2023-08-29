@@ -8,25 +8,34 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      gui.tooltip.setText(initial.tooltipText);
+      const { tooltipText, filter } = initial;
+      gui.tooltip.setText(tooltipText);
       gui.tooltip.buttons.setButtons([]);
       gui.gameLayer.startSelectHandCards({
         num: 1,
-        filter: (card) => gui.uiLayer.getCardUsableStatus(card),
+        filter: filter || ((card) => gui.uiLayer.getCardUsableStatus(card)),
         onSelect: (card: Card) => {
-          gui.tooltip.setText(`是否使用【${card.name}】`);
+          const canPlay = card.canPlay(gui);
+          if (canPlay) {
+            gui.tooltip.setText(`是否使用【${card.name}】`);
+          } else {
+            gui.tooltip.setText(`现在不能使用【${card.name}】`);
+          }
+
           gui.tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
+                gui.gameLayer.pauseSelectHandCards();
                 card.onPlay(gui);
                 next();
               },
+              enabled: canPlay,
             },
           ]);
         },
         onDeselect: (card: Card) => {
-          gui.tooltip.setText(initial.tooltipText);
+          gui.tooltip.setText(tooltipText);
           gui.tooltip.buttons.setButtons([]);
         },
       });
@@ -34,17 +43,19 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      const { tooltipText } = initial;
+      const { tooltipText, filter } = initial;
       gui.tooltip.setText(tooltipText);
       gui.tooltip.buttons.setButtons([]);
       gui.gameLayer.startSelectHandCards({
         num: 1,
+        filter,
         onSelect: (card: Card) => {
           gui.tooltip.setText(`请选择一项操作`);
           gui.tooltip.buttons.setButtons([
             {
               text: "使用卡牌",
               onclick: () => {
+                gui.gameLayer.pauseSelectHandCards();
                 card.onPlay(gui);
                 next();
               },
@@ -53,6 +64,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "传递情报",
               onclick: () => {
+                gui.gameLayer.pauseSelectHandCards();
                 gui.uiLayer.doSendMessage();
                 next({ message: card });
               },
@@ -167,6 +179,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "确定",
           onclick: () => {
+            console.log(1);
             gui.gameLayer.pauseSelectPlayers();
             next({ players: [...gui.selectedPlayers.list] });
           },

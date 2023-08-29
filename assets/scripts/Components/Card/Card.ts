@@ -72,6 +72,10 @@ export abstract class Card extends DataBasic<CardObject> {
 
   onPlay(gui: GameManager): void {}
 
+  canPlay(gui: GameManager): boolean {
+    return false;
+  }
+
   onEffect(gameData: GameData, params: CardOnEffectParams): boolean | void {
     return true;
   }

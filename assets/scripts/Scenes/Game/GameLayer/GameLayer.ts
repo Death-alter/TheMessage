@@ -315,20 +315,16 @@ export class GameLayer extends Component {
     onDeselect?: (card: Card) => void;
   }) {
     const { num, filter, onSelect, onDeselect } = option;
+    this.stopSelectHandCards();
     this.selectedHandCards.limit = num || 1;
-    this.selectedHandCards.unlock();
     if (filter) {
       this.handCardContainer.setHandCardsUsable(filter);
     }
     if (onSelect) {
       ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, onSelect);
-    } else {
-      ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD, onSelect);
     }
     if (onDeselect) {
       ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
-    } else {
-      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
     }
   }
 
@@ -343,6 +339,7 @@ export class GameLayer extends Component {
     this.selectedHandCards.unlock();
     this.handCardContainer.refreshHandCardsUseable();
     this.handCardContainer.resetSelectCard();
-    this.pauseSelectHandCards();
+    ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
+    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
   }
 }

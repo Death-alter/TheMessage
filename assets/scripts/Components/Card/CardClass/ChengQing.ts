@@ -27,6 +27,15 @@ export class ChengQing extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    for (let player of gui.data.playerList) {
+      if (player.messageCounts[CardColor.BLACK] > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   onPlay(gui: GameManager) {
     const showCardsWindow = gui.showCardsWindow;
     PlayerAction.addTempStep({

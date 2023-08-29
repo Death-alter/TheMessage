@@ -23,6 +23,10 @@ export class PoYi extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    return gui.data.messagePlayerId === 0;
+  }
+
   onPlay(gui: GameManager): void {
     NetworkEventCenter.emit(NetworkEventToS.USE_PO_YI_TOS, {
       cardId: this.id,

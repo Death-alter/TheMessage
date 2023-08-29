@@ -24,6 +24,10 @@ export class DiaoBao extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    return gui.data.messageInTransmit !== null;
+  }
+
   onPlay(gui: GameManager): void {
     NetworkEventCenter.emit(NetworkEventToS.USE_DIAO_BAO_TOS, {
       cardId: this.id,

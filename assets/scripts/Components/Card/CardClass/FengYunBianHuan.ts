@@ -28,6 +28,10 @@ export class FengYunBianHuan extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    return true;
+  }
+
   onPlay(gui: GameManager): void {
     NetworkEventCenter.emit(NetworkEventToS.USE_FENG_YUN_BIAN_HUAN_TOS, {
       cardId: this.id,

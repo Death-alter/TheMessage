@@ -29,7 +29,9 @@ export abstract class PlayerAction {
     }
     this.dataList[this.index].current = data;
     if (this.index >= this.stepList.length) {
-      this.complete && this.complete([...this.dataList].reverse().map((item) => item.current));
+      const data = [...this.dataList].reverse().map((item) => item.current);
+      console.log(data);
+      this.complete && this.complete(data);
     } else {
       this.handleStep();
     }
@@ -38,16 +40,16 @@ export abstract class PlayerAction {
   private static prev() {
     this.direction = 1;
     this.dataList.pop();
-    if (this.currentIsTemp) {
-      this.tempList.pop();
-    }
     --this.index;
-    if (this.index <= 0) {
+    if (this.index < this.list.length) {
+      this.tempList = [];
+    }
+
+    if (this.index < 0) {
       this.cancel && this.cancel();
     } else {
       this.handleStep();
     }
-    this.handleStep();
   }
 
   private static passOnNext(f: () => void) {
@@ -124,6 +126,12 @@ export abstract class PlayerAction {
     this.dataList.push({ initial: data });
 
     return this;
+  }
+
+  static clearTemp() {
+    while (this.index >= this.list.length) {
+      this.prev();
+    }
   }
 
   static clear() {

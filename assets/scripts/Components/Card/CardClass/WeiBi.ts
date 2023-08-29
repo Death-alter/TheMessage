@@ -27,10 +27,11 @@ export class WeiBi extends Card {
     });
   }
 
-  onPlay(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
+  canPlay(gui: GameManager) {
+    return true;
+  }
 
+  onPlay(gui: GameManager) {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
@@ -45,6 +46,7 @@ export class WeiBi extends Card {
       .addTempStep({
         step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
+            const showCardsWindow = gui.showCardsWindow;
             showCardsWindow.show({
               title: "选择目标交给你的卡牌种类",
               cardList: [
@@ -58,7 +60,7 @@ export class WeiBi extends Card {
                 {
                   text: "确定",
                   onclick: () => {
-                    const type = showCardsWindow.selectedCards.list[0];
+                    const type = showCardsWindow.selectedCards.list[0].type;
                     showCardsWindow.hide();
                     gui.gameLayer.pauseSelectPlayers();
                     next({
@@ -83,7 +85,7 @@ export class WeiBi extends Card {
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.USE_WEI_BI_TOS, {
           cardId: this.id,
-          playerId: data[1].playerId,
+          playerId: data[1].players[0].id,
           wantType: data[0].wantType,
           seq: gui.seq,
         });

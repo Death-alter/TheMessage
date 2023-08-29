@@ -26,6 +26,10 @@ export class LiYou extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    return true;
+  }
+
   onPlay(gui: GameManager): void {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
