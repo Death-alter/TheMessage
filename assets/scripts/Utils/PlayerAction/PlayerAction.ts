@@ -17,20 +17,15 @@ export abstract class PlayerAction {
     return [...this.list, ...this.tempList];
   }
 
-  private static get currentIsTemp() {
-    return this.index >= this.list.length;
-  }
-
   private static next(data?: { [index: string]: any }) {
     this.direction = 0;
     ++this.index;
     if (!this.dataList[this.index]) {
       this.dataList[this.index] = {};
     }
-    this.dataList[this.index].current = data;
+    this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
     if (this.index >= this.stepList.length) {
       const data = [...this.dataList].reverse().map((item) => item.current);
-      console.log(data);
       this.complete && this.complete(data);
     } else {
       this.handleStep();

@@ -95,7 +95,7 @@ export class MiLing extends Card {
         NetworkEventCenter.emit(NetworkEventToS.USE_MI_LING_TOS, {
           cardId: this.id,
           targetPlayerId: data[1].players[0].id,
-          secret: data[0],
+          secret: data[0].secret,
           seq: gui.seq,
         });
       });
@@ -178,7 +178,8 @@ export class MiLing extends Card {
             {
               text: "传递情报",
               onclick: () => {
-                next({ message: gui.selectedHandCards.list[0] });
+                gui.uiLayer.doSendMessage(gui.selectedHandCards.list[0], false);
+                next();
               },
               enabled: () => {
                 return handCardList.selectedCards.list[0] && Card.hasColor(handCardList.selectedCards.list[0], color);
@@ -188,7 +189,6 @@ export class MiLing extends Card {
         },
       }),
     });
-    gui.uiLayer.doSendMessage();
     PlayerAction.start();
   }
 
@@ -245,8 +245,9 @@ export class MiLing extends Card {
                 break;
               }
             }
-            gui.gameLayer.pauseSelectPlayers();
-            next({ message });
+            gui.gameLayer.pauseSelectHandCards();
+            gui.uiLayer.doSendMessage(message, false);
+            next();
           },
         }),
       }).start();

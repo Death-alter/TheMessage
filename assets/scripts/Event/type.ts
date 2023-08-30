@@ -372,5 +372,6 @@ export enum UIEvent {
   STOP_SHOW_CARDS = "stop_show_cards",
   START_SHOW_MESSAGES = "start_show_messages",
   STOP_SHOW_MESSAGES = "stop_show_messages",
-  UPDATE_SKILL_BUTTONS = "update_skill_buttons"
+  UPDATE_SKILL_BUTTONS = "update_skill_buttons",
+  BEFORE_SEND_MESSAGE = "before_send_message",
 }

@@ -8,13 +8,14 @@ import { Card } from "../../../Components/Card/Card";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { ActiveSkill, PassiveSkill, Skill, TriggerSkill } from "../../../Components/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
-import { CardUsableStatus } from "../../../Components/Card/type";
+import { CardDirection, CardUsableStatus } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
 import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 const { ccclass, property } = _decorator;
 
@@ -215,7 +216,22 @@ export class UILayer extends Component {
             .start();
           break;
         case WaitingType.GIVE_CARD:
-          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_DIE_GIVE_CARDS }).start();
+          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_DIE_GIVE_CARDS })
+            .onComplete((data) => {
+              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+                targetPlayerId: data[0].targetPlayer.id,
+                cardId: data[0].cards.map((card) => card.id),
+                seq: this.seq,
+              });
+            })
+            .onCancel(() => {
+              NetworkEventCenter.emit(NetworkEventToS.DIE_GIVE_CARD_TOS, {
+                targetPlayerId: 0,
+                cardId: [],
+                seq: this.seq,
+              });
+            })
+            .start();
           break;
         case WaitingType.USE_SKILL:
           const player = this.manager.data.playerList[data.playerId];
@@ -318,22 +334,147 @@ export class UILayer extends Component {
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
-  doSendMessage() {
-    PlayerAction.addStep({ step: PlayerActionStepName.SELECT_MESSAGE_TARGET })
-      .addStep({ step: PlayerActionStepName.SELECT_LOCK_TARGET })
-      .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
-          cardId: data[2].message.id,
-          lockPlayerId: data[0] && data[0].lockPlayerId,
-          targetPlayerId: data[1].targetPlayerId,
-          cardDir: data[2].direction || data[2].message.direction,
-          seq: this.seq,
-        });
+  doSendMessage(message: Card, canCancel: boolean = true) {
+    UIEventCenter.emit(UIEvent.BEFORE_SEND_MESSAGE, { gui: this, canCancel });
+    PlayerAction.addTempStep({
+      step: new PlayerActionStep({
+        name: "selectMessageTarget",
+        handler: ({ initial, current }, { next, prev, passOnPrev }) => {
+          console.log(initial, current);
+          const direction = current.direction || initial.direction;
+          let i;
+          switch (direction) {
+            case CardDirection.LEFT:
+              passOnPrev(() => {
+                i = this.manager.data.playerList.length - 1;
+                while (!this.manager.data.playerList[i].isAlive) {
+                  --i;
+                }
+                next({
+                  targetPlayerId: i,
+                  direction,
+                });
+              });
+              break;
+            case CardDirection.RIGHT:
+              passOnPrev(() => {
+                i = 1;
+                while (!this.manager.data.playerList[i].isAlive) {
+                  ++i;
+                }
+                next({
+                  targetPlayerId: i,
+                  direction,
+                });
+              });
+              break;
+            case CardDirection.UP:
+              this.manager.gameLayer.startSelectPlayers({
+                num: 1,
+                filter: (player) => {
+                  return player.id !== 0;
+                },
+              });
+              this.manager.tooltip.setText("请选择要传递情报的目标");
+              const buttons: any = [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const targetPlayerId = this.manager.selectedPlayers.list[0].id;
+                    this.manager.gameLayer.stopSelectPlayers();
+                    next({
+                      targetPlayerId,
+                      direction,
+                    });
+                  },
+                  enabled: () => this.manager.selectedPlayers.list.length > 0,
+                },
+              ];
+              if (initial.canCancel || current.index !== 0) {
+                buttons.push({
+                  text: "取消",
+                  onclick: () => {
+                    this.manager.gameLayer.stopSelectPlayers();
+                    prev();
+                  },
+                });
+              }
+              this.manager.tooltip.buttons.setButtons(buttons);
+              break;
+          }
+        },
+      }),
+      data: {
+        direction: message.direction,
+        canCancel,
+      },
+    });
+    if (message.lockable) {
+      PlayerAction.addTempStep({
+        step: new PlayerActionStep({
+          name: "selectLockTarget",
+          handler: ({ initial, current }, { next, prev }) => {
+            this.manager.tooltip.setText("请选择一名角色锁定");
+            this.manager.gameLayer.startSelectPlayers({
+              num: 1,
+              filter: (player) => {
+                return player.id !== 0;
+              },
+            });
+            const buttons = [
+              {
+                text: "锁定",
+                onclick: () => {
+                  const lockPlayerId = [this.manager.selectedPlayers.list[0].id];
+                  this.manager.gameLayer.stopSelectPlayers();
+                  next({
+                    lockPlayerId,
+                  });
+                },
+                enabled: () => {
+                  return this.manager.selectedPlayers.list.length === 1;
+                },
+              },
+              {
+                text: "不锁定",
+                onclick: () => {
+                  this.manager.gameLayer.stopSelectPlayers();
+                  next();
+                },
+              },
+            ];
 
-        this.scheduleOnce(() => {
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
-        }, 0);
+            if (initial.canCancel || current.direction === CardDirection.UP) {
+              buttons.push({
+                text: "取消",
+                onclick: () => {
+                  prev();
+                },
+              });
+            }
+            this.manager.tooltip.buttons.setButtons(buttons);
+          },
+        }),
+        data: { canCancel },
       });
+    }
+    PlayerAction.onComplete((data) => {
+      let d: any = {};
+      for (let item of data) {
+        d = { ...d, ...item };
+      }
+      NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {
+        cardId: message.id,
+        lockPlayerId: d.lockPlayerId,
+        targetPlayerId: d.targetPlayerId,
+        cardDir: d.direction || message.direction,
+        seq: this.seq,
+      });
+
+      this.scheduleOnce(() => {
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
+        UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+      }, 0);
+    });
   }
 }

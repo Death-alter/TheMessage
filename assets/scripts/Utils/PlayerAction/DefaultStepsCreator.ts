@@ -65,8 +65,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
               text: "传递情报",
               onclick: () => {
                 gui.gameLayer.pauseSelectHandCards();
-                gui.uiLayer.doSendMessage();
-                next({ message: card });
+                gui.uiLayer.doSendMessage(card);
+                next();
               },
             },
           ]);
@@ -251,10 +251,10 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     },
   [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
     (gui: GameManager) =>
-    ({ current }, { next, prev, passOnPrev }) => {
-      const dir = current.direction || current.message.direction;
+    ({ initial, current }, { next, prev, passOnPrev }) => {
+      const direction = current.direction || initial.direction;
       let i;
-      switch (dir) {
+      switch (direction) {
         case CardDirection.LEFT:
           passOnPrev(() => {
             i = gui.data.playerList.length - 1;
@@ -285,7 +285,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             },
           });
           gui.tooltip.setText("请选择要传递情报的目标");
-          gui.tooltip.buttons.setButtons([
+          const buttons: any = [
             {
               text: "确定",
               onclick: () => {
@@ -296,20 +296,23 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
               },
               enabled: () => gui.selectedPlayers.list.length > 0,
             },
-            {
+          ];
+          if (initial.canCancel || current.index !== 0) {
+            buttons.push({
               text: "取消",
               onclick: () => {
                 gui.gameLayer.stopSelectPlayers();
                 prev();
               },
-            },
-          ]);
+            });
+          }
+          gui.tooltip.buttons.setButtons(buttons);
           break;
       }
     },
   [PlayerActionStepName.SELECT_LOCK_TARGET]:
     (gui: GameManager) =>
-    ({ current }, { next, prev }) => {
+    ({ initial, current }, { next, prev }) => {
       gui.tooltip.setText("请选择一名角色锁定");
       gui.gameLayer.startSelectPlayers({
         num: 1,
@@ -317,7 +320,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           return player.id !== 0;
         },
       });
-      gui.tooltip.buttons.setButtons([
+      const buttons = [
         {
           text: "锁定",
           onclick: () => {
@@ -335,13 +338,17 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             next();
           },
         },
-        {
+      ];
+
+      if (initial.canCancel || current.index !== 0) {
+        buttons.push({
           text: "取消",
           onclick: () => {
             prev();
           },
-        },
-      ]);
+        });
+      }
+      gui.tooltip.buttons.setButtons(buttons);
     },
 };
 
