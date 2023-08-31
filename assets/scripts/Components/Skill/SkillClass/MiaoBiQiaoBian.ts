@@ -195,7 +195,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
           enable: false,
           seq: gui.seq,
         });
-      });
+      }).start()
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {

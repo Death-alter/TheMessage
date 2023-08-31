@@ -76,9 +76,11 @@ export class SkillButton extends GameObject<Skill> {
                 tooltipText: `是否使用【${skill.name}】？`,
                 enabled: skill.canUse,
               },
-            }).onCancel(() => {
-              this.isOn = false;
-            });
+            })
+              .onCancel(() => {
+                this.isOn = false;
+              })
+              .next();
             skill.onUse(gui);
           }
         }

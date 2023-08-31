@@ -273,11 +273,14 @@ export class GameLayer extends Component {
     const { num, filter, onSelect, onDeselect } = option;
     this.selectedPlayers.limit = num || 1;
     this.selectedPlayers.unlock();
-    if (filter) {
-      for (let player of this.playerObjectList) {
+
+    for (let player of this.playerObjectList) {
+      if (filter) {
         player.selectable = filter(player.data);
       }
+      player.enableSelectIdentity = false;
     }
+
     if (onSelect) {
       ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onSelect);
     } else {
@@ -293,6 +296,7 @@ export class GameLayer extends Component {
   pauseSelectPlayers() {
     for (let player of this.playerObjectList) {
       player.selectable = true;
+      player.enableSelectIdentity = true;
     }
     this.selectedPlayers.lock();
     ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);

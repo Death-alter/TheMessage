@@ -110,7 +110,7 @@ export class CongRongYingDui extends TriggerSkill {
           enable: false,
           seq: gui.seq,
         });
-      });
+      }).start()
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card, enable, drawCard }: skill_cong_rong_ying_dui_toc) {

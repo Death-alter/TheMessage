@@ -137,7 +137,7 @@ export class LengXueXunLian extends ActiveSkill {
           });
         },
       }),
-    });
+    }).start();
   }
 
   showCards(gui: GameManager, params) {

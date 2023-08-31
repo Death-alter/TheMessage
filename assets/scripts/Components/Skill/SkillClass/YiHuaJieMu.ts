@@ -151,7 +151,8 @@ export class YiHuaJieMu extends ActiveSkill {
           toPlayerId: data[0].toPlayer.id,
           seq: gui.seq,
         });
-      });
+      })
+      .start();
   }
 
   onEffectB(

@@ -79,7 +79,7 @@ export class DuJi extends ActiveSkill {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
-        toolTipText: "请选择两名角色",
+        tooltipText: "请选择两名角色",
         num: 2,
         filter: (player) => player.id !== 0,
       },
@@ -252,6 +252,9 @@ export class DuJi extends ActiveSkill {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
           skill: this,
           handler: "promptSelectPlayer",
+          params: {
+            card: gameData.createCard(card),
+          },
         });
       }
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}让${gameLog.formatPlayer(waitingPlayer)}选择一项`));
@@ -260,9 +263,11 @@ export class DuJi extends ActiveSkill {
     }
   }
 
-  promptSelectPlayer(gui: GameManager) {
+  promptSelectPlayer(gui: GameManager, params) {
     const tooltip = gui.tooltip;
-    tooltip.setText("请选择将牌置入谁的情报区");
+    const gameLog = gui.gameLog;
+    const { card } = params;
+    tooltip.setText(`请选择将${gameLog.formatCard(card)}置入谁的情报区`);
     tooltip.buttons.setButtons([
       {
         text: "自己",

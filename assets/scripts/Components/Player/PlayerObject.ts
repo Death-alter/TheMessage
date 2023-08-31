@@ -25,6 +25,7 @@ export class PlayerObject extends GameObject<Player> {
   private _selectable: boolean = true;
   private _locked: boolean = false;
   private _selectedIdentity: Identity | null = null;
+  private _enableSelectIdentity: boolean = true;
 
   get data() {
     return this._data;
@@ -72,6 +73,14 @@ export class PlayerObject extends GameObject<Player> {
   set locked(locked: boolean) {
     this._locked = locked;
     this.refreshLockState();
+  }
+
+  get enableSelectIdentity() {
+    return this._enableSelectIdentity;
+  }
+
+  set enableSelectIdentity(value: boolean) {
+    this._enableSelectIdentity = value;
   }
 
   onLoad() {
@@ -195,6 +204,7 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   changeSelectedIdentity(identity?: Identity) {
+    if (!this._enableSelectIdentity) return;
     if (identity) {
       this._selectedIdentity = identity;
     } else if (!this.data) {

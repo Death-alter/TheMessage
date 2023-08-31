@@ -142,12 +142,14 @@ export class XianFaZhiRen extends ActiveSkill {
           ]);
         },
       }),
-    }).onCancel(() => {
-      NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
-        enable: false,
-        seq: gui.seq,
-      });
-    });
+    })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffectA(

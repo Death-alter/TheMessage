@@ -1,8 +1,8 @@
 import { CardDirection } from "../../Card/type";
 import { PassiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
-import { GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { UIEvent } from "../../../Event/type";
+import { UIEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -20,14 +20,16 @@ export class LianLuo extends PassiveSkill {
   }
 
   init(gameData: GameData, player) {
-    UIEventCenter.on(UIEvent.BEFORE_SEND_MESSAGE, this.selectMessageDirection, this);
+    if (player.id === 0) {
+      UIEventCenter.on(UIEvent.BEFORE_SEND_MESSAGE, this.selectMessageDirection, this);
+    }
   }
 
   dispose() {
     UIEventCenter.off(UIEvent.BEFORE_SEND_MESSAGE, this.selectMessageDirection, this);
   }
 
-  selectMessageDirection(gui: GameManager, canCancel) {
+  selectMessageDirection({ gui, canCancel }: { gui: GameManager; canCancel: boolean }) {
     PlayerAction.addTempStep({
       step: new PlayerActionStep({
         handler: ({ initial, current }, { next, prev }) => {

@@ -169,10 +169,11 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYERS]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      const { tooltipText, num, filter, enabled } = initial;
+      const { tooltipText, filter, enabled } = initial;
+      const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一名角色");
       gui.gameLayer.startSelectPlayers({
-        num: num || 1,
+        num,
         filter,
       });
       gui.tooltip.buttons.setButtons([
@@ -182,7 +183,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             gui.gameLayer.pauseSelectPlayers();
             next({ players: [...gui.selectedPlayers.list] });
           },
-          enabled: enabled || (() => gui.selectedPlayers.list.length === num),
+          enabled: enabled != null ? enabled : () => gui.selectedPlayers.list.length === num,
         },
         {
           text: "取消",
@@ -196,10 +197,11 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARDS]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      const { tooltipText, num, filter, enabled } = initial;
+      const { tooltipText, filter, enabled } = initial;
+      const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一张牌");
       gui.gameLayer.startSelectHandCards({
-        num: num || 1,
+        num,
         filter,
       });
       gui.tooltip.buttons.setButtons([
@@ -209,7 +211,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             gui.gameLayer.pauseSelectHandCards();
             next({ players: [...gui.selectedHandCards.list] });
           },
-          enabled: enabled || true,
+          enabled: enabled != null ? enabled : () => gui.selectedHandCards.list.length === num,
         },
         {
           text: "取消",
@@ -223,7 +225,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
     ({ initial, current }, { next, prev }) => {
-      const player = gui.data.playerList[current.playerId || initial.playerId];
+      const player = gui.data.playerList[current.playerId != null ? current.playerId : initial.playerId];
       const { enabled } = initial;
 
       const showCardsWindow = gui.showCardsWindow;
@@ -240,7 +242,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
               showCardsWindow.hide();
               next({ cardId });
             },
-            enabled: enabled || true,
+            enabled: enabled != null ? enabled : true,
           },
           {
             text: "取消",
@@ -255,7 +257,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_MESSAGE_TARGET]:
     (gui: GameManager) =>
     ({ initial, current }, { next, prev, passOnPrev }) => {
-      const direction = current.direction || initial.direction;
+      const direction = current.direction != null ? current.direction : initial.direction;
       let i;
       switch (direction) {
         case CardDirection.LEFT:
@@ -366,7 +368,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             next();
           },
-          enabled: () => enabled(gui) || true,
+          enabled: enabled != null ? () => enabled(gui) : true,
         },
         {
           text: "取消",

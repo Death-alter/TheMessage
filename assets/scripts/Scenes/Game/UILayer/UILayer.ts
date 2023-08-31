@@ -335,13 +335,13 @@ export class UILayer extends Component {
   }
 
   doSendMessage(message: Card, canCancel: boolean = true) {
-    UIEventCenter.emit(UIEvent.BEFORE_SEND_MESSAGE, { gui: this, canCancel });
+    UIEventCenter.emit(UIEvent.BEFORE_SEND_MESSAGE, { gui: this.manager, canCancel });
     PlayerAction.addTempStep({
       step: new PlayerActionStep({
         name: "selectMessageTarget",
         handler: ({ initial, current }, { next, prev, passOnPrev }) => {
           console.log(initial, current);
-          const direction = current.direction || initial.direction;
+          const direction = current.direction != null ? current.direction : initial.direction;
           let i;
           switch (direction) {
             case CardDirection.LEFT:
@@ -444,7 +444,7 @@ export class UILayer extends Component {
               },
             ];
 
-            if (initial.canCancel || current.direction === CardDirection.UP) {
+            if (initial.canCancel && current.direction === CardDirection.UP) {
               buttons.push({
                 text: "取消",
                 onclick: () => {
@@ -467,7 +467,7 @@ export class UILayer extends Component {
         cardId: message.id,
         lockPlayerId: d.lockPlayerId,
         targetPlayerId: d.targetPlayerId,
-        cardDir: d.direction || message.direction,
+        cardDir: d.direction != null ? d.direction : message.direction,
         seq: this.seq,
       });
 

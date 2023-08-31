@@ -233,24 +233,18 @@ export class MiLing extends Card {
     if (!gui.isRecord) {
       const { cardId } = params;
       const handCardContainer = gui.gameLayer.handCardContainer;
-      PlayerAction.addStep({
-        step: new PlayerActionStep({
-          handler: (data, { next, prev }) => {
-            let message;
-            gui.gameLayer.startSelectHandCards({ num: 1 });
-            for (let item of handCardContainer.data.list) {
-              if ((<Card>item).id === cardId) {
-                message = item;
-                handCardContainer.selectCard(<Card>item);
-                break;
-              }
-            }
-            gui.gameLayer.pauseSelectHandCards();
-            gui.uiLayer.doSendMessage(message, false);
-            next();
-          },
-        }),
-      }).start();
+      let message;
+      gui.gameLayer.startSelectHandCards({ num: 1 });
+      for (let item of handCardContainer.data.list) {
+        if ((<Card>item).id === cardId) {
+          message = item;
+          handCardContainer.selectCard(<Card>item);
+          break;
+        }
+      }
+      gui.gameLayer.pauseSelectHandCards();
+      gui.uiLayer.doSendMessage(message, false);
+      PlayerAction.start();
     }
   }
 }

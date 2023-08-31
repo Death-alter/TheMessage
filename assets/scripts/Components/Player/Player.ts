@@ -78,7 +78,7 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   set status(status: PlayerStatus) {
-    if (status == null || status === this._status) return;
+    if (status == null || status === this._status || this._status === PlayerStatus.DEAD) return;
     this._status = status;
     this.gameObject?.refreshStatus();
   }

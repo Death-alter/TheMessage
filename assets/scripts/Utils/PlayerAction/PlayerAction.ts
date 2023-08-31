@@ -19,7 +19,7 @@ export abstract class PlayerAction {
     return [...this.list, ...this.tempList];
   }
 
-  private static next(data?: { [index: string]: any }) {
+  static next(data?: { [index: string]: any }) {
     this.direction = 0;
     ++this.index;
     if (!this.dataList[this.index]) {
@@ -35,10 +35,11 @@ export abstract class PlayerAction {
 
   private static prev() {
     this.direction = 1;
-    this.dataList.pop();
+    this.dataList[this.index].current = {};
     --this.index;
     if (this.index < this.list.length) {
       this.tempList = [];
+      this.dataList = this.dataList.slice(0, this.list.length);
       this.tempCancel && this.tempCancel();
     }
 
@@ -88,6 +89,7 @@ export abstract class PlayerAction {
       return;
     }
     this.index = 0;
+    this.dataList[this.index].current = { index: this.index };
     this.handleStep();
 
     return this;

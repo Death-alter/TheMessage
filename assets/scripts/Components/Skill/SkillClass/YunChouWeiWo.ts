@@ -148,7 +148,8 @@ export class YunChouWeiWo extends ActiveSkill {
           deckCardIds: data[0].cardIds,
           seq: gui.seq,
         });
-      });
+      })
+      .start();
   }
 
   onEffectB(gameData: GameData, { playerId, cards }: skill_yun_chou_wei_wo_b_toc) {
