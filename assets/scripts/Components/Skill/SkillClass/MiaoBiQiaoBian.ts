@@ -78,7 +78,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_A_TOS, {
           cardId: data[0].cardId,
-          targetPlayerId: data[1].players[0].id,
+          targetPlayerId: data[1].playerId,
           seq: gui.seq,
         });
       });

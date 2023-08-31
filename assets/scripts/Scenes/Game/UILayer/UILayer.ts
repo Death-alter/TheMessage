@@ -177,14 +177,92 @@ export class UILayer extends Component {
           }).start();
           break;
         case WaitingType.RECEIVE_MESSAGE:
-          PlayerAction.addStep({ step: PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT })
-            .onComplete((data) => {
-              NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
-                receive: data[0].receive,
-                seq: this.seq,
-              });
-            })
-            .start();
+          PlayerAction.addStep({
+            step: new PlayerActionStep({
+              handler: (data, { next, prev }) => {
+                let text = "";
+                switch (this.manager.data.messageDirection) {
+                  case CardDirection.UP:
+                    text = "上";
+                    break;
+                  case CardDirection.LEFT:
+                    text = "左";
+                    break;
+                  case CardDirection.RIGHT:
+                    text = "右";
+                    break;
+                }
+
+                const f = () => {
+                  this.manager.tooltip.setText(`情报传递到你面前，方向向${text}，是否接收情报？`);
+                  this.manager.tooltip.buttons.setButtons([
+                    {
+                      text: "接收情报",
+                      onclick: () => {
+                        PlayerAction.onComplete((data) => {
+                          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                            receive: true,
+                            seq: this.seq,
+                          });
+                        });
+                        next();
+                      },
+                    },
+                    {
+                      text: "不接收",
+                      onclick: () => {
+                        PlayerAction.onCancel(() => {
+                          NetworkEventCenter.emit(NetworkEventToS.CHOOSE_WHETHER_RECEIVE_TOS, {
+                            receive: false,
+                            seq: this.seq,
+                          });
+                        });
+                        prev();
+                      },
+                      enabled:
+                        !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
+                        this.manager.data.senderId !== 0,
+                    },
+                  ]);
+                };
+                f();
+                this.manager.gameLayer.startSelectHandCards({
+                  num: 1,
+                  filter: (card) => this.manager.uiLayer.getCardUsableStatus(card),
+                  onSelect: (card: Card) => {
+                    const canPlay = card.canPlay(this.manager);
+                    if (canPlay) {
+                      this.manager.tooltip.setText(`是否使用【${card.name}】`);
+                    } else {
+                      this.manager.tooltip.setText(`现在不能使用【${card.name}】`);
+                    }
+
+                    this.manager.tooltip.buttons.setButtons([
+                      {
+                        text: "确定",
+                        onclick: () => {
+                          this.manager.gameLayer.pauseSelectHandCards();
+                          card.onPlay(this.manager);
+                          next();
+                        },
+                        enabled: canPlay,
+                      },
+                      {
+                        text: "取消",
+                        onclick: () => {
+                          this.manager.gameLayer.handCardContainer.resetSelectCard();
+                          f();
+                        },
+                      },
+                    ]);
+                  },
+                  onDeselect: (card: Card) => {
+                    f();
+                  },
+                });
+              },
+            }),
+          }).start();
           break;
         case WaitingType.PLAYER_DYING:
           PlayerAction.addStep({
@@ -279,6 +357,10 @@ export class UILayer extends Component {
 
     const buttons = this.skillButtons.getComponent(SkillButtons);
     this.manager.data.selfPlayer.character.skills.forEach((skill, index) => {
+      if (!skill.gameObject.locked) {
+        skill.gameObject.isOn = false;
+      }
+
       if (skill instanceof ActiveSkill) {
         if (
           skill.useablePhase.indexOf(this.manager.data.gamePhase) !== -1 &&

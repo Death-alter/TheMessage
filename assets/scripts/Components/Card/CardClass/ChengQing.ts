@@ -58,11 +58,11 @@ export class ChengQing extends Card {
           return { playerId: data.players[0].id };
         },
       })
-      .onComplete((stepData) => {
+      .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
           cardId: this.id,
-          playerId: stepData[1].playerId,
-          targetCardId: stepData[0].targetCardId,
+          playerId: data[1].playerId,
+          targetCardId: data[0].cardId,
           seq: gui.seq,
         });
       });

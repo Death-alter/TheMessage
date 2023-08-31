@@ -77,38 +77,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       });
     },
-  [PlayerActionStepName.SELECT_RECEIVE_MESSAGE_OR_NOT]:
-    (gui: GameManager) =>
-    (data, { next, prev }) => {
-      let text = "";
-      switch (gui.data.messageDirection) {
-        case CardDirection.UP:
-          text = "上";
-          break;
-        case CardDirection.LEFT:
-          text = "左";
-          break;
-        case CardDirection.RIGHT:
-          text = "右";
-          break;
-      }
-      gui.tooltip.setText(`情报传递到你面前，方向向${text}，是否接收情报？`);
-      gui.tooltip.buttons.setButtons([
-        {
-          text: "接收情报",
-          onclick: () => {
-            next({ receive: true });
-          },
-        },
-        {
-          text: "不接收",
-          onclick: () => {
-            next({ receive: false });
-          },
-          enabled: !(gui.data.lockedPlayer && gui.data.lockedPlayer.id === 0) && gui.data.senderId !== 0,
-        },
-      ]);
-    },
   [PlayerActionStepName.SELECT_DIE_GIVE_CARDS]:
     (gui: GameManager) =>
     (data, { next, prev }) => {
@@ -140,6 +108,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYERS]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
+      console.log(initial);
       const { tooltipText, filter, enabled } = initial;
       const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一名角色");
@@ -202,9 +171,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
       const showCardsWindow = gui.showCardsWindow;
 
       showCardsWindow.show({
-        title: initial.title || "请选择一张情报",
+        title: title || "请选择一张情报",
         cardList: player.getMessagesCopy(),
-        limit: initial.limit || 1,
+        limit: limit || 1,
         buttons: [
           {
             text: "确定",

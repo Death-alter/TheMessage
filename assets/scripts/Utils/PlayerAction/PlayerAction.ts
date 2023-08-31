@@ -25,6 +25,9 @@ export abstract class PlayerAction {
     if (!this.dataList[this.index]) {
       this.dataList[this.index] = {};
     }
+    if (this.stepList[this.index] && this.stepList[this.index].resolver) {
+      data = this.stepList[this.index].resolver(data);
+    }
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
     if (this.index >= this.stepList.length) {
       this.end();
@@ -120,7 +123,7 @@ export abstract class PlayerAction {
       throw new Error("有tempStep的时候不能添加step");
     }
     this.list.push(this.resolveStep(step, resolver));
-    this.dataList.push({ initial: data });
+    this.dataList.push({ initial: data || {} });
 
     return this;
   }
@@ -135,7 +138,7 @@ export abstract class PlayerAction {
     resolver?: PlayerActionStepDataResolver;
   }) {
     this.tempList.push(this.resolveStep(step, resolver));
-    this.dataList.push({ initial: data });
+    this.dataList.push({ initial: data || {} });
 
     return this;
   }

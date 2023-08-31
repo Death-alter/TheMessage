@@ -51,35 +51,29 @@ export class PoYi extends Card {
 
   promptChooseDraw(gui: GameManager, params) {
     const { isBlackMessage } = params;
-    if (isBlackMessage) {
-      const tooltip = gui.tooltip;
-      tooltip.setText(`是否翻开并摸一张牌？`);
-      tooltip.buttons.setButtons([
-        {
-          text: "确定",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-              show: true,
-              seq: gui.seq,
-            });
-          },
+    const tooltip = gui.tooltip;
+    tooltip.setText(`是否翻开并摸一张牌？`);
+    tooltip.buttons.setButtons([
+      {
+        text: "确定",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+            show: true,
+            seq: gui.seq,
+          });
         },
-        {
-          text: "取消",
-          onclick: () => {
-            NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-              show: false,
-              seq: gui.seq,
-            });
-          },
+        enabled: isBlackMessage,
+      },
+      {
+        text: "取消",
+        onclick: () => {
+          NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
+            show: false,
+            seq: gui.seq,
+          });
         },
-      ]);
-    } else {
-      NetworkEventCenter.emit(NetworkEventToS.PO_YI_SHOW_TOS, {
-        show: false,
-        seq: gui.seq,
-      });
-    }
+      },
+    ]);
   }
 
   onShow(gameData: GameData, { userId, targetCard, flag }: CardOnEffectParams) {
