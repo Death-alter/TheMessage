@@ -47,37 +47,16 @@ export class ChengQing extends Card {
       },
     })
       .addTempStep({
-        step: new PlayerActionStep({
-          handler: ({ current }, { next, prev }) => {
-            showCardsWindow.show({
-              title: "选择一张黑色情报弃置",
-              cardList: current.players[0].getMessagesCopy(),
-              limit: 1,
-              buttons: [
-                {
-                  text: "确定",
-                  onclick: () => {
-                    next({
-                      targetCardId: showCardsWindow.selectedCards.list[0].id,
-                    });
-                    showCardsWindow.hide();
-                  },
-                  enabled: () =>
-                    !!showCardsWindow.selectedCards.list.length &&
-                    Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    showCardsWindow.hide();
-                    gui.gameLayer.stopSelectPlayers();
-                    prev();
-                  },
-                },
-              ],
-            });
-          },
-        }),
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          tooltipText: "请选择一张黑色情报弃置",
+          enabled: () =>
+            showCardsWindow.selectedCards.list.length > 0 &&
+            Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+        },
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
       })
       .onComplete((stepData) => {
         NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {

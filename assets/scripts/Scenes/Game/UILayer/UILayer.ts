@@ -8,7 +8,7 @@ import { Card } from "../../../Components/Card/Card";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { ActiveSkill, PassiveSkill, Skill, TriggerSkill } from "../../../Components/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
-import { CardDirection, CardUsableStatus } from "../../../Components/Card/type";
+import { CardColor, CardDirection, CardType, CardUsableStatus } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NoIdentity } from "../../../Components/Identity/IdentityClass/NoIdentity";
 import { CharacterInfoWindow } from "../PopupLayer/CharacterInfoWindow";
@@ -188,25 +188,58 @@ export class UILayer extends Component {
           break;
         case WaitingType.PLAYER_DYING:
           PlayerAction.addStep({
-            step: PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT,
+            step: new PlayerActionStep({
+              handler: ({ initial, current }, { next, prev }) => {
+                const player = this.manager.data.playerList[initial.playerId];
+                const gameLog = this.manager.data.gameLog;
+                const showCardsWindow = this.manager.showCardsWindow;
+
+                this.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
+                this.manager.gameLayer.startSelectHandCards({ num: 1 });
+                this.tooltip.buttons.setButtons([
+                  {
+                    text: "澄清",
+                    onclick: () => {
+                      const card = this.manager.selectedHandCards.list[0];
+                      PlayerAction.addTempStep({
+                        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+                        data: {
+                          title: "请选择一张黑色情报弃置",
+                          enabled: () =>
+                            showCardsWindow.selectedCards.list.length > 0 &&
+                            Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                        },
+                        resolver: (data) => {
+                          return { playerId: data.players[0].id };
+                        },
+                      }).onComplete((data) => {
+                        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                          use: true,
+                          cardId: card.id,
+                          targetCardId: data[0].cardId,
+                          seq: this.seq,
+                        });
+                      });
+                      next({ playerId: player.id });
+                    },
+                    enabled: () =>
+                      this.manager.selectedHandCards.list[0] &&
+                      this.manager.selectedHandCards.list[0].type === CardType.CHENG_QING &&
+                      this.manager.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+                  },
+                  {
+                    text: "取消",
+                    onclick: () => {
+                      prev();
+                    },
+                  },
+                ]);
+              },
+            }),
             data: {
               playerId: data.params.diePlayerId,
             },
           })
-            .addStep({
-              step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
-              data: {
-                playerId: data.params.diePlayerId,
-              },
-            })
-            .onComplete((data) => {
-              NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-                use: true,
-                cardId: data[0].cardId,
-                targetCardId: data[1].cardId,
-                seq: this.seq,
-              });
-            })
             .onCancel(() => {
               NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                 use: false,

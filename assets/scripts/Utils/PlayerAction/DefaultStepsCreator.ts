@@ -109,35 +109,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         },
       ]);
     },
-  [PlayerActionStepName.SELECT_SAVE_DIE_OR_NOT]:
-    (gui: GameManager) =>
-    ({ initial, current }, { next, prev }) => {
-      const player = gui.data.playerList[initial.playerId];
-      const gameLog = gui.data.gameLog;
-
-      gui.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
-      gui.gameLayer.startSelectHandCards({ num: 1 });
-      gui.tooltip.buttons.setButtons([
-        {
-          text: "澄清",
-          onclick: () => {
-            next({
-              card: gui.selectedHandCards.list[0],
-            });
-          },
-          enabled: () =>
-            gui.selectedHandCards.list[0] &&
-            gui.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-            gui.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
-        },
-        {
-          text: "取消",
-          onclick: () => {
-            prev();
-          },
-        },
-      ]);
-    },
   [PlayerActionStepName.SELECT_DIE_GIVE_CARDS]:
     (gui: GameManager) =>
     (data, { next, prev }) => {
@@ -226,14 +197,14 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     (gui: GameManager) =>
     ({ initial, current }, { next, prev }) => {
       const player = gui.data.playerList[current.playerId != null ? current.playerId : initial.playerId];
-      const { enabled } = initial;
-
+      const { enabled, title } = initial;
+      const limit = initial.limit || 1;
       const showCardsWindow = gui.showCardsWindow;
 
       showCardsWindow.show({
-        title: initial.title,
+        title: initial.title || "请选择一张情报",
         cardList: player.getMessagesCopy(),
-        limit: initial.limit,
+        limit: initial.limit || 1,
         buttons: [
           {
             text: "确定",
