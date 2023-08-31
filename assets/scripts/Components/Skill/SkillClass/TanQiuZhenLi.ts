@@ -10,6 +10,9 @@ import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardColor } from "../../Card/type";
 import { copyCard } from "../../Card";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class TanQiuZhenLi extends ActiveSkill {
   private usageCount: number = 0;
@@ -56,116 +59,51 @@ export class TanQiuZhenLi extends ActiveSkill {
     this.usageCount = 0;
   }
 
-  onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
-    const data: any = {};
-
+  canUse(gui: GameManager): boolean {
     let total = 0;
     for (let player of gui.data.playerList) {
       if (player.id !== 0) {
         total += player.messageCounts.total;
       }
     }
+    return total !== 0;
+  }
 
-    if (total === 0) {
-      tooltip.setText(`其他人没有情报，不能使用【探求真理】`);
-      return;
-    }
+  onUse(gui: GameManager) {
+    const showCardsWindow = gui.showCardsWindow;
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "confirmUse",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText(`是否使用【探求真理】`);
-                tooltip.buttons.setButtons([
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      resolve(null);
-                    },
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      reject(null);
-                    },
-                  },
-                ]);
-              }),
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        filter: (player) => player.id !== 0 && player.messageCounts.total > 0,
+      },
+    })
+      .addTempStep({
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          enabled: () => {
+            if (showCardsWindow.selectedCards.list.length === 0) return false;
+            const card = showCardsWindow.selectedCards.list[0];
+            const colorCounts = gui.data.selfPlayer.messageCounts;
+            for (let i of card.color) {
+              if (colorCounts[i] >= 2) {
+                return false;
+              }
+            }
+            return true;
           },
-          {
-            name: "selectPlayer",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText(`请选择一名角色`);
-                tooltip.buttons.setButtons([]);
-                gui.gameLayer.startSelectPlayers({
-                  num: 1,
-                  filter: (player) => player.id !== 0 && player.messageCounts.total > 0,
-                  onSelect: (player) => {
-                    data.targetPlayerId = player.id;
-                    resolve(player);
-                  },
-                });
-              }),
-          },
-          {
-            name: "selectMessage",
-            handler: (player: Player) =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择一张情报",
-                  limit: 1,
-                  cardList: player.getMessagesCopy(),
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        data.cardId = showCardsWindow.selectedCards.list[0].id;
-                        showCardsWindow.hide();
-                        resolve(null);
-                      },
-                      enabled: () => {
-                        if (showCardsWindow.selectedCards.list.length === 0) return false;
-                        const card = showCardsWindow.selectedCards.list[0];
-                        const colorCounts = gui.data.selfPlayer.messageCounts;
-                        for (let i of card.color) {
-                          if (colorCounts[i] >= 2) {
-                            return false;
-                          }
-                        }
-                        return true;
-                      },
-                    },
-                    {
-                      text: "取消",
-                      onclick: () => {
-                        showCardsWindow.hide();
-                        reject(null);
-                      },
-                    },
-                  ],
-                });
-              }),
-          },
-        ],
-        complete: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_A_TOS, {
-            cardId: data.cardId,
-            targetPlayerId: data.targetPlayerId,
-            seq: gui.seq,
-          });
         },
-        cancel: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
         },
       })
-    );
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_A_TOS, {
+          cardId: data[0].cardId,
+          targetPlayerId: data[1].players[0].id,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_tan_qiu_zhen_li_a_toc) {
@@ -220,106 +158,104 @@ export class TanQiuZhenLi extends ActiveSkill {
     const tooltip = gui.tooltip;
     const gameLog = gui.gameLog;
     const { player, handCards, messages } = params;
-    const data: any = {};
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "confirmUse",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                let flag = false;
-                for (let card of [...handCards, ...messages]) {
-                  if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
-                    flag = true;
-                  }
-                }
-                if (flag) {
-                  tooltip.setText(`是否把一张牌置入${gameLog.formatPlayer(player)}的情报区？`);
-                  tooltip.buttons.setButtons([
-                    {
-                      text: "是",
-                      onclick: () => {
-                        resolve(null);
-                      },
-                      enabled: flag,
-                    },
-                    {
-                      text: "否",
-                      onclick: () => {
-                        reject(null);
-                      },
-                    },
-                  ]);
-                } else {
-                  tooltip.setText(`你没有纯黑色牌，无法选择置入`);
-                  tooltip.buttons.setButtons([
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        reject(null);
-                      },
-                    },
-                  ]);
-                }
-              }),
-          },
-          {
-            name: "selectCard",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择一张纯黑色牌",
-                  limit: 1,
-                  cardList: [...handCards, ...messages],
-                  tags: [...handCards.map(() => "手牌"), ...messages.map(() => "情报区")],
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        data.cardId = showCardsWindow.selectedCards.list[0].id;
-                        const index = showCardsWindow.cardList.list.indexOf(showCardsWindow.selectedCards.list[0]);
-                        if (index < handCards.length) {
-                          data.fromHand = true;
-                        } else {
-                          data.fromHand = false;
-                        }
-                        showCardsWindow.hide();
-                        resolve(null);
-                      },
-                      enabled: () =>
-                        showCardsWindow.selectedCards.list.length > 0 &&
-                        showCardsWindow.selectedCards.list[0].color.length === 1 &&
-                        showCardsWindow.selectedCards.list[0].color[0] === CardColor.BLACK,
-                    },
-                    {
-                      text: "取消",
-                      onclick: () => {
-                        reject(null);
-                      },
-                    },
-                  ],
-                });
-              }),
-          },
-        ],
-        complete: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_B_TOS, {
-            enable: true,
-            cardId: data.cardId,
-            fromHand: data.fromHand,
-            seq: gui.seq,
-          });
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          let flag = false;
+          for (let card of [...handCards, ...messages]) {
+            if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            tooltip.setText(`是否把一张牌置入${gameLog.formatPlayer(player)}的情报区？`);
+            tooltip.buttons.setButtons([
+              {
+                text: "是",
+                onclick: () => {
+                  next();
+                },
+                enabled: flag,
+              },
+              {
+                text: "否",
+                onclick: () => {
+                  prev();
+                },
+              },
+            ]);
+          } else {
+            tooltip.setText(`你没有纯黑色牌，无法选择置入`);
+            tooltip.buttons.setButtons([
+              {
+                text: "确定",
+                onclick: () => {
+                  prev();
+                },
+              },
+            ]);
+          }
         },
-        cancel: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_B_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
-        },
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            showCardsWindow.show({
+              title: "请选择一张纯黑色牌",
+              limit: 1,
+              cardList: [...handCards, ...messages],
+              tags: [...handCards.map(() => "手牌"), ...messages.map(() => "情报区")],
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const cardId = showCardsWindow.selectedCards.list[0].id;
+                    const index = showCardsWindow.cardList.list.indexOf(showCardsWindow.selectedCards.list[0]);
+                    let fromHand;
+                    if (index < handCards.length) {
+                      fromHand = true;
+                    } else {
+                      fromHand = false;
+                    }
+                    showCardsWindow.hide();
+                    next({
+                      cardId,
+                      fromHand,
+                    });
+                  },
+                  enabled: () =>
+                    showCardsWindow.selectedCards.list.length > 0 &&
+                    showCardsWindow.selectedCards.list[0].color.length === 1 &&
+                    showCardsWindow.selectedCards.list[0].color[0] === CardColor.BLACK,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    prev();
+                  },
+                },
+              ],
+            });
+          },
+        }),
       })
-    );
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_B_TOS, {
+          enable: true,
+          cardId: data[0].cardId,
+          fromHand: data[0].fromHand,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_B_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffectB(gameData: GameData, { enable, playerId, targetPlayerId, card, fromHand }: skill_tan_qiu_zhen_li_b_toc) {

@@ -8,6 +8,8 @@ import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class XinSiChao extends ActiveSkill {
   private usageCount: number = 0;
@@ -46,34 +48,40 @@ export class XinSiChao extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-
-    tooltip.setText(`请选择一张手牌丢弃`);
-    gui.gameLayer.startSelectHandCards({
-      num: 1,
-    });
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_SI_CHAO_TOS, {
-            cardId: gui.selectedHandCards.list[0].id,
-            seq: gui.seq,
+    PlayerAction.addTempStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`请选择一张手牌丢弃`);
+          gui.gameLayer.startSelectHandCards({
+            num: 1,
           });
+
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next({ cardId: gui.selectedHandCards.list[0].id });
+              },
+              enabled: () => {
+                return gui.selectedHandCards.list.length === 1;
+              },
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
-        enabled: () => {
-          return gui.selectedHandCards.list.length === 1;
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+      }),
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_SI_CHAO_TOS, {
+        cardId: data[0].cardId,
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffect(gameData: GameData, { playerId }: skill_xin_si_chao_toc) {

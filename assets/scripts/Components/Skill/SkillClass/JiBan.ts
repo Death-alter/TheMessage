@@ -8,6 +8,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 
 export class JiBan extends ActiveSkill {
   private usageCount: number = 0;
@@ -54,26 +55,11 @@ export class JiBan extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-
-    tooltip.setText(`是否使用【羁绊】`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_BAN_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_BAN_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_ji_ban_a_toc) {

@@ -14,6 +14,8 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class GuangFaBao extends ActiveSkill {
   constructor(character: Character) {
@@ -61,26 +63,11 @@ export class GuangFaBao extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("是否使用【广发报】？");
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_GUANG_FA_BAO_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId }: skill_guang_fa_bao_a_toc) {

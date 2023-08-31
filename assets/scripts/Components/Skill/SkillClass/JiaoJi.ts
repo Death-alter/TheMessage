@@ -9,6 +9,9 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { CardColor } from "../../Card/type";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class JiaoJi extends ActiveSkill {
   private usageCount: number = 0;
@@ -56,33 +59,14 @@ export class JiaoJi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择一名角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_A_TOS, {
+        targetPlayerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_A_TOS, {
-            targetPlayerId: gui.selectedPlayers.list[0].id,
-            seq: gui.seq,
-          });
-        },
-        enabled: () => {
-          return !!gui.selectedPlayers.list.length;
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
   }
 
   onEffectA(

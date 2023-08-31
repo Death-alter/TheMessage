@@ -9,9 +9,9 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 
 export class JiZhi extends ActiveSkill {
-
   constructor(character: Character) {
     super({
       name: "急智",
@@ -51,25 +51,11 @@ export class JiZhi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【急智】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_ZHI_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_JI_ZHI_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {

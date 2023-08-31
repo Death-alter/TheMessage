@@ -11,6 +11,9 @@ import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 import { Card } from "../../Card/Card";
 import { CardColor } from "../../Card/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class GongFen extends ActiveSkill {
   private count = 0;
@@ -45,25 +48,11 @@ export class GongFen extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【共焚】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_GONG_FEN_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_GONG_FEN_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_gong_fen_toc) {

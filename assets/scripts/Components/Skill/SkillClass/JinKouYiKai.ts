@@ -9,6 +9,8 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class JinKouYiKai extends ActiveSkill {
   private usageCount: number = 0;
@@ -64,25 +66,11 @@ export class JinKouYiKai extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【金口一开】`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_KOU_YI_KAI_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jin_kou_yi_kai_a_toc) {

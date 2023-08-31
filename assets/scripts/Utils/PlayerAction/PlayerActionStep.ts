@@ -5,6 +5,7 @@ export type PlayerActionStepHandler = (
     prev: () => void;
     passOnNext: (f: () => void) => void;
     passOnPrev: (f: () => void) => void;
+    end: (data?: { [index: string]: any }) => void;
   }
 ) => void;
 

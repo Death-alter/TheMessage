@@ -9,6 +9,9 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class MiaoBiQiaoBian extends ActiveSkill {
   constructor(character: Character) {
@@ -47,75 +50,38 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_MIAO_BI_QIAO_BIAN_B_TOC);
   }
 
-  onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
-
-    let hasMessage = false;
-
+  canUse(gui: GameManager): boolean {
     for (let player of gui.data.playerList) {
       if (player.messageCounts.total > 0) {
-        hasMessage = true;
-        break;
+        return true;
       }
     }
+    return false;
+  }
 
-    if (hasMessage) {
-      tooltip.setText("是否使用【妙笔巧辩】？");
-    } else {
-      tooltip.setText("场上没有情报，不能使用【妙笔巧辩】");
-    }
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          tooltip.setText("请选择一个角色");
-          tooltip.buttons.setButtons([]);
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            filter: (player) => player.messageCounts.total > 0,
-            onSelect: (player: Player) => {
-              gui.gameLayer.pauseSelectPlayers();
-              showCardsWindow.show({
-                title: "请选择第一张情报",
-                limit: 1,
-                cardList: player.getMessagesCopy(),
-                buttons: [
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_A_TOS, {
-                        targetPlayerId: player.id,
-                        cardId: showCardsWindow.selectedCards.list[0].id,
-                        seq: gui.seq,
-                      });
-                      gui.gameLayer.stopSelectPlayers();
-                      showCardsWindow.hide();
-                    },
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      showCardsWindow.hide();
-                      gui.gameLayer.stopSelectPlayers();
-                    },
-                  },
-                ],
-              });
-            },
-          });
-        },
-        enabled: hasMessage,
+  onUse(gui: GameManager) {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        filter: (player) => player.messageCounts.total > 0,
       },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
+    })
+      .addTempStep({
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          tooltipText: "请选择第一张情报",
         },
-      },
-    ]);
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_A_TOS, {
+          cardId: data[0].cardId,
+          targetPlayerId: data[1].players[0].id,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffectA(
@@ -169,70 +135,67 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    tooltip.setText("是否选择第二张牌？");
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          tooltip.setText("请选择一个角色");
-          tooltip.buttons.setButtons([]);
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            filter: (player) => player.messageCounts.total > 0,
-            onSelect: (player: Player) => {
-              gui.gameLayer.pauseSelectPlayers();
-              showCardsWindow.show({
-                title: "请选择第二张情报",
-                limit: 1,
-                cardList: player.getMessagesCopy(),
-                buttons: [
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
-                        enable: true,
-                        targetPlayerId: player.id,
-                        cardId: showCardsWindow.selectedCards.list[0].id,
-                        seq: gui.seq,
-                      });
-                      gui.gameLayer.stopSelectPlayers();
-                      showCardsWindow.hide();
-                    },
-                    enabled: () => {
-                      if (showCardsWindow.selectedCards.list.length === 0) return false;
-                      if (message.color.length === 1) {
-                        return showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1;
-                      } else {
-                        return (
-                          showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1 &&
-                          showCardsWindow.selectedCards.list[0].color.indexOf(message.color[1]) === -1
-                        );
-                      }
-                    },
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      showCardsWindow.hide();
-                      gui.gameLayer.stopSelectPlayers();
-                    },
-                  },
-                ],
-              });
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: ({}, { next, prev }) => {
+          tooltip.setText("是否选择第二张牌？");
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next();
+              },
             },
-          });
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
+      }),
+    })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          filter: (player) => player.messageCounts.total > 0,
         },
-      },
-    ]);
+      })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          tooltipText: "请选择第二张情报",
+          enabled: () => {
+            if (showCardsWindow.selectedCards.list.length === 0) return false;
+            if (message.color.length === 1) {
+              return showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1;
+            } else {
+              return (
+                showCardsWindow.selectedCards.list[0].color.indexOf(message.color[0]) === -1 &&
+                showCardsWindow.selectedCards.list[0].color.indexOf(message.color[1]) === -1
+              );
+            }
+          },
+        },
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
+          enable: true,
+          cardId: data[0].cardId,
+          targetPlayerId: data[1].players[0].id,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {

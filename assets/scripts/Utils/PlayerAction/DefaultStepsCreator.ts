@@ -179,11 +179,10 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "确定",
           onclick: () => {
-            console.log(1);
             gui.gameLayer.pauseSelectPlayers();
             next({ players: [...gui.selectedPlayers.list] });
           },
-          enabled: enabled || true,
+          enabled: enabled || (() => gui.selectedPlayers.list.length === num),
         },
         {
           text: "取消",
@@ -224,7 +223,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
     ({ initial, current }, { next, prev }) => {
-      const player = gui.data.playerList[initial.playerId || current.playerId];
+      const player = gui.data.playerList[current.playerId || initial.playerId];
+      const { enabled } = initial;
+
       const showCardsWindow = gui.showCardsWindow;
 
       showCardsWindow.show({
@@ -235,9 +236,11 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           {
             text: "确定",
             onclick: () => {
-              next({ cardId: showCardsWindow.selectedCards.list[0].id });
+              const cardId = showCardsWindow.selectedCards.list[0].id;
               showCardsWindow.hide();
+              next({ cardId });
             },
+            enabled: enabled || true,
           },
           {
             text: "取消",
@@ -349,6 +352,29 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         });
       }
       gui.tooltip.buttons.setButtons(buttons);
+    },
+  [PlayerActionStepName.CONFIRM_USE_SKILL]:
+    (gui: GameManager) =>
+    ({ initial }, { next, prev }) => {
+      const tooltip = gui.tooltip;
+      const { tooltipText, enabled } = initial;
+
+      tooltip.setText(tooltipText);
+      tooltip.buttons.setButtons([
+        {
+          text: "确定",
+          onclick: () => {
+            next();
+          },
+          enabled: () => enabled(gui) || true,
+        },
+        {
+          text: "取消",
+          onclick: () => {
+            prev();
+          },
+        },
+      ]);
     },
 };
 

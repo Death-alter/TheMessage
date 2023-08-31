@@ -9,6 +9,7 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 
 export class TouTian extends ActiveSkill {
   constructor(character: Character) {
@@ -38,31 +39,16 @@ export class TouTian extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_TOU_TIAN_TOC);
   }
 
+  canUse(gui: GameManager): boolean {
+    return gui.data.messagePlayerId !== 0;
+  }
+
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    if (gui.data.messagePlayerId === 0) {
-      tooltip.setText(`情报在你面前，不能使用【偷天】`);
-    } else {
-      tooltip.setText(`是否使用【偷天】？`);
-    }
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
-            seq: gui.seq,
-          });
-        },
-        enabled: gui.data.messagePlayerId !== 0,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {

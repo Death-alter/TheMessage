@@ -10,6 +10,9 @@ import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Card } from "../../Card/Card";
 import { CardColor, CardDirection, CardType } from "../../Card/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { copyCard } from "../../Card";
 
 export class LengXueXunLian extends ActiveSkill {
   constructor(character: Character) {
@@ -49,24 +52,11 @@ export class LengXueXunLian extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("是否使用【冷血训练】？");
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-        },
-      },
-    ]);
+    PlayerAction.onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_leng_xue_xun_lian_a_toc) {
@@ -106,112 +96,48 @@ export class LengXueXunLian extends ActiveSkill {
 
   promptChooseCard(gui: GameManager, params) {
     const { cardList } = params;
-    const data: any = {
-      seq: gui.seq,
-    };
     const showCardsWindow = gui.showCardsWindow;
-    const tooltip = gui.tooltip;
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "selectCard",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择一张牌作为情报传出",
-                  limit: 1,
-                  cardList,
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        data.sendCardId = showCardsWindow.selectedCards.list[0].id;
-                        resolve(showCardsWindow.selectedCards.list[0]);
-                        showCardsWindow.hide();
-                      },
-                      enabled: () => {
-                        if (showCardsWindow.selectedCards.list.length <= 0) return false;
-                        return Card.hasColor(cardList, CardColor.BLACK)
-                          ? Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK)
-                          : true;
-                      },
-                    },
-                  ],
-                });
-              }),
-          },
-          {
-            name: "selectPlayer",
-            handler: (card: Card) =>
-              new Promise((resolve, reject) => {
-                if (card.direction === CardDirection.UP) {
-                  tooltip.setText("请选择要传递情报的目标");
-                  tooltip.buttons.setButtons([
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        gui.gameLayer.stopSelectPlayers();
-                        resolve(null);
-                      },
-                      enabled: () => gui.selectedPlayers.list.length > 0,
-                    },
-                  ]);
-                  gui.gameLayer.startSelectPlayers({
-                    num: 1,
-                    filter: (player) => player.id !== 0,
-                    onSelect: (player) => {
-                      data.targetPlayerId = player.id;
-                    },
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          showCardsWindow.show({
+            title: "请选择一张牌作为情报传出",
+            limit: 1,
+            cardList,
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  const sendCard = copyCard(showCardsWindow.selectedCards.list[0]);
+                  showCardsWindow.hide();
+                  gui.uiLayer.doSendMessage(sendCard);
+                  PlayerAction.onComplete((data) => {
+                    let d: any = {};
+                    for (let item of data) {
+                      d = { ...d, ...item };
+                    }
+                    NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, {
+                      sendCardId: d.sendCard.id,
+                      lockPlayerId: d.lockPlayerId,
+                      targetPlayerId: d.targetPlayerId,
+                      seq: gui.seq,
+                    });
                   });
-                } else {
-                  let i;
-                  if (card.direction === CardDirection.LEFT) {
-                    i = gui.data.playerList.length - 1;
-                    while (!gui.data.playerList[i].isAlive) {
-                      --i;
-                    }
-                  } else {
-                    i = 1;
-                    while (!gui.data.playerList[i].isAlive) {
-                      ++i;
-                    }
-                  }
-                  data.targetPlayerId = i;
-                  resolve(null);
-                }
-              }),
-          },
-          {
-            name: "selectLockPlayer",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText("请选择一名角色锁定");
-                tooltip.buttons.setButtons([
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      resolve(null);
-                    },
-                    enabled: () => gui.selectedPlayers.list.length > 0,
-                  },
-                ]);
-                gui.gameLayer.startSelectPlayers({
-                  num: 1,
-                  filter: (player) => player.id !== 0,
-                  onSelect: (player) => {
-                    data.lockPlayerId = player.id;
-                  },
-                });
-              }),
-          },
-        ],
-        complete: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, data);
+                  next({ sendCard });
+                },
+                enabled: () => {
+                  if (showCardsWindow.selectedCards.list.length <= 0) return false;
+                  return Card.hasColor(cardList, CardColor.BLACK)
+                    ? Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK)
+                    : true;
+                },
+              },
+            ],
+          });
         },
-      })
-    );
+      }),
+    });
   }
 
   showCards(gui: GameManager, params) {

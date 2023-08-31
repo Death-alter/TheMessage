@@ -8,6 +8,8 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class CongRongYingDui extends TriggerSkill {
   constructor(character: Character) {
@@ -49,66 +51,66 @@ export class CongRongYingDui extends TriggerSkill {
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "chooseUse",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText("【试探】已结算，是否使用【从容应对】");
-                tooltip.buttons.setButtons([
-                  {
-                    text: "是",
-                    onclick: () => {
-                      resolve({ enable: true });
-                    },
-                  },
-                  {
-                    text: "否",
-                    onclick: () => {
-                      reject(null);
-                    },
-                  },
-                ]);
-              }),
-          },
-          {
-            name: "chooseAction",
-            handler: (data) =>
-              new Promise((resolve, reject) => {
-                tooltip.setText("请选择一项操作");
-                tooltip.buttons.setButtons([
-                  {
-                    text: "抽取手牌",
-                    onclick: () => {
-                      resolve({ ...data, drawCard: false });
-                    },
-                  },
-                  {
-                    text: "摸一张牌",
-                    onclick: () => {
-                      resolve({ ...data, drawCard: true });
-                    },
-                  },
-                ]);
-              }),
-          },
-        ],
-        complete: (data) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
-            ...data,
-            seq: gui.seq,
-          });
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText("【试探】已结算，是否使用【从容应对】");
+          tooltip.buttons.setButtons([
+            {
+              text: "是",
+              onclick: () => {
+                next();
+              },
+            },
+            {
+              text: "否",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
-        cancel: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
-        },
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            tooltip.setText("请选择一项操作");
+            tooltip.buttons.setButtons([
+              {
+                text: "抽取手牌",
+                onclick: () => {
+                  next({ drawCard: false });
+                },
+              },
+              {
+                text: "摸一张牌",
+                onclick: () => {
+                  next({ drawCard: true });
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  prev();
+                },
+              },
+            ]);
+          },
+        }),
       })
-    );
+      .onComplete(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
+          enable: true,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card, enable, drawCard }: skill_cong_rong_ying_dui_toc) {

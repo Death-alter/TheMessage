@@ -9,6 +9,8 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class YiHuaJieMu extends ActiveSkill {
   constructor(character: Character) {
@@ -47,26 +49,12 @@ export class YiHuaJieMu extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_YI_HUA_JIE_MU_B_TOC);
   }
 
-  async onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【移花接木】`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+  onUse(gui: GameManager) {
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_yi_hua_jie_mu_a_toc) {
@@ -91,76 +79,79 @@ export class YiHuaJieMu extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "selectFromPlayer",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText(`请选择要获取情报的角色`);
-                gui.gameLayer.startSelectPlayers({
-                  num: 1,
-                  filter: (player) => {
-                    return player.messageCounts.total > 0;
-                  },
-                  onSelect: (player) => {
-                    gui.gameLayer.pauseSelectPlayers();
-                    resolve({ fromPlayer: player });
-                  },
-                });
-              }),
-          },
-          {
-            name: "selectMessage",
-            handler: ({ fromPlayer }) =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择一张情报",
-                  limit: 1,
-                  cardList: fromPlayer.getMessagesCopy(),
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        resolve({ cardId: showCardsWindow.selectedCards.list[0].id, fromPlayer });
-                        gui.gameLayer.stopSelectPlayers();
-                        showCardsWindow.hide();
-                      },
-                      enabled: () => !!showCardsWindow.selectedCards.list.length,
-                    },
-                  ],
-                });
-              }),
-          },
-          {
-            name: "selectToPlayer",
-            handler: ({ fromPlayer, cardId }) =>
-              new Promise((resolve, reject) => {
-                tooltip.setText("请选择把情报置入另一名角色的情报区");
-                gui.gameLayer.startSelectPlayers({
-                  num: 1,
-                  filter: (player) => {
-                    return player !== fromPlayer;
-                  },
-                  onSelect: (player) => {
-                    gui.gameLayer.pauseSelectPlayers();
-                    resolve({ fromPlayer, cardId, toPlayer: player });
-                  },
-                });
-              }),
-          },
-        ],
-        complete: ({ fromPlayer, cardId, toPlayer }) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_B_TOS, {
-            fromPlayerId: fromPlayer.id,
-            cardId,
-            toPlayerId: toPlayer.id,
-            seq: gui.seq,
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText(`请选择要获取情报的角色`);
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                const player = gui.selectedPlayers.list[0];
+                gui.gameLayer.pauseSelectPlayers();
+                next({ fromPlayer: player });
+              },
+              enabled: () => gui.selectedPlayers.list.length > 0,
+            },
+          ]);
+          gui.gameLayer.startSelectPlayers({
+            num: 1,
+            filter: (player) => {
+              return player.messageCounts.total > 0;
+            },
           });
         },
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const { fromPlayer } = current;
+            showCardsWindow.show({
+              title: "请选择一张情报",
+              limit: 1,
+              cardList: fromPlayer.getMessagesCopy(),
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const cardId = showCardsWindow.selectedCards.list[0].id;
+                    showCardsWindow.hide();
+                    next({ cardId, fromPlayer });
+                  },
+                  enabled: () => !!showCardsWindow.selectedCards.list.length,
+                },
+              ],
+            });
+          },
+        }),
       })
-    );
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const { fromPlayer } = current;
+            tooltip.setText("请选择把情报置入另一名角色的情报区");
+            gui.gameLayer.startSelectPlayers({
+              num: 1,
+              filter: (player) => {
+                return player !== fromPlayer;
+              },
+              onSelect: (player) => {
+                gui.gameLayer.pauseSelectPlayers();
+                next({ toPlayer: player });
+              },
+            });
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_B_TOS, {
+          fromPlayerId: data[2].fromPlayerId.id,
+          cardId: data[1].cardId,
+          toPlayerId: data[0].toPlayer.id,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffectB(

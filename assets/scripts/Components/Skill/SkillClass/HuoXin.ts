@@ -8,6 +8,9 @@ import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class HuoXin extends ActiveSkill {
   private usageCount: number = 0;
@@ -55,33 +58,18 @@ export class HuoXin extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-
-    tooltip.setText(`请选择要查看手牌的角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择要查看手牌的角色",
+      },
+    })
+    .onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_HUO_XIN_A_TOS, {
+        targetPlayerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_HUO_XIN_A_TOS, {
-            targetPlayerId: gui.selectedPlayers.list[0].id,
-            seq: gui.seq,
-          });
-        },
-        enabled: () => {
-          return gui.selectedPlayers.list.length === 1;
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
   }
 
   onEffectA(

@@ -10,6 +10,8 @@ import { Character } from "../../../Components/Chatacter/Character";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardActionLocation } from "../../../Manager/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class YiYaHuanYa extends TriggerSkill {
   constructor(character: Character) {
@@ -36,56 +38,85 @@ export class YiYaHuanYa extends TriggerSkill {
 
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
-    tooltip.setText(`你接收了黑色情报，是否使用【以牙还牙】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          tooltip.setText(`请选择一张黑色手牌和一名玩家`);
-          const selectedHandCards = gui.selectedHandCards;
-          const neighbors = gui.data.getPlayerNeighbors(gui.data.senderId);
-          gui.gameLayer.startSelectHandCards({
-            num: 1,
-          });
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            filter: (player) => {
-              return neighbors.indexOf(player) !== -1 || player.id === 0;
-            },
-          });
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText(`你接收了黑色情报，是否使用【以牙还牙】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_YA_HUAN_YA_TOS, {
-                  cardId: selectedHandCards.list[0].id,
-                  targetPlayerId: gui.selectedPlayers.list[0].id,
-                  seq: gui.seq,
-                });
+                next();
               },
-              enabled: () => {
-                return (
-                  selectedHandCards.list.length &&
-                  Card.hasColor(selectedHandCards.list[0], CardColor.BLACK) &&
-                  gui.selectedPlayers.list.length !== 0
-                );
+              enabled: Card.hasColor(gui.data.handCardList.list, CardColor.BLACK),
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
               },
             },
           ]);
         },
-        enabled: Card.hasColor(gui.data.handCardList.list, CardColor.BLACK),
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gui.seq,
-          });
-          gui.gameLayer.stopSelectPlayers();
-          gui.gameLayer.stopSelectHandCards();
-        },
-      },
-    ]);
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            tooltip.setText(`请选择一张黑色手牌和一名玩家`);
+            const selectedHandCards = gui.selectedHandCards;
+            const neighbors = gui.data.getPlayerNeighbors(gui.data.senderId);
+            gui.gameLayer.startSelectHandCards({
+              num: 1,
+            });
+            gui.gameLayer.startSelectPlayers({
+              num: 1,
+              filter: (player) => {
+                return neighbors.indexOf(player) !== -1 || player.id === gui.data.senderId;
+              },
+            });
+            tooltip.buttons.setButtons([
+              {
+                text: "确定",
+                onclick: () => {
+                  next({
+                    cardId: selectedHandCards.list[0].id,
+                    targetPlayerId: gui.selectedPlayers.list[0].id,
+                  });
+                },
+                enabled: () => {
+                  return (
+                    selectedHandCards.list.length &&
+                    Card.hasColor(selectedHandCards.list[0], CardColor.BLACK) &&
+                    gui.selectedPlayers.list.length !== 0
+                  );
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  gui.gameLayer.stopSelectPlayers();
+                  gui.gameLayer.stopSelectHandCards();
+                  prev();
+                },
+              },
+            ]);
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_YA_HUAN_YA_TOS, {
+          cardId: data[0].cardId,
+          targetPlayerId: data[0].targetPlayerId,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, card, targetPlayerId }: skill_yi_ya_huan_ya_toc) {

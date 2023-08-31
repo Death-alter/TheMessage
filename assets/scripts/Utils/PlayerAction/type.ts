@@ -9,4 +9,5 @@ export enum PlayerActionStepName {
   SELECT_PLAYER_MESSAGE = "selectPlayerMessage",
   SELECT_MESSAGE_TARGET = "selectMessageTarget",
   SELECT_LOCK_TARGET = "selectLockTarget",
+  CONFIRM_USE_SKILL = "confirmUseSkill",
 }

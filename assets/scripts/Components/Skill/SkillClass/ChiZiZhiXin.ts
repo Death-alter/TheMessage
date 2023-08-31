@@ -9,6 +9,8 @@ import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../Card/Card";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class ChiZiZhiXin extends TriggerSkill {
   constructor(character: Character) {
@@ -87,71 +89,41 @@ export class ChiZiZhiXin extends TriggerSkill {
   promptChooseAction(gui: GameManager, params: { message: Card }) {
     const tooltip = gui.tooltip;
     const { message } = params;
-
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "chooseAction",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                tooltip.setText("请选择一项操作");
-                tooltip.buttons.setButtons([
-                  {
-                    text: "摸两张牌",
-                    onclick: () => {
-                      resolve({ drawCard: true });
-                    },
-                  },
-                  {
-                    text: "置入情报",
-                    onclick: () => {
-                      resolve({ drawCard: false });
-                    },
-                    enabled: () => Card.hasColor(gui.data.handCardList.list, message.color[0]),
-                  },
-                ]);
-              }),
-          },
-          {
-            name: "chooseCard",
-            handler: (data) =>
-              new Promise((resolve, reject) => {
-                if (data.drawCard) {
-                  resolve(data);
-                } else {
-                  tooltip.setText("请选择一张手牌置入情报区");
-                  gui.gameLayer.startSelectHandCards({ num: 1 });
-                  tooltip.buttons.setButtons([
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        resolve({ ...data, cardId: gui.selectedHandCards.list[0].id });
-                      },
-                      enabled: () => {
-                        if (gui.selectedHandCards.list.length === 0) return false;
-                        for (let c of message.color) {
-                          if (Card.hasColor(gui.selectedHandCards.list[0], c)) {
-                            return true;
-                          }
-                        }
-                        return false;
-                      },
-                    },
-                  ]);
-                }
-              }),
-          },
-        ],
-        complete: (data) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
-            ...data,
-            seq: gui.seq,
-          });
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText("请选择一项操作");
+          tooltip.buttons.setButtons([
+            {
+              text: "摸两张牌",
+              onclick: () => {
+                next();
+              },
+            },
+            {
+              text: "置入情报",
+              onclick: () => {
+                prev();
+              },
+              enabled: () => Card.hasColor(gui.data.handCardList.list, message.color[0]),
+            },
+          ]);
         },
-        cancel: () => {},
+      }),
+    })
+      .onComplete(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
+          drawCard: true,
+          seq: gui.seq,
+        });
       })
-    );
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
+          drawCard: false,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffectB(gameData: GameData, { playerId, card, drawCard }: skill_chi_zi_zhi_xin_b_toc) {

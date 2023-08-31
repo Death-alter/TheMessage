@@ -9,6 +9,9 @@ import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class GuiZha extends ActiveSkill {
   private usageCount: number = 0;
@@ -50,15 +53,45 @@ export class GuiZha extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    tooltip.setText(`请选择一名角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      onSelect: () => {
-        tooltip.setText(`请选择要执行的操作`);
-        tooltip.buttons.setButtons([
-          {
-            text: "威逼",
-            onclick: () => {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+    })
+      .addTempStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            tooltip.setText(`请选择要执行的操作`);
+            gui.gameLayer.startSelectPlayers({
+              num: 1,
+            });
+            tooltip.buttons.setButtons([
+              {
+                text: "威逼",
+                onclick: () => {
+                  gui.gameLayer.pauseSelectPlayers();
+                  next({ cardType: CardType.WEI_BI });
+                },
+              },
+              {
+                text: "利诱",
+                onclick: () => {
+                  gui.gameLayer.pauseSelectPlayers();
+                  next({ cardType: CardType.LI_YOU });
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  prev();
+                },
+              },
+            ]);
+          },
+        }),
+      })
+      .addTempStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            if (current.cardType === CardType.WEI_BI) {
               showCardsWindow.show({
                 title: "选择目标交给你的卡牌种类",
                 cardList: [
@@ -72,14 +105,9 @@ export class GuiZha extends ActiveSkill {
                   {
                     text: "确定",
                     onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                        targetPlayerId: gui.selectedPlayers.list[0].id,
-                        cardType: CardType.WEI_BI,
-                        wantType: gui.showCardsWindow.selectedCards.list[0].type,
-                        seq: gui.seq,
-                      });
+                      const wantType = gui.showCardsWindow.selectedCards.list[0].type;
                       showCardsWindow.hide();
-                      gui.gameLayer.stopSelectPlayers();
+                      next({ wantType });
                     },
                     enabled: () => !!showCardsWindow.selectedCards.list.length,
                   },
@@ -87,30 +115,29 @@ export class GuiZha extends ActiveSkill {
                     text: "取消",
                     onclick: () => {
                       showCardsWindow.hide();
-                      gui.gameLayer.stopSelectPlayers();
+                      prev();
                     },
                   },
                 ],
               });
-            },
+            } else {
+              next();
+            }
           },
-          {
-            text: "利诱",
-            onclick: () => {
-              NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
-                targetPlayerId: gui.selectedPlayers.list[0].id,
-                cardType: CardType.LI_YOU,
-                seq: gui.seq,
-              });
-              gui.gameLayer.stopSelectPlayers();
-            },
-          },
-        ]);
-      },
-      onDeselect: () => {
-        tooltip.setText(`请选择一名角色`);
-      },
-    });
+        }),
+      })
+      .onComplete((data) => {
+        let d: any = {};
+        for (let item of data) {
+          d = { ...d, ...item };
+        }
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
+          targetPlayerId: d.players[0].id,
+          cardType: d.cardType,
+          wantType: d.wantType,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, cardType }: skill_gui_zha_toc) {

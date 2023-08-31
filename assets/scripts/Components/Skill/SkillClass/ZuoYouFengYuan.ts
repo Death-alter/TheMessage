@@ -9,6 +9,8 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class ZuoYouFengYuan extends ActiveSkill {
   constructor(character: Character) {
@@ -40,30 +42,38 @@ export class ZuoYouFengYuan extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择两名角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 2,
-    });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_ZUO_YOU_FENG_YUAN_TOS, {
-            targetPlayerIds: gui.selectedPlayers.list.map((player) => player.id),
-            seq: gui.seq,
+    PlayerAction.addTempStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`请选择两名角色`);
+          gui.gameLayer.startSelectPlayers({
+            num: 2,
           });
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next({ targetPlayerIds: gui.selectedPlayers.list.map((player) => player.id) });
+              },
+              enabled: () => gui.selectedPlayers.list.length === 2,
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                this.gameObject.isOn = false;
+                prev();
+              },
+            },
+          ]);
         },
-        enabled: () => gui.selectedPlayers.list.length === 2,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+      }),
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_ZUO_YOU_FENG_YUAN_TOS, {
+        targetPlayerIds: data[0].targetPlayerIds,
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerIds }: skill_zuo_you_feng_yuan_toc) {

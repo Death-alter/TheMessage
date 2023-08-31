@@ -14,6 +14,9 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuiZhengXiaoYao extends ActiveSkill {
   constructor(character: Character) {
@@ -61,26 +64,11 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("是否使用【对症下药】？");
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_dui_zheng_xia_yao_a_toc) {
@@ -212,52 +200,85 @@ export class DuiZhengXiaoYao extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    tooltip.setText("请选择一名角色");
-    tooltip.buttons.setButtons([]);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => {
-        for (let color of colorList) {
-          if (player.messageCounts[color] > 0) return true;
-        }
-        return false;
-      },
-      onSelect: (player) => {
-        let title;
-        if (colorList.length === 1) {
-          title = `选择一张${getCardColorText(colorList[0])}色情报弃置`;
-        } else {
-          title = `选择一张${getCardColorText(colorList[0])}色或${getCardColorText(colorList[1])}色情报弃置`;
-        }
-        showCardsWindow.show({
-          title,
-          limit: 1,
-          cardList: player.getMessagesCopy(),
-          buttons: [
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText("请选择一名角色");
+          tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_C_TOS, {
-                  targetPlayerId: player.id,
-                  messageCardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gui.seq,
+                next({
+                  player: gui.selectedPlayers.list[0],
                 });
-                showCardsWindow.hide();
               },
-              enabled: () => {
-                if (showCardsWindow.selectedCards.list.length === 0) return false;
-                for (let color of showCardsWindow.selectedCards.list[0].color) {
-                  if (colorList.indexOf(color) !== -1) {
-                    return true;
-                  }
-                }
-                return false;
-              },
+              enabled: () => gui.selectedPlayers.list.length > 0,
             },
-          ],
+          ]);
+          gui.gameLayer.startSelectPlayers({
+            num: 1,
+            filter: (player) => {
+              for (let color of colorList) {
+                if (player.messageCounts[color] > 0) return true;
+              }
+              return false;
+            },
+          });
+        },
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const { player } = current;
+            let title;
+            if (colorList.length === 1) {
+              title = `选择一张${getCardColorText(colorList[0])}色情报弃置`;
+            } else {
+              title = `选择一张${getCardColorText(colorList[0])}色或${getCardColorText(colorList[1])}色情报弃置`;
+            }
+            showCardsWindow.show({
+              title,
+              limit: 1,
+              cardList: player.getMessagesCopy(),
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const messageCardId = showCardsWindow.selectedCards.list[0].id;
+                    showCardsWindow.hide();
+                    next({ messageCardId });
+                  },
+                  enabled: () => {
+                    if (showCardsWindow.selectedCards.list.length === 0) return false;
+                    for (let color of showCardsWindow.selectedCards.list[0].color) {
+                      if (colorList.indexOf(color) !== -1) {
+                        return true;
+                      }
+                    }
+                    return false;
+                  },
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    prev();
+                  },
+                },
+              ],
+            });
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_DUI_ZHENG_XIA_YAO_C_TOS, {
+          targetPlayerId: data[1].player.id,
+          messageCardId: data[0].messageCardId,
+          seq: gui.seq,
         });
-      },
-    });
+      })
+      .start();
   }
 
   onEffectC(gameData: GameData, { playerId, targetPlayerId, messageCardId }: skill_dui_zheng_xia_yao_c_toc) {

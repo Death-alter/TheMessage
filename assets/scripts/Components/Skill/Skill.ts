@@ -55,6 +55,10 @@ export abstract class ActiveSkill extends Skill {
   }
 
   abstract onUse(gui: GameManager);
+
+  canUse(gui: GameManager): boolean {
+    return true;
+  }
 }
 
 export abstract class TriggerSkill extends Skill {

@@ -1,10 +1,6 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import {
-  skill_hou_lai_ren_a_toc,
-  skill_hou_lai_ren_b_toc,
-  wait_for_cheng_qing_toc,
-} from "../../../../protobuf/proto";
+import { skill_hou_lai_ren_a_toc, skill_hou_lai_ren_b_toc, wait_for_cheng_qing_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
@@ -15,6 +11,8 @@ import { CharacterStatus } from "../../Chatacter/type";
 import { CardColor } from "../../Card/type";
 import { WaitingType } from "../../../Manager/type";
 import { createCharacterById } from "../../Chatacter";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class HouLaiRen extends ActiveSkill {
   constructor(character: Character) {
@@ -67,77 +65,36 @@ export class HouLaiRen extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
-
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "chooseUse",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                const messageCounts = gui.data.selfPlayer.messageCounts;
-                const flag = messageCounts[CardColor.RED] > 0 || messageCounts[CardColor.BLUE] > 0;
-                if (flag) {
-                  tooltip.setText(`是否使用【后来人】？`);
-                } else {
-                  tooltip.setText(`情报数量不足，无法使用【后来人】？`);
-                }
-
-                tooltip.buttons.setButtons([
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      resolve(null);
-                    },
-                    enabled: flag,
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      reject(null);
-                    },
-                  },
-                ]);
-              }),
-          },
-          {
-            name: "chooseAction",
-            handler: (data) =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择一张红色或蓝色情报保留",
-                  limit: 1,
-                  cardList: gui.data.selfPlayer.getMessagesCopy(),
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        resolve(showCardsWindow.selectedCards.list[0].id);
-                        showCardsWindow.hide();
-                      },
-                      enabled: () =>
-                        showCardsWindow.selectedCards.list.length > 0 &&
-                        showCardsWindow.selectedCards.list[0].color[0] !== CardColor.BLACK,
-                    },
-                  ],
-                });
-              }),
-          },
-        ],
-        complete: (id) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_HOU_LAI_REN_A_TOS, {
-            remainCardId: id,
-            seq: gui.seq,
+    PlayerAction.addTempStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const showCardsWindow = gui.showCardsWindow;
+          showCardsWindow.show({
+            title: "请选择一张红色或蓝色情报保留",
+            limit: 1,
+            cardList: gui.data.selfPlayer.getMessagesCopy(),
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  const cardId = showCardsWindow.selectedCards.list[0].id;
+                  showCardsWindow.hide();
+                  next({ cardId });
+                },
+                enabled: () =>
+                  showCardsWindow.selectedCards.list.length > 0 &&
+                  showCardsWindow.selectedCards.list[0].color[0] !== CardColor.BLACK,
+              },
+            ],
           });
         },
-        cancel: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      })
-    );
+      }),
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_HOU_LAI_REN_A_TOS, {
+        remainCardId: data[0].cardId,
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, remainCardId, roles, waitingSecond, seq }: skill_hou_lai_ren_a_toc) {

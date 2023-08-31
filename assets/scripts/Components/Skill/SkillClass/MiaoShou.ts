@@ -9,6 +9,8 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class MiaoShou extends ActiveSkill {
   constructor(character: Character) {
@@ -48,30 +50,17 @@ export class MiaoShou extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("请选择一名角色");
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        filter: (player: Player) => player.handCardCount > 0,
+      },
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_A_TOS, {
+        targetPlayerId: data[0].players[0].id,
+        seq: gui.seq,
+      });
     });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_A_TOS, {
-            targetPlayerId: gui.selectedPlayers.list[0].id,
-            seq: gui.seq,
-          });
-        },
-        enabled: () => !!gui.selectedPlayers.list.length,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
   }
 
   onEffectA(

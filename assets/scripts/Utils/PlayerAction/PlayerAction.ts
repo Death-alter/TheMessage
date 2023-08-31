@@ -11,7 +11,9 @@ export abstract class PlayerAction {
   private static dataList: { [index: string]: any }[] = [];
 
   private static complete: (data?: { [index: string]: any }[]) => void;
+  private static tempComplete: (data?: { [index: string]: any }[]) => void;
   private static cancel: () => void;
+  private static tempCancel: () => void;
 
   private static get stepList() {
     return [...this.list, ...this.tempList];
@@ -25,8 +27,7 @@ export abstract class PlayerAction {
     }
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
     if (this.index >= this.stepList.length) {
-      const data = [...this.dataList].reverse().map((item) => item.current);
-      this.complete && this.complete(data);
+      this.end();
     } else {
       this.handleStep();
     }
@@ -38,6 +39,7 @@ export abstract class PlayerAction {
     --this.index;
     if (this.index < this.list.length) {
       this.tempList = [];
+      this.tempCancel && this.tempCancel();
     }
 
     if (this.index < 0) {
@@ -69,6 +71,7 @@ export abstract class PlayerAction {
       prev: this.prev.bind(this),
       passOnNext: this.passOnNext.bind(this),
       passOnPrev: this.passOnPrev.bind(this),
+      end: this.end.bind(this),
     });
   }
 
@@ -88,6 +91,18 @@ export abstract class PlayerAction {
     this.handleStep();
 
     return this;
+  }
+
+  static end(data?: { [index: string]: any }) {
+    if (data) {
+      this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
+    }
+    const d = [...this.dataList].reverse().map((item) => item.current);
+    if (this.tempList.length > 0) {
+      this.tempComplete && this.tempComplete(d);
+    } else {
+      this.complete && this.complete(d);
+    }
   }
 
   static addStep({
@@ -142,12 +157,20 @@ export abstract class PlayerAction {
   }
 
   static onComplete(callback: (data?: { [index: string]: any }[]) => void) {
-    this.complete = callback;
+    if (this.tempList.length > 0) {
+      this.tempComplete = callback;
+    } else {
+      this.complete = callback;
+    }
     return this;
   }
 
   static onCancel(callback: () => void) {
-    this.cancel = callback;
+    if (this.tempList.length > 0) {
+      this.tempCancel = callback;
+    } else {
+      this.cancel = callback;
+    }
     return this;
   }
 }

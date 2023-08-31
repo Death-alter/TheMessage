@@ -2,8 +2,10 @@ import { _decorator, Node, Label, Sprite, color, Vec2, UITransform } from "cc";
 import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
 import { GameObject } from "../../GameObject";
 import { GameManager } from "../../Manager/GameManager";
-import { UIEventCenter } from "../../Event/EventTarget";
-import { UIEvent } from "../../Event/type";
+import { NetworkEventCenter, UIEventCenter } from "../../Event/EventTarget";
+import { NetworkEventToS, UIEvent } from "../../Event/type";
+import { PlayerAction } from "../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../Utils/PlayerAction/type";
 
 const { ccclass } = _decorator;
 
@@ -65,9 +67,18 @@ export class SkillButton extends GameObject<Skill> {
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
           if (this.isOn) {
             this.isOn = false;
-            gui.uiLayer.playerActionManager.switchToDefault();
+            PlayerAction.clearTemp();
           } else {
             this.isOn = true;
+            PlayerAction.addTempStep({
+              step: PlayerActionStepName.CONFIRM_USE_SKILL,
+              data: {
+                tooltipText: `是否使用【${skill.name}】？`,
+                enabled: skill.canUse,
+              },
+            }).onCancel(() => {
+              this.isOn = false;
+            });
             skill.onUse(gui);
           }
         }

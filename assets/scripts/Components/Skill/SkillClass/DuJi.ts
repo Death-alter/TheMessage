@@ -17,6 +17,9 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuJi extends ActiveSkill {
   private cards: card[] = [];
@@ -73,31 +76,19 @@ export class DuJi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`请选择两名角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 2,
-      filter: (player) => player.id !== 0,
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        toolTipText: "请选择两名角色",
+        num: 2,
+        filter: (player) => player.id !== 0,
+      },
+    }).onComplete((data) => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_A_TOS, {
+        targetPlayerIds: data[0].players.map((player) => player.id),
+        seq: gui.seq,
+      });
     });
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_JI_A_TOS, {
-            targetPlayerIds: gui.selectedPlayers.list.map((player) => player.id),
-            seq: gui.seq,
-          });
-        },
-        enabled: () => gui.selectedPlayers.list.length === 2,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerIds, cards }: skill_du_ji_a_toc) {

@@ -9,7 +9,8 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
-import { Card } from "../../Card/Card";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class YunChouWeiWo extends ActiveSkill {
   constructor(character: Character) {
@@ -49,32 +50,11 @@ export class YunChouWeiWo extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-
-    if (gui.data.deckCardCount < 5) {
-      tooltip.setText("牌堆数量不足，不能使用【运筹帷幄】");
-    } else {
-      tooltip.setText("是否使用【运筹帷幄】？");
-    }
-
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_YUN_CHOU_WEI_WO_A_TOS, {
-            seq: gui.seq,
-          });
-        },
-        enabled: gui.data.deckCardCount >= 5,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          gui.uiLayer.playerActionManager.switchToDefault();
-          this.gameObject.isOn = false;
-        },
-      },
-    ]);
+    PlayerAction.onComplete(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_YUN_CHOU_WEI_WO_A_TOS, {
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_yun_chou_wei_wo_a_toc) {
@@ -108,73 +88,67 @@ export class YunChouWeiWo extends ActiveSkill {
   promptChooseCard(gui: GameManager, params) {
     const { cardList } = params;
     const showCardsWindow = gui.showCardsWindow;
-
-    gui.uiLayer.playerActionManager.switchTo(
-      new PlayerAction({
-        actions: [
-          {
-            name: "chooseCard",
-            handler: () =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择三张牌加入手牌",
-                  limit: 3,
-                  cardList,
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        const list = cardList.map((card) => card);
-                        for (let i = 0; i < showCardsWindow.selectedCards.list.length; i++) {
-                          const index = list.indexOf(showCardsWindow.selectedCards.list[i]);
-                          if (index !== -1) {
-                            list.splice(index, 1);
-                            --i;
-                          }
-                        }
-                        showCardsWindow.hide();
-                        resolve(list);
-                      },
-                      enabled: () => showCardsWindow.selectedCards.list.length === 3,
-                    },
-                  ],
-                });
-              }),
-          },
-          {
-            name: "chooseOrder",
-            handler: (list: Card[]) =>
-              new Promise((resolve, reject) => {
-                showCardsWindow.show({
-                  title: "请选择放在上方的牌",
-                  limit: 1,
-                  cardList: list,
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        if (list[0] !== showCardsWindow.selectedCards.list[0]) {
-                          list.reverse();
-                        }
-                        const cardIds = list.map((card) => card.id);
-                        showCardsWindow.hide();
-                        resolve(cardIds);
-                      },
-                      enabled: () => showCardsWindow.selectedCards.list.length === 1,
-                    },
-                  ],
-                });
-              }),
-          },
-        ],
-        complete: (cardIds) => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_YUN_CHOU_WEI_WO_B_TOS, {
-            deckCardIds: cardIds,
-            seq: gui.seq,
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          showCardsWindow.show({
+            title: "请选择三张牌加入手牌",
+            limit: 3,
+            cardList,
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  const list = cardList.map((card) => card);
+                  for (let i = 0; i < showCardsWindow.selectedCards.list.length; i++) {
+                    const index = list.indexOf(showCardsWindow.selectedCards.list[i]);
+                    if (index !== -1) {
+                      list.splice(index, 1);
+                      --i;
+                    }
+                  }
+                  showCardsWindow.hide();
+                  next({ cardList: list });
+                },
+                enabled: () => showCardsWindow.selectedCards.list.length === 3,
+              },
+            ],
           });
         },
+      }),
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const { cardList } = current;
+            showCardsWindow.show({
+              title: "请选择放在上方的牌",
+              limit: 1,
+              cardList,
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    if (cardList[0] !== showCardsWindow.selectedCards.list[0]) {
+                      cardList.reverse();
+                    }
+                    const cardIds = cardList.map((card) => card.id);
+                    showCardsWindow.hide();
+                    next({ cardIds });
+                  },
+                  enabled: () => showCardsWindow.selectedCards.list.length === 1,
+                },
+              ],
+            });
+          },
+        }),
       })
-    );
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_YUN_CHOU_WEI_WO_B_TOS, {
+          deckCardIds: data[0].cardIds,
+          seq: gui.seq,
+        });
+      });
   }
 
   onEffectB(gameData: GameData, { playerId, cards }: skill_yun_chou_wei_wo_b_toc) {

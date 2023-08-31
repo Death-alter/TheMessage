@@ -9,6 +9,9 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class XianFaZhiRen extends ActiveSkill {
   constructor(character: Character) {
@@ -60,70 +63,91 @@ export class XianFaZhiRen extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_B_TOC);
   }
 
-  onUse(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
-
+  canUse(gui: GameManager): boolean {
     let total = 0;
     for (let player of gui.data.playerList) {
       total += player.messageCounts.total;
     }
+    return total !== 0;
+  }
 
-    if (total === 0) {
-      tooltip.setText(`场上没有情报，不能使用【先发制人】`);
-      return;
-    }
-
-    tooltip.setText(`请选择一名角色`);
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      filter: (player) => player.messageCounts.total > 0,
-      onSelect: (player) => {
-        showCardsWindow.show({
-          title: "请选择一张情报弃置",
-          limit: 1,
-          cardList: player.getMessagesCopy(),
-          buttons: [
-            {
-              text: "确定",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
-                  enable: true,
-                  targetPlayerId: player.id,
-                  cardId: showCardsWindow.selectedCards.list[0].id,
-                  seq: gui.seq,
-                });
-                showCardsWindow.hide();
-              },
-              enabled: () => showCardsWindow.selectedCards.list.length > 0,
-            },
-          ],
-        });
+  onUse(gui: GameManager) {
+    PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        filter: (player) => player.messageCounts.total > 0,
       },
-    });
+    })
+      .addTempStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const showCardsWindow = gui.showCardsWindow;
+            const player = current.players[0];
+            showCardsWindow.show({
+              title: "请选择一张情报弃置",
+              limit: 1,
+              cardList: player.getMessagesCopy(),
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const cardId = showCardsWindow.selectedCards.list[0].id;
+                    showCardsWindow.hide();
+                    next({ cardId });
+                  },
+                  enabled: () => showCardsWindow.selectedCards.list.length > 0,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    prev();
+                  },
+                },
+              ],
+            });
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
+          enable: true,
+          targetPlayerId: data[1].players[0].id,
+          cardId: data[0].id,
+          seq: gui.seq,
+        });
+      });
   }
 
   onTrigger(gui: GameManager, params) {
-    const tooltip = gui.tooltip;
-    tooltip.setText(`是否使用【先发制人】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          tooltip.buttons.setButtons([]);
-          this.onUse(gui);
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`是否使用【先发制人】？`);
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                this.onUse(gui);
+                next();
+              },
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
-        },
-      },
-    ]);
+      }),
+    }).onCancel(() => {
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
+        enable: false,
+        seq: gui.seq,
+      });
+    });
   }
 
   onEffectA(
