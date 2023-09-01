@@ -65,14 +65,14 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       data: {
         filter: (player) => player.messageCounts.total > 0,
       },
+      resolver: (data) => {
+        return { playerId: data.players[0].id };
+      },
     })
       .addTempStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
         data: {
           tooltipText: "请选择第一张情报",
-        },
-        resolver: (data) => {
-          return { playerId: data.players[0].id };
         },
       })
       .onComplete((data) => {
@@ -186,7 +186,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
           enable: true,
           cardId: data[0].cardId,
-          targetPlayerId: data[1].players[0].id,
+          targetPlayerId: data[1].playerId,
           seq: gui.seq,
         });
       })

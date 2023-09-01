@@ -182,6 +182,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             onclick: () => {
               const cardId = showCardsWindow.selectedCards.list[0].id;
               showCardsWindow.hide();
+              console.log(cardId);
               next({ cardId });
             },
             enabled: enabled != null ? enabled : true,

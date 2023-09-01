@@ -288,9 +288,6 @@ export class UILayer extends Component {
                             showCardsWindow.selectedCards.list.length > 0 &&
                             Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                         },
-                        resolver: (data) => {
-                          return { playerId: data.players[0].id };
-                        },
                       }).onComplete((data) => {
                         NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                           use: true,

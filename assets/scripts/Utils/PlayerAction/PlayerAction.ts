@@ -24,13 +24,14 @@ export abstract class PlayerAction {
     if (this.stepList[this.index] && this.stepList[this.index].resolver) {
       data = this.stepList[this.index].resolver(data);
     }
-    
+
     ++this.index;
     if (!this.dataList[this.index]) {
       this.dataList[this.index] = {};
     }
 
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
+
     if (this.index >= this.stepList.length) {
       this.end();
     } else {
@@ -105,9 +106,14 @@ export abstract class PlayerAction {
       this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
     }
     const d = [...this.dataList].reverse().map((item) => item.current);
+
+    console.log(this.tempList, this.tempComplete, this.complete);
+    console.log(this.tempComplete);
+    console.log(this.complete);
     if (this.tempList.length > 0) {
       this.tempComplete && this.tempComplete(d);
     } else {
+      console.log(d, this.complete);
       this.complete && this.complete(d);
     }
   }
@@ -158,7 +164,9 @@ export abstract class PlayerAction {
     this.tempList = [];
     this.dataList = [];
     this.complete = null;
+    this.tempComplete = null;
     this.cancel = null;
+    this.tempCancel = null;
 
     return this;
   }

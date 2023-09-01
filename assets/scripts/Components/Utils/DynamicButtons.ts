@@ -92,7 +92,9 @@ export default class DynamicButtons extends Component {
           if (button.getComponent(Button).interactable) {
             try {
               config.onclick(this.parent);
-            } catch (e) {}
+            } catch (e) {
+              console.log(e);
+            }
           }
         },
         button
