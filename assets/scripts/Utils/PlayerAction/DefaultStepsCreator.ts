@@ -65,7 +65,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
               text: "传递情报",
               onclick: () => {
                 gui.gameLayer.pauseSelectHandCards();
-                gui.uiLayer.doSendMessage(card);
+                gui.uiLayer.doSendMessage({ message: card });
                 next();
               },
             },
@@ -108,15 +108,14 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_PLAYERS]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      console.log(initial);
-      const { tooltipText, filter, enabled } = initial;
+      const { tooltipText, filter, enabled, canCancel } = initial;
       const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一名角色");
       gui.gameLayer.startSelectPlayers({
         num,
         filter,
       });
-      gui.tooltip.buttons.setButtons([
+      const buttons: any[] = [
         {
           text: "确定",
           onclick: () => {
@@ -125,14 +124,17 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           },
           enabled: enabled != null ? enabled : () => gui.selectedPlayers.list.length === num,
         },
-        {
+      ];
+      if (canCancel !== false) {
+        buttons.push({
           text: "取消",
           onclick: () => {
             gui.gameLayer.stopSelectPlayers();
             prev();
           },
-        },
-      ]);
+        });
+      }
+      gui.tooltip.buttons.setButtons(buttons);
     },
   [PlayerActionStepName.SELECT_HAND_CARDS]:
     (gui: GameManager) =>

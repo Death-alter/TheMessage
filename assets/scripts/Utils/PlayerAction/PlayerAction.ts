@@ -21,13 +21,15 @@ export abstract class PlayerAction {
 
   static next(data?: { [index: string]: any }) {
     this.direction = 0;
+    if (this.stepList[this.index] && this.stepList[this.index].resolver) {
+      data = this.stepList[this.index].resolver(data);
+    }
+    
     ++this.index;
     if (!this.dataList[this.index]) {
       this.dataList[this.index] = {};
     }
-    if (this.stepList[this.index] && this.stepList[this.index].resolver) {
-      data = this.stepList[this.index].resolver(data);
-    }
+
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
     if (this.index >= this.stepList.length) {
       this.end();

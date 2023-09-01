@@ -45,6 +45,9 @@ export class ChengQing extends Card {
         filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
         enabled: () => gui.selectedPlayers.list.length > 0,
       },
+      resolver: (data) => {
+        return { playerId: data.players[0].id };
+      },
     })
       .addTempStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
@@ -53,9 +56,6 @@ export class ChengQing extends Card {
           enabled: () =>
             showCardsWindow.selectedCards.list.length > 0 &&
             Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
-        },
-        resolver: (data) => {
-          return { playerId: data.players[0].id };
         },
       })
       .onComplete((data) => {

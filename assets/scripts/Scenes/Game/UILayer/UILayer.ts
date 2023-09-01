@@ -16,6 +16,7 @@ import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { ButtonConfig } from "../../../Components/Utils/DynamicButtons";
 
 const { ccclass, property } = _decorator;
 
@@ -449,7 +450,15 @@ export class UILayer extends Component {
     UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
-  doSendMessage(message: Card, canCancel: boolean = true) {
+  doSendMessage({
+    message,
+    canCancel = true,
+    forceLock = false,
+  }: {
+    message: Card;
+    canCancel?: boolean;
+    forceLock?: boolean;
+  }) {
     UIEventCenter.emit(UIEvent.BEFORE_SEND_MESSAGE, { gui: this.manager, canCancel });
     PlayerAction.addTempStep({
       step: new PlayerActionStep({
@@ -524,7 +533,7 @@ export class UILayer extends Component {
         canCancel,
       },
     });
-    if (message.lockable) {
+    if (message.lockable || forceLock) {
       PlayerAction.addTempStep({
         step: new PlayerActionStep({
           name: "selectLockTarget",
@@ -536,7 +545,7 @@ export class UILayer extends Component {
                 return player.id !== 0;
               },
             });
-            const buttons = [
+            const buttons: ButtonConfig[] = [
               {
                 text: "锁定",
                 onclick: () => {
@@ -550,14 +559,16 @@ export class UILayer extends Component {
                   return this.manager.selectedPlayers.list.length === 1;
                 },
               },
-              {
+            ];
+            if (!forceLock) {
+              buttons.push({
                 text: "不锁定",
                 onclick: () => {
                   this.manager.gameLayer.stopSelectPlayers();
                   next();
                 },
-              },
-            ];
+              });
+            }
 
             if (initial.canCancel && current.direction === CardDirection.UP) {
               buttons.push({

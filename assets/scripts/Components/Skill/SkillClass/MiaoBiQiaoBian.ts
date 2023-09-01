@@ -161,6 +161,9 @@ export class MiaoBiQiaoBian extends ActiveSkill {
         data: {
           filter: (player) => player.messageCounts.total > 0,
         },
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
       })
       .addStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
@@ -178,9 +181,6 @@ export class MiaoBiQiaoBian extends ActiveSkill {
             }
           },
         },
-        resolver: (data) => {
-          return { playerId: data.players[0].id };
-        },
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_BI_QIAO_BIAN_B_TOS, {
@@ -195,7 +195,8 @@ export class MiaoBiQiaoBian extends ActiveSkill {
           enable: false,
           seq: gui.seq,
         });
-      }).start()
+      })
+      .start();
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {

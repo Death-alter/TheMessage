@@ -62,8 +62,8 @@ export class JinBi extends ActiveSkill {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
     }).onComplete((data) => {
-      NetworkEventCenter.emit(NetworkEventToS.SKILL_JIE_DAO_SHA_REN_A_TOS, {
-        targetPlayerId: data[0].targetPlayerId,
+      NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_BI_A_TOS, {
+        targetPlayerId: data[0].players[0].id,
         seq: gui.seq,
       });
     });

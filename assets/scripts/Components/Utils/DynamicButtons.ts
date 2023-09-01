@@ -90,7 +90,9 @@ export default class DynamicButtons extends Component {
         Node.EventType.TOUCH_END,
         () => {
           if (button.getComponent(Button).interactable) {
-            config.onclick(this.parent);
+            try {
+              config.onclick(this.parent);
+            } catch (e) {}
           }
         },
         button

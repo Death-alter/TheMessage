@@ -77,6 +77,9 @@ export class TanQiuZhenLi extends ActiveSkill {
       data: {
         filter: (player) => player.id !== 0 && player.messageCounts.total > 0,
       },
+      resolver: (data) => {
+        return { playerId: data.players[0].id };
+      },
     })
       .addTempStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
@@ -92,9 +95,6 @@ export class TanQiuZhenLi extends ActiveSkill {
             }
             return true;
           },
-        },
-        resolver: (data) => {
-          return { playerId: data.players[0].id };
         },
       })
       .onComplete((data) => {

@@ -178,7 +178,7 @@ export class MiLing extends Card {
             {
               text: "传递情报",
               onclick: () => {
-                gui.uiLayer.doSendMessage(gui.selectedHandCards.list[0], false);
+                gui.uiLayer.doSendMessage({ message: gui.selectedHandCards.list[0], canCancel: false });
                 next();
               },
               enabled: () => {
@@ -243,7 +243,7 @@ export class MiLing extends Card {
         }
       }
       gui.gameLayer.pauseSelectHandCards();
-      gui.uiLayer.doSendMessage(message, false);
+      gui.uiLayer.doSendMessage({ message, canCancel: false });
       PlayerAction.start();
     }
   }

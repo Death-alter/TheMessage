@@ -75,6 +75,7 @@ export class XianFaZhiRen extends ActiveSkill {
     PlayerAction.addTempStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
+        tooltipText: "请选择要弃置情报的角色",
         filter: (player) => player.messageCounts.total > 0,
       },
     })
@@ -113,7 +114,7 @@ export class XianFaZhiRen extends ActiveSkill {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_A_TOS, {
           enable: true,
           targetPlayerId: data[1].players[0].id,
-          cardId: data[0].id,
+          cardId: data[0].cardId,
           seq: gui.seq,
         });
       });
@@ -190,48 +191,56 @@ export class XianFaZhiRen extends ActiveSkill {
   }
 
   promptChoosePlayer(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    tooltip.setText("请选择一名角色");
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      onSelect: (player) => {
-        if (player.character.status === CharacterStatus.FACE_DOWN) {
-          tooltip.setText("是否将该角色翻开？");
-          tooltip.buttons.setButtons([
-            {
-              text: "是",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-                  targetPlayerId: player.id,
-                  faceUp: true,
-                  seq: gui.seq,
-                });
-              },
-            },
-            {
-              text: "否",
-              onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-                  targetPlayerId: player.id,
-                  faceUp: false,
-                  seq: gui.seq,
-                });
-              },
-            },
-          ]);
-        } else {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
-            targetPlayerId: player.id,
-            faceUp: false,
-            seq: gui.seq,
-          });
-        }
+    PlayerAction.addStep({
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择要无效技能的角色",
+        canCancel: false,
       },
-      onDeselect: () => {
-        tooltip.setText("请选择一名角色");
-        tooltip.buttons.setButtons([]);
+      resolver: (data) => {
+        return { player: data.players[0] };
       },
-    });
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const { player } = current;
+            if (player.character.status === CharacterStatus.FACE_DOWN) {
+              gui.tooltip.setText("是否将该角色翻开？");
+              gui.tooltip.buttons.setButtons([
+                {
+                  text: "是",
+                  onclick: () => {
+                    next({ faceUp: true });
+                  },
+                },
+                {
+                  text: "否",
+                  onclick: () => {
+                    next({ faceUp: false });
+                  },
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    prev();
+                  },
+                },
+              ]);
+            } else {
+              next({ faceUp: false });
+            }
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIAN_FA_ZHI_REN_B_TOS, {
+          targetPlayerId: data[1].player.id,
+          faceUp: data[0].faceUp,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, faceUp }: skill_xian_fa_zhi_ren_b_toc) {

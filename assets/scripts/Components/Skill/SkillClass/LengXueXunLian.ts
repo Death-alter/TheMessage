@@ -111,7 +111,7 @@ export class LengXueXunLian extends ActiveSkill {
                 onclick: () => {
                   const sendCard = copyCard(showCardsWindow.selectedCards.list[0]);
                   showCardsWindow.hide();
-                  gui.uiLayer.doSendMessage(sendCard);
+                  gui.uiLayer.doSendMessage({ message: sendCard, forceLock: true });
                   PlayerAction.onComplete((data) => {
                     let d: any = {};
                     for (let item of data) {
