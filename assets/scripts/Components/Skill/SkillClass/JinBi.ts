@@ -10,7 +10,6 @@ import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardTypeCount } from "../../Card";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class JinBi extends ActiveSkill {
@@ -70,11 +69,14 @@ export class JinBi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, waitingSecond, seq }: skill_jin_bi_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: targetPlayerId,
@@ -168,6 +170,9 @@ export class JinBi extends ActiveSkill {
     }
 
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

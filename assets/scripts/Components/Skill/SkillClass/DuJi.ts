@@ -92,12 +92,15 @@ export class DuJi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerIds, cards }: skill_du_ji_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
     const targetPlayer2 = gameData.playerList[targetPlayerIds[1]];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const card1 = gameData.playerRemoveHandCard(targetPlayer1, cards[0]);
     const card2 = gameData.playerRemoveHandCard(targetPlayer2, cards[1]);
@@ -152,7 +155,10 @@ export class DuJi extends ActiveSkill {
     });
 
     if (blackCount === 0) {
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 
@@ -236,6 +242,7 @@ export class DuJi extends ActiveSkill {
     gameData: GameData,
     { playerId, enable, waitingPlayerId, targetPlayerId, card, waitingSecond, seq }: skill_du_ji_b_toc
   ) {
+    const player = gameData.playerList[playerId];
     if (enable) {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: waitingPlayerId,
@@ -245,7 +252,6 @@ export class DuJi extends ActiveSkill {
       });
 
       const gameLog = gameData.gameLog;
-      const player = gameData.playerList[playerId];
       const waitingPlayer = gameData.playerList[waitingPlayerId];
 
       if (waitingPlayerId === 0) {
@@ -259,7 +265,10 @@ export class DuJi extends ActiveSkill {
       }
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}让${gameLog.formatPlayer(waitingPlayer)}选择一项`));
     } else {
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 
@@ -312,6 +321,9 @@ export class DuJi extends ActiveSkill {
         )}的情报区`
       )
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

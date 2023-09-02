@@ -58,8 +58,6 @@ export class YunChouWeiWo extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_yun_chou_wei_wo_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -69,6 +67,11 @@ export class YunChouWeiWo extends ActiveSkill {
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     if (playerId === 0) {
       const cardList = cards.map((card) => gameData.createCard(card));
@@ -173,6 +176,9 @@ export class YunChouWeiWo extends ActiveSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把三张牌加入手牌，把两张牌放回堆顶`));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

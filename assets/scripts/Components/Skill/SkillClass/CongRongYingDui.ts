@@ -37,6 +37,9 @@ export class CongRongYingDui extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -110,16 +113,20 @@ export class CongRongYingDui extends TriggerSkill {
           enable: false,
           seq: gui.seq,
         });
-      }).start()
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card, enable, drawCard }: skill_cong_rong_ying_dui_toc) {
     if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
+
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【从容应对】`));
 
@@ -136,8 +143,11 @@ export class CongRongYingDui extends TriggerSkill {
           new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
         );
       }
-
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 }

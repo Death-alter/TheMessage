@@ -68,13 +68,20 @@ export class ChiZiZhiXin extends TriggerSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, messageCard, waitingSecond, seq }: skill_chi_zi_zhi_xin_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+    const player = gameData.playerList[playerId];
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.USE_SKILL,
       seq: seq,
+      params: {
+        skill: this,
+      },
     });
 
     GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
@@ -144,6 +151,9 @@ export class ChiZiZhiXin extends TriggerSkill {
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入情报区`));
     }
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

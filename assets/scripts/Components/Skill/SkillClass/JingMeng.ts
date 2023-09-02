@@ -80,11 +80,15 @@ export class JingMeng extends TriggerSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, cards, targetPlayerId, waitingSecond, seq }: skill_jing_meng_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -141,6 +145,9 @@ export class JingMeng extends TriggerSkill {
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(targetPlayer)}手中选择一张牌弃置`)
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

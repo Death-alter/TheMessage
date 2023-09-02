@@ -7,6 +7,7 @@ import { Identity } from "../Identity/Identity";
 import { CharacterObject } from "../Chatacter/CharacterObject";
 import { NoIdentity } from "../Identity/IdentityClass/NoIdentity";
 import { ProgressControl } from "../Utils/ProgressControl";
+import { Skill } from "../Skill/Skill";
 
 const { ccclass, property } = _decorator;
 
@@ -116,6 +117,14 @@ export class PlayerObject extends GameObject<Player> {
   //倒计时
   startCountDown(seconds) {
     this.progress.getComponent(ProgressControl).startCountDown(seconds);
+  }
+
+  setSkillOnUse(skill: Skill) {
+    if (skill) {
+      this.node.getChildByPath("Border/SkillOnUse").getComponent(Label).string = skill.name;
+    } else {
+      this.node.getChildByPath("Border/SkillOnUse").getComponent(Label).string = "";
+    }
   }
 
   stopCountDown() {

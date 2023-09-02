@@ -88,8 +88,6 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_miao_bi_qiao_bian_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -100,6 +98,11 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const message = targetPlayer.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
@@ -220,6 +223,9 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       )
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

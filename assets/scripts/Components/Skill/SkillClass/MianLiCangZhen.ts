@@ -74,12 +74,16 @@ export class MianLiCangZhen extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, card, targetPlayerId }: skill_mian_li_cang_zhen_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
     const handCard = gameData.playerRemoveHandCard(player, card);
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
     targetPlayer.addMessage(handCard);
     GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
       player: targetPlayer,
@@ -96,6 +100,9 @@ export class MianLiCangZhen extends TriggerSkill {
       )
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

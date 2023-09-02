@@ -343,12 +343,18 @@ export class UILayer extends Component {
             .start();
           break;
         case WaitingType.USE_SKILL:
-          const player = this.manager.data.playerList[data.playerId];
-          for (let skill of player.character.skills) {
-            if (skill instanceof TriggerSkill || "onTrigger" in skill) {
-              (<TriggerSkill>skill).onTrigger(this.manager, data.params);
+          console.log(data.params.skill);
+          if (data.params.skill) {
+            (<TriggerSkill>data.params.skill).onTrigger(this.manager, data.params);
+          } else {
+            const player = this.manager.data.playerList[data.playerId];
+            for (let skill of player.character.skills) {
+              if (skill instanceof TriggerSkill || "onTrigger" in skill) {
+                (<TriggerSkill>skill).onTrigger(this.manager, data.params);
+              }
             }
           }
+
           break;
       }
     }
@@ -400,9 +406,10 @@ export class UILayer extends Component {
     this.tooltip.hideNextPhaseButton();
   }
 
-  playerUseSkill(skill: Skill) {
-    if (!(skill instanceof PassiveSkill) && skill.gameObject) {
-      skill.gameObject.lock();
+  playerUseSkill({ player, skill }: GameEventType.PlayerUseSkill) {
+    if (!(skill instanceof PassiveSkill)) {
+      skill.gameObject?.lock();
+      player?.gameObject.setSkillOnUse(skill);
     }
   }
 
@@ -413,10 +420,13 @@ export class UILayer extends Component {
     }
   }
 
-  afterPlayerUseSkill(skill: Skill) {
-    if (!(skill instanceof PassiveSkill) && skill.gameObject) {
-      skill.gameObject.unlock();
-      skill.gameObject.isOn = false;
+  afterPlayerUseSkill({ player, skill }: GameEventType.AfterPlayerUseSkill) {
+    if (!(skill instanceof PassiveSkill)) {
+      if (skill.gameObject) {
+        skill.gameObject.unlock();
+        skill.gameObject.isOn = false;
+      }
+      player?.gameObject.setSkillOnUse(null);
     }
   }
 

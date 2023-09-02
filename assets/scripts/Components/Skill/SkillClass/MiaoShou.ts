@@ -67,7 +67,6 @@ export class MiaoShou extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, waitingSecond, seq, messageCard }: skill_miao_shou_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -78,6 +77,11 @@ export class MiaoShou extends ActiveSkill {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const message = gameData.createMessage(messageCard);
     gameData.messageInTransmit = message;
@@ -186,6 +190,9 @@ export class MiaoShou extends ActiveSkill {
       )
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

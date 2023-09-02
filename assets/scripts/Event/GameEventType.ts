@@ -147,6 +147,11 @@ export interface SkillOnEffect {
   params?: { [index: string]: any };
 }
 
+export interface AfterPlayerUseSkill {
+  player: Player;
+  skill: Skill;
+}
+
 export interface CardMoved {
   card: Card;
   from?: ActionLocation;

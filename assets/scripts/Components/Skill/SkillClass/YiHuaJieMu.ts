@@ -58,7 +58,11 @@ export class YiHuaJieMu extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_yi_hua_jie_mu_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+    const player = gameData.playerList[playerId];
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -146,7 +150,7 @@ export class YiHuaJieMu extends ActiveSkill {
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_B_TOS, {
-          fromPlayerId: data[2].fromPlayerId.id,
+          fromPlayerId: data[2].fromPlayer.id,
           cardId: data[1].cardId,
           toPlayerId: data[0].toPlayer.id,
           seq: gui.seq,
@@ -197,6 +201,9 @@ export class YiHuaJieMu extends ActiveSkill {
       );
     }
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

@@ -50,6 +50,9 @@ export class JiangHuLing extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -189,10 +192,14 @@ export class JiangHuLing extends TriggerSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, color }: skill_jiang_hu_ling_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}使用技能【江湖令】，宣言${getCardColorText(<number>color)}色`)
@@ -215,6 +222,9 @@ export class JiangHuLing extends TriggerSkill {
         )}`
       )
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

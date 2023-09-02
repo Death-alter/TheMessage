@@ -77,11 +77,15 @@ export class ZuoYouFengYuan extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerIds }: skill_zuo_you_feng_yuan_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer1 = gameData.playerList[targetPlayerIds[0]];
     const targetPlayer2 = gameData.playerList[targetPlayerIds[1]];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     new GameLog(
       `${gameLog.formatPlayer(player)}使用【左右逢源】，指定${gameLog.formatPlayer(
@@ -89,6 +93,9 @@ export class ZuoYouFengYuan extends ActiveSkill {
       )}、${gameLog.formatPlayer(targetPlayer2)}`
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

@@ -79,10 +79,13 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       seq: seq,
     });
 
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【对症下药】`));
 
@@ -135,6 +138,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, enable, cards, waitingSecond, seq }: skill_dui_zheng_xia_yao_b_toc) {
+    const player = gameData.playerList[playerId];
     if (enable) {
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
         playerId: playerId,
@@ -144,7 +148,6 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       });
 
       const gameLog = gameData.gameLog;
-      const player = gameData.playerList[playerId];
       const cardList = cards.map((card) => gameData.createCard(card));
       if (playerId !== 0) {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
@@ -172,7 +175,10 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       }
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}展示了两张手牌`));
     } else {
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 
@@ -301,6 +307,9 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       )
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

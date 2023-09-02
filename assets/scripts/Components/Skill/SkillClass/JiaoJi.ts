@@ -73,11 +73,14 @@ export class JiaoJi extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, unknownCardCount, waitingSecond, seq }: skill_jiao_ji_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -164,6 +167,9 @@ export class JiaoJi extends ActiveSkill {
     );
 
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

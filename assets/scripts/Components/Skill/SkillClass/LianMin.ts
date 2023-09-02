@@ -106,12 +106,15 @@ export class LianMin extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_lian_min_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
     const message = targetPlayer.removeMessage(cardId);
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
     gameData.playerAddHandCard(player, message);
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,
@@ -128,6 +131,9 @@ export class LianMin extends TriggerSkill {
       )
     );
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

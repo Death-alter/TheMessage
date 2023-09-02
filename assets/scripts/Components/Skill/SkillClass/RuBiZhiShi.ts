@@ -83,11 +83,15 @@ export class RuBiZhiShi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, cards, waitingSecond, seq }: skill_ru_bi_zhi_shi_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId,
@@ -240,6 +244,9 @@ export class RuBiZhiShi extends ActiveSkill {
       }
     }
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

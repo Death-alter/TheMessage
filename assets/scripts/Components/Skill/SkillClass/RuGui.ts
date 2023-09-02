@@ -34,6 +34,9 @@ export class RuGui extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -88,11 +91,14 @@ export class RuGui extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, cardId, enable }: skill_ru_gui_toc) {
     if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
       const player = gameData.playerList[playerId];
       const turnPlayer = gameData.playerList[gameData.turnPlayerId];
       const gameLog = gameData.gameLog;
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
+
       const message = player.removeMessage(cardId);
       turnPlayer.addMessage(message);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
@@ -110,7 +116,10 @@ export class RuGui extends TriggerSkill {
         )
       );
 
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 }

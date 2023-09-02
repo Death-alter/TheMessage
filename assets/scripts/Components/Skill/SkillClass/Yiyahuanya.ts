@@ -120,11 +120,14 @@ export class YiYaHuanYa extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, card, targetPlayerId }: skill_yi_ya_huan_ya_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);
@@ -143,6 +146,9 @@ export class YiYaHuanYa extends TriggerSkill {
         )}的情报区`
       )
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

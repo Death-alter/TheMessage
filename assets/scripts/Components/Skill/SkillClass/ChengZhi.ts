@@ -83,6 +83,9 @@ export class ChengZhi extends TriggerSkill {
       second: waitingSecond,
       type: WaitingType.USE_SKILL,
       seq: seq,
+      params: {
+        skill: this,
+      },
     });
   }
 
@@ -113,11 +116,14 @@ export class ChengZhi extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, diePlayerId, enable }: skill_cheng_zhi_toc) {
     if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
       const player = gameData.playerList[playerId];
       const diePlayer = gameData.playerList[diePlayerId];
       const gameLog = gameData.gameLog;
+
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
 
       const noIdentity = createIdentity(IdentityType.HAS_NO_IDENTITY);
 
@@ -140,7 +146,10 @@ export class ChengZhi extends TriggerSkill {
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的身份`));
 
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 

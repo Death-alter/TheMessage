@@ -63,7 +63,11 @@ export class GongFen extends ActiveSkill {
     if (this.count === 0) {
       ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
 
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
+  
       for (let player of gameData.playerList) {
         if (player.isAlive) {
           ++this.total;
@@ -96,7 +100,10 @@ export class GongFen extends ActiveSkill {
     if (this.count === this.total) {
       this.count = 0;
       this.total = 0;
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 }

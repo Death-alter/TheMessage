@@ -67,10 +67,13 @@ export class JianRen extends TriggerSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jian_ren_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
       skill: this,
@@ -184,6 +187,9 @@ export class JianRen extends TriggerSkill {
         )}`
       )
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

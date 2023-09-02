@@ -66,7 +66,6 @@ export class SouJi extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, messageCard, waitingSecond, seq }: skill_sou_ji_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -77,6 +76,11 @@ export class SouJi extends ActiveSkill {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     if (playerId === 0) {
       const message = gameData.createMessage(messageCard);
@@ -189,7 +193,10 @@ export class SouJi extends ActiveSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${cardList.length}张牌加入手牌`));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 
   showCards(gui: GameManager, params) {

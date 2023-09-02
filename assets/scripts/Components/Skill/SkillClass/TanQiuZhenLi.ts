@@ -107,11 +107,14 @@ export class TanQiuZhenLi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_tan_qiu_zhen_li_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const message = targetPlayer.removeMessage(cardId);
     player.addMessage(message);
@@ -259,8 +262,8 @@ export class TanQiuZhenLi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { enable, playerId, targetPlayerId, card, fromHand }: skill_tan_qiu_zhen_li_b_toc) {
+    const player = gameData.playerList[playerId];
     if (enable) {
-      const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       let message;
       if (fromHand) {
@@ -280,6 +283,9 @@ export class TanQiuZhenLi extends ActiveSkill {
     }
 
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

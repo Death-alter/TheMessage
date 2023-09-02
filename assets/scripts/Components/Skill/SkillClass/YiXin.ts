@@ -34,6 +34,9 @@ export class YiXin extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -90,11 +93,14 @@ export class YiXin extends TriggerSkill {
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card, enable }: skill_yi_xin_toc) {
     if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
+
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
 
       const handCard = gameData.playerRemoveHandCard(player, card);
       targetPlayer.addMessage(handCard);
@@ -113,7 +119,10 @@ export class YiXin extends TriggerSkill {
         )
       );
 
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 }

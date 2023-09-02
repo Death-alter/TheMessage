@@ -37,6 +37,9 @@ export class ZhuanJiao extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -112,11 +115,14 @@ export class ZhuanJiao extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_zhuan_jiao_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const message = player.removeMessage(cardId);
     targetPlayer.addMessage(message);
@@ -134,6 +140,9 @@ export class ZhuanJiao extends TriggerSkill {
         )}的情报区`
       )
     );
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

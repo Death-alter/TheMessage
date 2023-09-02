@@ -66,7 +66,10 @@ export class CangShenJiaoTang extends TriggerSkill {
     const gameLog = gameData.gameLog;
 
     if (isHiddenRole) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
       if (waitingSecond > 0) {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
@@ -80,7 +83,10 @@ export class CangShenJiaoTang extends TriggerSkill {
           handler: "chooseFlipCharacter",
         });
       } else {
-        GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+        GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+          player,
+          skill: this,
+        });
       }
     } else {
       if (waitingSecond > 0) {
@@ -90,6 +96,7 @@ export class CangShenJiaoTang extends TriggerSkill {
           type: WaitingType.USE_SKILL,
           seq: seq,
           params: {
+            skill: this,
             targetPlayer,
           },
         });
@@ -230,22 +237,25 @@ export class CangShenJiaoTang extends TriggerSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, enable }: skill_cang_shen_jiao_tang_b_toc) {
+    const player = gameData.playerList[playerId];
     if (enable) {
       const gameLog = gameData.gameLog;
-      const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}将${gameLog.formatPlayer(targetPlayer)}翻至面朝下`));
     }
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 
   onEffectC(
     gameData: GameData,
     { enable, playerId, targetPlayerId, cardId, asMessageCard }: skill_cang_shen_jiao_tang_c_toc
   ) {
+    const player = gameData.playerList[playerId];
     if (enable) {
-      const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
       const message = targetPlayer.removeMessage(cardId);
@@ -281,6 +291,9 @@ export class CangShenJiaoTang extends TriggerSkill {
         );
       }
     }
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

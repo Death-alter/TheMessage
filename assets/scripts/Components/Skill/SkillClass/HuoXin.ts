@@ -63,8 +63,7 @@ export class HuoXin extends ActiveSkill {
       data: {
         tooltipText: "请选择要查看手牌的角色",
       },
-    })
-    .onComplete((data) => {
+    }).onComplete((data) => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_HUO_XIN_A_TOS, {
         targetPlayerId: data[0].players[0].id,
         seq: gui.seq,
@@ -76,11 +75,15 @@ export class HuoXin extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, showCard, cards, waitingSecond, seq }: skill_huo_xin_a_toc
   ) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const topCard = gameData.createCard(showCard);
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【惑心】`));
     gameLog.addData(new GameLog(`【惑心】展示牌堆顶的牌${gameLog.formatCard(topCard)}`));
@@ -191,6 +194,9 @@ export class HuoXin extends ActiveSkill {
     }
 
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

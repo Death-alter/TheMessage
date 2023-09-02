@@ -66,10 +66,12 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_bo_ai_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -121,8 +123,8 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card, enable }: skill_bo_ai_b_toc) {
+    const player = gameData.playerList[playerId];
     if (enable) {
-      const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
       const handCard = gameData.playerRemoveHandCard(player, card);
@@ -131,6 +133,9 @@ export class BoAi extends ActiveSkill {
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
     }
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

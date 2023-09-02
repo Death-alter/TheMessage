@@ -28,6 +28,9 @@ export class BiFeng extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -72,10 +75,12 @@ export class BiFeng extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_bi_feng_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const data: any = {
       card: card,
@@ -89,11 +94,13 @@ export class BiFeng extends TriggerSkill {
     }
 
     ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
-    gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用【避风】`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用【避风】`));
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(gameData.createCard(card))}被无效`)
     );
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

@@ -37,6 +37,9 @@ export class XianFaZhiRen extends ActiveSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -158,10 +161,14 @@ export class XianFaZhiRen extends ActiveSkill {
     { enable, playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_xian_fa_zhi_ren_a_toc
   ) {
     if (enable) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
       const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
+
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
 
       const message = targetPlayer.removeMessage(cardId);
 
@@ -266,6 +273,9 @@ export class XianFaZhiRen extends ActiveSkill {
 
     gameLog.addData(new GameLog(str));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

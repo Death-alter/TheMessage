@@ -70,12 +70,16 @@ export class QiHuoKeJu extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, cardId }: skill_qi_huo_ke_ju_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     const message = player.removeMessage(cardId);
     gameData.playerAddHandCard(player, message);
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,
@@ -85,7 +89,10 @@ export class QiHuoKeJu extends TriggerSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【奇货可居】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}将情报区的${gameLog.formatCard(message)}加入手牌`));
-
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

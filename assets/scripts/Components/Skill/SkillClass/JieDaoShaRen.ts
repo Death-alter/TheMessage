@@ -65,11 +65,14 @@ export class JieDaoShaRen extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, targetPlayerId, waitingSecond, seq }: skill_jie_dao_sha_ren_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const handCard = gameData.playerRemoveHandCard(targetPlayer, card);
     gameData.playerAddHandCard(player, handCard);
@@ -106,7 +109,10 @@ export class JieDaoShaRen extends ActiveSkill {
         });
       }
     } else {
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
 
     gameLog.addData(
@@ -174,9 +180,9 @@ export class JieDaoShaRen extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { playerId, targetPlayerId, card, enable }: skill_jie_dao_sha_ren_b_toc) {
+    const player = gameData.playerList[playerId];
     if (enable) {
       const gameLog = gameData.gameLog;
-      const player = gameData.playerList[playerId];
       const targetPlayer = gameData.playerList[targetPlayerId];
 
       const handCard = gameData.playerRemoveHandCard(player, card);
@@ -196,6 +202,9 @@ export class JieDaoShaRen extends ActiveSkill {
         )
       );
     }
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

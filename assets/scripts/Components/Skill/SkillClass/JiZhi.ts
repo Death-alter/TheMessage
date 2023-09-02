@@ -59,12 +59,19 @@ export class JiZhi extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【急智】`));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

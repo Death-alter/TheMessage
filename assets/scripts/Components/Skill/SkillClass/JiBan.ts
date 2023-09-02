@@ -63,8 +63,6 @@ export class JiBan extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_ji_ban_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -74,6 +72,12 @@ export class JiBan extends ActiveSkill {
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     if (playerId === 0) {
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
@@ -135,6 +139,9 @@ export class JiBan extends ActiveSkill {
       new GameLog(`${gameLog.formatPlayer(player)}交给${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`)
     );
     ++this.usageCount;
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

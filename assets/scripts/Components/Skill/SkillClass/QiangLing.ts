@@ -36,6 +36,9 @@ export class QiangLing extends TriggerSkill {
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
           seq: data.seq,
+          params: {
+            skill: this,
+          },
         });
       },
       this
@@ -96,11 +99,15 @@ export class QiangLing extends TriggerSkill {
   }
 
   onEffect(gameData: GameData, { playerId, types }: skill_qiang_ling_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    const cards = types.map((type) => gameData.createCardByType(<number>type));
 
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
+    const cards = types.map((type) => gameData.createCardByType(<number>type));
     gameData.cardBanned = true;
     gameData.bannedCardTypes = [...gameData.bannedCardTypes, ...(<number[]>types)];
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
@@ -114,6 +121,9 @@ export class QiangLing extends TriggerSkill {
     }
     gameLog.addData(new GameLog(str));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

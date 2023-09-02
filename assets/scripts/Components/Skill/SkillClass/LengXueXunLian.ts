@@ -60,11 +60,15 @@ export class LengXueXunLian extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_leng_xue_xun_lian_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const cardList = cards.map((card) => gameData.createCard(card));
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【冷血训练】，展示牌堆顶的两张牌`));
 
@@ -192,7 +196,10 @@ export class LengXueXunLian extends ActiveSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}令所有角色本回合中不能使用【调包】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card)}加入手牌`));
-
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

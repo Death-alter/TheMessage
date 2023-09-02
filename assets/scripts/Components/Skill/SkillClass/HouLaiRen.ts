@@ -98,9 +98,13 @@ export class HouLaiRen extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, remainCardId, roles, waitingSecond, seq }: skill_hou_lai_ren_a_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     //移除情报
     const messages = [];
@@ -133,14 +137,19 @@ export class HouLaiRen extends ActiveSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【后来人】，弃置${messages.length}张情报`));
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 
   onEffectB(gameData: GameData, { playerId, role }: skill_hou_lai_ren_b_toc) {
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, this);
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     UIEventCenter.emit(UIEvent.STOP_CHOOSE_CHARACTER);
 
@@ -158,6 +167,9 @@ export class HouLaiRen extends ActiveSkill {
 
     UIEventCenter.emit(UIEvent.UPDATE_SKILL_BUTTONS);
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, this);
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }
