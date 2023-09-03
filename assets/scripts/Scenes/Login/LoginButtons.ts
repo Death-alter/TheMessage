@@ -41,7 +41,7 @@ export class LoginButtons extends Component {
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: config.version,
           name,
-          password: md5.Md5.hashStr(password),
+          password: password ? md5.Md5.hashStr(password) : "",
           device: md5.Md5.hashStr(this.userName.string),
         });
         this.logining = true;
