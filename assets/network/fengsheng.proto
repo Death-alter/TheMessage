@@ -591,7 +591,7 @@ message use_yu_qin_gu_zong_tos {
 
 // 广播使用欲擒故纵
 message use_yu_qin_gu_zong_toc {
-  uint32          card_id = 1;  // 那张欲擒故纵牌
+  card            card = 1;  // 那张欲擒故纵牌
   uint32          message_card_id = 2;
   uint32          player_id = 3; // 当前回合玩家ID，一定是传出者
   uint32          target_player_id = 4; // 目标
