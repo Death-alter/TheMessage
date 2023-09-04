@@ -150,9 +150,11 @@ export class JinKouYiKai extends ActiveSkill {
 
     if (exchange) {
       const card = this.topCard || gameData.createCard();
+      const oldMessage = gameData.messageInTransmit;
+      gameData.messageInTransmit = card;
       GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
         message: card,
-        oldMessage: gameData.messageInTransmit,
+        oldMessage,
       });
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择将牌堆顶的牌和待收情报互换`));

@@ -1,0 +1,137 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      properties:
+        alphaThreshold: { value: 0.5 }
+        # 自定义参数
+        texSize: {
+          value: [0 ,0],
+          editor: {
+            tooltip: "贴图宽高",
+          }
+        }
+        # 发光颜色
+        lightColor: { 
+          value: [1.0, 1.0, 0.0, 1.0], 
+          editor: { 
+            type: color,
+            tooltip: "发光颜色"
+          } 
+        } 
+        # 发光宽度
+        glowColorSize: { 
+          value: 10,
+          editor: {
+            tooltip: "发光宽度",
+          }
+        }
+}%
+
+CCProgram sprite-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #if USE_LOCAL
+    #include <builtin/uniforms/cc-local>
+  #endif
+  #if SAMPLE_FROM_RT
+    #include <common/common-define>
+  #endif
+ in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+
+  out vec4 color;
+  out vec2 uv0;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+
+    #if USE_LOCAL
+      pos = cc_matWorld * pos;
+    #endif
+
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
+    #else
+      pos = cc_matViewProj * pos;
+    #endif
+
+    uv0 = a_texCoord;
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(uv0);
+    #endif
+    color = a_color;
+
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision highp float;
+  #include <builtin/internal/embedded-alpha>
+  #include <builtin/internal/alpha-test>
+  #include <builtin/uniforms/cc-global>
+
+  in vec4 color;
+
+  // 必须是 vec4 先于 float 声明
+  uniform pramas {
+    vec4 lightColor;
+    vec2 texSize;
+    float glowColorSize;
+  };
+
+  #if USE_TEXTURE
+    in vec2 uv0;
+    #pragma builtin(local)
+    layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;
+  #endif
+
+  vec4 getTextureColor(sampler2D mainTexture, vec2 uv0) {
+    if (uv0.x > 1.0 || uv0.x < 0.0 || uv0.y > 1.0 || uv0.y < 0.0) {
+      return vec4(0.0, 0.0, 0.0, 0.0);
+    }
+    return texture(mainTexture, uv0);
+  }
+
+  vec4 frag () {
+    vec4 o = vec4(1, 1, 1, 1);
+
+    #if USE_TEXTURE
+      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
+      o *= color;
+
+      #if SHOW_INNER_GLOW
+        vec3 rgb = o.rgb;
+        if(uv0.x > 1.0 - glowColorSize / texSize.x || uv0.x < 0.0 + glowColorSize / texSize.x || uv0.y > 1.0 - glowColorSize / texSize.y || uv0.y < 0.0 + glowColorSize  / texSize.y){
+          float a = (smoothstep( 0.5 - glowColorSize / texSize.x, 0.5 ,  abs(0.5 - uv0.x)) + smoothstep(0.5 - glowColorSize / texSize.y, 0.5 , abs(0.5 - uv0.y ))) *  0.5;
+          vec3 lightrgb = lightColor.rgb;
+          float alpha = a + o.a * (1.0 - a);
+          rgb = (lightrgb * a * 1.6 + rgb * o.a * (1.0 - a * 1.6)) / alpha;
+          o.rgb = rgb;
+          o.a = alpha;
+        }
+      #endif
+    #endif
+
+
+    return o;
+  }
+
+}%
