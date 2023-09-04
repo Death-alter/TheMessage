@@ -562,3 +562,35 @@ message mi_ling_choose_card_toc {
 message unknown_waiting_toc {
   uint32 waiting_second = 1;
 }
+
+// 调虎离山
+message diao_hu_li_shan_tos {
+  uint32 target_player_id = 1;
+  bool is_skill = 2; // true-禁用技能，false-禁用手牌
+  uint32 seq = 3;
+}
+
+// 广播使用调虎离山
+message diao_hu_li_shan_toc {
+  card   card = 1; // 那张调虎离山牌
+  uint32 player_id = 2; // 使用者
+  uint32 target_player_id = 3;
+}
+
+// 欲擒故纵
+message yu_qin_gu_zong_tos {
+  uint32          card_id = 1;
+  uint32          target_player_id = 2;
+  repeated uint32 lock_player_id = 3;
+  direction       card_dir = 4;
+  uint32          seq = 5;
+}
+
+// 广播使用欲擒故纵
+message yu_qin_gu_zong_toc {
+  uint32          card_id = 1;
+  uint32          player_id = 2; // 当前回合玩家ID，一定是传出者
+  uint32          target_player_id = 3; // 目标
+  repeated uint32 lock_player_ids = 4; // 被锁定的玩家ID
+  direction       card_dir = 5; // 传递的方向
+}
