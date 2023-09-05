@@ -266,6 +266,14 @@ export class UILayer extends Component {
           }).start();
           break;
         case WaitingType.PLAYER_DYING:
+          for (let player of this.manager.data.playerList) {
+            if (player.id === data.params.diePlayerId) {
+              player.gameObject.showInnerGlow("#FF0000AA");
+            } else {
+              player.gameObject.hideInnerGlow();
+            }
+          }
+
           PlayerAction.addStep({
             step: new PlayerActionStep({
               handler: ({ initial, current }, { next, prev }) => {

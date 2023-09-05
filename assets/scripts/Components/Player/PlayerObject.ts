@@ -36,7 +36,7 @@ export class PlayerObject extends GameObject<Player> {
     super.setData(data);
     if (data) {
       this.characterPanting.getComponent(CharacterObject).data = data.character;
-      if (data.name === "惑星") {
+      if (data.name === "惑星" || data.name === "狗卡风声") {
         const arr = ["傲视群雄", "设计大师", "复读机"];
         const n = Math.floor(Math.random() * arr.length);
         this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·" + arr[n];
@@ -260,5 +260,20 @@ export class PlayerObject extends GameObject<Player> {
     } else if (this._selectedIdentity && this.data.identityList.indexOf(this._selectedIdentity) === -1) {
       this.changeSelectedIdentity();
     }
+  }
+
+  showInnerGlow(c?: string) {
+    const glowNode = this.node.getChildByPath("Border/InnerGlow");
+    const sprite = glowNode.getComponent(Sprite);
+    console.log(sprite.sharedMaterial);
+    console.log(sprite.material);
+    // if (c) {
+    //   glowNode.getComponent(Sprite).getMaterialInstance(0).setProperty("lightColor", color(c));
+    // }
+    // glowNode.active = true;
+  }
+
+  hideInnerGlow() {
+    this.node.getChildByPath("Border/InnerGlow").active = false;
   }
 }

@@ -186,9 +186,11 @@ export class GameLayer extends Component {
     for (let player of this.manager.data.playerList) {
       if (player === data.turnPlayer) {
         player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
+        player.gameObject.showInnerGlow("#00FF00AA");
       } else {
         player.gameObject.hidePhaseText();
         player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#FFFFFF");
+        player.gameObject.hideInnerGlow();
       }
     }
   }

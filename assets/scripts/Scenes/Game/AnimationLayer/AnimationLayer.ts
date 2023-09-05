@@ -6,7 +6,6 @@ import * as GameEventType from "../../../Event/GameEventType";
 import { Card } from "../../../Components/Card/Card";
 import { CardActionLocation } from "../../../Manager/type";
 import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
-import { Sex } from "../../../Components/Chatacter/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 
@@ -135,6 +134,7 @@ export class AnimationLayer extends Component {
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
     this.cardAction.playerSendMessage(data);
+    data.player.gameObject.showInnerGlow("FF00FFAA");
   }
 
   moveCard(data: GameEventType.CardMoved) {
@@ -159,6 +159,11 @@ export class AnimationLayer extends Component {
 
   playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
     this.cardAction.receiveMessage(data);
+    for (let player of this.manager.data.playerList) {
+      if (player.id === this.manager.data.senderId) {
+        player.gameObject.hideInnerGlow();
+      }
+    }
   }
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
@@ -184,7 +189,6 @@ export class AnimationLayer extends Component {
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
-
     this.audioManager.playOneShot(getCardAudioSrc(data.cardType || data.card, data.player.character.sex));
 
     if (data.targetPlayer) {

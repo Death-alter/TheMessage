@@ -50,7 +50,7 @@ CCProgram sprite-vs %{
   #if SAMPLE_FROM_RT
     #include <common/common-define>
   #endif
- in vec3 a_position;
+  in vec3 a_position;
   in vec2 a_texCoord;
   in vec4 a_color;
 
@@ -120,17 +120,19 @@ CCProgram sprite-fs %{
       #if SHOW_INNER_GLOW
         vec3 rgb = o.rgb;
         if(uv0.x > 1.0 - glowColorSize / texSize.x || uv0.x < 0.0 + glowColorSize / texSize.x || uv0.y > 1.0 - glowColorSize / texSize.y || uv0.y < 0.0 + glowColorSize  / texSize.y){
-          float a = (smoothstep( 0.5 - glowColorSize / texSize.x, 0.5 ,  abs(0.5 - uv0.x)) + smoothstep(0.5 - glowColorSize / texSize.y, 0.5 , abs(0.5 - uv0.y ))) *  0.5;
+          float ax = smoothstep(0.5 - glowColorSize / texSize.x, 0.5 , abs(0.5 - uv0.x));
+          float ay = smoothstep(0.5 - glowColorSize / texSize.y, 0.5 , abs(0.5 - uv0.y ));
+          float a = max(ax,ay) * lightColor.a;
           vec3 lightrgb = lightColor.rgb;
           float alpha = a + o.a * (1.0 - a);
-          rgb = (lightrgb * a * 1.6 + rgb * o.a * (1.0 - a * 1.6)) / alpha;
+          rgb = (lightrgb * a + rgb * o.a * (1.0 - a)) / alpha;
           o.rgb = rgb;
           o.a = alpha;
         }
       #endif
     #endif
 
-
+    ALPHA_TEST(o);
     return o;
   }
 

@@ -1,7 +1,6 @@
 import {
   _decorator,
   Component,
-  Node,
   Vec2,
   UITransform,
   Color,
