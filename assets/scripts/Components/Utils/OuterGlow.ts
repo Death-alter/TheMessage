@@ -1,15 +1,4 @@
-import {
-  _decorator,
-  Component,
-  Vec2,
-  UITransform,
-  Color,
-  color,
-  CCInteger,
-  Material,
-  Sprite,
-  resources,
-} from "cc";
+import { _decorator, Component, Vec2, UITransform, Color, color, CCInteger, Material, Sprite, resources } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("OuterGlow")

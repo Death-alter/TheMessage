@@ -19,6 +19,8 @@ export const enum CardType {
   WU_DAO = 8, // 误导
   FENG_YUN_BIAN_HUAN = 9, // 风云变幻
   MI_LING = 10, // 密令
+  DIAO_HU_LI_SHAN = 11, // 调虎离山
+  YU_QIN_GU_ZONG = 12, // 欲擒故纵
 }
 
 export const enum CardColor {

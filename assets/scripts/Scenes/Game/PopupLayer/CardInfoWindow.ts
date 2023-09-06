@@ -174,6 +174,13 @@ export class CardInfoWindow extends Component {
       case CardType.WU_DAO:
         detail.string = "争夺阶段，将待收情报由当前角色面前移至其相邻角色的面前。";
         break;
+      case CardType.DIAO_HU_LI_SHAN:
+        detail.string =
+          "出牌阶段，指定一名角色并选择一项：<br/>♦该角色本回合所有技能无效。<br/>♦该角色本回合不能使用手牌。";
+        break;
+      case CardType.YU_QIN_GU_ZONG:
+        detail.string = "传递阶段，从你的情报区选择一张红色或蓝色情报，面朝上作为情报传出，然后摸一张牌。";
+        break;
       default:
         detail.string = "";
     }

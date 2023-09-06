@@ -134,7 +134,9 @@ export class AnimationLayer extends Component {
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
     this.cardAction.playerSendMessage(data);
-    data.player.gameObject.showInnerGlow("FF00FFAA");
+    if (data.player.id !== this.manager.data.turnPlayerId) {
+      data.player.gameObject.showInnerGlow("FF00FF80");
+    }
   }
 
   moveCard(data: GameEventType.CardMoved) {
@@ -159,10 +161,9 @@ export class AnimationLayer extends Component {
 
   playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
     this.cardAction.receiveMessage(data);
-    for (let player of this.manager.data.playerList) {
-      if (player.id === this.manager.data.senderId) {
-        player.gameObject.hideInnerGlow();
-      }
+    if (this.manager.data.senderId !== this.manager.data.turnPlayerId) {
+      const player = this.manager.data.playerList[this.manager.data.senderId];
+      player.gameObject.hideInnerGlow();
     }
   }
 

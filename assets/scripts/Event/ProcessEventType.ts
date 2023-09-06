@@ -1,4 +1,5 @@
 import { card } from "../../protobuf/proto";
+import { Card } from "../Components/Card/Card";
 import { CardDirection, CardType, CardOnEffectParams } from "../Components/Card/type";
 import { CharacterType } from "../Components/Chatacter/type";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
@@ -117,7 +118,7 @@ export interface StartCountDown {
 
 export interface SendMessage {
   cardId?: number;
-  card?: card;
+  card?: card | Card;
   senderId: number;
   targetPlayerId: number;
   lockPlayerIds: number[];

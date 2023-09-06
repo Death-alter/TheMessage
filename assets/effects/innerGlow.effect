@@ -118,10 +118,12 @@ CCProgram sprite-fs %{
       o *= color;
 
       #if SHOW_INNER_GLOW
+        float x = glowColorSize / texSize.x;
+        float y = glowColorSize / texSize.y;
         vec3 rgb = o.rgb;
-        if(uv0.x > 1.0 - glowColorSize / texSize.x || uv0.x < 0.0 + glowColorSize / texSize.x || uv0.y > 1.0 - glowColorSize / texSize.y || uv0.y < 0.0 + glowColorSize  / texSize.y){
-          float ax = smoothstep(0.5 - glowColorSize / texSize.x, 0.5 , abs(0.5 - uv0.x));
-          float ay = smoothstep(0.5 - glowColorSize / texSize.y, 0.5 , abs(0.5 - uv0.y ));
+        if(uv0.x > 1.0 - x || uv0.x < 0.0 + x || uv0.y > 1.0 - y || uv0.y < 0.0 + y){
+          float ax = smoothstep(0.5 - x, 0.5 , abs(0.5 - uv0.x));
+          float ay = smoothstep(0.5 - y, 0.5 , abs(0.5 - uv0.y ));
           float a = max(ax,ay) * lightColor.a;
           vec3 lightrgb = lightColor.rgb;
           float alpha = a + o.a * (1.0 - a);

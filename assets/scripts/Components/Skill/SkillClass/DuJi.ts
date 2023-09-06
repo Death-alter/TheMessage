@@ -18,7 +18,6 @@ import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuJi extends ActiveSkill {

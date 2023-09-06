@@ -87,6 +87,8 @@ export class PlayerObject extends GameObject<Player> {
   onLoad() {
     this.progress.active = false;
     this.phaseLabel.getComponent(Label).spacingX = 4;
+    const sprite = this.node.getChildByPath("Border/InnerGlow").getComponent(Sprite);
+    sprite.material = sprite.customMaterial;
   }
 
   onEnable() {
@@ -265,12 +267,10 @@ export class PlayerObject extends GameObject<Player> {
   showInnerGlow(c?: string) {
     const glowNode = this.node.getChildByPath("Border/InnerGlow");
     const sprite = glowNode.getComponent(Sprite);
-    console.log(sprite.sharedMaterial);
-    console.log(sprite.material);
-    // if (c) {
-    //   glowNode.getComponent(Sprite).getMaterialInstance(0).setProperty("lightColor", color(c));
-    // }
-    // glowNode.active = true;
+    if (c) {
+      sprite.material.setProperty("lightColor", color(c));
+    }
+    glowNode.active = true;
   }
 
   hideInnerGlow() {

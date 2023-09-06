@@ -589,6 +589,45 @@ export class EventMapper {
       });
     });
 
+    //调虎离山
+    NetworkEventCenter.on(NetworkEventToC.USE_DIAO_HU_LI_SHAN_TOC, (data: ProtobufType.use_diao_hu_li_shan_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+        card: data.card,
+        cardType: CardType.DIAO_HU_LI_SHAN,
+        isActual: data.card !== null,
+        userId: data.playerId,
+      });
+      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+        data: {
+          playerId: data.playerId,
+          targetPlayerId: data.targetPlayerId,
+          card: data.card,
+          isSkill: data.isSkill,
+        },
+      });
+    });
+
+    //欲擒故纵
+    NetworkEventCenter.on(NetworkEventToC.USE_YU_QIN_GU_ZONG_TOC, (data: ProtobufType.use_yu_qin_gu_zong_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, {
+        card: data.card,
+        cardType: CardType.YU_QIN_GU_ZONG,
+        isActual: data.card !== null,
+        userId: data.playerId,
+      });
+
+      ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
+        data: {
+          card: data.card,
+          playerId: data.playerId,
+          targetPlayerId: data.targetPlayerId,
+          messageCardId: data.messageCardId,
+          lockPlayerIds: data.lockPlayerIds,
+          cardDir: data.cardDir,
+        },
+      });
+    });
+
     NetworkEventCenter.on(NetworkEventToC.UNKNOWN_WAITING_TOC, (data: ProtobufType.unknown_waiting_toc) => {
       ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
       ProcessEventCenter.emit(ProcessEvent.UNKNOWN_WAITING, data.waitingSecond);
