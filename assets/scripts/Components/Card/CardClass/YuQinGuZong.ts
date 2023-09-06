@@ -8,7 +8,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { copyCard } from "..";
 
 export class YuQinGuZong extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -29,6 +28,7 @@ export class YuQinGuZong extends Card {
 
   canPlay(gui: GameManager) {
     const messageCounts = gui.data.selfPlayer.messageCounts;
+    console.log(messageCounts);
     return messageCounts[CardColor.BLUE] + messageCounts[CardColor.RED] > 0;
   }
 
@@ -45,7 +45,7 @@ export class YuQinGuZong extends Card {
               {
                 text: "确定",
                 onclick: () => {
-                  const sendCard = copyCard(showCardsWindow.selectedCards.list[0]);
+                  const sendCard = showCardsWindow.selectedCards.list[0];
                   showCardsWindow.hide();
                   gui.uiLayer.doSendMessage({ message: sendCard });
                   PlayerAction.onComplete((data) => {

@@ -59,7 +59,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
                 card.onPlay(gui);
                 next();
               },
-              enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay,
+              enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay && card.canPlay(gui),
             },
             {
               text: "传递情报",

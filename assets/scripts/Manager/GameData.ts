@@ -335,7 +335,7 @@ export class GameData extends DataBasic<GameManager> {
   private playerSendMessage(data: ProcessEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
-    
+
     let card;
     if (data.card) {
       if (data.card instanceof Card) {
@@ -346,6 +346,8 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.playerRemoveHandCard(player, data.cardId);
     }
+
+    if (!card) return;
 
     this.messageInTransmit = card;
     this._senderId = data.senderId;

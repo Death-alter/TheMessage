@@ -351,7 +351,6 @@ export class UILayer extends Component {
             .start();
           break;
         case WaitingType.USE_SKILL:
-          console.log(data.params.skill);
           if (data.params.skill) {
             (<TriggerSkill>data.params.skill).onTrigger(this.manager, data.params);
           } else {
@@ -479,7 +478,6 @@ export class UILayer extends Component {
       step: new PlayerActionStep({
         name: "selectMessageTarget",
         handler: ({ initial, current }, { next, prev, passOnPrev }) => {
-          console.log(initial, current);
           const direction = current.direction != null ? current.direction : initial.direction;
           let i;
           switch (direction) {

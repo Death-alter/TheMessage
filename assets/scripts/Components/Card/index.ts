@@ -16,6 +16,8 @@ import { MiLing } from "./CardClass/MiLing";
 import { IdentityType } from "../Identity/type";
 import { CardObject } from "./CardObject";
 import { Sex } from "../Chatacter/type";
+import { DiaoHuLiShan } from "./CardClass/DiaoHuLiShan";
+import { YuQinGuZong } from "./CardClass/YuQinGuZong";
 
 interface createCardOption {
   id?: number;
@@ -43,6 +45,8 @@ cardsMap[CardType.DIAO_BAO] = DiaoBao;
 cardsMap[CardType.WU_DAO] = WuDao;
 cardsMap[CardType.FENG_YUN_BIAN_HUAN] = FengYunBianHuan;
 cardsMap[CardType.MI_LING] = MiLing;
+cardsMap[CardType.DIAO_HU_LI_SHAN] = DiaoHuLiShan;
+cardsMap[CardType.YU_QIN_GU_ZONG] = YuQinGuZong;
 
 cardsAudioMap[CardType.UNKNOWN] = "CardBack";
 cardsAudioMap[CardType.CHENG_QING] = "ChengQing";
@@ -56,6 +60,8 @@ cardsAudioMap[CardType.DIAO_BAO] = "DiaoBao";
 cardsAudioMap[CardType.WU_DAO] = "WuDao";
 cardsAudioMap[CardType.FENG_YUN_BIAN_HUAN] = "FengYunBianHuan";
 cardsAudioMap[CardType.MI_LING] = "MiLing";
+cardsAudioMap[CardType.DIAO_HU_LI_SHAN] = "DiaoHuLiShan";
+cardsAudioMap[CardType.YU_QIN_GU_ZONG] = "YuQinGuZong";
 
 export function createCard(option: createCardOption): Card {
   if (cardsMap[option.type]) {

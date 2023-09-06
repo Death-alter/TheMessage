@@ -8,7 +8,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { getCardTypeCount } from "../index";
 import { GameLog } from "../../GameLog/GameLog";
 
 export class DiaoHuLiShan extends Card {
@@ -97,7 +96,7 @@ export class DiaoHuLiShan extends Card {
     } else {
       if (targetPlayerId === 0) {
         gameData.cardBanned = true;
-        gameData.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
+        gameData.bannedCardTypes = [0,1,2,3,4,5,6,7,8,9,10,11,12];
         GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
           gameData.cardBanned = false;
           gameData.bannedCardTypes = [];

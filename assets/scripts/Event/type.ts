@@ -54,7 +54,7 @@ export enum NetworkEventToC {
   FENG_YUN_BIAN_HUAN_CHOOSE_CARD_TOC = "feng_yun_bian_huan_choose_card_toc",
   USE_MI_LING_TOC = "use_mi_ling_toc",
   MI_LING_CHOOSE_CARD_TOC = "mi_ling_choose_card_toc",
-  USE_DIAO_HU_LI_SHAN_TOC = "use_diao_hu_li_shan_tos",
+  USE_DIAO_HU_LI_SHAN_TOC = "use_diao_hu_li_shan_toc",
   USE_YU_QIN_GU_ZONG_TOC = "use_yu_qin_gu_zong_toc",
   UNKNOWN_WAITING_TOC = "unknown_waiting_toc",
   SKILL_QI_HUO_KE_JU_TOC = "skill_qi_huo_ke_ju_toc",
