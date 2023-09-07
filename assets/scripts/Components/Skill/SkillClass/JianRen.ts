@@ -109,6 +109,11 @@ export class JianRen extends TriggerSkill {
           handler: "promptSelectCard",
         });
       }
+    } else {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
     }
   }
 

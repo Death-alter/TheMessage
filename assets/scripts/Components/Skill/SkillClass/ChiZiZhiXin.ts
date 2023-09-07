@@ -112,7 +112,9 @@ export class ChiZiZhiXin extends TriggerSkill {
               onclick: () => {
                 prev();
               },
-              enabled: () => Card.hasColor(gui.data.handCardList.list, message.color[0]),
+              enabled: () =>
+                Card.hasColor(gui.data.handCardList.list, message.color[0]) ||
+                Card.hasColor(gui.data.handCardList.list, message.color[1]),
             },
           ]);
         },
