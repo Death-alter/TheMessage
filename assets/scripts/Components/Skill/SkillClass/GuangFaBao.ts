@@ -79,7 +79,6 @@ export class GuangFaBao extends ActiveSkill {
       skill: this,
     });
 
-
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【广发报】`));
   }
 
@@ -123,22 +122,7 @@ export class GuangFaBao extends ActiveSkill {
         enabled: () => {
           if (gui.selectedPlayers.list.length === 0) return false;
           const targetPlayer = gui.selectedPlayers.list[0];
-          const colorCounts = targetPlayer.messageCounts;
-          const counts = {};
-          for (let card of gui.selectedHandCards.list) {
-            for (let color of card.color) {
-              if (!counts[color]) {
-                counts[color] = 0;
-              }
-              ++counts[color];
-            }
-          }
-          for (let i in counts) {
-            if (counts[i] + colorCounts[i] >= 3) {
-              return false;
-            }
-          }
-          return true;
+          return targetPlayer.sameMessageCountOver(gui.selectedHandCards.list);
         },
       },
       {

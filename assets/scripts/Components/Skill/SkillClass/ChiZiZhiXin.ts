@@ -104,31 +104,63 @@ export class ChiZiZhiXin extends TriggerSkill {
             {
               text: "摸两张牌",
               onclick: () => {
-                next();
+                next({ drawCard: true });
               },
             },
             {
               text: "置入情报",
               onclick: () => {
-                prev();
+                next({ drawCard: false });
               },
               enabled: () =>
                 Card.hasColor(gui.data.handCardList.list, message.color[0]) ||
                 Card.hasColor(gui.data.handCardList.list, message.color[1]),
             },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
           ]);
         },
       }),
     })
-      .onComplete(() => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
-          drawCard: true,
-          seq: gui.seq,
-        });
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev, passOnPrev }) => {
+            if (current.drawCard) {
+              passOnPrev(() => {
+                next();
+              });
+            } else {
+              tooltip.setText("请选择一张手牌置入情报区");
+              gui.gameLayer.startSelectHandCards({ num: 1 });
+              tooltip.buttons.setButtons([
+                {
+                  text: "确定",
+                  onclick: () => {
+                    next({ cardId: gui.selectedHandCards.list[0].id });
+                  },
+                  enabled: () => {
+                    if (gui.selectedHandCards.list.length === 0) return false;
+                    for (let c of message.color) {
+                      if (Card.hasColor(gui.selectedHandCards.list[0], c)) {
+                        return true;
+                      }
+                    }
+                    return false;
+                  },
+                },
+              ]);
+            }
+          },
+        }),
       })
-      .onCancel(() => {
+      .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_CHI_ZI_ZHI_XIN_B_TOS, {
-          drawCard: false,
+          drawCard: data[1].drawCard,
+          cardId: data[0].cardId,
           seq: gui.seq,
         });
       })

@@ -86,14 +86,7 @@ export class TanQiuZhenLi extends ActiveSkill {
         data: {
           enabled: () => {
             if (showCardsWindow.selectedCards.list.length === 0) return false;
-            const card = showCardsWindow.selectedCards.list[0];
-            const colorCounts = gui.data.selfPlayer.messageCounts;
-            for (let i of card.color) {
-              if (colorCounts[i] >= 2) {
-                return false;
-              }
-            }
-            return true;
+            return gui.data.selfPlayer.sameMessageCountOver(showCardsWindow.selectedCards.list[0]);
           },
         },
       })

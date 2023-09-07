@@ -75,13 +75,7 @@ export class ZhuanJiao extends TriggerSkill {
                     num: 1,
                     filter: (player) => {
                       if (player.id === 0) return false;
-                      const colorCounts = player.messageCounts;
-                      for (let i of selectedMessage.color) {
-                        if (colorCounts[i] >= 2) {
-                          return false;
-                        }
-                      }
-                      return true;
+                      return player.sameMessageCountOver(selectedMessage);
                     },
                     onSelect: (player) => {
                       NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {

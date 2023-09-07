@@ -223,4 +223,27 @@ export class Player extends DataBasic<PlayerObject> {
     }
     return arr;
   }
+
+  sameMessageCountOver(card: Card, num?: number);
+  sameMessageCountOver(cards: Card[], num?: number);
+  sameMessageCountOver(card, num = 3): boolean {
+    if (card instanceof Card) {
+      card = [card];
+    }
+    const counts = {};
+    for (let c of card) {
+      for (let color of c.color) {
+        if (!counts[color]) {
+          counts[color] = 0;
+        }
+        ++counts[color];
+      }
+    }
+    for (let i in counts) {
+      if (counts[i] + this.messageCounts[i] >= num) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
