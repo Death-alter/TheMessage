@@ -16,7 +16,7 @@ export class Player extends DataBasic<PlayerObject> {
   private _id: number;
   private _name: string;
   private _character: Character;
-  private _identityList: Identity[] = [new Agent(), new Lurker(), new MysteriousPerson()];
+  private _identityList: Identity[] = [new Lurker(), new Agent(), new MysteriousPerson()];
   private _seatNumber: number;
   private _messages: Card[] = [];
   private _handCardCount: number = 0;

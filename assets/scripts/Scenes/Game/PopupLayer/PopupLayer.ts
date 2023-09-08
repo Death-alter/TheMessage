@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Prefab, Node } from "cc";
+import { _decorator, Component, instantiate, Prefab, Node, NodeEventType, EventTouch } from "cc";
 import { GameManager } from "../../../Manager/GameManager";
 import { ShowCardsWindow } from "./ShowCardsWindow";
 import { StartSelectCharacter } from "../../../Event/UIEventType";
@@ -17,6 +17,7 @@ import { CardObject } from "../../../Components/Card/CardObject";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
 import { CardInfoWindow } from "./CardInfoWindow";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
+import { SelectIdentity } from "./SelectIdentity";
 
 const { ccclass, property } = _decorator;
 
@@ -32,6 +33,8 @@ export class PopupLayer extends Component {
   cardInfoWindow: Node | null = null;
   @property(Node)
   characterInfoWindow: Node | null = null;
+  @property(Node)
+  selectIdentityWindow: Node | null = null;
 
   public manager: GameManager;
   public showCardsWindow: ShowCardsWindow;
@@ -64,6 +67,7 @@ export class PopupLayer extends Component {
     UIEventCenter.on(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
     UIEventCenter.on(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.on(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
+    this.selectIdentityWindow.getComponent(SelectIdentity).init();
   }
 
   stopRender() {
@@ -73,6 +77,7 @@ export class PopupLayer extends Component {
     UIEventCenter.off(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
     UIEventCenter.off(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.off(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
+    this.selectIdentityWindow.getComponent(SelectIdentity).dispose();
   }
 
   startSelectCharacter(data: StartSelectCharacter) {

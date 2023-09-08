@@ -5,6 +5,8 @@ export class ObjectPool<T extends GameObject<any>> {
   private pool: NodePool = new NodePool();
   private template: T = null;
 
+  private beforePutHandler: (object: T) => void;
+
   get size() {
     return this.pool.size();
   }
@@ -24,6 +26,7 @@ export class ObjectPool<T extends GameObject<any>> {
 
   put(gameObject: T) {
     if (gameObject && gameObject.node) {
+      if (this.beforePutHandler) this.beforePutHandler(gameObject);
       this.pool.put(gameObject.node);
     }
   }
@@ -35,5 +38,9 @@ export class ObjectPool<T extends GameObject<any>> {
 
   clear() {
     this.pool.clear();
+  }
+
+  beforePut(f: (object: T) => void) {
+    this.beforePutHandler = f;
   }
 }

@@ -168,6 +168,7 @@ export class GameData extends DataBasic<GameManager> {
     ProcessEventCenter.on(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
     ProcessEventCenter.on(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
     ProcessEventCenter.on(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
+    ProcessEventCenter.on(ProcessEvent.PLAYER_DYING, this.playerDying, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
@@ -185,6 +186,7 @@ export class GameData extends DataBasic<GameManager> {
     ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
     ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
     ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
+    ProcessEventCenter.off(ProcessEvent.PLAYER_DYING, this.playerDying, this);
     ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
     ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie, this);
@@ -373,6 +375,15 @@ export class GameData extends DataBasic<GameManager> {
       player: this.playerList[data.playerId],
       message: this.messageInTransmit,
     });
+  }
+
+  //玩家濒死
+  private playerDying(data: ProcessEventType.PlayerDying) {
+    const player = this.playerList[data.playerId];
+    if (this.dyingPlayer !== player) {
+      this.dyingPlayer = player;
+      GameEventCenter.emit(GameEvent.PLAYER_DYING, { player: this.dyingPlayer });
+    }
   }
 
   //玩家死亡前

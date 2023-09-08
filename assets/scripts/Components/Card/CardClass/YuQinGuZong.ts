@@ -28,7 +28,6 @@ export class YuQinGuZong extends Card {
 
   canPlay(gui: GameManager) {
     const messageCounts = gui.data.selfPlayer.messageCounts;
-    console.log(messageCounts);
     return messageCounts[CardColor.BLUE] + messageCounts[CardColor.RED] > 0;
   }
 
@@ -69,6 +68,12 @@ export class YuQinGuZong extends Card {
                   return (
                     list.length > 0 && (Card.hasColor(list[0], CardColor.RED) || Card.hasColor(list[0], CardColor.BLUE))
                   );
+                },
+              },
+              {
+                text: "取消",
+                onclick: () => {
+                  prev();
                 },
               },
             ],

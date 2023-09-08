@@ -1,3 +1,5 @@
+import { IdentityObject } from "./IdentityObject";
+
 export const enum IdentityType {
   GREEN = 0, // 神秘人
   RED = 1, // 潜伏战线
@@ -18,6 +20,8 @@ export const enum SecretTaskType {
 export interface IdentityOption {
   type: IdentityType;
   name: string;
+  inverted?: boolean;
+  gameObject?: IdentityObject;
 }
 
 export interface MysteriousPersonOption {

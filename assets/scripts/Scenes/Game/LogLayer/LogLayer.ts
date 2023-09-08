@@ -1,4 +1,4 @@
-import { _decorator, Node, Component } from "cc";
+import { _decorator, Node, Component, NodeEventType, EventTouch } from "cc";
 import { GameManager } from "../../../Manager/GameManager";
 import { GameLogContainer } from "./GameLogContainer";
 import { GameLogWindow } from "./GameLogWindow";

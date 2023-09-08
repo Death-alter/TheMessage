@@ -102,9 +102,10 @@ export class CongRongYingDui extends TriggerSkill {
           },
         }),
       })
-      .onComplete(() => {
+      .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_CONG_RONG_YING_DUI_TOS, {
           enable: true,
+          drawCard: data[0].drawCard,
           seq: gui.seq,
         });
       })
@@ -143,7 +144,7 @@ export class CongRongYingDui extends TriggerSkill {
           new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
         );
       }
-      
+
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
         player,
         skill: this,

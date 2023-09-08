@@ -1,4 +1,5 @@
 import { CardObject } from "../Card/CardObject";
+import { CardUsableStatus } from "../Card/type";
 import { CardGroupObject } from "../Container/CardGroupObject";
 import { GameLogMessageObject } from "../GameLog/GameLogMessageObject";
 import { ObjectPool } from "./ObjectPool";
@@ -16,12 +17,12 @@ export default class GamePools {
   public static logMessagePool: ObjectPool<GameLogMessageObject>;
 
   public static init(templates: PoolTemplates) {
-    // if (!this.initialized) {
     const { card, cardGroup, logMessage } = templates;
     GamePools.cardPool = new ObjectPool<CardObject>(card);
     GamePools.cardGroupPool = new ObjectPool<CardGroupObject>(cardGroup);
     GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
-    //   this.initialized = true;
-    // }
+    GamePools.cardPool.beforePut((object: CardObject) => {
+      object.usableStatus = CardUsableStatus.USABLE;
+    });
   }
 }

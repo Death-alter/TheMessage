@@ -129,6 +129,10 @@ export interface ChooseReceive {
   playerId: number;
 }
 
+export interface PlayerDying {
+  playerId: number;
+}
+
 export interface PlayerBeforeDeath {
   playerId: number;
   loseGame: boolean;

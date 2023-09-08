@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Sprite, color } from "cc";
+import { _decorator, Label, Node, Sprite, color, EventMouse } from "cc";
 import { Player } from "./Player";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
@@ -8,6 +8,13 @@ import { CharacterObject } from "../Chatacter/CharacterObject";
 import { NoIdentity } from "../Identity/IdentityClass/NoIdentity";
 import { ProgressControl } from "../Utils/ProgressControl";
 import { Skill } from "../Skill/Skill";
+import { IdentityObject } from "../Identity/IdentityObject";
+import { UIEventCenter } from "../../Event/EventTarget";
+import { UIEvent } from "../../Event/type";
+import { Lurker } from "../Identity/IdentityClass/Lurker";
+import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
+import { Agent } from "../Identity/IdentityClass/Agent";
+import { createIdentity } from "../Identity";
 
 const { ccclass, property } = _decorator;
 
@@ -21,11 +28,12 @@ export class PlayerObject extends GameObject<Player> {
   phaseLabel: Node | null = null;
   @property(Node)
   messageCounts: Node | null = null;
+  @property(Node)
+  IdentityNode: Node | null;
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
   private _selectable: boolean = true;
   private _locked: boolean = false;
-  private _selectedIdentity: Identity | null = null;
   private _enableSelectIdentity: boolean = true;
 
   get data() {
@@ -96,6 +104,19 @@ export class PlayerObject extends GameObject<Player> {
       Node.EventType.TOUCH_END,
       () => {
         this.changeSelectedIdentity();
+      },
+      this
+    );
+    this.node.getChildByPath("Border/Identity").on(
+      Node.EventType.MOUSE_UP,
+      (event: EventMouse) => {
+        if (event.getButton() === EventMouse.BUTTON_RIGHT) {
+          const list = this.data.identityList.map((identity) => {
+            createIdentity(identity.type);
+          });
+
+          UIEventCenter.emit(UIEvent.START_MARK_IDENTITY, list);
+        }
       },
       this
     );
@@ -216,51 +237,33 @@ export class PlayerObject extends GameObject<Player> {
 
   changeSelectedIdentity(identity?: Identity) {
     if (!this._enableSelectIdentity) return;
+    const identityObject = this.IdentityNode.getComponent(IdentityObject);
     if (identity) {
-      this._selectedIdentity = identity;
+      identityObject.data = identity;
     } else if (!this.data) {
       return;
     } else {
-      const index = this.data.identityList.indexOf(this._selectedIdentity);
+      const index = this.data.identityList.indexOf(identityObject.data);
       if (index === -1) {
-        this._selectedIdentity = this.data.identityList[0];
+        identityObject.data = this.data.identityList[0];
       } else {
         if (this.data.identityList.length === 1) {
-          this._selectedIdentity = this.data.identityList[0];
+          identityObject.data = this.data.identityList[0];
         } else if (index === this.data.identityList.length - 1) {
-          this._selectedIdentity = null;
+          identityObject.data = null;
         } else {
-          this._selectedIdentity = this.data.identityList[index + 1];
+          identityObject.data = this.data.identityList[index + 1];
         }
-      }
-    }
-
-    const identityColor = this.node.getChildByPath("Border/Identity/Mask/IdentityColor").getComponent(Sprite);
-    const identityLabel = this.node.getChildByPath("Border/Identity/Mask/Label").getComponent(Label);
-
-    if (!this._selectedIdentity) {
-      identityColor.color = color("#646464");
-      identityLabel.string = "?";
-      identityLabel.fontSize = 28;
-      identityLabel.lineHeight = 22;
-    } else {
-      if (this._selectedIdentity instanceof NoIdentity) {
-        identityColor.color = color("#FFFFFF");
-        identityLabel.string = "";
-      } else {
-        identityColor.color = color(this._selectedIdentity.color);
-        identityLabel.string = this._selectedIdentity.name[0];
-        identityLabel.fontSize = 18;
-        identityLabel.lineHeight = 20;
       }
     }
   }
 
   refreshIdentityList() {
+    const identityObject = this.IdentityNode.getComponent(IdentityObject);
     if (this.data.identityList.length === 1) {
       this.changeSelectedIdentity(this.data.identityList[0]);
-    } else if (this._selectedIdentity && this.data.identityList.indexOf(this._selectedIdentity) === -1) {
-      this.changeSelectedIdentity();
+    } else if (identityObject.data && this.data.identityList.indexOf(identityObject.data) === -1) {
+      this.changeSelectedIdentity(null);
     }
   }
 

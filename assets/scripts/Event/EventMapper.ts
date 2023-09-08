@@ -596,6 +596,7 @@ export class EventMapper {
         cardType: CardType.DIAO_HU_LI_SHAN,
         isActual: data.card !== null,
         userId: data.playerId,
+        targetPlayerId: data.targetPlayerId,
       });
       ProcessEventCenter.emit(ProcessEvent.CARD_IN_PROCESS, {
         data: {

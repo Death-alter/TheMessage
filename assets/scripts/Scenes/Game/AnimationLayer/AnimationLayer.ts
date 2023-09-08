@@ -169,6 +169,14 @@ export class AnimationLayer extends Component {
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
     this.cardAction.removeMessage(data);
+    const player = data.player;
+    if (player === this.manager.data.dyingPlayer) {
+      if (player.id === this.manager.data.turnPlayerId) {
+        player.gameObject.showInnerGlow("#00FF0080");
+      } else {
+        player.gameObject.hideInnerGlow();
+      }
+    }
   }
 
   messagePlacedIntoMessageZone(data: GameEventType.MessagePlacedIntoMessageZone) {
@@ -183,6 +191,7 @@ export class AnimationLayer extends Component {
   playerDie(data: GameEventType.PlayerDie) {
     const { player, messages } = data;
     this.cardAction.removeMessage({ player, messageList: messages });
+    data.player.gameObject.hideInnerGlow();
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
