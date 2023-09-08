@@ -19,7 +19,6 @@ export class IdentityObject extends GameObject<Identity> {
   refresh() {
     const identityColor = this.node.getChildByPath("Mask/IdentityColor").getComponent(Sprite);
     const identityLabel = this.node.getChildByPath("Mask/Label").getComponent(Label);
-
     if (!this.data) {
       identityColor.color = color("#646464");
       identityLabel.string = "?";

@@ -17,6 +17,8 @@ export class LongTap extends Component {
           const deltaTime = new Date().getTime() - this.touchStartTime;
           if (deltaTime > 500) {
             this.node.emit("longtap", event);
+          } else {
+            this.node.emit("tap", event);
           }
         }
       });

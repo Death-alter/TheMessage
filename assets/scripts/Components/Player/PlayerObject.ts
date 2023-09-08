@@ -1,4 +1,4 @@
-import { _decorator, Label, Node, Sprite, color, EventMouse } from "cc";
+import { _decorator, Label, Node, Sprite, color, EventMouse, sys } from "cc";
 import { Player } from "./Player";
 import { GameObject } from "../../GameObject";
 import { PlayerStatus } from "./type";
@@ -15,6 +15,9 @@ import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { createIdentity } from "../Identity";
+import { NotAgent } from "../Identity/IdentityClass/NotAgent";
+import { NotLurker } from "../Identity/IdentityClass/NotLurker";
+import { NotMysteriousPerson } from "../Identity/IdentityClass/NotMysteriousPerson";
 
 const { ccclass, property } = _decorator;
 
@@ -29,7 +32,7 @@ export class PlayerObject extends GameObject<Player> {
   @property(Node)
   messageCounts: Node | null = null;
   @property(Node)
-  IdentityNode: Node | null;
+  identityNode: Node | null;
 
   public static readonly seatNumberText: string[] = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
   private _selectable: boolean = true;
@@ -100,26 +103,37 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   onEnable() {
-    this.node.getChildByPath("Border/Identity").on(
-      Node.EventType.TOUCH_END,
-      () => {
-        this.changeSelectedIdentity();
-      },
-      this
-    );
-    this.node.getChildByPath("Border/Identity").on(
-      Node.EventType.MOUSE_UP,
-      (event: EventMouse) => {
-        if (event.getButton() === EventMouse.BUTTON_RIGHT) {
-          const list = this.data.identityList.map((identity) => {
-            createIdentity(identity.type);
-          });
-
-          UIEventCenter.emit(UIEvent.START_MARK_IDENTITY, list);
-        }
-      },
-      this
-    );
+    if (sys.isMobile) {
+      this.node.getChildByPath("Border/Identity").on(
+        "tap",
+        () => {
+          this.changeSelectedIdentity();
+        },
+        this
+      );
+      this.node.getChildByPath("Border/Identity").on(
+        "longtap",
+        () => {
+          console.log(1);
+          this.selectIdentity();
+        },
+        this
+      );
+    } else {
+      this.node.getChildByPath("Border/Identity").on(
+        Node.EventType.MOUSE_UP,
+        (event: EventMouse) => {
+          if (this.data.identityList.length > 1) {
+            if (event.getButton() === EventMouse.BUTTON_LEFT) {
+              this.changeSelectedIdentity();
+            } else if (event.getButton() === EventMouse.BUTTON_RIGHT) {
+              this.selectIdentity();
+            }
+          }
+        },
+        this
+      );
+    }
   }
 
   onDisable() {
@@ -237,7 +251,7 @@ export class PlayerObject extends GameObject<Player> {
 
   changeSelectedIdentity(identity?: Identity) {
     if (!this._enableSelectIdentity) return;
-    const identityObject = this.IdentityNode.getComponent(IdentityObject);
+    const identityObject = this.identityNode.getComponent(IdentityObject);
     if (identity) {
       identityObject.data = identity;
     } else if (!this.data) {
@@ -258,8 +272,17 @@ export class PlayerObject extends GameObject<Player> {
     }
   }
 
+  selectIdentity() {
+    this.identityNode.getComponent(IdentityObject).data = null;
+    const list = [...this.data.identityList];
+    UIEventCenter.emit(UIEvent.START_MARK_IDENTITY, {
+      identityList: list,
+      playerObject: this,
+    });
+  }
+
   refreshIdentityList() {
-    const identityObject = this.IdentityNode.getComponent(IdentityObject);
+    const identityObject = this.identityNode.getComponent(IdentityObject);
     if (this.data.identityList.length === 1) {
       this.changeSelectedIdentity(this.data.identityList[0]);
     } else if (identityObject.data && this.data.identityList.indexOf(identityObject.data) === -1) {

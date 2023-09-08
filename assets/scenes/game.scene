@@ -21,7 +21,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 311
+      "__id__": 312
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -52,7 +52,7 @@
     },
     "autoReleaseAssets": true,
     "_globals": {
-      "__id__": 312
+      "__id__": 313
     },
     "_id": "77dd27f2-60b7-4c34-ad0a-bbd0f6c32866"
   },
@@ -89,9 +89,6 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 307
-      },
-      {
         "__id__": 308
       },
       {
@@ -99,6 +96,9 @@
       },
       {
         "__id__": 310
+      },
+      {
+        "__id__": 311
       }
     ],
     "_prefab": null,
@@ -188,7 +188,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 360,
+    "_orthoHeight": 401.62754303599377,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -5457,10 +5457,10 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 305
+        "__id__": 306
       },
       {
-        "__id__": 306
+        "__id__": 307
       }
     ],
     "_prefab": null,
@@ -7790,7 +7790,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 231
     },
@@ -8094,7 +8094,7 @@
   {
     "__type__": "cc.Node",
     "_name": "Label",
-    "_objFlags": 512,
+    "_objFlags": 0,
     "_parent": {
       "__id__": 239
     },
@@ -9840,16 +9840,16 @@
         "__id__": 297
       },
       {
-        "__id__": 300
+        "__id__": 301
       }
     ],
     "_active": false,
     "_components": [
       {
-        "__id__": 303
+        "__id__": 304
       },
       {
-        "__id__": 304
+        "__id__": 305
       }
     ],
     "_prefab": null,
@@ -9897,6 +9897,9 @@
       },
       {
         "__id__": 299
+      },
+      {
+        "__id__": 300
       }
     ],
     "_prefab": null,
@@ -9967,7 +9970,7 @@
       "r": 0,
       "g": 0,
       "b": 0,
-      "a": 133
+      "a": 182
     },
     "_spriteFrame": {
       "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
@@ -9989,6 +9992,17 @@
     "_id": "afPpRcHQVCYYe5lWkAc7XF"
   },
   {
+    "__type__": "cc.BlockInputEvents",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 297
+    },
+    "_enabled": true,
+    "__prefab": null,
+    "_id": "b3ltgsUgRAcZUJURmqKar4"
+  },
+  {
     "__type__": "cc.Node",
     "_name": "List",
     "_objFlags": 0,
@@ -9999,17 +10013,17 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 301
+        "__id__": 302
       },
       {
-        "__id__": 302
+        "__id__": 303
       }
     ],
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 0,
+      "y": 60,
       "z": 0
     },
     "_lrot": {
@@ -10040,7 +10054,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 300
+      "__id__": 301
     },
     "_enabled": true,
     "__prefab": null,
@@ -10052,7 +10066,7 @@
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0.5
+      "y": 1
     },
     "_id": "c0pZzKf+RN27nEmfxdKAkK"
   },
@@ -10061,7 +10075,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 300
+      "__id__": 301
     },
     "_enabled": true,
     "__prefab": null,
@@ -10118,7 +10132,7 @@
     "_enabled": true,
     "__prefab": null,
     "listNode": {
-      "__id__": 300
+      "__id__": 301
     },
     "identityPrefab": {
       "__uuid__": "a2974975-4903-48aa-b771-bb1cd5749c08",
@@ -10302,22 +10316,22 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 313
-    },
-    "shadows": {
       "__id__": 314
     },
-    "_skybox": {
+    "shadows": {
       "__id__": 315
     },
-    "fog": {
+    "_skybox": {
       "__id__": 316
     },
-    "octree": {
+    "fog": {
       "__id__": 317
     },
-    "lightProbeInfo": {
+    "octree": {
       "__id__": 318
+    },
+    "lightProbeInfo": {
+      "__id__": 319
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false
