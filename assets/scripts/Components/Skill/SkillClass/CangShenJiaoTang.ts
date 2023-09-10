@@ -77,6 +77,9 @@ export class CangShenJiaoTang extends TriggerSkill {
           second: waitingSecond,
           type: WaitingType.HANDLE_SKILL,
           seq: seq,
+          params: {
+            skill: this,
+          },
         });
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
           skill: this,

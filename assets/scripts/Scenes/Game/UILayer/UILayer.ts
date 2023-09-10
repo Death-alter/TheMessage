@@ -351,7 +351,7 @@ export class UILayer extends Component {
             .start();
           break;
         case WaitingType.USE_SKILL:
-          if (data.params.skill) {
+          if (data.params && data.params.skill) {
             (<TriggerSkill>data.params.skill).onTrigger(this.manager, data.params);
           } else {
             const player = this.manager.data.playerList[data.playerId];
