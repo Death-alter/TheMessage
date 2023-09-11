@@ -143,7 +143,7 @@ export class WeiBi extends Card {
               if (card.type === wantType) {
                 return CardUsableStatus.USABLE;
               } else {
-                return CardUsableStatus.UNUSEABLE;
+                return CardUsableStatus.UNUSABLE;
               }
             },
           });

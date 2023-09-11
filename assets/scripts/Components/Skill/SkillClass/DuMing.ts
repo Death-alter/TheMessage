@@ -3,15 +3,16 @@ import { Character } from "../../Chatacter/Character";
 import {
   color,
   skill_du_ming_a_toc,
+  skill_du_ming_b_toc,
   skill_jiang_hu_ling_a_toc,
   skill_jiang_hu_ling_b_toc,
   skill_wait_for_jiang_hu_ling_b_toc,
 } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
-import { WaitingType } from "../../../Manager/type";
+import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
-import { CardColor } from "../../Card/type";
+import { CardColor, CardUsableStatus } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
@@ -19,6 +20,7 @@ import { Card } from "../../Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuMing extends TriggerSkill {
   constructor(character: Character) {
@@ -137,80 +139,13 @@ export class DuMing extends TriggerSkill {
           enable: false,
           seq: gui.seq,
         });
-      });
+      })
+      .start();
   }
 
-  waitingForUseB(gameData: GameData, { playerId, color, waitingSecond, seq }: skill_wait_for_jiang_hu_ling_b_toc) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-      playerId: playerId,
-      second: waitingSecond,
-      type: WaitingType.HANDLE_SKILL,
-      seq: seq,
-    });
-
-    if (playerId === 0) {
-      const messagePlayer = gameData.playerList[gameData.messagePlayerId];
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "promprtUse",
-        params: {
-          color,
-          messagePlayer,
-        },
-      });
-    }
-  }
-
-  promprtUse(gui: GameManager, params: { color: color; messagePlayer: Player }) {
-    const { color, messagePlayer } = params;
-    const tooltip = gui.tooltip;
-
-    tooltip.setText("情报被接收，是否使用【江湖令】？");
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          const showCardsWindow = gui.showCardsWindow;
-          showCardsWindow.show({
-            title: `请选择一张${getCardColorText(<number>color)}色情报弃置`,
-            limit: 1,
-            cardList: messagePlayer.getMessagesCopy(),
-            buttons: [
-              {
-                text: "确定",
-                onclick: () => {
-                  NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_B_TOS, {
-                    cardId: showCardsWindow.selectedCards.list[0].id,
-                    seq: gui.seq,
-                  });
-                  showCardsWindow.hide();
-                },
-                enabled: () =>
-                  showCardsWindow.selectedCards.list.length &&
-                  Card.hasColor(showCardsWindow.selectedCards.list[0], <number>color),
-              },
-            ],
-          });
-        },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gui.seq,
-          });
-        },
-      },
-    ]);
-  }
-
-  onEffectA(gameData: GameData, { playerId, enable, color, card, waitingSecond, seq }: skill_du_ming_a_toc) {
+  onEffectA(gameData: GameData, { playerId, color, card, waitingSecond, seq }: skill_du_ming_a_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-
-    if(enable){
-      
-    }
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
@@ -227,24 +162,85 @@ export class DuMing extends TriggerSkill {
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}使用技能【赌命】，宣言${getCardColorText(<number>color)}色`)
     );
+
+    if (playerId === 0) {
+      const message = gameData.createMessage(card);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+      message.flip();
+
+      if (waitingSecond > 0) {
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "promprtSelectHandCard",
+        });
+      }
+    }
+
+    if (waitingSecond === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
+    }
   }
 
-  onEffectB(gameData: GameData, { playerId, cardId }: skill_jiang_hu_ling_b_toc) {
+  promprtSelectHandCard(gui: GameManager) {
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText("请选择一张黑色手牌置入情报区");
+          gui.gameLayer.startSelectHandCards({
+            num: 1,
+            filter: (card: Card) => {
+              if (Card.hasColor(card, CardColor.BLACK)) {
+                return CardUsableStatus.USABLE;
+              } else {
+                return CardUsableStatus.UNUSABLE;
+              }
+            },
+          });
+          gui.tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                gui.gameLayer.pauseSelectHandCards();
+                next({ cards: [...gui.selectedHandCards.list] });
+              },
+              enabled: () => gui.selectedHandCards.list.length === 1,
+            },
+          ]);
+        },
+      }),
+    })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_MING_B_TOS, {
+          cardId: data[0].cards[0].id,
+          seq: gui.seq,
+        });
+      })
+      .start();
+  }
+
+  onEffectB(gameData: GameData, { playerId, card }: skill_du_ming_b_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    const messagePlayer = gameData.playerList[gameData.messagePlayerId];
 
-    const message = messagePlayer.removeMessage(cardId);
+    const message = gameData.playerRemoveHandCard(player, card);
+    player.addMessage(message);
 
-    GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: messagePlayer, messageList: [message] });
+    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+      player,
+      message,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+    });
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把手牌${gameLog.formatCard(message)}置入自己的情报区`));
 
-    gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(messagePlayer)}的情报区弃置${gameLog.formatCard(
-          message
-        )}`
-      )
-    );
+    if (playerId === 0) {
+      gameData.messageInTransmit.flip();
+    }
+
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

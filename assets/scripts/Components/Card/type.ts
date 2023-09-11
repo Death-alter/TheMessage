@@ -36,7 +36,7 @@ export const enum CardDirection {
 }
 
 export const enum CardUsableStatus {
-  UNUSEABLE = 0,
+  UNUSABLE = 0,
   USABLE = 1,
   BANNED = 2,
 }

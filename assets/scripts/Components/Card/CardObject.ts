@@ -171,7 +171,7 @@ export class CardObject extends GameObject<Card> {
         coverNode.active = false;
         bannedNode.active = false;
         break;
-      case CardUsableStatus.UNUSEABLE:
+      case CardUsableStatus.UNUSABLE:
         coverNode.active = true;
         bannedNode.active = false;
         break;

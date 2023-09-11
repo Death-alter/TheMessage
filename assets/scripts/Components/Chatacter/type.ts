@@ -32,7 +32,23 @@ export const enum CharacterType {
   LI_NING_YU = 28, // 李宁玉
   BAI_KUN_SHAN = 29, // 白昆山
   SHANG_YU = 30, // 商玉
+  MA_LI_YA = 31, // 玛利亚
+  QIAN_MIN = 32, // 钱敏
+  CHI_JING_HAI = 33, // 池镜海
+  QIN_YUAN_YUAN = 34, // 秦圆圆
+  SHENG_LAO_BAN = 35, // 盛老板
+  GAO_QIAO_ZHI_ZI = 36, // 高桥智子
+  JIAN_XIAN_SHENG = 37, // 简先生
+  LAO_HU = 38, // 老虎
+  SU_JI_YUAN = 39, // 速记员
+  YA_PAO = 40, // 哑炮
+  LAO_QIAN = 41, // 老千
+  SP_CHENG_XIAO_DIE = 1002, // SP程小蝶
+  SP_LIAN_YUAN = 1003, // SP连鸢
+  SP_HAN_MEI = 1014, // SP韩梅
   SP_GU_XIAO_MENG = 1020, // SP顾小梦
+  SP_DUAN_MU_JING = 1022, // SP端木静
+  SP_XIAO_JIU = 1027, // SP小九
   SP_LI_NING_YU = 1028, // SP李宁玉
 }
 

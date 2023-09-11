@@ -282,7 +282,21 @@ export class UILayer extends Component {
                 const showCardsWindow = this.manager.showCardsWindow;
 
                 this.tooltip.setText(`${gameLog.formatPlayer(player)}濒死，是否使用澄清？`);
-                this.manager.gameLayer.startSelectHandCards({ num: 1 });
+                this.manager.gameLayer.startSelectHandCards({
+                  num: 1,
+                  filter: (card) => {
+                    const flag = this.cardCanPlayed(card);
+                    if (flag.banned) {
+                      return CardUsableStatus.USABLE;
+                    }else{
+                      if(card.type === CardType.CHENG_QING){
+                        return CardUsableStatus.USABLE
+                      }else{
+                        return CardUsableStatus.UNUSABLE
+                      }
+                    }
+                  },
+                });
                 this.tooltip.buttons.setButtons([
                   {
                     text: "澄清",
@@ -452,7 +466,7 @@ export class UILayer extends Component {
     } else if (flag.banned) {
       return CardUsableStatus.BANNED;
     } else {
-      return CardUsableStatus.UNUSEABLE;
+      return CardUsableStatus.UNUSABLE;
     }
   }
 

@@ -144,7 +144,8 @@ export class JiangHuLing extends TriggerSkill {
           enable: false,
           seq: gui.seq,
         });
-      });
+      })
+      .start();
   }
 
   waitingForUseB(gameData: GameData, { playerId, color, waitingSecond, seq }: skill_wait_for_jiang_hu_ling_b_toc) {

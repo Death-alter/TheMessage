@@ -64,13 +64,13 @@ export class ZiZhengQingBai extends ActiveSkill {
               const identity = gui.data.selfPlayer.identityList[0];
               if (identity instanceof Lurker) {
                 if (Card.hasColor(card, CardColor.RED)) {
-                  return CardUsableStatus.UNUSEABLE;
+                  return CardUsableStatus.UNUSABLE;
                 } else {
                   return CardUsableStatus.USABLE;
                 }
               } else if (identity instanceof Agent) {
                 if (Card.hasColor(card, CardColor.BLUE)) {
-                  return CardUsableStatus.UNUSEABLE;
+                  return CardUsableStatus.UNUSABLE;
                 } else {
                   return CardUsableStatus.USABLE;
                 }

@@ -170,7 +170,7 @@ export class MiLing extends Card {
               if (Card.hasColor(card, color)) {
                 return CardUsableStatus.USABLE;
               } else {
-                return CardUsableStatus.UNUSEABLE;
+                return CardUsableStatus.UNUSABLE;
               }
             },
           });

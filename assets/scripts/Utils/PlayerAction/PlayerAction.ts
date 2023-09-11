@@ -41,6 +41,8 @@ export abstract class PlayerAction {
 
   private static prev() {
     this.direction = 1;
+    console.log(this.index);
+    console.log(this.dataList);
     this.dataList[this.index].current = {};
     --this.index;
     if (this.index < this.list.length) {
