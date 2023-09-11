@@ -1,7 +1,8 @@
-import { TriggerSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { TriggerSkill } from "../Skill";
+import { Character } from "../../Chatacter/Character";
 import {
   color,
+  skill_du_ming_a_toc,
   skill_jiang_hu_ling_a_toc,
   skill_jiang_hu_ling_b_toc,
   skill_wait_for_jiang_hu_ling_b_toc,
@@ -11,41 +12,41 @@ import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../..
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardColor } from "../../Card/type";
-import { GameLog } from "../../../Components/GameLog/GameLog";
-import { Player } from "../../../Components/Player/Player";
+import { GameLog } from "../../GameLog/GameLog";
+import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
-import { Card } from "../../../Components/Card/Card";
+import { Card } from "../../Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
-export class JiangHuLing extends TriggerSkill {
+export class DuMing extends TriggerSkill {
   constructor(character: Character) {
     super({
-      name: "江湖令",
+      name: "赌命",
       character,
       description:
-        "你传出情报后，可以宣言一个颜色。本回合中，当情报被接收后，你可以从接收者的情报区弃置一张被宣言颜色的情报，若弃置的是黑色情报，则你摸一张牌。",
+        "情报面朝下传递到你面前时，或【调包】结算后，你可以宣言一个颜色，查看该情报并面朝下放回，然后摸一张牌。若待接收情报不含有宣言的颜色，并且你有黑色手牌，你必须将一张黑色手牌置入你的情报区。",
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_JIANG_HU_LING_A_TOC,
+      NetworkEventToC.SKILL_DU_MING_A_TOC,
       (data) => {
         this.onEffectA(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_JIANG_HU_LING_B_TOC,
+      NetworkEventToC.SKILL_DU_MING_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_A_TOC,
+      NetworkEventToC.SKILL_WAIT_FOR_DU_MING_TOC,
       (data) => {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
@@ -59,20 +60,12 @@ export class JiangHuLing extends TriggerSkill {
       },
       this
     );
-    NetworkEventCenter.on(
-      NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_B_TOC,
-      (data) => {
-        this.waitingForUseB(gameData, data);
-      },
-      this
-    );
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_JIANG_HU_LING_A_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_JIANG_HU_LING_B_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_A_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_DU_MING_A_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_DU_MING_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_DU_MING_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
@@ -80,7 +73,7 @@ export class JiangHuLing extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`你传出了情报,是否使用【江湖令】？`);
+          tooltip.setText(`是否使用【赌命】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
@@ -133,14 +126,14 @@ export class JiangHuLing extends TriggerSkill {
         }),
       })
       .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_MING_A_TOS, {
           enable: true,
           color: data[0].color,
           seq: gui.seq,
         });
       })
       .onCancel(() => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_DU_MING_A_TOS, {
           enable: false,
           seq: gui.seq,
         });
@@ -148,30 +141,22 @@ export class JiangHuLing extends TriggerSkill {
   }
 
   waitingForUseB(gameData: GameData, { playerId, color, waitingSecond, seq }: skill_wait_for_jiang_hu_ling_b_toc) {
-    if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-        playerId: playerId,
-        second: waitingSecond,
-        type: WaitingType.HANDLE_SKILL,
-        seq: seq,
-      });
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId: playerId,
+      second: waitingSecond,
+      type: WaitingType.HANDLE_SKILL,
+      seq: seq,
+    });
 
-      if (playerId === 0) {
-        const messagePlayer = gameData.playerList[gameData.messagePlayerId];
-        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-          skill: this,
-          handler: "promprtUse",
-          params: {
-            color,
-            messagePlayer,
-          },
-        });
-      }
-    } else {
-      const player = gameData.playerList[playerId];
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
-        player,
+    if (playerId === 0) {
+      const messagePlayer = gameData.playerList[gameData.messagePlayerId];
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
+        handler: "promprtUse",
+        params: {
+          color,
+          messagePlayer,
+        },
       });
     }
   }
@@ -219,17 +204,28 @@ export class JiangHuLing extends TriggerSkill {
     ]);
   }
 
-  onEffectA(gameData: GameData, { playerId, color }: skill_jiang_hu_ling_a_toc) {
+  onEffectA(gameData: GameData, { playerId, enable, color, card, waitingSecond, seq }: skill_du_ming_a_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
+
+    if(enable){
+      
+    }
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
 
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId: playerId,
+      second: waitingSecond,
+      type: WaitingType.HANDLE_SKILL,
+      seq: seq,
+    });
+
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用技能【江湖令】，宣言${getCardColorText(<number>color)}色`)
+      new GameLog(`${gameLog.formatPlayer(player)}使用技能【赌命】，宣言${getCardColorText(<number>color)}色`)
     );
   }
 

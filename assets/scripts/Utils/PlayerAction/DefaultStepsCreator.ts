@@ -151,7 +151,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           text: "确定",
           onclick: () => {
             gui.gameLayer.pauseSelectHandCards();
-            next({ players: [...gui.selectedHandCards.list] });
+            next({ cards: [...gui.selectedHandCards.list] });
           },
           enabled: enabled != null ? enabled : () => gui.selectedHandCards.list.length === num,
         },

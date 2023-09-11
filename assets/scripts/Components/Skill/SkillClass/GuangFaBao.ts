@@ -8,14 +8,12 @@ import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../..
 import { GamePhase, WaitingType, CardActionLocation } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { CardColor } from "../../Card/type";
 import { Character } from "../../../Components/Chatacter/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class GuangFaBao extends ActiveSkill {
   constructor(character: Character) {
