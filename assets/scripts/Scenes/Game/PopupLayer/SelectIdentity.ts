@@ -1,20 +1,15 @@
 import { _decorator, Component, Node, instantiate, Prefab, NodeEventType, EventTouch } from "cc";
 import { Identity } from "../../../Components/Identity/Identity";
 import { IdentityObject } from "../../../Components/Identity/IdentityObject";
-import { UIEventCenter } from "../../../Event/EventTarget";
-import { UIEvent } from "../../../Event/type";
+import { ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { ProcessEvent, UIEvent } from "../../../Event/type";
 import { PlayerObject } from "../../../Components/Player/PlayerObject";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NotAgent } from "../../../Components/Identity/IdentityClass/NotAgent";
 import { NotLurker } from "../../../Components/Identity/IdentityClass/NotLurker";
 import { NotMysteriousPerson } from "../../../Components/Identity/IdentityClass/NotMysteriousPerson";
-import { Killer } from "../../../Components/Identity/IdentityClass/Killer";
-import { Stealer } from "../../../Components/Identity/IdentityClass/Stealer";
-import { Collector } from "../../../Components/Identity/IdentityClass/Collector";
-import { Pioneer } from "../../../Components/Identity/IdentityClass/Pioneer";
-import { Disturber } from "../../../Components/Identity/IdentityClass/Disturber";
-import { Sweeper } from "../../../Components/Identity/IdentityClass/Sweeper";
-import { Mutator } from "../../../Components/Identity/IdentityClass/Mutator";
+import { IdentityType, SecretTaskType } from "../../../Components/Identity/type";
+import { createIdentity } from "../../../Components/Identity";
 
 const { ccclass, property } = _decorator;
 
@@ -25,12 +20,20 @@ export class SelectIdentity extends Component {
   @property(Prefab)
   identityPrefab: Prefab | null = null;
 
+  public secretTaskList: SecretTaskType[] = [];
+
   init(): void {
+    ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.initSecretTaskList, this);
     UIEventCenter.on(UIEvent.START_MARK_IDENTITY, this.show, this);
   }
 
   dispose() {
+    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.initSecretTaskList, this);
     UIEventCenter.off(UIEvent.START_MARK_IDENTITY, this.show, this);
+  }
+
+  initSecretTaskList(data) {
+    this.secretTaskList = data.secretTaskList;
   }
 
   show({ identityList, playerObject }: { identityList: Identity[]; playerObject: PlayerObject }) {
@@ -47,13 +50,9 @@ export class SelectIdentity extends Component {
       identityList.push(new NotMysteriousPerson());
     }
     if (hasMysteriousPerson) {
-      identityList.push(new Killer());
-      identityList.push(new Stealer());
-      identityList.push(new Collector());
-      identityList.push(new Mutator());
-      identityList.push(new Pioneer());
-      identityList.push(new Disturber());
-      identityList.push(new Sweeper());
+      for (let task of this.secretTaskList) {
+        identityList.push(createIdentity(IdentityType.GREEN, task));
+      }
     }
 
     this.listNode.removeAllChildren();

@@ -119,6 +119,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "确定",
           onclick: () => {
+            gui.tooltip.setText("");
+            gui.tooltip.buttons.setButtons([]);
             gui.gameLayer.pauseSelectPlayers();
             next({ players: [...gui.selectedPlayers.list] });
           },
@@ -129,6 +131,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         buttons.push({
           text: "取消",
           onclick: () => {
+            gui.tooltip.setText("");
+            gui.tooltip.buttons.setButtons([]);
             gui.gameLayer.stopSelectPlayers();
             prev();
           },
@@ -150,6 +154,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "确定",
           onclick: () => {
+            gui.tooltip.setText("");
+            gui.tooltip.buttons.setButtons([]);
             gui.gameLayer.pauseSelectHandCards();
             next({ cards: [...gui.selectedHandCards.list] });
           },
@@ -158,6 +164,8 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         {
           text: "取消",
           onclick: () => {
+            gui.tooltip.setText("");
+            gui.tooltip.buttons.setButtons([]);
             gui.gameLayer.stopSelectHandCards();
             prev();
           },
@@ -182,7 +190,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             onclick: () => {
               const cardId = showCardsWindow.selectedCards.list[0].id;
               showCardsWindow.hide();
-              console.log(cardId);
               next({ cardId });
             },
             enabled: enabled != null ? enabled : true,

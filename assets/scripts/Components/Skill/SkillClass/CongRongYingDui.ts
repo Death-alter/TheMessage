@@ -81,13 +81,13 @@ export class CongRongYingDui extends TriggerSkill {
             tooltip.setText("请选择一项操作");
             tooltip.buttons.setButtons([
               {
-                text: "抽取手牌",
+                text: "抽取对方的手牌",
                 onclick: () => {
                   next({ drawCard: false });
                 },
               },
               {
-                text: "摸一张牌",
+                text: "双方各摸一张牌",
                 onclick: () => {
                   next({ drawCard: true });
                 },

@@ -2,8 +2,8 @@ import { _decorator, Node, Label, Sprite, color, Vec2, UITransform } from "cc";
 import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
 import { GameObject } from "../../GameObject";
 import { GameManager } from "../../Manager/GameManager";
-import { NetworkEventCenter, UIEventCenter } from "../../Event/EventTarget";
-import { NetworkEventToS, UIEvent } from "../../Event/type";
+import { UIEventCenter } from "../../Event/EventTarget";
+import { UIEvent } from "../../Event/type";
 import { PlayerAction } from "../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../Utils/PlayerAction/type";
 

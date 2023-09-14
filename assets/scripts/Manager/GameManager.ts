@@ -18,6 +18,9 @@ import { PopupLayer } from "../Scenes/Game/PopupLayer/PopupLayer";
 import { UILayer } from "../Scenes/Game/UILayer/UILayer";
 import { StartCountDown } from "../Event/ProcessEventType";
 import { PlayerActionStepManager } from "../Utils/PlayerAction/PlayerActionStepManager";
+import { GameLog } from "../Components/GameLog/GameLog";
+import { createIdentity } from "../Components/Identity";
+import { IdentityType } from "../Components/Identity/type";
 
 const { ccclass, property } = _decorator;
 
@@ -158,6 +161,11 @@ export class GameManager extends GameObject<GameData> {
       this.popupLayer.stopSelectCharacter();
 
       this.startRender();
+      let str = "游戏开始，本局游戏的神秘人将从以下随机：";
+      for (let task of this.data.secretTaskList) {
+        str += `【${createIdentity(IdentityType.GREEN, task).name}】`;
+      }
+      this.gameLog.addData(new GameLog(str));
       GameEventCenter.emit(GameEvent.GAME_INIT);
     }
   }

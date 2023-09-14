@@ -5,19 +5,11 @@ import { PlayerStatus } from "./type";
 import { CardColor } from "../Card/type";
 import { Identity } from "../Identity/Identity";
 import { CharacterObject } from "../Chatacter/CharacterObject";
-import { NoIdentity } from "../Identity/IdentityClass/NoIdentity";
 import { ProgressControl } from "../Utils/ProgressControl";
 import { Skill } from "../Skill/Skill";
 import { IdentityObject } from "../Identity/IdentityObject";
 import { UIEventCenter } from "../../Event/EventTarget";
 import { UIEvent } from "../../Event/type";
-import { Lurker } from "../Identity/IdentityClass/Lurker";
-import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
-import { Agent } from "../Identity/IdentityClass/Agent";
-import { createIdentity } from "../Identity";
-import { NotAgent } from "../Identity/IdentityClass/NotAgent";
-import { NotLurker } from "../Identity/IdentityClass/NotLurker";
-import { NotMysteriousPerson } from "../Identity/IdentityClass/NotMysteriousPerson";
 
 const { ccclass, property } = _decorator;
 

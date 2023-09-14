@@ -1,75 +1,78 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GamePhase } from "../../../Manager/type";
-import { CardType, CardUsableStatus } from "../../Card/type";
+import { CardType } from "../../Card/type";
 import { createCard } from "../../Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { GameData } from "../../../Manager/GameData";
-import { skill_ying_bian_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
+import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
-import { Card } from "../../Card/Card";
+import { skill_jie_qu_toc } from "../../../../protobuf/proto";
 import { Player } from "../../Player/Player";
 
-export class YingBian extends ActiveSkill {
+export class JieQu extends ActiveSkill {
+  private usageCount: number = 0;
+  private isSelfTurn: boolean = false;
+
   get useable() {
-    return true;
+    return this.usageCount === 0 && !this.isSelfTurn;
   }
 
   constructor(character: Character) {
     super({
-      name: "应变",
+      name: "截取",
       character,
-      description: "你的【截获】可以当做【误导】使用。",
+      description: "每局游戏一次，其他玩家的争夺阶段，你可以将一张手牌作为【截获】打出。",
       useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_ZHENG_DUO_TOC,
+      NetworkEventToC.SKILL_JIE_QU_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
       this
     );
+    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 
-  dispose() {}
+  dispose() {
+    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
+  }
+
+  onTurnChange({ turnPlayer }) {
+    this.isSelfTurn = turnPlayer.id === 0;
+  }
+
+  canUse(gui: GameManager) {
+    return gui.data.messagePlayerId !== 0;
+  }
 
   onUse(gui: GameManager) {
     PlayerAction.addTempStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`请选择一张【截获】当做【误导】使用`);
+          tooltip.setText(`请选择一张牌当做【截获】使用`);
           gui.gameLayer.startSelectHandCards({
             num: 1,
-            filter: (card: Card) => {
-              if (card.type === CardType.JIE_HUO) {
-                return CardUsableStatus.USABLE;
-              } else {
-                return CardUsableStatus.UNUSABLE;
-              }
-            },
           });
           tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
-                const card = gui.selectedHandCards.list[0];
-                if (card.type === CardType.JIE_HUO) {
-                  const card = createCard({
-                    id: gui.selectedHandCards.list[0].id,
-                    type: CardType.WU_DAO,
-                  });
-                  card.onPlay(gui);
-                  this.gameObject.isOn = false;
-                  next();
-                }
+                const addTempStepcard = createCard({
+                  id: gui.selectedHandCards.list[0].id,
+                  type: CardType.JIE_HUO,
+                });
+                addTempStepcard.onPlay(gui);
+                this.gameObject.isOn = false;
+                next();
               },
               enabled: () => gui.selectedHandCards.list.length > 0,
             },
@@ -85,7 +88,7 @@ export class YingBian extends ActiveSkill {
     });
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_ying_bian_toc) {
+  onEffect(gameData: GameData, { playerId }: skill_jie_qu_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
@@ -93,7 +96,7 @@ export class YingBian extends ActiveSkill {
       player,
       skill: this,
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【应变】`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【截取】`));
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

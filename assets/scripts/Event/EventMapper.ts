@@ -117,6 +117,7 @@ export class EventMapper {
         playerCount: data.playerCount,
         identity: data.identity,
         secretTask: data.secretTask,
+        secretTaskList: data.possibleSecretTask,
         players,
       });
     });

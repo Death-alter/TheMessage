@@ -23,6 +23,7 @@ export class GameData extends DataBasic<GameManager> {
   public skillBanned: boolean = false;
   public playerCount: number;
   public playerList: Player[];
+  public secretTaskList: SecretTaskType[];
   public messageInTransmit: Card | null = null;
   public messageDirection: CardDirection;
   public deckCardCount: number;
@@ -199,7 +200,8 @@ export class GameData extends DataBasic<GameManager> {
   private init(data) {
     this.playerCount = data.playerCount;
     this.playerList = [];
-
+    this.secretTaskList = data.secretTaskList;
+    
     //创建所有角色
     for (let item of data.players) {
       const player = new Player({
