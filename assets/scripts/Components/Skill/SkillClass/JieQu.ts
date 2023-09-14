@@ -42,6 +42,7 @@ export class JieQu extends ActiveSkill {
   }
 
   dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_JIE_QU_TOC);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 

@@ -13,6 +13,7 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Card } from "../../Card/Card";
 import { Player } from "../../Player/Player";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class YingBian extends ActiveSkill {
   get useable() {
@@ -30,7 +31,7 @@ export class YingBian extends ActiveSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_ZHENG_DUO_TOC,
+      NetworkEventToC.SKILL_YING_BIAN_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -38,48 +39,38 @@ export class YingBian extends ActiveSkill {
     );
   }
 
-  dispose() {}
+  dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_YING_BIAN_TOC);
+  }
 
   onUse(gui: GameManager) {
     PlayerAction.addTempStep({
+      step: PlayerActionStepName.SELECT_HAND_CARDS,
+      data: {
+        tooltipText: "请选择一张【截获】当做【误导】使用",
+        filter: (card: Card) => {
+          if (card.type === CardType.JIE_HUO) {
+            return CardUsableStatus.USABLE;
+          } else {
+            return CardUsableStatus.UNUSABLE;
+          }
+        },
+      },
+    }).addTempStep({
       step: new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          const tooltip = gui.tooltip;
-          tooltip.setText(`请选择一张【截获】当做【误导】使用`);
-          gui.gameLayer.startSelectHandCards({
-            num: 1,
-            filter: (card: Card) => {
-              if (card.type === CardType.JIE_HUO) {
-                return CardUsableStatus.USABLE;
-              } else {
-                return CardUsableStatus.UNUSABLE;
-              }
-            },
+        handler: (data, { next, passOnPrev }) => {
+          passOnPrev(() => {
+            const card = gui.selectedHandCards.list[0];
+            if (card.type === CardType.JIE_HUO) {
+              const card = createCard({
+                id: gui.selectedHandCards.list[0].id,
+                type: CardType.WU_DAO,
+              });
+              card.onPlay(gui);
+              this.gameObject.isOn = false;
+              next();
+            }
           });
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                const card = gui.selectedHandCards.list[0];
-                if (card.type === CardType.JIE_HUO) {
-                  const card = createCard({
-                    id: gui.selectedHandCards.list[0].id,
-                    type: CardType.WU_DAO,
-                  });
-                  card.onPlay(gui);
-                  this.gameObject.isOn = false;
-                  next();
-                }
-              },
-              enabled: () => gui.selectedHandCards.list.length > 0,
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                prev();
-              },
-            },
-          ]);
         },
       }),
     });
@@ -88,7 +79,7 @@ export class YingBian extends ActiveSkill {
   onEffect(gameData: GameData, { playerId }: skill_ying_bian_toc) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-
+    console.log("应变")
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,

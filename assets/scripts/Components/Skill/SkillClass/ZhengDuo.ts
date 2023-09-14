@@ -42,6 +42,7 @@ export class ZhengDuo extends ActiveSkill {
   }
 
   dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_ZHENG_DUO_TOC);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 

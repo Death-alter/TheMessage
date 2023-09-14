@@ -201,7 +201,7 @@ export class GameData extends DataBasic<GameManager> {
     this.playerCount = data.playerCount;
     this.playerList = [];
     this.secretTaskList = data.secretTaskList;
-    
+
     //创建所有角色
     for (let item of data.players) {
       const player = new Player({
@@ -442,6 +442,7 @@ export class GameData extends DataBasic<GameManager> {
 
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
+    console.log(data);
     let card: Card;
     const user = this.playerList[data.userId];
     if (data.isActual) {
@@ -459,6 +460,8 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.createCardByType(data.cardType);
     }
+
+    console.log(card);
     if (this.cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this.cardOnPlay = card;
