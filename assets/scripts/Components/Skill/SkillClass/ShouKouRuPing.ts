@@ -129,6 +129,7 @@ export class ShouKouRuPing extends PassiveSkill {
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
 
       if (isUseCard) {
+        const fromPlayer = gameData.playerList[fromPlayerId];
         const data: any = {
           userId: fromPlayerId,
           cardType,
@@ -139,8 +140,6 @@ export class ShouKouRuPing extends PassiveSkill {
 
         ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
 
-        const fromPlayer = gameData.playerList[fromPlayerId];
-        ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
         gameLog.addData(
           new GameLog(
             `${gameLog.formatPlayer(fromPlayer)}使用的${gameLog.formatCard(

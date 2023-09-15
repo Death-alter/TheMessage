@@ -140,7 +140,7 @@ export class RuBiZhiShi extends ActiveSkill {
                     });
                   });
                   showCardsWindow.hide();
-                  next();
+                  next({ useCard: false });
                 },
                 enabled: () => showCardsWindow.selectedCards.list.length > 0,
               },
@@ -149,7 +149,7 @@ export class RuBiZhiShi extends ActiveSkill {
                 onclick: () => {
                   const card = showCardsWindow.selectedCards.list[0];
                   showCardsWindow.hide();
-                  next({ card });
+                  next({ card, useCard: true });
                 },
                 enabled: () => {
                   if (
@@ -190,41 +190,45 @@ export class RuBiZhiShi extends ActiveSkill {
       .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev, end }) => {
-            const { card } = current;
-            switch (card.type) {
-              case CardType.CHENG_QING:
-                const player = gui.data.playerList[this.dyingPlayerId];
-                showCardsWindow.show({
-                  title: "选择一张情报弃置",
-                  cardList: player.getMessagesCopy(),
-                  limit: 1,
-                  buttons: [
-                    {
-                      text: "确定",
-                      onclick: () => {
-                        const targetCardId = showCardsWindow.selectedCards.list[0].id;
-                        PlayerAction.onComplete(() => {
-                          NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-                            use: true,
-                            cardId: card.id,
-                            targetCardId,
-                            seq: gui.seq,
+            const { card, useCard } = current;
+            if (useCard) {
+              switch (card.type) {
+                case CardType.CHENG_QING:
+                  const player = gui.data.playerList[this.dyingPlayerId];
+                  showCardsWindow.show({
+                    title: "选择一张情报弃置",
+                    cardList: player.getMessagesCopy(),
+                    limit: 1,
+                    buttons: [
+                      {
+                        text: "确定",
+                        onclick: () => {
+                          const targetCardId = showCardsWindow.selectedCards.list[0].id;
+                          PlayerAction.onComplete(() => {
+                            NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                              use: true,
+                              cardId: card.id,
+                              targetCardId,
+                              seq: gui.seq,
+                            });
                           });
-                        });
-                        showCardsWindow.hide();
-                        next();
+                          showCardsWindow.hide();
+                          next();
+                        },
+                        enabled: () =>
+                          showCardsWindow.selectedCards.list.length > 0 &&
+                          Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
                       },
-                      enabled: () =>
-                        showCardsWindow.selectedCards.list.length > 0 &&
-                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
-                    },
-                  ],
-                });
-                break;
-              default:
-                showCardsWindow.hide();
-                card.onPlay(gui);
-                next();
+                    ],
+                  });
+                  break;
+                default:
+                  showCardsWindow.hide();
+                  card.onPlay(gui);
+                  next();
+              }
+            } else {
+              next();
             }
           },
         }),

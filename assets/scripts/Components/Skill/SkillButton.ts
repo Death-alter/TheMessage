@@ -67,7 +67,7 @@ export class SkillButton extends GameObject<Skill> {
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
           if (this.isOn) {
             this.isOn = false;
-            PlayerAction.switchToGroup("default");
+            PlayerAction.switchToGroup("default").clearGroup("UseSkill").start();
           } else {
             this.isOn = true;
             PlayerAction.switchToGroup("UseSkill")
@@ -78,7 +78,7 @@ export class SkillButton extends GameObject<Skill> {
                   enabled: skill.canUse,
                 },
               })
-              .onCancel(() => {
+              .onSwitch(() => {
                 this.isOn = false;
               })
               .next();

@@ -3,15 +3,28 @@ import { PlayerActionStepName } from "./type";
 import { PlayerActionGroup } from "./PlayerActionGroup";
 
 export abstract class PlayerAction {
-  private static index: number = 0;
+  private static _index: number = 0;
   private static groups: { [index: string]: PlayerActionGroup } = { default: new PlayerActionGroup() };
   private static groupKeys: string[] = ["default"];
 
   private static complete: (data?: { [index: string]: any }[]) => void;
   private static cancel: () => void;
+  private static switch: () => void;
 
   private static get currentGroup() {
     return this.groups[this.groupKeys[this.index]];
+  }
+
+  private static get index() {
+    return this._index;
+  }
+
+  private static set index(n) {
+    if (n != null && n !== this._index) this._index = n;
+    if (this.switch) {
+      this.switch();
+      this.switch = null;
+    }
   }
 
   public static switchToGroup(index: number): typeof PlayerAction;
@@ -26,6 +39,7 @@ export abstract class PlayerAction {
       } else {
         this.groups[key] = new PlayerActionGroup();
         this.groupKeys.push(key);
+        ++this.index;
       }
     }
     return this;
@@ -35,10 +49,18 @@ export abstract class PlayerAction {
     return this.groupKeys.indexOf(groupName);
   }
 
+  public static clearGroup(groupName) {
+    this.groups[groupName].clear();
+    return this;
+  }
+
   public static clear() {
     this.index = 0;
     this.groups = { default: new PlayerActionGroup() };
     this.groupKeys = ["default"];
+    this.cancel = null;
+    this.complete = null;
+    this.switch = null;
     return this;
   }
 
@@ -91,7 +113,7 @@ export abstract class PlayerAction {
   }
 
   public static start() {
-    this.currentGroup.start(this.handleStep);
+    this.currentGroup.start(this.handleStep.bind(this));
     return this;
   }
 
@@ -124,6 +146,11 @@ export abstract class PlayerAction {
 
   public static onCancel(callback: () => void) {
     this.cancel = callback;
+    return this;
+  }
+
+  public static onSwitch(callback: () => void) {
+    this.switch = callback;
     return this;
   }
 }

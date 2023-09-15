@@ -10,7 +10,7 @@ export class PlayerActionGroup {
   private dataList: { [index: string]: any }[] = [];
 
   get direction() {
-    return this.direction;
+    return this._direction;
   }
 
   constructor() {}
@@ -27,7 +27,7 @@ export class PlayerActionGroup {
     }
 
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
-
+    
     if (this.index >= this.stepList.length) {
       return false;
     } else {
@@ -51,6 +51,7 @@ export class PlayerActionGroup {
   }
 
   public handleStep(fs) {
+    console.log(this.stepList);
     this.stepList[this.index].handler(this.dataList[this.index], fs);
   }
 
