@@ -47,7 +47,12 @@ export abstract class PlayerAction {
     if (flag) {
       this.handleStep();
     } else {
-      this.complete && this.complete(this.currentGroup.getData());
+      if (this.index >= this.groupKeys.length - 1) {
+        this.complete && this.complete(this.currentGroup.getData());
+      } else {
+        ++this.index;
+        this.handleStep();
+      }
     }
     return this;
   }
@@ -57,7 +62,14 @@ export abstract class PlayerAction {
     if (flag) {
       this.handleStep();
     } else {
-      this.cancel && this.cancel();
+      if (this.index <= 0) {
+        this.cancel && this.cancel();
+      } else {
+        --this.index;
+        const key = this.groupKeys.pop();
+        delete this.groups[key];
+        this.handleStep();
+      }
     }
     return this;
   }
