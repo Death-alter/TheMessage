@@ -30,7 +30,7 @@ export class WuDao extends Card {
 
   onPlay(gui: GameManager): void {
     const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
-    PlayerAction.addTempStep({
+    PlayerAction.switchToGroup("PlayCard").addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         tooltipText: "请选择误导的目标",

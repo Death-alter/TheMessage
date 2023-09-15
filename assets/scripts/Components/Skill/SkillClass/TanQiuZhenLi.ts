@@ -72,7 +72,7 @@ export class TanQiuZhenLi extends ActiveSkill {
   onUse(gui: GameManager) {
     const showCardsWindow = gui.showCardsWindow;
 
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         filter: (player) => player.id !== 0 && player.messageCounts.total > 0,
@@ -81,7 +81,7 @@ export class TanQiuZhenLi extends ActiveSkill {
         return { playerId: data.players[0].id };
       },
     })
-      .addTempStep({
+      .addStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
         data: {
           enabled: () => {

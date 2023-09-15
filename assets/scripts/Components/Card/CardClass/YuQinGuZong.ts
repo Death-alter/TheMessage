@@ -33,7 +33,7 @@ export class YuQinGuZong extends Card {
 
   onPlay(gui: GameManager): void {
     const showCardsWindow = gui.showCardsWindow;
-    PlayerAction.addTempStep({
+    PlayerAction.switchToGroup("PlayCard").addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           showCardsWindow.show({

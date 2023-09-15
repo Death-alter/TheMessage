@@ -60,7 +60,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         filter: (player) => player.messageCounts.total > 0,
@@ -69,7 +69,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
         return { playerId: data.players[0].id };
       },
     })
-      .addTempStep({
+      .addStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
         data: {
           tooltipText: "请选择第一张情报",

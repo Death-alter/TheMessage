@@ -75,14 +75,14 @@ export class XianFaZhiRen extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         tooltipText: "请选择要弃置情报的角色",
         filter: (player) => player.messageCounts.total > 0,
       },
     })
-      .addTempStep({
+      .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev }) => {
             const showCardsWindow = gui.showCardsWindow;

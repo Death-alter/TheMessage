@@ -42,7 +42,7 @@ export class ZuoYouFengYuan extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;

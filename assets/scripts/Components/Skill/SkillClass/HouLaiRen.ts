@@ -65,7 +65,7 @@ export class HouLaiRen extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const showCardsWindow = gui.showCardsWindow;

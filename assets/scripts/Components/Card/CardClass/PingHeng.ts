@@ -28,23 +28,25 @@ export class PingHeng extends Card {
   }
 
   onPlay(gui: GameManager): void {
-    PlayerAction.addTempStep({
-      step: PlayerActionStepName.SELECT_PLAYERS,
-      data: {
-        tooltipText: "请选择平衡的目标",
-        num: 1,
-        filter: (player) => {
-          return player.id !== 0;
+    PlayerAction.switchToGroup("PlayCard")
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          tooltipText: "请选择平衡的目标",
+          num: 1,
+          filter: (player) => {
+            return player.id !== 0;
+          },
+          enabled: () => gui.selectedPlayers.list.length > 0,
         },
-        enabled: () => gui.selectedPlayers.list.length > 0,
-      },
-    }).onComplete((data) => {
-      NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
-        cardId: this.id,
-        playerId: data[0].players[0].id,
-        seq: gui.seq,
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.USE_PING_HENG_TOS, {
+          cardId: this.id,
+          playerId: data[0].players[0].id,
+          seq: gui.seq,
+        });
       });
-    });
   }
 
   onEffect(): void {}

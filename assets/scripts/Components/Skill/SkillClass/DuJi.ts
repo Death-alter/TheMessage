@@ -75,7 +75,7 @@ export class DuJi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         tooltipText: "请选择两名角色",

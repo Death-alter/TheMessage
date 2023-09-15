@@ -49,18 +49,6 @@ export class ShouKouRuPing extends PassiveSkill {
     gameData: GameData,
     { playerId, isUseCard, fromPlayerId, cardType, card, waitingSecond, seq }: skill_wait_for_shou_kou_ru_ping_toc
   ) {
-    if (isUseCard) {
-      const data: any = {
-        userId: fromPlayerId,
-        cardType,
-        card,
-        targetPlayerId: playerId,
-        isActual: card && card.cardId > 0,
-      };
-
-      ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
-    }
-
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
@@ -128,7 +116,7 @@ export class ShouKouRuPing extends PassiveSkill {
 
   onEffect(
     gameData: GameData,
-    { playerId, enable, targetPlayerId, giveCard, isUseCard, fromPlayerId, card }: skill_shou_kou_ru_ping_toc
+    { playerId, enable, targetPlayerId, giveCard, isUseCard, fromPlayerId, card, cardType }: skill_shou_kou_ru_ping_toc
   ) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
@@ -141,6 +129,16 @@ export class ShouKouRuPing extends PassiveSkill {
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList: [handCard] });
 
       if (isUseCard) {
+        const data: any = {
+          userId: fromPlayerId,
+          cardType,
+          card,
+          targetPlayerId: playerId,
+          isActual: <number>cardType === CardType.WEI_BI ? card && card.cardId > 0 : true,
+        };
+
+        ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
+
         const fromPlayer = gameData.playerList[fromPlayerId];
         gameLog.addData(
           new GameLog(

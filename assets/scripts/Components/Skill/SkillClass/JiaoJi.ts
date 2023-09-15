@@ -59,7 +59,7 @@ export class JiaoJi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
     }).onComplete((data) => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAO_JI_A_TOS, {

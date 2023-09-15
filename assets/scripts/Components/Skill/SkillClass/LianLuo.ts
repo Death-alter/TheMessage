@@ -30,7 +30,7 @@ export class LianLuo extends PassiveSkill {
   }
 
   selectMessageDirection({ gui, canCancel }: { gui: GameManager; canCancel: boolean }) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: ({ initial, current }, { next, prev }) => {
           gui.tooltip.setText("请选择情报传递的方向");

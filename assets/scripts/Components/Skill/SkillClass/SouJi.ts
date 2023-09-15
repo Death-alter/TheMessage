@@ -52,7 +52,7 @@ export class SouJi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
     }).onComplete((data) => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_A_TOS, {

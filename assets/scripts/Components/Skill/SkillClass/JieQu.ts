@@ -12,6 +12,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { skill_jie_qu_toc } from "../../../../protobuf/proto";
 import { Player } from "../../Player/Player";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class JieQu extends ActiveSkill {
   private usageCount: number = 0;
@@ -42,6 +43,7 @@ export class JieQu extends ActiveSkill {
   }
 
   dispose() {
+    NetworkEventCenter.off(NetworkEventToC.SKILL_JIE_QU_TOC);
     GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 
@@ -54,35 +56,24 @@ export class JieQu extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
+      step: PlayerActionStepName.SELECT_HAND_CARDS,
+      data: {
+        tooltipText: "请选择一张牌当做【截获】使用",
+        enabled: () => gui.selectedHandCards.list.length > 0,
+      },
+    }).addStep({
       step: new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          const tooltip = gui.tooltip;
-          tooltip.setText(`请选择一张牌当做【截获】使用`);
-          gui.gameLayer.startSelectHandCards({
-            num: 1,
+        handler: (data, { next, passOnPrev }) => {
+          passOnPrev(() => {
+            const tempCard = createCard({
+              id: gui.selectedHandCards.list[0].id,
+              type: CardType.JIE_HUO,
+            });
+            tempCard.onPlay(gui);
+            this.gameObject.isOn = false;
+            next();
           });
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                const addTempStepcard = createCard({
-                  id: gui.selectedHandCards.list[0].id,
-                  type: CardType.JIE_HUO,
-                });
-                addTempStepcard.onPlay(gui);
-                this.gameObject.isOn = false;
-                next();
-              },
-              enabled: () => gui.selectedHandCards.list.length > 0,
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                prev();
-              },
-            },
-          ]);
         },
       }),
     });
@@ -97,6 +88,7 @@ export class JieQu extends ActiveSkill {
       skill: this,
     });
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【截取】`));
+    ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,
