@@ -31,15 +31,16 @@ export class DiaoHuLiShan extends Card {
   }
 
   onPlay(gui: GameManager): void {
-    PlayerAction.addTempStep({
-      step: PlayerActionStepName.SELECT_PLAYERS,
-      data: {
-        tooltipText: "请选择调虎离山的目标",
-        num: 1,
-        enabled: () => gui.selectedPlayers.list.length > 0,
-      },
-    })
-      .addTempStep({
+    PlayerAction.switchToGroup("PlayCard")
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          tooltipText: "请选择调虎离山的目标",
+          num: 1,
+          enabled: () => gui.selectedPlayers.list.length > 0,
+        },
+      })
+      .addStep({
         step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
             const tooltip = gui.tooltip;
@@ -96,7 +97,7 @@ export class DiaoHuLiShan extends Card {
     } else {
       if (targetPlayerId === 0) {
         gameData.cardBanned = true;
-        gameData.bannedCardTypes = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+        gameData.bannedCardTypes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
           gameData.cardBanned = false;
           gameData.bannedCardTypes = [];

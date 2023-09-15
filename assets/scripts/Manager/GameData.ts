@@ -448,12 +448,12 @@ export class GameData extends DataBasic<GameManager> {
     if (data.isActual) {
       if (data.hasOwnProperty("card")) {
         card = this.playerRemoveHandCard(user, data.card);
-        if (data.card === null) {
+        if (data.card === null || card.type !== data.cardType) {
           card = this.createCardByType(data.cardType);
         }
       } else if (data.hasOwnProperty("cardId")) {
         card = this.playerRemoveHandCard(user, data.cardId);
-        if (data.cardId === 0) {
+        if (data.cardId === 0 || card.type !== data.cardType) {
           card = this.createCardByType(data.cardType);
         }
       }

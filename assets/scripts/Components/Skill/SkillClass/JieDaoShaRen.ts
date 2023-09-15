@@ -51,7 +51,7 @@ export class JieDaoShaRen extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         filter: (player: Player) => player.handCardCount > 0,

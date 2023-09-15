@@ -53,10 +53,10 @@ export class GuiZha extends ActiveSkill {
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
     })
-      .addTempStep({
+      .addStep({
         step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
             tooltip.setText(`请选择要执行的操作`);
@@ -88,7 +88,7 @@ export class GuiZha extends ActiveSkill {
           },
         }),
       })
-      .addTempStep({
+      .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev }) => {
             if (current.cardType === CardType.WEI_BI) {

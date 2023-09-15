@@ -288,11 +288,11 @@ export class UILayer extends Component {
                     const flag = this.cardCanPlayed(card);
                     if (flag.banned) {
                       return CardUsableStatus.USABLE;
-                    }else{
-                      if(card.type === CardType.CHENG_QING){
-                        return CardUsableStatus.USABLE
-                      }else{
-                        return CardUsableStatus.UNUSABLE
+                    } else {
+                      if (card.type === CardType.CHENG_QING) {
+                        return CardUsableStatus.USABLE;
+                      } else {
+                        return CardUsableStatus.UNUSABLE;
                       }
                     }
                   },
@@ -302,7 +302,7 @@ export class UILayer extends Component {
                     text: "澄清",
                     onclick: () => {
                       const card = this.manager.selectedHandCards.list[0];
-                      PlayerAction.addTempStep({
+                      PlayerAction.addStep({
                         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
                         data: {
                           title: "请选择一张黑色情报弃置",
@@ -487,8 +487,9 @@ export class UILayer extends Component {
     canCancel?: boolean;
     forceLock?: boolean;
   }) {
+    PlayerAction.switchToGroup("SendMessage");
     UIEventCenter.emit(UIEvent.BEFORE_SEND_MESSAGE, { gui: this.manager, canCancel });
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: new PlayerActionStep({
         name: "selectMessageTarget",
         handler: ({ initial, current }, { next, prev, passOnPrev }) => {
@@ -561,7 +562,7 @@ export class UILayer extends Component {
       },
     });
     if (message.lockable || forceLock) {
-      PlayerAction.addTempStep({
+      PlayerAction.addStep({
         step: new PlayerActionStep({
           name: "selectLockTarget",
           handler: ({ initial, current }, { next, prev }) => {

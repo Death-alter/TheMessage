@@ -58,7 +58,7 @@ export class HuoXin extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         tooltipText: "请选择要查看手牌的角色",

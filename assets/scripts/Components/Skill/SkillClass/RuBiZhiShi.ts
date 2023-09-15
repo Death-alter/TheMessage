@@ -68,7 +68,7 @@ export class RuBiZhiShi extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         tooltipText: "请选择要查看手牌的角色",
@@ -91,7 +91,6 @@ export class RuBiZhiShi extends ActiveSkill {
       player,
       skill: this,
     });
-
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId,
@@ -122,7 +121,7 @@ export class RuBiZhiShi extends ActiveSkill {
 
     PlayerAction.addStep({
       step: new PlayerActionStep({
-        handler: (data, { next, prev, end }) => {
+        handler: (data, { next }) => {
           showCardsWindow.show({
             title: "请选择一张手牌",
             limit: 1,
@@ -131,14 +130,17 @@ export class RuBiZhiShi extends ActiveSkill {
               {
                 text: "弃置",
                 onclick: () => {
-                  NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_BI_ZHI_SHI_B_TOS, {
-                    enable: true,
-                    cardId: showCardsWindow.selectedCards.list[0].id,
-                    useCard: false,
-                    seq: gui.seq,
+                  const cardId = showCardsWindow.selectedCards.list[0].id;
+                  PlayerAction.onComplete(() => {
+                    NetworkEventCenter.emit(NetworkEventToS.SKILL_RU_BI_ZHI_SHI_B_TOS, {
+                      enable: true,
+                      cardId,
+                      useCard: false,
+                      seq: gui.seq,
+                    });
                   });
                   showCardsWindow.hide();
-                  end();
+                  next();
                 },
                 enabled: () => showCardsWindow.selectedCards.list.length > 0,
               },
@@ -200,14 +202,17 @@ export class RuBiZhiShi extends ActiveSkill {
                     {
                       text: "确定",
                       onclick: () => {
-                        NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-                          use: true,
-                          cardId: card.id,
-                          targetCardId: showCardsWindow.selectedCards.list[0].id,
-                          seq: gui.seq,
+                        const targetCardId = showCardsWindow.selectedCards.list[0].id;
+                        PlayerAction.onComplete(() => {
+                          NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                            use: true,
+                            cardId: card.id,
+                            targetCardId,
+                            seq: gui.seq,
+                          });
                         });
                         showCardsWindow.hide();
-                        end();
+                        next();
                       },
                       enabled: () =>
                         showCardsWindow.selectedCards.list.length > 0 &&

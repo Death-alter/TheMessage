@@ -67,16 +67,17 @@ export class SkillButton extends GameObject<Skill> {
           UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
           if (this.isOn) {
             this.isOn = false;
-            PlayerAction.clearTemp();
+            PlayerAction.switchToGroup("default");
           } else {
             this.isOn = true;
-            PlayerAction.addTempStep({
-              step: PlayerActionStepName.CONFIRM_USE_SKILL,
-              data: {
-                tooltipText: `是否使用【${skill.name}】？`,
-                enabled: skill.canUse,
-              },
-            })
+            PlayerAction.switchToGroup("UseSkill")
+              .addStep({
+                step: PlayerActionStepName.CONFIRM_USE_SKILL,
+                data: {
+                  tooltipText: `是否使用【${skill.name}】？`,
+                  enabled: skill.canUse,
+                },
+              })
               .onCancel(() => {
                 this.isOn = false;
               })

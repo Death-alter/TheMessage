@@ -38,18 +38,19 @@ export class ChengQing extends Card {
 
   onPlay(gui: GameManager) {
     const showCardsWindow = gui.showCardsWindow;
-    PlayerAction.addTempStep({
-      step: PlayerActionStepName.SELECT_PLAYERS,
-      data: {
-        num: 1,
-        filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
-        enabled: () => gui.selectedPlayers.list.length > 0,
-      },
-      resolver: (data) => {
-        return { playerId: data.players[0].id };
-      },
-    })
-      .addTempStep({
+    PlayerAction.switchToGroup("PlayCard")
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          num: 1,
+          filter: (player: Player) => player.messageCounts[CardColor.BLACK] > 0,
+          enabled: () => gui.selectedPlayers.list.length > 0,
+        },
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
+      })
+      .addStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
         data: {
           tooltipText: "请选择一张黑色情报弃置",

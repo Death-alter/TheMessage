@@ -46,18 +46,19 @@ export class MiLing extends Card {
   }
 
   onPlay(gui: GameManager): void {
-    PlayerAction.addTempStep({
-      step: PlayerActionStepName.SELECT_PLAYERS,
-      data: {
-        tooltipText: "请选择密令的目标",
-        num: 1,
-        filter: (player: Player) => {
-          return player.handCardCount > 0 && player.id !== 0;
+    PlayerAction.switchToGroup("PlayCard")
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          tooltipText: "请选择密令的目标",
+          num: 1,
+          filter: (player: Player) => {
+            return player.handCardCount > 0 && player.id !== 0;
+          },
+          enabled: () => gui.selectedPlayers.list.length > 0,
         },
-        enabled: () => gui.selectedPlayers.list.length > 0,
-      },
-    })
-      .addTempStep({
+      })
+      .addStep({
         step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
             const tooltip = gui.tooltip;

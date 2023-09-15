@@ -40,11 +40,11 @@ export class YingBian extends ActiveSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_YING_BIAN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_ZHENG_DUO_TOC);
   }
 
   onUse(gui: GameManager) {
-    PlayerAction.addTempStep({
+    PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
         tooltipText: "请选择一张【截获】当做【误导】使用",
@@ -55,21 +55,19 @@ export class YingBian extends ActiveSkill {
             return CardUsableStatus.UNUSABLE;
           }
         },
+        enabled: () => gui.selectedHandCards.list.length > 0,
       },
-    }).addTempStep({
+    }).addStep({
       step: new PlayerActionStep({
         handler: (data, { next, passOnPrev }) => {
           passOnPrev(() => {
-            const card = gui.selectedHandCards.list[0];
-            if (card.type === CardType.JIE_HUO) {
-              const card = createCard({
-                id: gui.selectedHandCards.list[0].id,
-                type: CardType.WU_DAO,
-              });
-              card.onPlay(gui);
-              this.gameObject.isOn = false;
-              next();
-            }
+            const card = createCard({
+              id: gui.selectedHandCards.list[0].id,
+              type: CardType.WU_DAO,
+            });
+            card.onPlay(gui);
+            this.gameObject.isOn = false;
+            next();
           });
         },
       }),
