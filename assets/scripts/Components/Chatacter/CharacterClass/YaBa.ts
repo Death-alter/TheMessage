@@ -1,19 +1,19 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { MiXin } from "../../Skill/SkillClass/MiXin";
-import { ZhengDuo } from "../../Skill/SkillClass/ZhengDuo";
+import { ShouKouRuPing } from "../../Skill/SkillClass/ShouKouRuPing";
+import { HanHouLaoShi } from "../../Skill/SkillClass/HanHouLaoShi";
 
-export class AdultHanMei extends Character {
+export class YaBa extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 2014,
-      name: "成年韩梅",
+      id: 40,
+      name: "哑巴",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.MALE,
       gameObject: gameObject,
     });
-    this.setSkills([new MiXin(this), new ZhengDuo(this)]);
+    this.setSkills([new ShouKouRuPing(this), new HanHouLaoShi(this)]);
   }
 }

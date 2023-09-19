@@ -1,18 +1,19 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { ShouKouRuPing } from "../../Skill/SkillClass/ShouKouRuPing";
+import { LianLuo2 } from "../../Skill/SkillClass/LianLuo2";
+import { ShunShiErWei } from "../../Skill/SkillClass/ShunShiErWei";
 
-export class YaPao extends Character {
+export class MiddleAgeXiaoJiu extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 40,
-      name: "哑炮",
+      id: 2027,
+      name: "中年小九",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       gameObject: gameObject,
     });
-    this.setSkills([new ShouKouRuPing(this)]);
+    this.setSkills([new LianLuo2(this), new ShunShiErWei(this)]);
   }
 }

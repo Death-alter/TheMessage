@@ -19,7 +19,7 @@ export class LianLuo2 extends TriggerSkill {
     super({
       name: "联络",
       character,
-      description: "你接收单色情报后，可以将一张与该情报颜色不同的手牌置入传出者的情报区，然后摸两张牌。",
+      description: "你接收单色情报后，可以翻开此角色，将一张与该情报颜色不同的手牌置入传出者的情报区，然后摸两张牌。",
     });
   }
 

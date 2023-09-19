@@ -9,8 +9,6 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class BoAi extends ActiveSkill {
   private usageCount: number = 0;

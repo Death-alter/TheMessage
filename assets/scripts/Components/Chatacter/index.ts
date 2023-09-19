@@ -48,10 +48,10 @@ import { LaoHu } from "./CharacterClass/LaoHu";
 import { DuanMuJingSP } from "./CharacterClass/DuanMuJingSP";
 import { XiaoJiuSP } from "./CharacterClass/XiaoJiuSP";
 import { SuJiYuan } from "./CharacterClass/SuJiYuan";
-import { YaPao } from "./CharacterClass/YaPao";
+import { YaBa } from "./CharacterClass/YaBa";
 import { LaoQian } from "./CharacterClass/LaoQian";
-import { AdultHanMei } from "./CharacterClass/AdultHanMei";
-import { AdultXiaoJiu } from "./CharacterClass/AdultXiaoJiu";
+import { MiddleAgeHanMei } from "./CharacterClass/MiddleAgeHanMei";
+import { MiddleAgeXiaoJiu } from "./CharacterClass/MiddleAgeXiaoJiu";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -94,7 +94,7 @@ charactersMap[36] = GaoQiaoZhiZi;
 charactersMap[37] = JianXianSheng;
 charactersMap[38] = LaoHu;
 charactersMap[39] = SuJiYuan;
-charactersMap[40] = YaPao;
+charactersMap[40] = YaBa;
 charactersMap[41] = LaoQian;
 charactersMap[1002] = ChengXiaoDieSP;
 charactersMap[1003] = LianYuanSP;
@@ -103,8 +103,8 @@ charactersMap[1020] = GuXiaoMengSP;
 charactersMap[1022] = DuanMuJingSP;
 charactersMap[1027] = XiaoJiuSP;
 charactersMap[1028] = LiNingYuSP;
-charactersMap[2014] = AdultHanMei;
-charactersMap[2027] = AdultXiaoJiu;
+charactersMap[2014] = MiddleAgeHanMei;
+charactersMap[2027] = MiddleAgeXiaoJiu;
 
 export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {
   if (charactersMap[id]) {

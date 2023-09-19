@@ -12,8 +12,6 @@ import { CharacterStatus } from "../../Chatacter/type";
 import { Card } from "../../Card/Card";
 import { CardColor } from "../../Card/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class GongFen extends ActiveSkill {
   private count = 0;

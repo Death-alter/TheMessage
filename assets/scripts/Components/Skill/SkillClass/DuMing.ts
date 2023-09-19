@@ -1,13 +1,6 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import {
-  color,
-  skill_du_ming_a_toc,
-  skill_du_ming_b_toc,
-  skill_jiang_hu_ling_a_toc,
-  skill_jiang_hu_ling_b_toc,
-  skill_wait_for_jiang_hu_ling_b_toc,
-} from "../../../../protobuf/proto";
+import { skill_du_ming_a_toc, skill_du_ming_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
@@ -20,7 +13,6 @@ import { Card } from "../../Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuMing extends TriggerSkill {
   constructor(character: Character) {
@@ -190,11 +182,11 @@ export class DuMing extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText("请选择一张黑色手牌置入情报区");
+          tooltip.setText("请选择一张纯黑色手牌置入情报区");
           gui.gameLayer.startSelectHandCards({
             num: 1,
             filter: (card: Card) => {
-              if (Card.hasColor(card, CardColor.BLACK)) {
+              if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
                 return CardUsableStatus.USABLE;
               } else {
                 return CardUsableStatus.UNUSABLE;
