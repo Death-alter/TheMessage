@@ -192,6 +192,7 @@ export class GameLayer extends Component {
         player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#FFFFFF");
         player.gameObject.hideInnerGlow();
       }
+      player.gameObject.setSkillOnUse(null);
     }
   }
 

@@ -234,22 +234,25 @@ export class JiangHuLing extends TriggerSkill {
     );
   }
 
-  onEffectB(gameData: GameData, { playerId, cardId }: skill_jiang_hu_ling_b_toc) {
+  onEffectB(gameData: GameData, { playerId, cardId, enable }: skill_jiang_hu_ling_b_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameLog;
-    const messagePlayer = gameData.playerList[gameData.messagePlayerId];
+    if (enable) {
+      const gameLog = gameData.gameLog;
+      const messagePlayer = gameData.playerList[gameData.messagePlayerId];
 
-    const message = messagePlayer.removeMessage(cardId);
+      const message = messagePlayer.removeMessage(cardId);
 
-    GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: messagePlayer, messageList: [message] });
+      GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: messagePlayer, messageList: [message] });
 
-    gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(messagePlayer)}的情报区弃置${gameLog.formatCard(
-          message
-        )}`
-      )
-    );
+      gameLog.addData(
+        new GameLog(
+          `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(messagePlayer)}的情报区弃置${gameLog.formatCard(
+            message
+          )}`
+        )
+      );
+    }
+
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

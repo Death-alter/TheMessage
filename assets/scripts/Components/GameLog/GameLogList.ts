@@ -106,6 +106,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
+    GameEventCenter.on(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
 
   unregisterEvents() {
@@ -117,6 +118,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
+    GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
 
   onPlayerDrawCard({ cardList, player }: GameEventType.PlayerDrawCard) {
@@ -180,5 +182,9 @@ export class GameLogList extends DataContainer<GameLog> {
 
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
     this.addData(new GameLog(`情报转移至${this.formatPlayer(messagePlayer)}`));
+  }
+
+  onMessageRemoved(message) {
+    this.addData(new GameLog(`传递中的情报${this.formatCard(message)}被弃置`));
   }
 }

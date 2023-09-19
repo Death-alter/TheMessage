@@ -83,10 +83,11 @@ export class MiaoShou extends ActiveSkill {
       skill: this,
     });
 
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手】`));
+
     const message = gameData.createMessage(messageCard);
     gameData.messageInTransmit = message;
     message.gameObject = gameData.messageInTransmit.gameObject;
-
     GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, message);
 
     if (playerId === 0) {
@@ -99,9 +100,6 @@ export class MiaoShou extends ActiveSkill {
         },
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手】`));
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}弃置了待收情报${gameLog.formatCard(message)}`));
   }
 
   promptSelectCard(gui: GameManager, params) {

@@ -1,6 +1,6 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
-import { CardActionLocation, GamePhase } from "../../../Manager/type";
+import { GamePhase } from "../../../Manager/type";
 import { skill_ji_song_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type";
