@@ -10,6 +10,7 @@ import { Skill } from "../Skill/Skill";
 import { IdentityObject } from "../Identity/IdentityObject";
 import { UIEventCenter } from "../../Event/EventTarget";
 import { UIEvent } from "../../Event/type";
+import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 
 const { ccclass, property } = _decorator;
 
@@ -106,7 +107,6 @@ export class PlayerObject extends GameObject<Player> {
       this.node.getChildByPath("Border/Identity").on(
         "longtap",
         () => {
-          console.log(1);
           this.selectIdentity();
         },
         this
@@ -115,7 +115,7 @@ export class PlayerObject extends GameObject<Player> {
       this.node.getChildByPath("Border/Identity").on(
         Node.EventType.MOUSE_UP,
         (event: EventMouse) => {
-          if (this.data.identityList.length > 1) {
+          if (this.data.identityList.length > 1 || this.data.identityList[0] instanceof MysteriousPerson) {
             if (event.getButton() === EventMouse.BUTTON_LEFT) {
               this.changeSelectedIdentity();
             } else if (event.getButton() === EventMouse.BUTTON_RIGHT) {
@@ -243,8 +243,9 @@ export class PlayerObject extends GameObject<Player> {
 
   changeSelectedIdentity(identity?: Identity) {
     if (!this._enableSelectIdentity) return;
+    console.log(identity, this.data.identityList);
     const identityObject = this.identityNode.getComponent(IdentityObject);
-    if (identity) {
+    if (identity !== undefined) {
       identityObject.data = identity;
     } else if (!this.data) {
       return;
