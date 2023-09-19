@@ -65,11 +65,11 @@ export class MiXin extends TriggerSkill {
         data: {
           filter: (card: Card) => {
             const messages = gui.data.selfPlayer.getMessagesCopy();
-            const color = messages[messages.length - 1];
+            const color = messages[messages.length - 1].color;
             if (Card.hasColor(card, color[0]) || Card.hasColor(card, color[1])) {
-              return CardUsableStatus.UNUSABLE;
-            } else {
               return CardUsableStatus.USABLE;
+            } else {
+              return CardUsableStatus.UNUSABLE;
             }
           },
         },

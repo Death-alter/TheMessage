@@ -8,13 +8,6 @@ import { Player } from "../../Player/Player";
 import { skill_shun_shi_er_wei_toc } from "../../../../protobuf/proto";
 
 export class ShunShiErWei extends PassiveSkill {
-  private usageCount: number = 0;
-  private isSelfTurn: boolean = false;
-
-  get useable() {
-    return this.usageCount === 0 && !this.isSelfTurn;
-  }
-
   constructor(character: Character) {
     super({
       name: "顺势而为",

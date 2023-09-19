@@ -26,7 +26,7 @@ export class HanHouLaoShi extends PassiveSkill {
 
   init(gameData: GameData, player) {
     if (player.id === 0) {
-      UIEventCenter.on(UIEvent.BEFORE_SEND_MESSAGE, this.onSelectMessageToSend, this);
+      UIEventCenter.on(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.onSelectMessageToSend, this);
     }
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_HAN_HOU_LAO_SHI_TOC,
@@ -34,7 +34,7 @@ export class HanHouLaoShi extends PassiveSkill {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.messagePlayerId,
           second: data.waitingSecond,
-          type: WaitingType.USE_SKILL,
+          type: WaitingType.HANDLE_SKILL,
           seq: data.seq,
           params: {
             skill: this,
@@ -70,22 +70,28 @@ export class HanHouLaoShi extends PassiveSkill {
   }
 
   dispose() {
-    UIEventCenter.off(UIEvent.BEFORE_SEND_MESSAGE, this.onSelectMessageToSend, this);
+    UIEventCenter.off(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.onSelectMessageToSend, this);
     NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_HAN_HOU_LAO_SHI_TOC);
     NetworkEventCenter.off(NetworkEventToC.SKILL_HAN_HOU_LAO_SHI_TOC);
   }
 
   onSelectMessageToSend(gui: GameManager) {
+    const handCards = [...gui.data.handCardList.list];
+    let flag = true;
+    for (let card of handCards) {
+      if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
+        flag = false;
+      }
+    }
+
     PlayerAction.clear();
     PlayerAction.addStep({
       step: new PlayerActionStep({
-        handler: ({ initial }, { next, prev }) => {
-          const { tooltipText, filter } = initial;
-          gui.tooltip.setText(tooltipText);
+        handler: (data, { next, prev }) => {
+          gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
           gui.tooltip.buttons.setButtons([]);
           gui.gameLayer.startSelectHandCards({
             num: 1,
-            filter,
             onSelect: (card: Card) => {
               gui.tooltip.setText(`请选择一项操作`);
               gui.tooltip.buttons.setButtons([
@@ -105,12 +111,12 @@ export class HanHouLaoShi extends PassiveSkill {
                     gui.uiLayer.doSendMessage({ message: card });
                     next();
                   },
-                  enabled: () => !(card.color.length === 1 && card.color[0] === CardColor.BLACK),
+                  enabled: () => flag || !(card.color.length === 1 && card.color[0] === CardColor.BLACK),
                 },
               ]);
             },
             onDeselect: (card: Card) => {
-              gui.tooltip.setText(tooltipText);
+              gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
               gui.tooltip.buttons.setButtons([]);
             },
           });

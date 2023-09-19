@@ -44,8 +44,14 @@ export class MiaoShouKuaiJi extends PassiveSkill {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
 
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手快记】`));
+
     const discardPileCard = gameData.createCard(card);
     gameData.playerAddHandCard(player, discardPileCard);
+
+    gameLog.addData(
+      new GameLog(`${gameLog.formatPlayer(player)}把弃牌堆顶的${gameLog.formatCard(discardPileCard)}加入手牌`)
+    );
 
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,
@@ -62,14 +68,13 @@ export class MiaoShouKuaiJi extends PassiveSkill {
         skill: this,
       },
     });
+
     if (playerId === 0) {
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
         handler: "selectDiscardCard",
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手快记】`));
   }
 
   selectDiscardCard(gui: GameManager) {

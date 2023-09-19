@@ -176,7 +176,7 @@ export class UILayer extends Component {
               tooltipText: "传递阶段，请选择要传递的情报或要使用的卡牌",
             },
           }).start();
-          UIEventCenter.emit(UIEvent.ON_SELECT_MESSAGE_TO_SEND, { gui: this.manager });
+          UIEventCenter.emit(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.manager);
           break;
         case WaitingType.RECEIVE_MESSAGE:
           PlayerAction.addStep({

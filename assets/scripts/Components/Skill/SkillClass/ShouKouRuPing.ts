@@ -52,9 +52,7 @@ export class ShouKouRuPing extends PassiveSkill {
     }
 
     ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
-    const cardText = gameLog.formatCard(
-      unknownCardCount > 0 ? gameData.createCard(card) : gameData.createCardByType(<number>cardType)
-    );
+    const cardText = gameLog.formatCard(card ? gameData.createCard(card) : gameData.createCardByType(<number>cardType));
 
     if (cardPlayerId) {
       const cardPlayer = gameData.playerList[cardPlayerId];
