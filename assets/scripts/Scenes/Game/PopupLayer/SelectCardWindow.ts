@@ -14,53 +14,43 @@ import { Card } from "../../../Components/Card/Card";
 import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
 import { DataContainer } from "../../../Components/Container/DataContainer";
 import GamePools from "../../../Components/Pool/GamePools";
-import DynamicButtons, { ButtonConfig } from "../../../Components/Utils/DynamicButtons";
 import { SelectedList } from "../../../Utils/SelectedList";
 import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 const { ccclass, property } = _decorator;
 
-export interface ShowCardsOptions {
+export interface SelectCardsOptions {
   title?: string;
   limit: number;
-  cardList?: Card[];
-  buttons?: ButtonConfig[];
+  cardList?: () => Card[];
   tags?: string[];
 }
 
-@ccclass("ShowCardsWindow")
-export class ShowCardsWindow extends Component {
+@ccclass("SelectCardsWindow")
+export class SelectCardsWindow extends Component {
   @property(Node)
   cardContainer: Node | null = null;
-  @property(Node)
-  buttonNode: Node | null = null;
   @property(Node)
   title: Node | null = null;
 
   public cardList = new DataContainer<Card>();
   public selectedCards: SelectedList<Card> = new SelectedList<Card>();
-  public buttons: DynamicButtons;
   public isActive = true;
 
   onLoad() {
     this.cardContainer.addComponent(CardGroupObject);
     this.cardList.gameObject = this.cardContainer.getComponent(CardGroupObject);
-    this.buttons = this.buttonNode.getComponent(DynamicButtons);
-    this.buttons.init(this);
   }
 
-  show(options?: ShowCardsOptions) {
+  show(options?: SelectCardsOptions) {
     if (!this.isActive) return;
     this.node.active = true;
     if (options) {
-      const { title, cardList, buttons, limit, tags } = options;
+      const { title, cardList, limit, tags } = options;
       if (title) {
         this.setTitle(title);
       }
       if (cardList) {
-        this.setCardList(cardList, tags);
-      }
-      if (buttons) {
-        this.buttons.setButtons(buttons);
+        this.setCardList(cardList(), tags);
       }
       if (limit) {
         this.selectedCards.limit = limit;
