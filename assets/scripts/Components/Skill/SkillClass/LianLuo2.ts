@@ -19,7 +19,7 @@ export class LianLuo2 extends TriggerSkill {
     super({
       name: "联络",
       character,
-      description: "你接收单色情报后，可以翻开此角色，将一张与该情报颜色不同的手牌置入传出者的情报区，然后摸两张牌。",
+      description: "你接收单色情报后，可以翻开此角色，将一张含有不同颜色的手牌置入传出者的情报区，然后摸两张牌。",
     });
   }
 
@@ -66,10 +66,10 @@ export class LianLuo2 extends TriggerSkill {
           filter: (card: Card) => {
             const messages = gui.data.selfPlayer.getMessagesCopy();
             const color = messages[messages.length - 1].color[0];
-            if (Card.hasColor(card, color)) {
-              return CardUsableStatus.UNUSABLE;
-            } else {
+            if (card.color.length > 1 || card.color[0] !== color) {
               return CardUsableStatus.USABLE;
+            } else {
+              return CardUsableStatus.UNUSABLE;
             }
           },
         },
