@@ -39,7 +39,7 @@ export class SelectCharacter extends Component {
   private characterList: Character[] = [];
   private selectedCharacterIndex: number;
 
-  init(data: InitOption, conform) {
+  init(data: InitOption, confirm) {
     //生成提示文字
     const { identity, roles, waitingSecond } = data;
     if (identity) {
@@ -114,8 +114,8 @@ export class SelectCharacter extends Component {
 
     //按钮绑定点击事件
     this.confirmButton.node.on(Node.EventType.TOUCH_END, (event) => {
-      if (this.selectedCharacterIndex == undefined) return;
-      conform(this.characterTypes[this.selectedCharacterIndex]);
+      if (typeof this.selectedCharacterIndex !== "number" || this.selectedCharacterIndex < 0) return;
+      confirm(this.characterTypes[this.selectedCharacterIndex]);
     });
 
     //显示窗口并开始倒计时
@@ -123,16 +123,12 @@ export class SelectCharacter extends Component {
 
     //倒计时结束自动选择当前选中人物
     this.node.getChildByName("Progress").getComponent(ProgressControl).startCountDown(waitingSecond);
-    // () => {
-    //   if (this.selectedCharacterIndex == undefined) return;
-    //   conform(this.characterTypes[this.selectedCharacterIndex]);
-    // }
   }
 
   show() {
     this.node.active = true;
     this.confirmButton.node.active = true;
-    ProcessEventCenter.on(ProcessEvent.CONFORM_SELECT_CHARACTER, (data) => {
+    ProcessEventCenter.on(ProcessEvent.CONFIRM_SELECT_CHARACTER, (data) => {
       for (let i = 0; i < this.charcaterNodeList.children.length; i++) {
         const node = this.charcaterNodeList.children[i];
         node.off(Node.EventType.TOUCH_END);
@@ -144,7 +140,7 @@ export class SelectCharacter extends Component {
 
   hide() {
     this.node.getChildByName("Progress").getComponent(ProgressControl).stopCountDown();
-    ProcessEventCenter.off(ProcessEvent.CONFORM_SELECT_CHARACTER);
+    ProcessEventCenter.off(ProcessEvent.CONFIRM_SELECT_CHARACTER);
     this.node.active = false;
   }
 

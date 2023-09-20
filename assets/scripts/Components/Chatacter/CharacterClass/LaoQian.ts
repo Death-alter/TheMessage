@@ -8,7 +8,7 @@ export class LaoQian extends Character {
     super({
       id: 41,
       name: "老千",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/LaoQian",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

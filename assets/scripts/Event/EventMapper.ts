@@ -100,7 +100,7 @@ export class EventMapper {
       });
     });
     NetworkEventCenter.on(NetworkEventToC.SELECT_ROLE_TOC, (data: ProtobufType.select_role_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.CONFORM_SELECT_CHARACTER, {
+      ProcessEventCenter.emit(ProcessEvent.CONFIRM_SELECT_CHARACTER, {
         characterId: data.role,
       });
     });

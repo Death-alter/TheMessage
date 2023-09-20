@@ -314,7 +314,7 @@ export enum ProcessEvent {
   START_UNLOAD_GAME_SCENE = "start_unload_game_scene",
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
-  CONFORM_SELECT_CHARACTER = "conform_select_character",
+  CONFIRM_SELECT_CHARACTER = "conform_select_character",
   GET_PHASE_DATA = "get_phase_data",
   SYNC_DECK_NUM = "sync_deck_num",
   DRAW_CARDS = "draw_cards",

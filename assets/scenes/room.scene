@@ -2105,7 +2105,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": -6,
-      "y": 0,
+      "y": 4,
       "z": 0
     },
     "_lrot": {
@@ -2159,7 +2159,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 142,
+      "y": 146,
       "z": 0
     },
     "_lrot": {
@@ -2813,7 +2813,7 @@
     "cancelInnerEvents": true,
     "scrollEvents": [],
     "_content": {
-      "__id__": 55
+      "__id__": 54
     },
     "_horizontalScrollBar": null,
     "_verticalScrollBar": {
