@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, ScrollView } from "cc";
+import { _decorator, Node, Prefab, instantiate, ScrollView, UITransform } from "cc";
 import { GameObjectContainer } from "../../../Components/Container/GameObjectContainer";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { GameLogMessageObject } from "../../../Components/GameLog/GameLogMessageObject";
@@ -12,19 +12,26 @@ export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
 
   public viewContent: Node;
 
-  onEnable() {
-    this.scheduleOnce(() => {
-      this.getComponentInChildren(ScrollView).scrollToBottom(0);
-    });
-  }
-
-  init() {
-    this.viewContent = this.node.getChildByPath("ScrollView/view/content");
-
+  onLoad() {
     this.node.getChildByName("CloseButton").on(Node.EventType.TOUCH_END, () => {
       this.node.active = false;
     });
   }
+
+  onEnable() {
+    const view = this.node.getChildByPath("ScrollView/view");
+    const content = view.getChildByName("content");
+    if (content.getComponent(UITransform).height > view.getComponent(UITransform).height) {
+      this.scheduleOnce(() => {
+        this.getComponentInChildren(ScrollView).scrollToBottom(0);
+      });
+    }
+  }
+
+  init() {
+    this.viewContent = this.node.getChildByPath("ScrollView/view/content");
+  }
+
   onDataAdded(data: GameLog): void {
     const object = instantiate(this.logPrefab);
     data.gameObject = <GameLogTextObject & GameLogMessageObject>object.getComponent(GameLogTextObject);
