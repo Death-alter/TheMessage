@@ -16,6 +16,7 @@ import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { CardColor } from "../../Card/type";
 
 export class DuiZhengXiaoYao extends ActiveSkill {
   constructor(character: Character) {
@@ -78,7 +79,6 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
@@ -95,6 +95,19 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   }
 
   promptShowHandCards(gui: GameManager) {
+    const totalCounts: { [key in CardColor]: number } = {
+      [CardColor.BLACK]: 0,
+      [CardColor.RED]: 0,
+      [CardColor.BLUE]: 0,
+    };
+    for (let player of gui.data.playerList) {
+      if (player.id !== 0) {
+        totalCounts[CardColor.BLACK] += player.messageCounts[CardColor.BLACK];
+        totalCounts[CardColor.RED] += player.messageCounts[CardColor.RED];
+        totalCounts[CardColor.BLUE] += player.messageCounts[CardColor.BLUE];
+      }
+    }
+
     const tooltip = gui.tooltip;
     tooltip.setText("请选择两张含有相同颜色的手牌展示");
     gui.gameLayer.startSelectHandCards({
@@ -116,7 +129,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
           if (list.length < 2) return false;
           for (let color0 of list[0].color) {
             for (let color1 of list[1].color) {
-              if (color0 === color1) return true;
+              if (color0 === color1 && totalCounts[color0] > 0) return true;
             }
           }
           return false;

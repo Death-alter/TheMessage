@@ -451,12 +451,12 @@ export class CardAction extends Component {
     });
   }
 
-  discardMessage(message) {
+  discardMessage(message: Card) {
     return new Promise(async (resolve, reject) => {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
-      await message.flip();
+      if (message.status === CardStatus.FACE_DOWN) await message.flip();
       await this.moveNode({
         node: message.gameObject.node,
         to: { location: CardActionLocation.DISCARD_PILE },

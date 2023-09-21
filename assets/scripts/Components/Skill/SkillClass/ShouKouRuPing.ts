@@ -43,9 +43,9 @@ export class ShouKouRuPing extends PassiveSkill {
     });
 
     const data: any = {
-      userId: cardPlayerId != null ? cardPlayerId : playerId,
+      userId: cardPlayerId,
       cardType,
-      targetPlayerId: cardPlayerId != null ? playerId : cardTargetPlayerId,
+      targetPlayerId: cardTargetPlayerId,
       isActual: (card && card.cardId > 0) || unknownCardCount > 0,
     };
     if (unknownCardCount > 0) {

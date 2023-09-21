@@ -22,6 +22,10 @@ export class JieHuo extends Card {
     });
   }
 
+  canPlay(gui: GameManager) {
+    return true;
+  }
+
   onPlay(gui: GameManager): void {
     NetworkEventCenter.emit(NetworkEventToS.USE_JIE_HUO_TOS, {
       cardId: this.id,

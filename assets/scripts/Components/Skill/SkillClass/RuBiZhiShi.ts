@@ -157,16 +157,13 @@ export class RuBiZhiShi extends ActiveSkill {
                   ) {
                     return false;
                   }
-                  switch (showCardsWindow.selectedCards.list[0].type) {
-                    case CardType.JIE_HUO:
-                      return gui.data.messagePlayerId !== targetPlayer.id;
-                    case CardType.CHENG_QING:
-                      for (let player of gui.data.playerList) {
-                        if (player.messageCounts[CardColor.BLACK] > 0) {
-                          return true;
-                        }
+                  if (showCardsWindow.selectedCards.list[0].type === CardType.CHENG_QING) {
+                    for (let player of gui.data.playerList) {
+                      if (player.messageCounts[CardColor.BLACK] > 0) {
+                        return true;
                       }
-                      return false;
+                    }
+                    return false;
                   }
                   return true;
                 },

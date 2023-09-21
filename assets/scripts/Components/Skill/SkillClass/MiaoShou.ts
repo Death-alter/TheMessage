@@ -53,7 +53,7 @@ export class MiaoShou extends ActiveSkill {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
-        filter: (player: Player) => player.handCardCount > 0,
+        filter: (player: Player) => player.handCardCount + player.messageCounts.total > 0,
       },
     }).onComplete((data) => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_A_TOS, {

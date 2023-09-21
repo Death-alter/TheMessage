@@ -59,7 +59,7 @@ export class YuSiWangPo extends ActiveSkill {
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
         tooltipText: "请选择至少一张手牌弃置",
-        num: gui.selectedHandCards.list.length,
+        num: gui.data.selfPlayer.handCardCount,
         enabled: () => gui.selectedHandCards.list.length > 0,
       },
     })

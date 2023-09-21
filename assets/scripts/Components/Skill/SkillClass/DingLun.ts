@@ -43,7 +43,7 @@ export class DingLun extends ActiveSkill {
   }
 
   canUse(gui: GameManager) {
-    return gui.data.messagePlayerId === this.character.id;
+    return gui.data.messagePlayerId === gui.data.selfPlayer.id;
   }
 
   onUse(gui: GameManager) {

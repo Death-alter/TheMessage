@@ -61,10 +61,12 @@ export class Player extends DataBasic<PlayerObject> {
   }
 
   get messageCounts() {
-    const data: any = { total: this._messages.length };
-    data[CardColor.BLACK] = 0;
-    data[CardColor.RED] = 0;
-    data[CardColor.BLUE] = 0;
+    const data: { [key in CardColor]: number } & { total: number } = {
+      total: this._messages.length,
+      [CardColor.BLACK]: 0,
+      [CardColor.RED]: 0,
+      [CardColor.BLUE]: 0,
+    };
     for (let message of this._messages) {
       for (let color of message.color) {
         ++data[color];

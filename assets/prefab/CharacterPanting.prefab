@@ -621,7 +621,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 28,
+      "width": 26,
       "height": 100
     },
     "_anchorPoint": {
@@ -659,11 +659,11 @@
     "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_actualFontSize": 20,
+    "_actualFontSize": 21,
     "_fontSize": 20,
     "_fontFamily": "黑体",
     "_lineHeight": 22,
-    "_overflow": 1,
+    "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,
     "_isSystemFontUsed": true,
