@@ -112,7 +112,6 @@ export class JiaoJi extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【交际】`));
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}抽取了${gameLog.formatPlayer(targetPlayer)}${handCards.length}张手牌`)
     );

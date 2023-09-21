@@ -75,14 +75,12 @@ export class YingBian extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_ying_bian_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    console.log("应变")
+
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【应变】`));
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

@@ -122,7 +122,6 @@ export class LianMin extends TriggerSkill {
       from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【怜悯】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(

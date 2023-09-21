@@ -71,8 +71,6 @@ export class GongFen extends ActiveSkill {
           ++this.total;
         }
       }
-
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【共焚】`));
     }
 
     const topCard = gameData.createCard(card);

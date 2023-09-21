@@ -168,7 +168,6 @@ export class YiHuaJieMu extends ActiveSkill {
     const fromPlayer = gameData.playerList[fromPlayerId];
     const toPlayer = gameData.playerList[toPlayerId];
     const message = fromPlayer.removeMessage(cardId);
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【移花接木】`));
 
     if (joinIntoHand) {
       gameData.playerAddHandCard(player, message);

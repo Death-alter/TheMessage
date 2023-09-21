@@ -109,7 +109,6 @@ export class LianLuo2 extends TriggerSkill {
       },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【联络】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(

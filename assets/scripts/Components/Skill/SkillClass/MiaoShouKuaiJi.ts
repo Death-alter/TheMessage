@@ -43,9 +43,11 @@ export class MiaoShouKuaiJi extends PassiveSkill {
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_miao_shou_kuai_ji_a_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手快记】`));
-
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+    
     const discardPileCard = gameData.createCard(card);
     gameData.playerAddHandCard(player, discardPileCard);
 

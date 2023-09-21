@@ -84,7 +84,6 @@ export class YunChouWeiWo extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【运筹帷幄】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看牌堆顶的五张牌`));
   }
 

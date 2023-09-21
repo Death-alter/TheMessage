@@ -88,8 +88,6 @@ export class JiBan extends ActiveSkill {
         },
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【羁绊】`));
   }
 
   promptSelectHandCard(gui: GameManager, params) {

@@ -126,7 +126,6 @@ export class ZhuanJiao extends TriggerSkill {
       from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【转交】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把情报${gameLog.formatCard(message)}置入${gameLog.formatPlayer(

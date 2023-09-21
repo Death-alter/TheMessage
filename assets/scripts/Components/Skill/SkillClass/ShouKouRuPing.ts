@@ -1,6 +1,6 @@
 import { skill_shou_kou_ru_ping_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Character } from "../../Chatacter/Character";
 import { GameLog } from "../../GameLog/GameLog";
@@ -37,7 +37,10 @@ export class ShouKouRuPing extends PassiveSkill {
   ) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【守口如瓶】`));
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     const data: any = {
       userId: cardPlayerId != null ? cardPlayerId : playerId,
@@ -60,5 +63,10 @@ export class ShouKouRuPing extends PassiveSkill {
     } else {
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用的${cardText}无效`));
     }
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

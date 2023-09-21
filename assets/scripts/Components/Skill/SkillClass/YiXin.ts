@@ -110,7 +110,6 @@ export class YiXin extends TriggerSkill {
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
       });
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【遗信】`));
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}把手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(

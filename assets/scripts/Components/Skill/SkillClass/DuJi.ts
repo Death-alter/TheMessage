@@ -109,7 +109,7 @@ export class DuJi extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}使用技能【毒计】，指定${gameLog.formatPlayer(
+        `${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(
           targetPlayer1
         )}和${gameLog.formatPlayer(targetPlayer2)}`
       )

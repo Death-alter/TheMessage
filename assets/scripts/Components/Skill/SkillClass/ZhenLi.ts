@@ -1,4 +1,4 @@
-import { skill_fu_hei_toc } from "../../../../protobuf/proto";
+import { skill_zhen_li_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
@@ -6,18 +6,18 @@ import { Character } from "../../Chatacter/Character";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
 
-export class FuHei extends PassiveSkill {
+export class ZhenLi extends PassiveSkill {
   constructor(character: Character) {
     super({
-      name: "腹黑",
+      name: "真理",
       character,
-      description: "你传出的黑色情报被接收后，你摸一张牌。",
+      description: "你传出的非黑色情报被其他角色接收后，你可以摸一张牌，将此角色牌翻至面朝下。",
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_FU_HEI_TOC,
+      NetworkEventToC.SKILL_ZHEN_LI_tOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -26,10 +26,10 @@ export class FuHei extends PassiveSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_FU_HEI_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_ZHEN_LI_tOC);
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_fu_hei_toc) {
+  onEffect(gameData: GameData, { playerId }: skill_zhen_li_toc) {
     const player = gameData.playerList[playerId];
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,

@@ -117,7 +117,6 @@ export class TanQiuZhenLi extends ActiveSkill {
       from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: targetPlayer },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【探求真理】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(

@@ -137,8 +137,7 @@ export class YiYaHuanYa extends TriggerSkill {
       message: handCard,
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【以牙还牙】`));
+    
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(

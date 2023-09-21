@@ -55,8 +55,6 @@ export class HanHouLaoShi extends PassiveSkill {
           player,
           skill: this,
         });
-        const gameLog = gameData.gameLog;
-        gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【憨厚老实】`));
       },
       this
     );

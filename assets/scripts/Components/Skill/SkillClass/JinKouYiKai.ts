@@ -73,7 +73,6 @@ export class JinKouYiKai extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, card, waitingSecond, seq }: skill_jin_kou_yi_kai_a_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
@@ -98,8 +97,6 @@ export class JinKouYiKai extends ActiveSkill {
         },
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【金口一开】`));
   }
 
   checkDeckTopCardAndChoose(gui: GameManager, params) {

@@ -150,9 +150,6 @@ export class GuiZha extends ActiveSkill {
       skill: this,
     });
 
-    gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}对${gameLog.formatPlayer(targetPlayer)}使用技能【诡诈】`)
-    );
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

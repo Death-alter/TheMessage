@@ -3,7 +3,6 @@ import { Character } from "../../Chatacter/Character";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
-import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { skill_shun_shi_er_wei_toc } from "../../../../protobuf/proto";
 
@@ -38,7 +37,6 @@ export class ShunShiErWei extends PassiveSkill {
       player,
       skill: this,
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【顺势而为】`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

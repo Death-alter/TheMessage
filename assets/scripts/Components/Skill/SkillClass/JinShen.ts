@@ -83,7 +83,6 @@ export class JinShen extends TriggerSkill {
 
     gameData.playerAddHandCard(player, message);
     player.addMessage(handCard);
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【谨慎】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}和情报${gameLog.formatCard(message)}互换`

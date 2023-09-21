@@ -105,6 +105,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
+    GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.onPlayerUseSkill, this);
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
     GameEventCenter.on(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
@@ -117,6 +118,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.onPlayerSendMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.onPlayerUseSkill, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
     GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
@@ -178,6 +180,10 @@ export class GameLogList extends DataContainer<GameLog> {
 
   onPlayerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
     this.addData(new GameLog(`${this.formatPlayer(player)}成功接收情报${this.formatCard(message)}`));
+  }
+
+  onPlayerUseSkill({ player, skill }: GameEventType.PlayerUseSkill) {
+    this.addData(new GameLog(`${this.formatPlayer(player)}使用技能【${skill.name}】`));
   }
 
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {

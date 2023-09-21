@@ -1,6 +1,6 @@
 import { skill_guan_hai_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Character } from "../../Chatacter/Character";
 import { GameLog } from "../../GameLog/GameLog";
@@ -32,7 +32,11 @@ export class GuanHai extends PassiveSkill {
 
   onEffect(gameData: GameData, { playerId, card }: skill_guan_hai_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameLog;
+
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
 
     if (playerId === 0) {
       const message = gameData.createMessage(card);
@@ -41,6 +45,9 @@ export class GuanHai extends PassiveSkill {
       message.flip();
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【观海】，查看待收情报`));
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

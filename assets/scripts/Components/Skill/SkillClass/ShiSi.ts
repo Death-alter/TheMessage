@@ -1,8 +1,8 @@
 import { PassiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_shi_si_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
@@ -32,8 +32,14 @@ export class ShiSi extends PassiveSkill {
 
   onEffect(gameData: GameData, { playerId }: skill_shi_si_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameLog;
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【视死】`));
+    
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

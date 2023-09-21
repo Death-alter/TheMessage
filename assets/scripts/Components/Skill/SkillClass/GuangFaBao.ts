@@ -76,8 +76,6 @@ export class GuangFaBao extends ActiveSkill {
       player,
       skill: this,
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【广发报】`));
   }
 
   waitingForUseB(gameData: GameData, { playerId, waitingSecond, seq }: skill_wait_for_guang_fa_bao_b_toc) {

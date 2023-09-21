@@ -91,7 +91,6 @@ export class MianLiCangZhen extends TriggerSkill {
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【绵里藏针】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(

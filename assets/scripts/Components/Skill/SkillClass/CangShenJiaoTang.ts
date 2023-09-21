@@ -70,7 +70,6 @@ export class CangShenJiaoTang extends TriggerSkill {
         player,
         skill: this,
       });
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
       if (waitingSecond > 0) {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: playerId,
@@ -136,9 +135,6 @@ export class CangShenJiaoTang extends TriggerSkill {
     const { targetPlayer } = params;
     const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
-    const data: any = {
-      seq: gui.seq,
-    };
 
     PlayerAction.addStep({
       step: new PlayerActionStep({
@@ -263,7 +259,10 @@ export class CangShenJiaoTang extends TriggerSkill {
       const gameLog = gameData.gameLog;
       const message = targetPlayer.removeMessage(cardId);
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【藏身教堂】`));
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
       if (asMessageCard) {
         player.addMessage(message);
         GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {

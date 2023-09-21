@@ -7,8 +7,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GameLog } from "../../GameLog/GameLog";
-import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class FengYunBianHuan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];

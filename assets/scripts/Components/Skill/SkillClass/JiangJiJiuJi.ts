@@ -31,14 +31,12 @@ export class JiangJiJiuJi extends PassiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_jiang_ji_jiu_ji_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【将计就计】`));
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

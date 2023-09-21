@@ -67,8 +67,6 @@ export class JiZhi extends ActiveSkill {
       skill: this,
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【急智】`));
-
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

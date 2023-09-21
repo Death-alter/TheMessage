@@ -16,7 +16,6 @@ import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class DuiZhengXiaoYao extends ActiveSkill {
   constructor(character: Character) {
@@ -86,8 +85,6 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       player,
       skill: this,
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【对症下药】`));
 
     if (playerId === 0) {
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {

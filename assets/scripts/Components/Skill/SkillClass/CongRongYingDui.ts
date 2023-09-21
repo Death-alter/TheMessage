@@ -129,8 +129,6 @@ export class CongRongYingDui extends TriggerSkill {
         skill: this,
       });
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【从容应对】`));
-
       if (!drawCard) {
         const handCard = gameData.playerRemoveHandCard(targetPlayer, card);
         gameData.playerAddHandCard(player, handCard);

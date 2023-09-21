@@ -69,8 +69,7 @@ export class LengXueXunLian extends ActiveSkill {
       skill: this,
     });
 
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【冷血训练】，展示牌堆顶的两张牌`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}展示牌堆顶的两张牌`));
 
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId,

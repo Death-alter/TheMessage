@@ -109,7 +109,6 @@ export class MiXin extends TriggerSkill {
       },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【密信】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(

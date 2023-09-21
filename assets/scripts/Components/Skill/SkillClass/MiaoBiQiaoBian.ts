@@ -123,7 +123,6 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙笔巧辩】`));
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(

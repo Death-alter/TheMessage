@@ -85,7 +85,6 @@ export class HuoXin extends ActiveSkill {
       skill: this,
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【惑心】`));
     gameLog.addData(new GameLog(`【惑心】展示牌堆顶的牌${gameLog.formatCard(topCard)}`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌`));
 

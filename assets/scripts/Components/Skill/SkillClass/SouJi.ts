@@ -98,7 +98,6 @@ export class SouJi extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【搜缉】`));
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌和待收情报`)
     );

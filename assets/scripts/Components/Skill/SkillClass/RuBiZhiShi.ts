@@ -99,7 +99,6 @@ export class RuBiZhiShi extends ActiveSkill {
       seq: seq,
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【如臂指使】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌}`));
 
     if (playerId === 0) {

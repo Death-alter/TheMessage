@@ -5,7 +5,6 @@ import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Character } from "../../Chatacter/Character";
-import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
@@ -64,7 +63,6 @@ export class BoAi extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_bo_ai_a_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
@@ -84,8 +82,6 @@ export class BoAi extends ActiveSkill {
         handler: "promptSelectHandCard",
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【博爱】`));
   }
 
   promptSelectHandCard(gui: GameManager) {

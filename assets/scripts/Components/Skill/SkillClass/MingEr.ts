@@ -1,6 +1,6 @@
 import { skill_ming_er_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
@@ -31,8 +31,14 @@ export class MingEr extends PassiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_ming_er_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【明饵】`));
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }

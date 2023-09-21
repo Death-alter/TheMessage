@@ -82,8 +82,7 @@ export class JianRen extends TriggerSkill {
         card: gameData.createCard(card),
       },
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【坚韧】`));
-
+    
     const handCard = gameData.createCard(card);
 
     if (waitingSecond > 0) {

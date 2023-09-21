@@ -230,7 +230,7 @@ export class JiangHuLing extends TriggerSkill {
     });
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用技能【江湖令】，宣言${getCardColorText(<number>color)}色`)
+      new GameLog(`${gameLog.formatPlayer(player)}宣言${getCardColorText(<number>color)}色`)
     );
   }
 

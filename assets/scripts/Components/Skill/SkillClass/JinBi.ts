@@ -96,7 +96,7 @@ export class JinBi extends ActiveSkill {
     }
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用技能【禁闭】,指定${gameLog.formatPlayer(targetPlayer)}`)
+      new GameLog(`${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(targetPlayer)}`)
     );
   }
 

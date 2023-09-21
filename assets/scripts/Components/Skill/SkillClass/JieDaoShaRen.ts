@@ -117,7 +117,7 @@ export class JieDaoShaRen extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}使用技能【借刀杀人】，抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌并展示`
+        `${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌并展示`
       )
     );
   }

@@ -74,7 +74,6 @@ export class MiaoShou extends ActiveSkill {
       seq: seq,
     });
 
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -82,8 +81,6 @@ export class MiaoShou extends ActiveSkill {
       player,
       skill: this,
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【妙手】`));
 
     const message = gameData.createMessage(messageCard);
     gameData.messageInTransmit = message;

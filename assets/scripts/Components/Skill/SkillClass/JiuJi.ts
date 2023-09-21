@@ -102,8 +102,6 @@ export class JiuJi extends TriggerSkill {
       player,
       skill: this,
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【就计】`));
   }
 
   onEffectB(gameData: GameData, { playerId, card, unknownCardCount }: skill_jiu_ji_b_toc) {

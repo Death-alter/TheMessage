@@ -73,7 +73,6 @@ export class ChengZhi extends TriggerSkill {
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player: diePlayer },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【承志】`));
     gameLog.addData(
       new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的手牌并查看其身份`)
     );

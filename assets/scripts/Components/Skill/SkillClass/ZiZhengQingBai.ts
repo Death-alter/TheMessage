@@ -115,7 +115,6 @@ export class ZiZhengQingBai extends ActiveSkill {
       player,
       skill: this,
     });
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【自证清白】`));
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

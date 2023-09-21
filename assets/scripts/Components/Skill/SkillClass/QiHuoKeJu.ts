@@ -80,14 +80,12 @@ export class QiHuoKeJu extends TriggerSkill {
       skill: this,
     });
 
-
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,
       card: message,
       from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
     });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【奇货可居】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}将情报区的${gameLog.formatCard(message)}加入手牌`));
     
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

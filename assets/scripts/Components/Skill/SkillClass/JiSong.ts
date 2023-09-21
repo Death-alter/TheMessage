@@ -123,9 +123,6 @@ export class JiSong extends ActiveSkill {
       skill: this,
     });
 
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【急送】`));
-
     if (messageCard) {
       const message = player.removeMessage(messageCard.cardId);
       GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player, messageList: [message] });

@@ -152,7 +152,7 @@ export class DuMing extends TriggerSkill {
     });
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用技能【赌命】，宣言${getCardColorText(<number>color)}色`)
+      new GameLog(`${gameLog.formatPlayer(player)}宣言${getCardColorText(<number>color)}色`)
     );
 
     if (playerId === 0) {

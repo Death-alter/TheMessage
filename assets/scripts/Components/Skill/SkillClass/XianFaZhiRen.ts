@@ -174,7 +174,6 @@ export class XianFaZhiRen extends ActiveSkill {
 
       GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: targetPlayer, messageList: [message] });
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【先发制人】`));
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}弃置${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}`

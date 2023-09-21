@@ -39,10 +39,6 @@ export class TouTian extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_TOU_TIAN_TOC);
   }
 
-  canUse(gui: GameManager): boolean {
-    return gui.data.messagePlayerId !== 0;
-  }
-
   onUse(gui: GameManager) {
     PlayerAction.onComplete(() => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_TOU_TIAN_TOS, {
@@ -59,8 +55,6 @@ export class TouTian extends ActiveSkill {
       player,
       skill: this,
     });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【偷天】`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

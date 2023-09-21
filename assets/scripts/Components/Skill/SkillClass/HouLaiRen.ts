@@ -98,7 +98,6 @@ export class HouLaiRen extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, remainCardId, roles, waitingSecond, seq }: skill_hou_lai_ren_a_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
@@ -134,8 +133,6 @@ export class HouLaiRen extends ActiveSkill {
         seq: seq,
       });
     }
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【后来人】，弃置${messages.length}张情报`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

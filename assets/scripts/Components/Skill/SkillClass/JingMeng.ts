@@ -109,7 +109,7 @@ export class JingMeng extends TriggerSkill {
     }
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用技能【惊梦】，查看${gameLog.formatPlayer(targetPlayer)}的手牌`)
+      new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌`)
     );
   }
 

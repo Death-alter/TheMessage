@@ -107,7 +107,6 @@ export class RuGui extends TriggerSkill {
         from: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player: player },
       });
 
-      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【如归】`));
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}把情报${gameLog.formatCard(message)}置入${gameLog.formatPlayer(

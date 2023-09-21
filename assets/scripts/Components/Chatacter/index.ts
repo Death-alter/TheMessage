@@ -52,6 +52,10 @@ import { YaBa } from "./CharacterClass/YaBa";
 import { LaoQian } from "./CharacterClass/LaoQian";
 import { MiddleAgeHanMei } from "./CharacterClass/MiddleAgeHanMei";
 import { MiddleAgeXiaoJiu } from "./CharacterClass/MiddleAgeXiaoJiu";
+import { SiShi } from "./CharacterClass/SiShi";
+import { JiaoShou } from "./CharacterClass/JiaoShou";
+import { SPYAFuLuoLa } from "./CharacterClass/SPYAFuLuoLa";
+import { SPYBaiFeiFei } from "./CharacterClass/SPYBaiFeiFei";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -96,6 +100,8 @@ charactersMap[38] = LaoHu;
 charactersMap[39] = SuJiYuan;
 charactersMap[40] = YaBa;
 charactersMap[41] = LaoQian;
+charactersMap[42] = SiShi;
+charactersMap[43] = JiaoShou;
 charactersMap[1002] = ChengXiaoDieSP;
 charactersMap[1003] = LianYuanSP;
 charactersMap[1014] = HanMeiSP;
@@ -105,6 +111,8 @@ charactersMap[1027] = XiaoJiuSP;
 charactersMap[1028] = LiNingYuSP;
 charactersMap[2014] = MiddleAgeHanMei;
 charactersMap[2027] = MiddleAgeXiaoJiu;
+charactersMap[3013] = SPYAFuLuoLa;
+charactersMap[3021] = SPYBaiFeiFei;
 
 export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {
   if (charactersMap[id]) {

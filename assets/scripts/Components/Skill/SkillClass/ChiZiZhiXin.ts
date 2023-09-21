@@ -170,7 +170,6 @@ export class ChiZiZhiXin extends TriggerSkill {
   onEffectB(gameData: GameData, { playerId, card, drawCard }: skill_chi_zi_zhi_xin_b_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用技能【赤子之心】`));
 
     if (!drawCard) {
       const handCard = gameData.playerRemoveHandCard(player, card);

@@ -115,7 +115,7 @@ export class QiangLing extends TriggerSkill {
       gameData.bannedCardTypes = [];
     });
 
-    let str = `${gameLog.formatPlayer(player)}使用技能【强令】，宣言`;
+    let str = `${gameLog.formatPlayer(player)}宣言`;
     for (let card of cards) {
       str += gameLog.formatCard(card);
     }
