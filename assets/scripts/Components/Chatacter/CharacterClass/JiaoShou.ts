@@ -11,7 +11,7 @@ export class JiaoShou extends Character {
       name: "教授",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.MALE,
+      sex: Sex.FAMALE,
       gameObject: gameObject,
     });
     this.setSkills([new DingLun(this), new ZhenLi(this)]);
