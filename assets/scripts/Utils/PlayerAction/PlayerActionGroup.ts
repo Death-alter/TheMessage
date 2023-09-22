@@ -51,7 +51,6 @@ export class PlayerActionGroup {
   }
 
   public handleStep(fs) {
-    console.log(this.stepList);
     this.stepList[this.index].handler(this.dataList[this.index], fs);
   }
 

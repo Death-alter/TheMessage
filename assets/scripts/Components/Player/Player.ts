@@ -3,7 +3,7 @@ import { Identity } from "../Identity/Identity";
 import { PlayerObject } from "./PlayerObject";
 import { PlayerOption, PlayerStatus } from "./type";
 import { DataBasic } from "../../DataBasic";
-import { CardStatus, CardColor } from "../Card/type";
+import { CardStatus, CardColor, CardType } from "../Card/type";
 import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { copyCard } from "../Card";
@@ -11,6 +11,8 @@ import { CharacterObject } from "../Chatacter/CharacterObject";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 import { IdentityType } from "../Identity/type";
+import { GameEventCenter } from "../../Event/EventTarget";
+import { GameEvent } from "../../Event/type";
 
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
@@ -21,6 +23,10 @@ export class Player extends DataBasic<PlayerObject> {
   private _messages: Card[] = [];
   private _handCardCount: number = 0;
   private _status: PlayerStatus = PlayerStatus.ALIVE;
+
+  public cardBanned: boolean = false;
+  public skillBanned: boolean = false;
+  public bannedCardTypes: CardType[] = [];
 
   get id() {
     return this._id;
@@ -166,6 +172,7 @@ export class Player extends DataBasic<PlayerObject> {
       this.gameObject?.refreshMessageCount();
       if (this.messageCounts[CardColor.BLACK] < 3) {
         this.status = PlayerStatus.ALIVE;
+        GameEventCenter.emit(GameEvent.PLAYER_RECOVERY, this);
       }
       return arr;
     }

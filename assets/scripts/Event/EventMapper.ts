@@ -85,6 +85,7 @@ export class EventMapper {
         playerCount: data.playerCount,
         identity: data.identity,
         secretTask: data.secretTask,
+        secretTaskList:data.possibleSecretTask,
         characterIdList: data.roles,
         waitingSecond: data.waitingSecond,
       });

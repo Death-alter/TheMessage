@@ -138,16 +138,14 @@ export class JinBi extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     if (unknownCardCount === 0 && cards.length === 0) {
-      if (targetPlayerId === 0) {
-        gameData.cardBanned = true;
-        gameData.skillBanned = true;
-        gameData.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
-        GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-          gameData.cardBanned = false;
-          gameData.skillBanned = false;
-          gameData.bannedCardTypes = [];
-        });
-      }
+      targetPlayer.cardBanned = true;
+      targetPlayer.skillBanned = true;
+      targetPlayer.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
+      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+        targetPlayer.cardBanned = false;
+        targetPlayer.skillBanned = false;
+        targetPlayer.bannedCardTypes = [];
+      });
       targetPlayer.gameObject.showBannedIcon();
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
         targetPlayer.gameObject.hideBannedIcon();

@@ -70,12 +70,19 @@ export class SkillButton extends GameObject<Skill> {
             PlayerAction.switchToGroup("default").clearGroup("UseSkill").start();
           } else {
             this.isOn = true;
+            const canUse = skill.canUse(gui);
+            let tooltipText;
+            if (canUse) {
+              tooltipText = `是否使用【${skill.name}】？`;
+            } else {
+              tooltipText = `不满足使用条件，不能使用【${skill.name}】`;
+            }
             PlayerAction.switchToGroup("UseSkill")
               .addStep({
                 step: PlayerActionStepName.CONFIRM_USE_SKILL,
                 data: {
-                  tooltipText: `是否使用【${skill.name}】？`,
-                  enabled: skill.canUse,
+                  tooltipText,
+                  enabled: canUse,
                 },
               })
               .onSwitch(() => {

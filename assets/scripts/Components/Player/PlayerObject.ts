@@ -243,7 +243,6 @@ export class PlayerObject extends GameObject<Player> {
 
   changeSelectedIdentity(identity?: Identity) {
     if (!this._enableSelectIdentity) return;
-    console.log(identity, this.data.identityList);
     const identityObject = this.identityNode.getComponent(IdentityObject);
     if (identity !== undefined) {
       identityObject.data = identity;

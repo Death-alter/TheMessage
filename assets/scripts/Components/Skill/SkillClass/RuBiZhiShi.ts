@@ -114,7 +114,7 @@ export class RuBiZhiShi extends ActiveSkill {
     }
   }
 
-  promptChooseCard(gui: GameManager, params) {
+  promptChooseCard(gui: GameManager, params: { handCards: Card[]; targetPlayer: Player }) {
     const { handCards, targetPlayer } = params;
     const showCardsWindow = gui.showCardsWindow;
 
@@ -151,21 +151,11 @@ export class RuBiZhiShi extends ActiveSkill {
                   next({ card, useCard: true });
                 },
                 enabled: () => {
-                  if (
-                    showCardsWindow.selectedCards.list.length === 0 ||
-                    !gui.uiLayer.cardCanPlayed(showCardsWindow.selectedCards.list[0]).canPlay
-                  ) {
-                    return false;
-                  }
-                  if (showCardsWindow.selectedCards.list[0].type === CardType.CHENG_QING) {
-                    for (let player of gui.data.playerList) {
-                      if (player.messageCounts[CardColor.BLACK] > 0) {
-                        return true;
-                      }
-                    }
-                    return false;
-                  }
-                  return true;
+                  if (showCardsWindow.selectedCards.list.length === 0) return false;
+                  const card = showCardsWindow.selectedCards.list[0];
+                  const banned = targetPlayer.cardBanned && targetPlayer.bannedCardTypes.indexOf(card.type) !== -1;
+                  if (card.availablePhases.indexOf(gui.data.gamePhase) === -1 || banned) return false;
+                  return card.canPlay(gui);
                 },
               },
               {
@@ -188,40 +178,38 @@ export class RuBiZhiShi extends ActiveSkill {
           handler: ({ current }, { next, prev, end }) => {
             const { card, useCard } = current;
             if (useCard) {
-              switch (card.type) {
-                case CardType.CHENG_QING:
-                  const player = gui.data.playerList[this.dyingPlayerId];
-                  showCardsWindow.show({
-                    title: "选择一张情报弃置",
-                    cardList: player.getMessagesCopy(),
-                    limit: 1,
-                    buttons: [
-                      {
-                        text: "确定",
-                        onclick: () => {
-                          const targetCardId = showCardsWindow.selectedCards.list[0].id;
-                          PlayerAction.onComplete(() => {
-                            NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
-                              use: true,
-                              cardId: card.id,
-                              targetCardId,
-                              seq: gui.seq,
-                            });
+              if (card.type === CardType.CHENG_QING) {
+                const player = gui.data.playerList[this.dyingPlayerId];
+                showCardsWindow.show({
+                  title: "选择一张情报弃置",
+                  cardList: player.getMessagesCopy(),
+                  limit: 1,
+                  buttons: [
+                    {
+                      text: "确定",
+                      onclick: () => {
+                        const targetCardId = showCardsWindow.selectedCards.list[0].id;
+                        PlayerAction.onComplete(() => {
+                          NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
+                            use: true,
+                            cardId: card.id,
+                            targetCardId,
+                            seq: gui.seq,
                           });
-                          showCardsWindow.hide();
-                          next();
-                        },
-                        enabled: () =>
-                          showCardsWindow.selectedCards.list.length > 0 &&
-                          Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                        });
+                        showCardsWindow.hide();
+                        next();
                       },
-                    ],
-                  });
-                  break;
-                default:
-                  showCardsWindow.hide();
-                  card.onPlay(gui);
-                  next();
+                      enabled: () =>
+                        showCardsWindow.selectedCards.list.length > 0 &&
+                        Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+                    },
+                  ],
+                });
+              } else {
+                showCardsWindow.hide();
+                card.onPlay(gui);
+                next();
               }
             } else {
               next();

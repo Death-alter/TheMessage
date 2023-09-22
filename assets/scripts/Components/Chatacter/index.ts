@@ -56,6 +56,7 @@ import { SiShi } from "./CharacterClass/SiShi";
 import { JiaoShou } from "./CharacterClass/JiaoShou";
 import { SPYAFuLuoLa } from "./CharacterClass/SPYAFuLuoLa";
 import { SPYBaiFeiFei } from "./CharacterClass/SPYBaiFeiFei";
+import { QiShou } from "./CharacterClass/QiShou";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -102,6 +103,7 @@ charactersMap[40] = YaBa;
 charactersMap[41] = LaoQian;
 charactersMap[42] = SiShi;
 charactersMap[43] = JiaoShou;
+charactersMap[44] = QiShou;
 charactersMap[1002] = ChengXiaoDieSP;
 charactersMap[1003] = LianYuanSP;
 charactersMap[1014] = HanMeiSP;

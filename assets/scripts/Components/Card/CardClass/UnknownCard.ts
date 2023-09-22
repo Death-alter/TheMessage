@@ -1,3 +1,4 @@
+import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../Card";
 import { CardDefaultOption, CardStatus, CardType } from "../type";
 
@@ -15,5 +16,9 @@ export class UnknownCard extends Card {
       status: CardStatus.FACE_DOWN,
       gameObject: option.gameObject,
     });
+  }
+
+  canPlay(gui: GameManager) {
+    return false;
   }
 }

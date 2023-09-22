@@ -13,9 +13,11 @@ import { ProgressControl } from "../../../Components/Utils/ProgressControl";
 const { ccclass, property } = _decorator;
 
 interface InitOption {
+  playerCount: number;
   identity?: Identity;
   roles: CharacterType[];
   waitingSecond: number;
+  secretTaskList: Identity[];
 }
 
 @ccclass("SelectCharacter")
@@ -41,9 +43,19 @@ export class SelectCharacter extends Component {
 
   init(data: InitOption, confirm) {
     //生成提示文字
-    const { identity, roles, waitingSecond } = data;
+    const { playerCount, identity, roles, waitingSecond, secretTaskList } = data;
     if (identity) {
-      let text = `你的身份是：<color=${identity.color}>${identity.name}</color>`;
+      let text;
+      if (secretTaskList.length < 7) {
+        text = "本局游戏中可能出现的神秘人身份有：";
+        for (let identity of secretTaskList) {
+          text += `【<color=${identity.color}>${identity.name}</color>】`;
+        }
+      } else {
+        text = "本局游戏中可能出现所有神秘人身份";
+      }
+
+      text += `\n本局游戏共${playerCount}名玩家，你的身份是：<color=${identity.color}>${identity.name}</color>`;
       if (identity instanceof MysteriousPerson) {
         text += `\n机密任务：${identity.secretTaskText}`;
       }

@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Prefab, Node, NodeEventType, EventTouch } from "cc";
+import { _decorator, Component, instantiate, Prefab, Node } from "cc";
 import { GameManager } from "../../../Manager/GameManager";
 import { ShowCardsWindow } from "./ShowCardsWindow";
 import { StartSelectCharacter } from "../../../Event/UIEventType";
@@ -84,12 +84,16 @@ export class PopupLayer extends Component {
     if (this.manager.syncStatus === SyncStatus.NO_SYNC) {
       this.selectCharacterWindow.getComponent(SelectCharacter).init(
         {
+          playerCount: data.playerCount,
           identity: createIdentity(
             (<number>data.identity) as IdentityType,
             (<number>data.secretTask) as SecretTaskType
           ),
           roles: (<number[]>data.characterIdList) as CharacterType[],
           waitingSecond: data.waitingSecond,
+          secretTaskList: data.secretTaskList.map((task) => {
+            return createIdentity(IdentityType.GREEN, (<number>task) as SecretTaskType);
+          }),
         },
         data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter
       );

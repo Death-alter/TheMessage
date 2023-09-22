@@ -1,5 +1,5 @@
 import { Card } from "../../Components/Card/Card";
-import { CardDirection, CardType } from "../../Components/Card/type";
+import { CardDirection, CardUsableStatus } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
 import { PlayerActionStepHandler } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
@@ -19,7 +19,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           if (canPlay) {
             gui.tooltip.setText(`是否使用【${card.name}】`);
           } else {
-            gui.tooltip.setText(`现在不能使用【${card.name}】`);
+            gui.tooltip.setText(`不满足使用条件，不能使用【${card.name}】`);
           }
 
           gui.tooltip.buttons.setButtons([
@@ -107,13 +107,16 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     },
   [PlayerActionStepName.SELECT_PLAYERS]:
     (gui: GameManager) =>
-    ({ initial }, { next, prev }) => {
+    ({ initial, current }, { next, prev }) => {
       const { tooltipText, filter, enabled, canCancel } = initial;
       const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一名角色");
       gui.gameLayer.startSelectPlayers({
         num,
-        filter,
+        filter: (player) => {
+          if (!filter) return true;
+          return filter(player, current);
+        },
       });
       const buttons: any[] = [
         {
@@ -142,15 +145,18 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     },
   [PlayerActionStepName.SELECT_HAND_CARDS]:
     (gui: GameManager) =>
-    ({ initial }, { next, prev }) => {
-      const { tooltipText, filter, enabled } = initial;
+    ({ initial, current }, { next, prev }) => {
+      const { tooltipText, filter, enabled, canCancel } = initial;
       const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一张牌");
       gui.gameLayer.startSelectHandCards({
         num,
-        filter,
+        filter: (card) => {
+          if (!filter) return CardUsableStatus.USABLE;
+          return filter(card, current);
+        },
       });
-      gui.tooltip.buttons.setButtons([
+      const buttons: any[] = [
         {
           text: "确定",
           onclick: () => {
@@ -161,7 +167,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           },
           enabled: enabled != null ? enabled : () => gui.selectedHandCards.list.length === num,
         },
-        {
+      ];
+      if (canCancel !== false) {
+        buttons.push({
           text: "取消",
           onclick: () => {
             gui.tooltip.setText("");
@@ -169,8 +177,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             gui.gameLayer.stopSelectHandCards();
             prev();
           },
-        },
-      ]);
+        });
+      }
+      gui.tooltip.buttons.setButtons(buttons);
     },
   [PlayerActionStepName.SELECT_PLAYER_MESSAGE]:
     (gui: GameManager) =>
@@ -183,16 +192,16 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
       showCardsWindow.show({
         title: title || "请选择一张情报",
         cardList: player.getMessagesCopy(),
-        limit: limit || 1,
+        limit,
         buttons: [
           {
             text: "确定",
             onclick: () => {
               const cardId = showCardsWindow.selectedCards.list[0].id;
               showCardsWindow.hide();
-              next({ cardId });
+              next({ playerId: player.id, cardId });
             },
-            enabled: enabled != null ? enabled : true,
+            enabled: enabled != null ? enabled : () => showCardsWindow.selectedCards.list.length === limit,
           },
           {
             text: "取消",
@@ -318,7 +327,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             next();
           },
-          enabled: enabled != null ? () => enabled(gui) : true,
+          enabled: enabled != null ? enabled : true,
         },
         {
           text: "取消",

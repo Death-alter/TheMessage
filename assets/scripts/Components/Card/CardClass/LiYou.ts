@@ -26,10 +26,6 @@ export class LiYou extends Card {
     });
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager): void {
     PlayerAction.switchToGroup("PlayCard")
       .addStep({

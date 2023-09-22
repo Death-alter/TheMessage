@@ -76,6 +76,7 @@ export class MiaoShou extends ActiveSkill {
 
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
+    const gameLog = gameData.gameLog;
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
@@ -86,6 +87,10 @@ export class MiaoShou extends ActiveSkill {
     gameData.messageInTransmit = message;
     message.gameObject = gameData.messageInTransmit.gameObject;
     GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, message);
+
+    gameLog.addData(
+      new GameLog(`${gameLog.formatPlayer(player)}查看了${gameLog.formatPlayer(targetPlayer)}的手牌情报区情报区`)
+    );
 
     if (playerId === 0) {
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {

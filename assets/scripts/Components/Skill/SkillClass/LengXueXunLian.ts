@@ -186,16 +186,20 @@ export class LengXueXunLian extends ActiveSkill {
       from: { location: CardActionLocation.DECK },
     });
 
-    gameData.cardBanned = true;
-    gameData.bannedCardTypes.push(CardType.DIAO_BAO);
+    for (let player of gameData.playerList) {
+      player.cardBanned = true;
+      player.bannedCardTypes.push(CardType.DIAO_BAO);
+    }
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-      gameData.cardBanned = false;
-      gameData.bannedCardTypes = [];
+      for (let player of gameData.playerList) {
+        player.cardBanned = false;
+        player.bannedCardTypes = [];
+      }
     });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}令所有角色本回合中不能使用【调包】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card)}加入手牌`));
-    
+
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,

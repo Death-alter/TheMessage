@@ -10,7 +10,7 @@ import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class YiHuaJieMu extends ActiveSkill {
   constructor(character: Character) {
@@ -49,6 +49,14 @@ export class YiHuaJieMu extends ActiveSkill {
     NetworkEventCenter.off(NetworkEventToC.SKILL_YI_HUA_JIE_MU_B_TOC);
   }
 
+  canUse(gui: GameManager): boolean {
+    let total = 0;
+    for (let player of gui.data.playerList) {
+      total += player.messageCounts.total;
+    }
+    return total !== 0;
+  }
+
   onUse(gui: GameManager) {
     PlayerAction.onComplete(() => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_A_TOS, {
@@ -80,79 +88,38 @@ export class YiHuaJieMu extends ActiveSkill {
   }
 
   promptSelectMessage(gui: GameManager) {
-    const tooltip = gui.tooltip;
-    const showCardsWindow = gui.showCardsWindow;
-
     PlayerAction.addStep({
-      step: new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          tooltip.setText(`请选择要获取情报的角色`);
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                const player = gui.selectedPlayers.list[0];
-                gui.gameLayer.pauseSelectPlayers();
-                next({ fromPlayer: player });
-              },
-              enabled: () => gui.selectedPlayers.list.length > 0,
-            },
-          ]);
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            filter: (player) => {
-              return player.messageCounts.total > 0;
-            },
-          });
+      step: PlayerActionStepName.SELECT_PLAYERS,
+      data: {
+        tooltipText: "请选择要获取情报的角色",
+        filter: (player) => {
+          return player.messageCounts.total > 0;
         },
-      }),
+      },
+      resolver: (data) => {
+        return { playerId: data.players[0].id };
+      },
     })
       .addStep({
-        step: new PlayerActionStep({
-          handler: ({ current }, { next, prev }) => {
-            const { fromPlayer } = current;
-            showCardsWindow.show({
-              title: "请选择一张情报",
-              limit: 1,
-              cardList: fromPlayer.getMessagesCopy(),
-              buttons: [
-                {
-                  text: "确定",
-                  onclick: () => {
-                    const cardId = showCardsWindow.selectedCards.list[0].id;
-                    showCardsWindow.hide();
-                    next({ cardId, fromPlayer });
-                  },
-                  enabled: () => !!showCardsWindow.selectedCards.list.length,
-                },
-              ],
-            });
-          },
-        }),
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
       })
       .addStep({
-        step: new PlayerActionStep({
-          handler: ({ current }, { next, prev }) => {
-            const { fromPlayer } = current;
-            tooltip.setText("请选择把情报置入另一名角色的情报区");
-            gui.gameLayer.startSelectPlayers({
-              num: 1,
-              filter: (player) => {
-                return player !== fromPlayer;
-              },
-              onSelect: (player) => {
-                gui.gameLayer.pauseSelectPlayers();
-                next({ toPlayer: player });
-              },
-            });
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          tooltipText: "请选择要置入情报的角色",
+          filter: (player, data) => {
+            return player.id !== data.playerId;
           },
-        }),
+        },
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_B_TOS, {
-          fromPlayerId: data[2].fromPlayer.id,
+          fromPlayerId: data[2].playerId,
           cardId: data[1].cardId,
-          toPlayerId: data[0].toPlayer.id,
+          toPlayerId: data[0].playerId,
           seq: gui.seq,
         });
       })

@@ -33,10 +33,6 @@ export class ShiTan extends Card {
     this._drawCardColor = option.drawCardColor;
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager): void {
     PlayerAction.switchToGroup("PlayCard")
       .addStep({

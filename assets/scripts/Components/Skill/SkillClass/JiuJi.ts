@@ -56,6 +56,7 @@ export class JiuJi extends TriggerSkill {
 
   onTrigger(gui: GameManager, params): void {
     const { fromPlayerId, cardType, card } = params;
+    const fromPlayer = gui.data.playerList[fromPlayerId];
     const tooltip = gui.tooltip;
     const gameLog = gui.gameLog;
     let cardPlayed;
@@ -65,7 +66,7 @@ export class JiuJi extends TriggerSkill {
       cardPlayed = gui.data.createCardByType(cardType);
     }
 
-    tooltip.setText(`你成为${gameLog.formatCard(cardPlayed)}的目标，是否使用【就计】`);
+    tooltip.setText(`${gameLog.formatPlayer(fromPlayer)}对你使用${gameLog.formatCard(cardPlayed)}，是否使用【就计】`);
     tooltip.buttons.setButtons([
       {
         text: "确定",
@@ -87,16 +88,15 @@ export class JiuJi extends TriggerSkill {
       },
     ]);
 
-    GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, {
-      player: gui.data.playerList[fromPlayerId],
-      cardType,
-      card: cardPlayed,
-    });
+    // GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, {
+    //   player: gui.data.playerList[fromPlayerId],
+    //   cardType,
+    //   card: cardPlayed,
+    // });
   }
 
   onEffectA(gameData: GameData, { playerId }: skill_jiu_ji_a_toc) {
     const player = gameData.playerList[playerId];
-    const gameLog = gameData.gameLog;
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
@@ -109,7 +109,8 @@ export class JiuJi extends TriggerSkill {
     const gameLog = gameData.gameLog;
     if (!card && unknownCardCount === 0) return;
 
-    const cardOnPlay = gameData.cardOnPlay;
+    const cardOnPlay = gameData.createCard(card);
+    gameData.cardOnPlay.gameObject.data = cardOnPlay;
     gameData.cardOnPlay = null;
     gameData.playerAddHandCard(player, cardOnPlay);
 

@@ -26,10 +26,6 @@ export class DiaoHuLiShan extends Card {
     });
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager): void {
     PlayerAction.switchToGroup("PlayCard")
       .addStep({
@@ -83,12 +79,10 @@ export class DiaoHuLiShan extends Card {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     if (isSkill) {
-      if (targetPlayerId === 0) {
-        gameData.skillBanned = true;
-        GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-          gameData.skillBanned = false;
-        });
-      }
+      targetPlayer.skillBanned = true;
+      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+        targetPlayer.skillBanned = false;
+      });
       targetPlayer.gameObject.showBannedIcon();
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
         targetPlayer.gameObject.hideBannedIcon();
@@ -96,11 +90,11 @@ export class DiaoHuLiShan extends Card {
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合技能无效。`));
     } else {
       if (targetPlayerId === 0) {
-        gameData.cardBanned = true;
-        gameData.bannedCardTypes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        targetPlayer.cardBanned = true;
+        targetPlayer.bannedCardTypes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-          gameData.cardBanned = false;
-          gameData.bannedCardTypes = [];
+          targetPlayer.cardBanned = false;
+          targetPlayer.bannedCardTypes = [];
         });
       }
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合不能使用卡牌。`));

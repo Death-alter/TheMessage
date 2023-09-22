@@ -27,10 +27,6 @@ export class WeiBi extends Card {
     });
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager) {
     PlayerAction.switchToGroup("PlayCard")
       .addStep({

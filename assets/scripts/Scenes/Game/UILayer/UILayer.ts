@@ -6,7 +6,7 @@ import * as GameEventType from "../../../Event/GameEventType";
 import * as ProcessEventType from "../../../Event/ProcessEventType";
 import { Card } from "../../../Components/Card/Card";
 import { GamePhase, WaitingType } from "../../../Manager/type";
-import { ActiveSkill, PassiveSkill, Skill, TriggerSkill } from "../../../Components/Skill/Skill";
+import { ActiveSkill, PassiveSkill, TriggerSkill } from "../../../Components/Skill/Skill";
 import { SkillButtons } from "./SkillButtons";
 import { CardColor, CardDirection, CardType, CardUsableStatus } from "../../../Components/Card/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
@@ -236,7 +236,7 @@ export class UILayer extends Component {
                     if (canPlay) {
                       this.manager.tooltip.setText(`是否使用【${card.name}】`);
                     } else {
-                      this.manager.tooltip.setText(`现在不能使用【${card.name}】`);
+                      this.manager.tooltip.setText(`不满足使用条件，不能使用【${card.name}】`);
                     }
 
                     this.manager.tooltip.buttons.setButtons([
@@ -267,14 +267,6 @@ export class UILayer extends Component {
           }).start();
           break;
         case WaitingType.PLAYER_DYING:
-          for (let player of this.manager.data.playerList) {
-            if (player.id === data.params.diePlayerId) {
-              player.gameObject.showInnerGlow("#FF000080");
-            } else {
-              player.gameObject.hideInnerGlow();
-            }
-          }
-
           PlayerAction.addStep({
             step: new PlayerActionStep({
               handler: ({ initial, current }, { next, prev }) => {
@@ -324,7 +316,7 @@ export class UILayer extends Component {
                     enabled: () =>
                       this.manager.selectedHandCards.list[0] &&
                       this.manager.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-                      this.manager.data.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+                      this.manager.data.selfPlayer.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
                   },
                   {
                     text: "取消",
@@ -381,6 +373,16 @@ export class UILayer extends Component {
       }
     }
 
+    if (data.type === WaitingType.PLAYER_DYING) {
+      for (let player of this.manager.data.playerList) {
+        if (player.id === data.params.diePlayerId) {
+          player.gameObject.showInnerGlow("#FF000080");
+        } else {
+          player.gameObject.hideInnerGlow();
+        }
+      }
+    }
+
     const buttons = this.skillButtons.getComponent(SkillButtons);
     this.manager.data.selfPlayer.character.skills.forEach((skill, index) => {
       if (!skill.gameObject.locked) {
@@ -390,7 +392,7 @@ export class UILayer extends Component {
       if (skill instanceof ActiveSkill) {
         if (
           skill.useablePhase.indexOf(this.manager.data.gamePhase) !== -1 &&
-          !this.manager.data.skillBanned &&
+          !this.manager.data.selfPlayer.skillBanned &&
           data.type !== WaitingType.PLAYER_DYING
         ) {
           switch (this.manager.data.gamePhase) {
@@ -453,7 +455,8 @@ export class UILayer extends Component {
   }
 
   cardCanPlayed(card) {
-    const banned = this.manager.data.cardBanned && this.manager.data.bannedCardTypes.indexOf(card.type) !== -1;
+    const selfPlayer = this.manager.data.selfPlayer;
+    const banned = selfPlayer.cardBanned && selfPlayer.bannedCardTypes.indexOf(card.type) !== -1;
     return {
       canPlay: card.availablePhases.indexOf(this.manager.data.gamePhase) !== -1 && !banned,
       banned: banned,

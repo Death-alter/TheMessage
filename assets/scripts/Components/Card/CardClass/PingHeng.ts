@@ -23,10 +23,6 @@ export class PingHeng extends Card {
     });
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager): void {
     PlayerAction.switchToGroup("PlayCard")
       .addStep({

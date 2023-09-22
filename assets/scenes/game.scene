@@ -6885,7 +6885,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 112,
+      "y": 145,
       "z": 0
     },
     "_lrot": {
@@ -6922,13 +6922,13 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 0,
+      "width": 720,
       "height": 25.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
       "x": 0.5,
-      "y": 0.5
+      "y": 1
     },
     "_id": "95wq70RAlPmYsstaKjB0++"
   },
@@ -6946,7 +6946,7 @@
     "_horizontalAlign": 1,
     "_verticalAlign": 0,
     "_fontSize": 16,
-    "_maxWidth": 0,
+    "_maxWidth": 720,
     "_fontFamily": "黑体",
     "_font": null,
     "_isSystemFontUsed": true,

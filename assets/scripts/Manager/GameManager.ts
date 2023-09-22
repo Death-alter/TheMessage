@@ -199,6 +199,7 @@ export class GameManager extends GameObject<GameData> {
   onStopCountDown() {}
 
   gameOver(data: GameEventType.GameOver) {
+    ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
     this.stopRender();
     // this.gameWindow.active = false;
     this.popupLayer.showCardsWindow.node.active = false;

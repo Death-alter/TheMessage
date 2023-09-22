@@ -19,8 +19,6 @@ import { GameManager } from "./GameManager";
 
 export class GameData extends DataBasic<GameManager> {
   public selfPlayer: Player;
-  public cardBanned: boolean = false;
-  public skillBanned: boolean = false;
   public playerCount: number;
   public playerList: Player[];
   public secretTaskList: SecretTaskType[];
@@ -31,7 +29,6 @@ export class GameData extends DataBasic<GameManager> {
   public discardPile: Card[] = [];
   public banishedCards: Card[] = [];
   public dyingPlayer: Player = null; //等待澄清的玩家
-  public bannedCardTypes: CardType[] = [];
   public gameLog: GameLogList;
   public handCardList: HandCardList;
 
@@ -442,7 +439,6 @@ export class GameData extends DataBasic<GameManager> {
 
   //打出卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
-    console.log(data);
     let card: Card;
     const user = this.playerList[data.userId];
     if (data.isActual) {

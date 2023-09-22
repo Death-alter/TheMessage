@@ -176,6 +176,10 @@ export enum NetworkEventToC {
   SKILL_YING_BIAN_ZI_RU_B_TOC = "skill_ying_bian_zi_ru_b_toc",
   SKILL_TAO_QU_A_TOC = "skill_tao_qu_a_toc",
   SKILL_TAO_QU_B_TOC = "skill_tao_qu_b_toc",
+  SKILL_TAN_XU_BIAN_SHI_A_TOC = "skill_tan_xu_bian_shi_a_toc",
+  SKILL_TAN_XU_BIAN_SHI_B_TOC = "skill_tan_xu_bian_shi_b_toc",
+  SKILL_WAIT_FOR_CUN_BU_BU_RANG_TOC = "skill_wait_for_cun_bu_bu_rang_toc",
+  SKILL_CUN_BU_BU_RANG_TOC = "skill_cun_bu_bu_rang_toc",
 }
 
 //tos协议，ws发送数据
@@ -305,6 +309,9 @@ export enum NetworkEventToS {
   SKILL_YING_BIAN_ZI_RU_B_TOS = "skill_ying_bian_zi_ru_b_tos",
   SKILL_TAO_QU_A_TOS = "skill_tao_qu_a_tos",
   SKILL_TAO_QU_B_TOS = "skill_tao_qu_b_tos",
+  SKILL_TAN_XU_BIAN_SHI_A_TOS = "skill_tan_xu_bian_shi_a_tos",
+  SKILL_TAN_XU_BIAN_SHI_B_TOS = "skill_tan_xu_bian_shi_b_tos",
+  SKILL_CUN_BU_BU_RANG_TOS = "skill_cun_bu_bu_rang_tos",
 }
 
 //程序事件，用于程序控制
@@ -386,6 +393,7 @@ export enum GameEvent {
   PLAYER_RECEIVE_MESSAGE = "player_receive_message",
   PLAYER_REMOVE_MESSAGE = "player_remove_message",
   PLAYER_DYING = "player_dying",
+  PLAYER_RECOVERY = "player_recovery",
   PLAYER_BEFORE_DEATH = "player_before_death",
   PLAYER_DIE = "player_die",
   PLAYER_GIVE_CARD = "player_give_card",

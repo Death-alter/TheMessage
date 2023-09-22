@@ -24,10 +24,6 @@ export class WuDao extends Card {
     });
   }
 
-  canPlay(gui: GameManager) {
-    return true;
-  }
-
   onPlay(gui: GameManager): void {
     const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
     PlayerAction.switchToGroup("PlayCard").addStep({
