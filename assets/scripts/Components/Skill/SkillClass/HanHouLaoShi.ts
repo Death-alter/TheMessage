@@ -20,7 +20,7 @@ export class HanHouLaoShi extends PassiveSkill {
       name: "憨厚老实",
       character,
       description:
-        "你无法传出纯黑色情报（除非手牌中只有纯黑色情报）。你传出的情报被其他角色接收后，接收者必须交给你一张手牌。",
+        "你无法传出纯黑色情报（除非你只能传出纯黑色情报）。你传出的情报被其他角色接收后，接收者必须交给你一张手牌。",
     });
   }
 
