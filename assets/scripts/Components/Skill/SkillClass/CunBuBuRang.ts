@@ -60,8 +60,9 @@ export class CunBuBuRang extends TriggerSkill {
 
   onTrigger(gui: GameManager, params: { targetPlayer: Player }): void {
     const { targetPlayer } = params;
+    const gameLog = gui.gameLog;
     const tooltip = gui.tooltip;
-    tooltip.setText(`${targetPlayer}获得了你的手牌，是否使用【寸步不让】`);
+    tooltip.setText(`${gameLog.formatPlayer(targetPlayer)}获得了你的手牌，是否使用【寸步不让】`);
     tooltip.buttons.setButtons([
       {
         text: "确定",

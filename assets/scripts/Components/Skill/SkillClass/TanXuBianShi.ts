@@ -14,9 +14,11 @@ import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Lurker } from "../../Identity/IdentityClass/Lurker";
 import { Agent } from "../../Identity/IdentityClass/Agent";
 import { Card } from "../../Card/Card";
+import { IdentityType } from "../../Identity/type";
 
 export class TanXuBianShi extends ActiveSkill {
   private usageCount: number = 0;
+  private color: CardColor[];
 
   get useable() {
     return this.usageCount === 0;
@@ -99,6 +101,7 @@ export class TanXuBianShi extends ActiveSkill {
 
     const handCard = gameData.playerRemoveHandCard(player, card);
     gameData.playerAddHandCard(targetPlayer, handCard);
+    this.color = handCard.color;
 
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player: targetPlayer,
@@ -190,6 +193,13 @@ export class TanXuBianShi extends ActiveSkill {
         `${gameLog.formatPlayer(targetPlayer)}还给${gameLog.formatPlayer(targetPlayer)}${gameLog.formatCard(handCard)}`
       )
     );
+
+    if (this.color.indexOf(CardColor.RED) !== -1 && !Card.hasColor(handCard, CardColor.RED)) {
+      targetPlayer.ruleOutIdentity(IdentityType.RED);
+    }
+    if (this.color.indexOf(CardColor.BLUE) !== -1 && !Card.hasColor(handCard, CardColor.BLUE)) {
+      targetPlayer.ruleOutIdentity(IdentityType.BLUE);
+    }
 
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
