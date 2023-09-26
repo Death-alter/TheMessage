@@ -2,7 +2,6 @@ import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GamePhase } from "../../../Manager/type";
 import { CardType, CardUsableStatus } from "../../Card/type";
-import { createCard } from "../../Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -66,10 +65,7 @@ export class YingBian extends ActiveSkill {
       step: new PlayerActionStep({
         handler: (data, { next, passOnPrev }) => {
           passOnPrev(() => {
-            const card = createCard({
-              id: gui.selectedHandCards.list[0].id,
-              type: CardType.WU_DAO,
-            });
+            const card = gui.data.createCardWithNewType(gui.selectedHandCards.list[0], CardType.WU_DAO);
             card.onPlay(gui);
             this.gameObject.isOn = false;
             next();

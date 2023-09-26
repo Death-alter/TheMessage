@@ -156,7 +156,7 @@ export class RuBiZhiShi extends ActiveSkill {
                   let card = showCardsWindow.selectedCards.list[0];
                   const data = targetPlayer.getTagData(TagName.CARD_NAME_REPLACED);
                   if (data && data.cardTypeA === card.type) {
-                    card = gui.data.createCardByType(data.cardTypeB);
+                    card = gui.data.createCardWithNewType(card, data.cardTypeB);
                   }
                   const banndeCardTypes = targetPlayer.getTagData(TagName.CARD_BANNED);
                   const banned =

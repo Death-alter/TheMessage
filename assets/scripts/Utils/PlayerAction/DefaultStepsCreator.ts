@@ -18,7 +18,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         onSelect: (card: Card) => {
           const tagData = gui.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
           if (tagData && tagData.cardTypeA === card.type) {
-            card = gui.data.createCardByType(tagData.cardTypeB);
+            card = gui.data.createCardWithNewType(card, tagData.cardTypeB);
           }
 
           const canPlay = card.canPlay(gui);

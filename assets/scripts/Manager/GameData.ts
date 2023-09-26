@@ -16,6 +16,7 @@ import { CharacterStatus } from "../Components/Chatacter/type";
 import { createIdentity } from "../Components/Identity";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
 import { GameManager } from "./GameManager";
+import { ShiTan } from "../Components/Card/CardClass/ShiTan";
 
 export class GameData extends DataBasic<GameManager> {
   public selfPlayer: Player;
@@ -534,8 +535,19 @@ export class GameData extends DataBasic<GameManager> {
     return createCard({ type });
   }
 
+  createCardWithNewType(card: Card, type: CardType) {
+    return createCard({
+      id: card.id,
+      color: card.color,
+      type: type,
+      status: card.status,
+      direction: card.direction,
+      lockable: card.lockable,
+    });
+  }
+
   createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
-    return this.createCard(card, CardStatus.FACE_DOWN);
+    return this.createCard(card, status);
   }
 
   playerAddHandCard(playerId: number, handCard: Card);
