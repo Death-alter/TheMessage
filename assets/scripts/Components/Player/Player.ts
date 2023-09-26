@@ -13,6 +13,7 @@ import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 import { IdentityType } from "../Identity/type";
 import { GameEventCenter } from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
+import { TagName } from "../../type";
 
 export class Player extends DataBasic<PlayerObject> {
   private _id: number;
@@ -23,9 +24,6 @@ export class Player extends DataBasic<PlayerObject> {
   private _messages: Card[] = [];
   private _handCardCount: number = 0;
   private _status: PlayerStatus = PlayerStatus.ALIVE;
-
-  public cardBanned: boolean = false;
-  public bannedCardTypes: CardType[] = [];
 
   get id() {
     return this._id;
@@ -116,6 +114,37 @@ export class Player extends DataBasic<PlayerObject> {
   removeHandCard(num: number) {
     this._handCardCount -= num;
     this.gameObject?.refreshHandCardCount();
+  }
+
+  banCardByType(type: CardType);
+  banCardByType(types: CardType[]);
+  banCardByType(type: CardType | CardType[]) {
+    if (!(type instanceof Array)) {
+      type = [type];
+    }
+    const typeList = this.getTagData(TagName.CARD_BANNED) || [];
+    this.addTag(TagName.CARD_BANNED, [...typeList, ...type]);
+    if (typeList.length === 0) {
+      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+        this.removeTag(TagName.CARD_BANNED);
+      });
+    }
+  }
+
+  banAllCards() {
+    this.addTag(TagName.ALL_CARD_BANNED);
+    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+      this.removeTag(TagName.ALL_CARD_BANNED);
+    });
+  }
+
+  banSkills() {
+    this.addTag(TagName.SKILL_BANNED);
+    this.gameObject?.showBannedIcon();
+    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+      this.removeTag(TagName.SKILL_BANNED);
+      this.gameObject?.hideBannedIcon();
+    });
   }
 
   //角色翻面

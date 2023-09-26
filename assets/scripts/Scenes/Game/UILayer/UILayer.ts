@@ -316,10 +316,10 @@ export class UILayer extends Component {
                       });
                       next({ playerId: player.id });
                     },
-                    enabled: () =>
-                      this.manager.selectedHandCards.list[0] &&
-                      this.manager.selectedHandCards.list[0].type === CardType.CHENG_QING &&
-                      this.manager.data.selfPlayer.bannedCardTypes.indexOf(CardType.CHENG_QING) === -1,
+                    enabled: () => {
+                      const card = this.manager.selectedHandCards.list[0];
+                      return card && card.type === CardType.CHENG_QING && !this.cardCanPlayed(card).banned;
+                    },
                   },
                   {
                     text: "取消",
@@ -459,7 +459,9 @@ export class UILayer extends Component {
 
   cardCanPlayed(card) {
     const selfPlayer = this.manager.data.selfPlayer;
-    const banned = selfPlayer.cardBanned && selfPlayer.bannedCardTypes.indexOf(card.type) !== -1;
+    const banndeCardTypes = selfPlayer.getTagData(TagName.CARD_BANNED);
+    const banned =
+      selfPlayer.hasTag(TagName.ALL_CARD_BANNED) || (banndeCardTypes && banndeCardTypes.indexOf(card.type) !== -1);
     return {
       canPlay: card.availablePhases.indexOf(this.manager.data.gamePhase) !== -1 && !banned,
       banned: banned,

@@ -187,15 +187,8 @@ export class LengXueXunLian extends ActiveSkill {
     });
 
     for (let player of gameData.playerList) {
-      player.cardBanned = true;
-      player.bannedCardTypes.push(CardType.DIAO_BAO);
+      player.banCardByType(CardType.DIAO_BAO);
     }
-    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-      for (let player of gameData.playerList) {
-        player.cardBanned = false;
-        player.bannedCardTypes = [];
-      }
-    });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}令所有角色本回合中不能使用【调包】`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card)}加入手牌`));
