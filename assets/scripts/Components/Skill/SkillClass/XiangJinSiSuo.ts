@@ -86,14 +86,14 @@ export class XiangJinSiSuo extends TriggerSkill {
         step: PlayerActionStepName.SELECT_PLAYERS,
       })
       .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIANG_JIN_SI_SUO_A_TOS, {
           enable: true,
           targetPlayerId: data[0].players[0].id,
           seq: gui.seq,
         });
       })
       .onCancel(() => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIANG_JIN_SI_SUO_A_TOS, {
           enable: false,
           seq: gui.seq,
         });

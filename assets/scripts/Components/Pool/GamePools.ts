@@ -2,6 +2,7 @@ import { CardObject } from "../Card/CardObject";
 import { CardUsableStatus } from "../Card/type";
 import { CardGroupObject } from "../Container/CardGroupObject";
 import { GameLogMessageObject } from "../GameLog/GameLogMessageObject";
+import { OuterGlow } from "../Utils/OuterGlow";
 import { ObjectPool } from "./ObjectPool";
 
 interface PoolTemplates {
@@ -23,6 +24,7 @@ export default class GamePools {
     GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
     GamePools.cardPool.beforePut((object: CardObject) => {
       object.usableStatus = CardUsableStatus.USABLE;
+      object.getComponentInChildren(OuterGlow).closeOuterGlow();
     });
   }
 }

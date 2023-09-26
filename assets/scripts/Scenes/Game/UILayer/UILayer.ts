@@ -210,7 +210,10 @@ export class UILayer extends Component {
                         });
                         next();
                       },
-                      enabled: () => !this.manager.data.selfPlayer.hasTag(TagName.CANNOT_RECEIVE_MESSAGE),
+                      enabled: () =>
+                        !this.manager.data.selfPlayer.hasTag(TagName.CANNOT_RECEIVE_MESSAGE) ||
+                        (this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) ||
+                        this.manager.data.senderId === 0,
                     },
                     {
                       text: "不接收",
@@ -468,7 +471,56 @@ export class UILayer extends Component {
     };
   }
 
+  messageCanSend(card) {
+    const selfPlayer = this.manager.data.selfPlayer;
+    const cannotSendColor = selfPlayer.getTagData(TagName.CANNOT_SEND_MESSAGE_COLOR);
+    const mustSendColor = selfPlayer.getTagData(TagName.MUST_SEND_MESSAGE_COLOR);
+    if (mustSendColor) {
+      if (mustSendColor.strict) {
+        if (
+          mustSendColor.color.length === card.color.length &&
+          mustSendColor.color.every((color, index) => color === card.color[index])
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        for (let color of mustSendColor.color) {
+          if (Card.hasColor(card, color)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    } else if (cannotSendColor) {
+      if (cannotSendColor.strict) {
+        if (
+          cannotSendColor.color.length === card.color.length &&
+          cannotSendColor.color.every((color, index) => color === card.color[index])
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        for (let color of cannotSendColor.color) {
+          if (Card.hasColor(card, color)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+
   getCardUsableStatus(card: Card) {
+    const tagData = this.manager.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
+    if (tagData && tagData.cardTypeA === card.type) {
+      card = this.manager.data.createCardWithNewType(card, tagData.cardTypeB);
+    }
     const flag = this.cardCanPlayed(card);
     if (flag.canPlay) {
       return CardUsableStatus.USABLE;
@@ -571,6 +623,7 @@ export class UILayer extends Component {
       },
     });
     const selfPlayer = this.manager.data.selfPlayer;
+    console.log(selfPlayer.hasTag(TagName.SKILL_BANNED), selfPlayer.hasTag(TagName.MESSAGE_CAN_LOCK));
     if (
       message.lockable ||
       forceLock ||

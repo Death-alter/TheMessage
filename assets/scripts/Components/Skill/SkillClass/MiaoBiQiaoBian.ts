@@ -88,13 +88,6 @@ export class MiaoBiQiaoBian extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_miao_bi_qiao_bian_a_toc
   ) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-      playerId: playerId,
-      second: waitingSecond,
-      type: WaitingType.HANDLE_SKILL,
-      seq: seq,
-    });
-
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -113,16 +106,6 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
     });
 
-    if (playerId === 0) {
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "promptChooseCard",
-        params: {
-          message,
-        },
-      });
-    }
-
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(
@@ -130,6 +113,25 @@ export class MiaoBiQiaoBian extends ActiveSkill {
         )}加入手牌`
       )
     );
+
+    if (waitingSecond > 0) {
+      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        playerId: playerId,
+        second: waitingSecond,
+        type: WaitingType.HANDLE_SKILL,
+        seq: seq,
+      });
+
+      if (playerId === 0) {
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "promptChooseCard",
+          params: {
+            message,
+          },
+        });
+      }
+    }
   }
 
   promptChooseCard(gui: GameManager, params) {
@@ -201,26 +203,29 @@ export class MiaoBiQiaoBian extends ActiveSkill {
       .start();
   }
 
-  onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId }: skill_miao_bi_qiao_bian_b_toc) {
-    const gameLog = gameData.gameLog;
+  onEffectB(gameData: GameData, { playerId, targetPlayerId, cardId, enable }: skill_miao_bi_qiao_bian_b_toc) {
     const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
 
-    const message = targetPlayer.removeMessage(cardId);
-    gameData.playerAddHandCard(player, message);
-    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-      player,
-      card: message,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
-    });
+    if (enable) {
+      const gameLog = gameData.gameLog;
+      const targetPlayer = gameData.playerList[targetPlayerId];
 
-    gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(
-          message
-        )}加入手牌`
-      )
-    );
+      const message = targetPlayer.removeMessage(cardId);
+      gameData.playerAddHandCard(player, message);
+      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+        player,
+        card: message,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
+      });
+
+      gameLog.addData(
+        new GameLog(
+          `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}情报区中的${gameLog.formatCard(
+            message
+          )}加入手牌`
+        )
+      );
+    }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

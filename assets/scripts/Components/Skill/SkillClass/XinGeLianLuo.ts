@@ -18,7 +18,7 @@ export class XinGeLianLuo extends TriggerSkill {
     super({
       name: "信鸽联络",
       character,
-      description: "你传出非直达情报后，可以指定一名其他角色。本回合中，该角色不能选择接收情报。",
+      description: "你传出左右方向的情报后，可以指定一名其他角色。本回合中，该角色不能选择接收情报。",
     });
   }
 
@@ -57,7 +57,7 @@ export class XinGeLianLuo extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`你传出了非直达情报,是否使用【信鸽联络】？`);
+          tooltip.setText(`你传出了左右方向的情报,是否使用【信鸽联络】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
@@ -84,7 +84,7 @@ export class XinGeLianLuo extends TriggerSkill {
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_GE_LIAN_LUO_TOS, {
           enable: true,
-          color: data[0].players[0].id,
+          targetPlayerId: data[0].players[0].id,
           seq: gui.seq,
         });
       })
@@ -106,9 +106,9 @@ export class XinGeLianLuo extends TriggerSkill {
       player,
       skill: this,
     });
-    targetPlayer.addTag(TagName.MUST_RECEIVE_MESSAGE);
+    targetPlayer.addTag(TagName.CANNOT_RECEIVE_MESSAGE);
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-      targetPlayer.removeTag(TagName.MUST_RECEIVE_MESSAGE);
+      targetPlayer.removeTag(TagName.CANNOT_RECEIVE_MESSAGE);
     });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定了${gameLog.formatPlayer(targetPlayer)}`));

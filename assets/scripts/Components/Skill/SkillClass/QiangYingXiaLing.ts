@@ -16,7 +16,7 @@ export class QiangYingXiaLing extends PassiveSkill {
   }
 
   init(gameData: GameData, player: Player) {
-    player.addTag(TagName.SKILL_BANNED);
+    player.addTag(TagName.MESSAGE_CAN_LOCK);
   }
 
   dispose() {}

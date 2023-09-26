@@ -10,6 +10,9 @@ import { Player } from "../../../Components/Player/Player";
 import { CardColor } from "../../Card/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class ZhuanJiao extends TriggerSkill {
   constructor(character: Character) {
@@ -52,60 +55,64 @@ export class ZhuanJiao extends TriggerSkill {
   }
 
   onTrigger(gui: GameManager, params): void {
-    const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
 
-    tooltip.setText(`你使用了一张手牌,是否使用【转交】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          showCardsWindow.show({
-            title: "请选择一张非黑色情报",
-            limit: 1,
-            cardList: gui.data.selfPlayer.getMessagesCopy(),
-            buttons: [
-              {
-                text: "确定",
-                onclick: () => {
-                  const selectedMessage = showCardsWindow.selectedCards.list[0];
-                  showCardsWindow.hide();
-                  tooltip.setText("请选择一名角色");
-                  gui.gameLayer.startSelectPlayers({
-                    num: 1,
-                    filter: (player) => {
-                      if (player.id === 0) return false;
-                      return player.sameMessageCountOver(selectedMessage);
-                    },
-                    onSelect: (player) => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {
-                        enable: true,
-                        cardId: selectedMessage.id,
-                        targetPlayerId: player.id,
-                        seq: gui.seq,
-                      });
-                    },
-                  });
-                },
-                enabled: () =>
-                  showCardsWindow.selectedCards.list.length &&
-                  !Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`一名角色传出了情报,是否使用【转交】？`);
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next();
               },
-            ],
-          });
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
-        enabled: gui.data.selfPlayer.messageCounts.total > 0,
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {
-            enable: false,
-            seq: gui.seq,
-          });
+      }),
+    })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          playerId: 0,
+          filter: (player) => {
+            if (player.id === 0) return false;
+            return player.sameMessageCountOver(showCardsWindow.selectedCards.list[0]);
+          },
+          enabled: () =>
+            showCardsWindow.selectedCards.list.length &&
+            !Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
         },
-      },
-    ]);
+      })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          filter: (player) => player.id !== 0,
+        },
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {
+          enable: true,
+          cardId: data[1].cardId,
+          targetPlayerId: data[0].players[0].id,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_zhuan_jiao_toc) {

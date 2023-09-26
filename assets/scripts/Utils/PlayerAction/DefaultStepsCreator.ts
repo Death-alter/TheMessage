@@ -1,5 +1,5 @@
 import { Card } from "../../Components/Card/Card";
-import { CardDirection, CardUsableStatus } from "../../Components/Card/type";
+import { CardColor, CardDirection, CardUsableStatus } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
 import { TagName } from "../../type";
 import { PlayerActionStepHandler } from "./PlayerActionStep";
@@ -49,6 +49,16 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
+      let flag = true;
+      if (gui.data.selfPlayer.hasTag(TagName.HAN_HOU_LAO_SHI)) {
+        const handCards = [...gui.data.handCardList.list];
+        for (let card of handCards) {
+          if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
+            flag = false;
+          }
+        }
+      }
+
       const { tooltipText, filter } = initial;
       gui.tooltip.setText(tooltipText);
       gui.tooltip.buttons.setButtons([]);
@@ -74,6 +84,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
                 gui.uiLayer.doSendMessage({ message: card });
                 next();
               },
+              enabled: () => flag || gui.uiLayer.messageCanSend(card),
             },
           ]);
         },

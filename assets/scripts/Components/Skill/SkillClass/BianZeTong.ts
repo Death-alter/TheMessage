@@ -130,12 +130,14 @@ export class BianZeTong extends TriggerSkill {
                 break;
               }
             }
+            showCardsWindow.selectedCards.limit = 1;
+            showCardsWindow.setTitle("请选择卡牌种类B")
             showCardsWindow.show();
           },
         }),
       })
       .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_CHENG_ZHI_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_BIAN_ZE_TONG_TOS, {
           enable: true,
           cardTypeA: data[1].cardType,
           cardTypeB: data[0].cardType,
@@ -147,7 +149,8 @@ export class BianZeTong extends TriggerSkill {
           enable: false,
           seq: gui.seq,
         });
-      });
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, enable, cardTypeA, cardTypeB }: skill_bian_ze_tong_toc) {

@@ -11,6 +11,7 @@ import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Card } from "../../Card/Card";
 import { GameLog } from "../../GameLog/GameLog";
+import { CardUsableStatus } from "../../Card/type";
 
 export class HouZiQieXin extends ActiveSkill {
   private usageCount: number = 0;
@@ -54,6 +55,7 @@ export class HouZiQieXin extends ActiveSkill {
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         num: 1,
+        filter: (player) => player.id !== 0,
         enabled: () => gui.selectedPlayers.list.length > 0,
       },
       resolver: (data) => {
@@ -77,16 +79,18 @@ export class HouZiQieXin extends ActiveSkill {
             const messages = player.getMessagesCopy();
             for (let message of messages) {
               if (message.color.length === card.color.length) {
-                return message.color.every((color, index) => (color = card.color[index]));
+                if (message.color.every((color, index) => color === card.color[index])) {
+                  return CardUsableStatus.USABLE;
+                }
               }
             }
-            return false;
+            return CardUsableStatus.UNUSABLE;
           },
         },
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_HOU_ZI_QIE_XIN_TOS, {
-          handCardId: data[0].cardId,
+          handCardId: data[0].cards[0].id,
           targetPlayerId: data[2].playerId,
           messageCardId: data[1].cardId,
           seq: gui.seq,

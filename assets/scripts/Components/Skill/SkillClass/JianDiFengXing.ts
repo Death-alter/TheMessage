@@ -15,7 +15,8 @@ import { Card } from "../../Card/Card";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { CardColor } from "../../Card/type";
+import { CardColor, CardUsableStatus } from "../../Card/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
 export class JianDiFengXing extends TriggerSkill {
   constructor(character: Character) {
@@ -113,14 +114,19 @@ export class JianDiFengXing extends TriggerSkill {
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
         tooltipText: "请选择一张纯黑色手牌置入你的情报区",
-        filter: (card: Card) => card.color.length === 1 && card.color[0] === CardColor.BLACK,
+        filter: (card: Card) => {
+          if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
+            return CardUsableStatus.USABLE;
+          } else {
+            return CardUsableStatus.UNUSABLE;
+          }
+        },
         enabled: () => gui.selectedHandCards.list.length === 1,
       },
     })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAN_DI_FENG_XING_B_TOS, {
-          drawCard: data[1].drawCard,
-          cardId: data[0].cardId,
+          cardId: data[0].cards[0].id,
           seq: gui.seq,
         });
       })
@@ -167,13 +173,41 @@ export class JianDiFengXing extends TriggerSkill {
 
   chooseRemoveMessage(gui: GameManager) {
     PlayerAction.addStep({
-      step: PlayerActionStepName.SELECT_HAND_CARDS,
-      data: {
-        tooltipText: "是否弃置待收情报，并选择一张黑色手牌代替之？",
-        filter: (card: Card) => Card.hasColor(card, CardColor.BLACK),
-        enabled: () => gui.selectedHandCards.list.length === 1,
-      },
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          const tooltip = gui.tooltip;
+          tooltip.setText(`是否弃置待收情报，并用一张黑色手牌代替之？`);
+          tooltip.buttons.setButtons([
+            {
+              text: "是",
+              onclick: () => {
+                next();
+              },
+            },
+            {
+              text: "否",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
+        },
+      }),
     })
+      .addStep({
+        step: PlayerActionStepName.SELECT_HAND_CARDS,
+        data: {
+          tooltipText: "请选择一张黑色手牌",
+          filter: (card: Card) => {
+            if (Card.hasColor(card, CardColor.BLACK)) {
+              return CardUsableStatus.USABLE;
+            } else {
+              return CardUsableStatus.UNUSABLE;
+            }
+          },
+          enabled: () => gui.selectedHandCards.list.length === 1,
+        },
+      })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_JIAN_DI_FENG_XING_C_TOS, {
           enable: true,
@@ -198,6 +232,7 @@ export class JianDiFengXing extends TriggerSkill {
     if (enable) {
       const oldMessage = messagePlayer.removeMessage(oldMessageCardId);
       const message = gameData.playerRemoveHandCard(player, card);
+      messagePlayer.addMessage(message);
 
       GameEventCenter.emit(GameEvent.PLAYER_REMOVE_MESSAGE, { player: messagePlayer, messageList: [oldMessage] });
 

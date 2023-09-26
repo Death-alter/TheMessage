@@ -12,6 +12,7 @@ import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { TagName } from "../../../type";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -162,13 +163,24 @@ export class MiLing extends Card {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
+          let flag = true;
+          if (gui.data.selfPlayer.hasTag(TagName.HAN_HOU_LAO_SHI)) {
+            const handCards = [...gui.data.handCardList.list.filter((card) => Card.hasColor(card, color))];
+            for (let card of handCards) {
+              if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
+                flag = false;
+              }
+            }
+          }
+
           let tooltipText = "密令的暗号为" + secretText;
           tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
           tooltip.setText(tooltipText);
           gui.gameLayer.startSelectHandCards({
             num: 1,
             filter: (card) => {
-              if (Card.hasColor(card, color)) {
+              console.log(gui.uiLayer.messageCanSend(card));
+              if (Card.hasColor(card, color) && (flag || gui.uiLayer.messageCanSend(card))) {
                 return CardUsableStatus.USABLE;
               } else {
                 return CardUsableStatus.UNUSABLE;

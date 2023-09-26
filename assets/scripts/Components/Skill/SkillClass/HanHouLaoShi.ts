@@ -11,6 +11,7 @@ import { Card } from "../../Card/Card";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { skill_han_hou_lao_shi_toc, skill_wait_for_han_hou_lao_shi_toc } from "../../../../protobuf/proto";
 import { GameLog } from "../../GameLog/GameLog";
+import { TagName } from "../../../type";
 
 export class HanHouLaoShi extends PassiveSkill {
   doSendMessage: Function;
@@ -25,6 +26,8 @@ export class HanHouLaoShi extends PassiveSkill {
   }
 
   init(gameData: GameData, player) {
+    player.addTag(TagName.CANNOT_SEND_MESSAGE_COLOR, { color: [CardColor.BLACK], strict: true });
+    player.addTag(TagName.HAN_HOU_LAO_SHI);
     if (player.id === 0) {
       UIEventCenter.on(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.onSelectMessageToSend, this);
     }
