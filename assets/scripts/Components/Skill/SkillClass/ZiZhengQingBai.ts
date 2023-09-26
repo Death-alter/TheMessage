@@ -15,6 +15,7 @@ import { Lurker } from "../../Identity/IdentityClass/Lurker";
 import { Agent } from "../../Identity/IdentityClass/Agent";
 import { MysteriousPerson } from "../../Identity/IdentityClass/MysteriousPerson";
 import { CardColor, CardUsableStatus } from "../../Card/type";
+import { IdentityType } from "../../Identity/type";
 
 export class ZiZhengQingBai extends ActiveSkill {
   private usageCount: number = 0;
@@ -107,14 +108,20 @@ export class ZiZhengQingBai extends ActiveSkill {
     });
   }
 
-  onEffect(gameData: GameData, { playerId }: skill_zi_zheng_qing_bai_toc) {
-    const gameLog = gameData.gameLog;
+  onEffect(gameData: GameData, { playerId, colors }: skill_zi_zheng_qing_bai_toc) {
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
+
+    if (colors.indexOf(<number>CardColor.RED) !== -1) {
+      player.ruleOutIdentity(IdentityType.RED);
+    } else if (colors.indexOf(<number>CardColor.BLUE) !== -1) {
+      player.ruleOutIdentity(IdentityType.BLUE);
+    }
+
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
