@@ -9,7 +9,7 @@ export class MiddleAgeHanMei extends Character {
     super({
       id: 2014,
       name: "中年韩梅",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/NoPanting_Famale",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,

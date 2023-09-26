@@ -185,11 +185,7 @@ export class TanXuBianShi extends ActiveSkill {
       card: handCard,
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
     });
-    gameLog.addData(
-      new GameLog(
-        `${gameLog.formatPlayer(targetPlayer)}还给${gameLog.formatPlayer(targetPlayer)}${gameLog.formatCard(handCard)}`
-      )
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}还给${gameLog.formatPlayer(player)}一张牌`));
 
     ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

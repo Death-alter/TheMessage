@@ -27,6 +27,7 @@ export class Player extends DataBasic<PlayerObject> {
   public cardBanned: boolean = false;
   public skillBanned: boolean = false;
   public bannedCardTypes: CardType[] = [];
+  public mustReceiveMessage: boolean = false;
 
   get id() {
     return this._id;

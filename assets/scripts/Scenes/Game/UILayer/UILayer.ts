@@ -181,7 +181,7 @@ export class UILayer extends Component {
         case WaitingType.RECEIVE_MESSAGE:
           PlayerAction.addStep({
             step: new PlayerActionStep({
-              handler: (data, { next, prev }) => {
+              handler: ({ current }, { next, prev }) => {
                 let text = "";
                 switch (this.manager.data.messageDirection) {
                   case CardDirection.UP:
@@ -223,7 +223,8 @@ export class UILayer extends Component {
                       },
                       enabled:
                         !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
-                        this.manager.data.senderId !== 0,
+                        this.manager.data.senderId !== 0 &&
+                        !this.manager.data.selfPlayer.mustReceiveMessage,
                     },
                   ]);
                 };

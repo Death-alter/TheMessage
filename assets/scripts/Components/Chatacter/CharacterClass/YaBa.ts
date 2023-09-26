@@ -9,7 +9,7 @@ export class YaBa extends Character {
     super({
       id: 40,
       name: "哑巴",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/YaBa",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

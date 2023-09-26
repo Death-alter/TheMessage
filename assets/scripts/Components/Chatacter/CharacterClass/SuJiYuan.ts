@@ -9,7 +9,7 @@ export class SuJiYuan extends Character {
     super({
       id: 39,
       name: "速记员",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/NoPanting_Famale",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,

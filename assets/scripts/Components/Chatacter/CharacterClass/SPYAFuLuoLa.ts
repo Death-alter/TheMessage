@@ -8,7 +8,7 @@ export class SPYAFuLuoLa extends Character {
     super({
       id: 3013,
       name: "间谍阿芙罗拉",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/SPYAFuLuoLa",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,

@@ -9,7 +9,7 @@ export class JiaoShou extends Character {
     super({
       id: 43,
       name: "教授",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/NoPanting_Famale",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,

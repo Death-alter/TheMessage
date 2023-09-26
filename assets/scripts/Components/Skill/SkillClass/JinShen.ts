@@ -68,18 +68,16 @@ export class JinShen extends TriggerSkill {
     ]);
   }
 
-  onEffect(gameData: GameData, { playerId, card }: skill_jin_shen_toc) {
+  onEffect(gameData: GameData, { playerId, card, messageCardId }: skill_jin_shen_toc) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
     const handCard = gameData.playerRemoveHandCard(player, card);
-    const messages = player.getMessagesCopy();
-    const message = player.removeMessage(messages[messages.length - 1].id);
+    const message = player.removeMessage(messageCardId);
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
-
 
     gameData.playerAddHandCard(player, message);
     player.addMessage(handCard);

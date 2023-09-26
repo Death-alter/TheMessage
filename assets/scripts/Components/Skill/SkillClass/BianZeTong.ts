@@ -9,18 +9,18 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { Card } from "../../Card/Card";
-import { CardColor, CardType } from "../../Card/type";
+import { CardColor,  CardType } from "../../Card/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { copyCard } from "../../Card";
 
-export class LengXueXunLian extends ActiveSkill {
+export class BianZeTong extends ActiveSkill {
   constructor(character: Character) {
     super({
-      name: "冷血训练",
+      name: "变则通",
       character,
       description:
-        "你需要传出情报时，可以改为展示牌堆顶的两张牌，从中选择一张（若有黑色牌则必须选择一张黑色牌）作为情报面朝上传出，并锁定一名角色，且令所有角色本回合中不能使用【调包】，之后将未选择的那张加入你的手牌。",
+        "传递阶段开始时，摸一张牌，然后你可以宣言以下两种卡牌名称“A”和“B”（【截获】【误导】【调包】【破译】）。直到回合结束，所有玩家的“A”牌视为“B”牌。",
       useablePhase: [GamePhase.SEND_PHASE_START],
     });
   }

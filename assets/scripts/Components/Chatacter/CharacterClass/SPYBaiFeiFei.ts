@@ -8,7 +8,7 @@ export class SPYBaiFeiFei extends Character {
     super({
       id: 3021,
       name: "间谍白菲菲",
-      sprite: "images/characters/NoPanting",
+      sprite: "images/characters/SPYBaiFeiFei",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,

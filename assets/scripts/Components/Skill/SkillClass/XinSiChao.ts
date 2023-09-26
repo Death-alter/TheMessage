@@ -3,7 +3,6 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
-import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";

@@ -53,7 +53,7 @@ export class ChengQing extends Card {
       .addStep({
         step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
         data: {
-          tooltipText: "请选择一张黑色情报弃置",
+          title: "请选择一张黑色情报弃置",
           enabled: () =>
             showCardsWindow.selectedCards.list.length > 0 &&
             Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
