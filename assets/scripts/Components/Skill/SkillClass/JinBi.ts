@@ -11,6 +11,7 @@ import { GameManager } from "../../../Manager/GameManager";
 import { getCardTypeCount } from "../../Card";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { TagName } from "../../../type";
 
 export class JinBi extends ActiveSkill {
   private usageCount: number = 0;
@@ -95,9 +96,7 @@ export class JinBi extends ActiveSkill {
       });
     }
 
-    gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(targetPlayer)}`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(targetPlayer)}`));
   }
 
   promptChooseHandCard(gui: GameManager, params) {
@@ -139,17 +138,16 @@ export class JinBi extends ActiveSkill {
 
     if (unknownCardCount === 0 && cards.length === 0) {
       targetPlayer.cardBanned = true;
-      targetPlayer.skillBanned = true;
+      targetPlayer.addTag(TagName.SKILL_BANNED);
+      targetPlayer.gameObject.showBannedIcon();
       targetPlayer.bannedCardTypes = [...new Array(getCardTypeCount()).keys()];
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
         targetPlayer.cardBanned = false;
-        targetPlayer.skillBanned = false;
+        targetPlayer.removeTag(TagName.SKILL_BANNED);
+        targetPlayer.gameObject.hideBannedIcon();
         targetPlayer.bannedCardTypes = [];
       });
-      targetPlayer.gameObject.showBannedIcon();
-      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-        targetPlayer.gameObject.hideBannedIcon();
-      });
+
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}被【禁闭】`));
     } else {
       const handCards = gameData.playerRemoveHandCard(

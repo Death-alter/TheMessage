@@ -1,6 +1,6 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import { skill_xin_ge_lian_luo_toc } from "../../../../protobuf/proto";
+import { skill_xiang_jin_si_suo_a_toc, skill_xiang_jin_si_suo_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
@@ -11,27 +11,33 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { TagName } from "../../../type";
 
-export class XinGeLianLuo extends TriggerSkill {
+export class XiangJinSiSuo extends TriggerSkill {
   constructor(character: Character) {
     super({
-      name: "信鸽联络",
+      name: "详尽思索",
       character,
-      description: "你传出非直达情报后，可以指定一名其他角色。本回合中，该角色不能选择接收情报。",
+      description: "一名角色传出情报后，你可以指定一名角色。若本回合该角色接收了情报，你摸两张牌。",
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_XIN_GE_LIAN_LUO_TOC,
+      NetworkEventToC.SKILL_XIANG_JIN_SI_SUO_A_TOC,
       (data) => {
-        this.onEffect(gameData, data);
+        this.onEffectA(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_WAIT_FOR_XIN_GE_LIAN_LUO_TOC,
+      NetworkEventToC.SKILL_XIANG_JIN_SI_SUO_B_TOC,
+      (data) => {
+        this.onEffectB(gameData, data);
+      },
+      this
+    );
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_WAIT_FOR_XIANG_JIN_SI_SUO_TOC,
       (data) => {
         ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
@@ -48,8 +54,9 @@ export class XinGeLianLuo extends TriggerSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_XIN_GE_LIAN_LUO_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_XIN_GE_LIAN_LUO_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_XIANG_JIN_SI_SUO_A_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_XIANG_JIN_SI_SUO_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_XIANG_JIN_SI_SUO_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
@@ -57,7 +64,7 @@ export class XinGeLianLuo extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`你传出了非直达情报,是否使用【信鸽联络】？`);
+          tooltip.setText(`一名角色传出了情报,是否使用【详尽思索】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
@@ -77,19 +84,16 @@ export class XinGeLianLuo extends TriggerSkill {
     })
       .addStep({
         step: PlayerActionStepName.SELECT_PLAYERS,
-        data: {
-          filter: (player) => player.id !== 0,
-        },
       })
       .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_GE_LIAN_LUO_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
           enable: true,
-          color: data[0].players[0].id,
+          targetPlayerId: data[0].players[0].id,
           seq: gui.seq,
         });
       })
       .onCancel(() => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_XIN_GE_LIAN_LUO_TOS, {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIANG_HU_LING_A_TOS, {
           enable: false,
           seq: gui.seq,
         });
@@ -97,21 +101,23 @@ export class XinGeLianLuo extends TriggerSkill {
       .start();
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId }: skill_xin_ge_lian_luo_toc) {
+  onEffectA(gameData: GameData, { playerId, enable, targetPlayerId }: skill_xiang_jin_si_suo_a_toc) {
+    if (enable) {
+      const player = gameData.playerList[playerId];
+      const targetPlayer = gameData.playerList[targetPlayerId];
+      const gameLog = gameData.gameLog;
+
+      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+        player,
+        skill: this,
+      });
+
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定了${gameLog.formatPlayer(targetPlayer)}`));
+    }
+  }
+
+  onEffectB(gameData: GameData, { playerId }: skill_xiang_jin_si_suo_b_toc) {
     const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameLog;
-
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
-      player,
-      skill: this,
-    });
-    targetPlayer.addTag(TagName.MUST_RECEIVE_MESSAGE);
-    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-      targetPlayer.removeTag(TagName.MUST_RECEIVE_MESSAGE);
-    });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定了${gameLog.formatPlayer(targetPlayer)}`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

@@ -14,6 +14,7 @@ import { Card } from "../../Card/Card";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { TagName } from "../../../type";
 
 export class RuBiZhiShi extends ActiveSkill {
   private dyingPlayerId: number;
@@ -152,7 +153,11 @@ export class RuBiZhiShi extends ActiveSkill {
                 },
                 enabled: () => {
                   if (showCardsWindow.selectedCards.list.length === 0) return false;
-                  const card = showCardsWindow.selectedCards.list[0];
+                  let card = showCardsWindow.selectedCards.list[0];
+                  const data = targetPlayer.getTagData(TagName.CARD_NAME_REPLACED);
+                  if (data && data.cardTypeA === card.type) {
+                    card = gui.data.createCardByType(data.cardTypeB);
+                  }
                   const banned = targetPlayer.cardBanned && targetPlayer.bannedCardTypes.indexOf(card.type) !== -1;
                   if (card.availablePhases.indexOf(gui.data.gamePhase) === -1 || banned) return false;
                   return card.canPlay(gui);

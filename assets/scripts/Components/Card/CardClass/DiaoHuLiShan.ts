@@ -9,6 +9,7 @@ import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { GameLog } from "../../GameLog/GameLog";
+import { TagName } from "../../../type";
 
 export class DiaoHuLiShan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -79,14 +80,13 @@ export class DiaoHuLiShan extends Card {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     if (isSkill) {
-      targetPlayer.skillBanned = true;
-      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-        targetPlayer.skillBanned = false;
-      });
+      targetPlayer.addTag(TagName.SKILL_BANNED);
       targetPlayer.gameObject.showBannedIcon();
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+        targetPlayer.removeTag(TagName.SKILL_BANNED);
         targetPlayer.gameObject.hideBannedIcon();
       });
+
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合技能无效。`));
     } else {
       if (targetPlayerId === 0) {

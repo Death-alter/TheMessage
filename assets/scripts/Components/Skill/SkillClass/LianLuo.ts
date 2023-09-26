@@ -7,6 +7,7 @@ import { GameData } from "../../../Manager/GameData";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { GameManager } from "../../../Manager/GameManager";
+import { TagName } from "../../../type";
 
 export class LianLuo extends PassiveSkill {
   doSendMessage: Function;
@@ -30,44 +31,46 @@ export class LianLuo extends PassiveSkill {
   }
 
   selectMessageDirection({ gui, canCancel }: { gui: GameManager; canCancel: boolean }) {
-    PlayerAction.addStep({
-      step: new PlayerActionStep({
-        handler: ({ initial, current }, { next, prev }) => {
-          gui.tooltip.setText("请选择情报传递的方向");
-          const buttons = [
-            {
-              text: "左",
-              onclick: () => {
-                next({ direction: CardDirection.LEFT });
+    if (!gui.data.selfPlayer.hasTag(TagName.SKILL_BANNED)) {
+      PlayerAction.addStep({
+        step: new PlayerActionStep({
+          handler: ({ initial, current }, { next, prev }) => {
+            gui.tooltip.setText("请选择情报传递的方向");
+            const buttons = [
+              {
+                text: "左",
+                onclick: () => {
+                  next({ direction: CardDirection.LEFT });
+                },
               },
-            },
-            {
-              text: "上",
-              onclick: () => {
-                next({ direction: CardDirection.UP });
+              {
+                text: "上",
+                onclick: () => {
+                  next({ direction: CardDirection.UP });
+                },
               },
-            },
-            {
-              text: "右",
-              onclick: () => {
-                next({ direction: CardDirection.RIGHT });
+              {
+                text: "右",
+                onclick: () => {
+                  next({ direction: CardDirection.RIGHT });
+                },
               },
-            },
-          ];
-          if (initial.canCancel || current.index !== 0) {
-            buttons.push({
-              text: "取消",
-              onclick: () => {
-                prev();
-              },
-            });
-          }
-          gui.tooltip.buttons.setButtons(buttons);
+            ];
+            if (initial.canCancel || current.index !== 0) {
+              buttons.push({
+                text: "取消",
+                onclick: () => {
+                  prev();
+                },
+              });
+            }
+            gui.tooltip.buttons.setButtons(buttons);
+          },
+        }),
+        data: {
+          canCancel,
         },
-      }),
-      data: {
-        canCancel,
-      },
-    });
+      });
+    }
   }
 }

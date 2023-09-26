@@ -1,208 +1,183 @@
-import { skill_leng_xue_xun_lian_a_toc, skill_leng_xue_xun_lian_b_toc } from "../../../../protobuf/proto";
+import { skill_bian_ze_tong_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
-import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
+import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Character } from "../../Chatacter/Character";
-import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
-import { ActiveSkill } from "../Skill";
-import { Card } from "../../Card/Card";
-import { CardColor,  CardType } from "../../Card/type";
+import { TriggerSkill } from "../Skill";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { copyCard } from "../../Card";
+import { CardType } from "../../Card/type";
+import { GameLog } from "../../GameLog/GameLog";
+import { TagName } from "../../../type";
 
-export class BianZeTong extends ActiveSkill {
+export class BianZeTong extends TriggerSkill {
   constructor(character: Character) {
     super({
       name: "变则通",
       character,
       description:
-        "传递阶段开始时，摸一张牌，然后你可以宣言以下两种卡牌名称“A”和“B”（【截获】【误导】【调包】【破译】）。直到回合结束，所有玩家的“A”牌视为“B”牌。",
-      useablePhase: [GamePhase.SEND_PHASE_START],
+        "传递阶段开始时，摸一张牌，然后你可以宣言以下两种卡牌名称“A”和“B”：【截获】【误导】【调包】【破译】。直到回合结束，所有玩家的“A”只能当做“B”牌使用。",
     });
-  }
-
-  get useable() {
-    return true;
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_LENG_XUE_XUN_LIAN_A_TOC,
+      NetworkEventToC.SKILL_BIAN_ZE_TONG_TOC,
       (data) => {
-        this.onEffectA(gameData, data);
+        this.onEffect(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_LENG_XUE_XUN_LIAN_B_TOC,
+      NetworkEventToC.SKILL_WAIT_FOR_BIAN_ZE_TONG_TOC,
       (data) => {
-        this.onEffectB(gameData, data);
+        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+          playerId: data.playerId,
+          second: data.waitingSecond,
+          type: WaitingType.USE_SKILL,
+          seq: data.seq,
+          params: {
+            skill: this,
+          },
+        });
+
+        GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+          player,
+          skill: this,
+        });
       },
       this
     );
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_LENG_XUE_XUN_LIAN_A_TOC);
-    NetworkEventCenter.off(NetworkEventToC.SKILL_LENG_XUE_XUN_LIAN_B_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_BIAN_ZE_TONG_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_WAIT_FOR_BIAN_ZE_TONG_TOC);
   }
 
-  onUse(gui: GameManager) {
-    PlayerAction.onComplete((data) => {
-      NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_A_TOS, {
-        seq: gui.seq,
-      });
-    });
-  }
-
-  onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_leng_xue_xun_lian_a_toc) {
-    const gameLog = gameData.gameLog;
-    const player = gameData.playerList[playerId];
-    const cardList = cards.map((card) => gameData.createCard(card));
-
-    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
-      player,
-      skill: this,
-    });
-
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}展示牌堆顶的两张牌`));
-
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-      playerId,
-      second: waitingSecond,
-      type: WaitingType.HANDLE_SKILL,
-      seq: seq,
-    });
-
-    if (playerId === 0) {
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "promptChooseCard",
-        params: {
-          cardList,
-        },
-      });
-    } else {
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "showCards",
-        params: {
-          cardList,
-        },
-      });
-    }
-  }
-
-  promptChooseCard(gui: GameManager, params) {
-    const { cardList } = params;
-    const showCardsWindow = gui.showCardsWindow;
-
+  onTrigger(gui: GameManager, params): void {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
-          showCardsWindow.show({
-            title: "请选择一张牌作为情报传出",
-            limit: 1,
-            cardList,
-            buttons: [
-              {
-                text: "确定",
-                onclick: () => {
-                  const sendCard = copyCard(showCardsWindow.selectedCards.list[0]);
-                  showCardsWindow.hide();
-                  gui.uiLayer.doSendMessage({ message: sendCard, forceLock: true });
-                  PlayerAction.onComplete((data) => {
-                    let d: any = {};
-                    for (let item of data) {
-                      d = { ...d, ...item };
-                    }
-                    NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, {
-                      sendCardId: d.sendCard.id,
-                      lockPlayerId: d.lockPlayerId,
-                      targetPlayerId: d.targetPlayerId,
-                      seq: gui.seq,
-                    });
-                  });
-                  next({ sendCard });
-                },
-                enabled: () => {
-                  if (showCardsWindow.selectedCards.list.length <= 0) return false;
-                  return Card.hasColor(cardList, CardColor.BLACK)
-                    ? Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK)
-                    : true;
-                },
+          const tooltip = gui.tooltip;
+          tooltip.setText("是否宣言卡牌类型？");
+          tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next();
               },
-            ],
-          });
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
+              },
+            },
+          ]);
         },
       }),
-    }).start();
-  }
-
-  showCards(gui: GameManager, params) {
-    const { cardList } = params;
-    const showCardsWindow = gui.showCardsWindow;
-
-    showCardsWindow.show({
-      title: "【冷血训练】展示牌堆顶",
-      limit: 0,
-      cardList,
-      buttons: [
-        {
-          text: "关闭",
-          onclick: () => {
-            showCardsWindow.hide();
+    })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: (data, { next, prev }) => {
+            const showCardsWindow = gui.showCardsWindow;
+            showCardsWindow.show({
+              title: "请选择卡牌种类A",
+              cardList: [
+                gui.data.createCardByType(CardType.JIE_HUO),
+                gui.data.createCardByType(CardType.WU_DAO),
+                gui.data.createCardByType(CardType.DIAO_BAO),
+                gui.data.createCardByType(CardType.PO_YI),
+              ],
+              limit: 1,
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const type = showCardsWindow.selectedCards.list[0].type;
+                    showCardsWindow.hide();
+                    gui.gameLayer.pauseSelectPlayers();
+                    next({
+                      cardType: type,
+                    });
+                  },
+                  enabled: () => !!showCardsWindow.selectedCards.list.length,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    gui.gameLayer.stopSelectPlayers();
+                    prev();
+                  },
+                },
+              ],
+            });
           },
-        },
-      ],
-    });
+        }),
+      })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev }) => {
+            const showCardsWindow = gui.showCardsWindow;
+            for (let card of showCardsWindow.cardList.list) {
+              if (card.type === current.cardType) {
+                showCardsWindow.removeCard(card);
+                break;
+              }
+            }
+            showCardsWindow.show();
+          },
+        }),
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_CHENG_ZHI_TOS, {
+          enable: true,
+          cardTypeA: data[1].cardType,
+          cardTypeB: data[0].cardType,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_BIAN_ZE_TONG_TOS, {
+          enable: false,
+          seq: gui.seq,
+        });
+      });
   }
 
-  onEffectB(
-    gameData: GameData,
-    { sendCard, senderId, targetPlayerId, lockPlayerId, handCard }: skill_leng_xue_xun_lian_b_toc
-  ) {
-    const player = gameData.playerList[senderId];
-    const card = gameData.createCard(handCard);
-    const gameLog = gameData.gameLog;
+  onEffect(gameData: GameData, { playerId, enable, cardTypeA, cardTypeB }: skill_bian_ze_tong_toc) {
+    if (enable) {
+      const player = gameData.playerList[playerId];
+      const gameLog = gameData.gameLog;
+      const cardA = gameData.createCardByType(<number>cardTypeA);
+      const cardB = gameData.createCardByType(<number>cardTypeB);
 
-    ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
-      card: sendCard,
-      senderId: senderId,
-      targetPlayerId: targetPlayerId,
-      lockPlayerIds: [lockPlayerId],
-      direction: sendCard.cardDir,
-    });
-
-    gameData.playerAddHandCard(player, card);
-
-    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-      player,
-      card,
-      from: { location: CardActionLocation.DECK },
-    });
-
-    for (let player of gameData.playerList) {
-      player.cardBanned = true;
-      player.bannedCardTypes.push(CardType.DIAO_BAO);
-    }
-    GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
       for (let player of gameData.playerList) {
-        player.cardBanned = false;
-        player.bannedCardTypes = [];
+        player.addTag(TagName.CARD_NAME_REPLACED, { cardTypeA, cardTypeB });
       }
-    });
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}令所有角色本回合中不能使用【调包】`));
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(card)}加入手牌`));
+      GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
+        for (let player of gameData.playerList) {
+          player.removeTag(TagName.CARD_NAME_REPLACED);
+        }
+      });
 
-    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
-      player,
-      skill: this,
-    });
+      gameLog.addData(
+        new GameLog(`${gameLog.formatPlayer(player)}宣言了${gameLog.formatCard(cardA)}${gameLog.formatCard(cardB)}`)
+      );
+      gameLog.addData(
+        new GameLog(`直到回合结束，所有玩家的${gameLog.formatCard(cardA)}只能当做${gameLog.formatCard(cardB)}牌使用。`)
+      );
+
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
+        skill: this,
+      });
+    }
   }
 }

@@ -457,7 +457,6 @@ export class GameData extends DataBasic<GameManager> {
       card = this.createCardByType(data.cardType);
     }
 
-    console.log(card);
     if (this.cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this.cardOnPlay = card;

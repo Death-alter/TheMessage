@@ -1,6 +1,7 @@
 import { Card } from "../../Components/Card/Card";
 import { CardDirection, CardUsableStatus } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
+import { TagName } from "../../type";
 import { PlayerActionStepHandler } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
 
@@ -15,6 +16,11 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
         num: 1,
         filter: filter || ((card) => gui.uiLayer.getCardUsableStatus(card)),
         onSelect: (card: Card) => {
+          const tagData = gui.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
+          if (tagData && tagData.cardTypeA === card.type) {
+            card = gui.data.createCardByType(tagData.cardTypeB);
+          }
+
           const canPlay = card.canPlay(gui);
           if (canPlay) {
             gui.tooltip.setText(`是否使用【${card.name}】`);

@@ -10,10 +10,10 @@ import { GameData } from "../../../Manager/GameData";
 import { skill_ying_bian_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
-import { GameLog } from "../../GameLog/GameLog";
 import { Card } from "../../Card/Card";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { TagName } from "../../../type";
 
 export class YingBian extends ActiveSkill {
   get useable() {
@@ -41,6 +41,11 @@ export class YingBian extends ActiveSkill {
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_ZHENG_DUO_TOC);
+  }
+
+  canUse(gui: GameManager) {
+    const data = gui.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
+    return data && data.cardTypeA === CardType.JIE_HUO;
   }
 
   onUse(gui: GameManager) {

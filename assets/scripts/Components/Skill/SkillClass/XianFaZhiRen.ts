@@ -12,6 +12,7 @@ import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { TagName } from "../../../type";
 
 export class XianFaZhiRen extends ActiveSkill {
   constructor(character: Character) {
@@ -254,14 +255,10 @@ export class XianFaZhiRen extends ActiveSkill {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    if (targetPlayerId === 0) {
-      gameData.skillBanned = true;
-      GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
-        gameData.skillBanned = false;
-      });
-    }
+    targetPlayer.addTag(TagName.SKILL_BANNED);
     targetPlayer.gameObject.showBannedIcon();
     GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
+      targetPlayer.removeTag(TagName.SKILL_BANNED);
       targetPlayer.gameObject.hideBannedIcon();
     });
 

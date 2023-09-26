@@ -77,20 +77,19 @@ export class ChiZiZhiXin extends TriggerSkill {
     ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
-      type: WaitingType.USE_SKILL,
+      type: WaitingType.HANDLE_SKILL,
       seq: seq,
-      params: {
-        skill: this,
-      },
     });
 
-    GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-      skill: this,
-      handler: "promptChooseAction",
-      params: {
-        message: gameData.createCard(messageCard),
-      },
-    });
+    if (playerId === 0) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "promptChooseAction",
+        params: {
+          message: gameData.createCard(messageCard),
+        },
+      });
+    }
   }
 
   promptChooseAction(gui: GameManager, params: { message: Card }) {

@@ -17,6 +17,7 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { ButtonConfig } from "../../../Components/Utils/DynamicButtons";
+import { TagName } from "../../../type";
 
 const { ccclass, property } = _decorator;
 
@@ -209,6 +210,7 @@ export class UILayer extends Component {
                         });
                         next();
                       },
+                      enabled: () => !this.manager.data.selfPlayer.hasTag(TagName.CANNOT_RECEIVE_MESSAGE),
                     },
                     {
                       text: "不接收",
@@ -224,7 +226,7 @@ export class UILayer extends Component {
                       enabled:
                         !(this.manager.data.lockedPlayer && this.manager.data.lockedPlayer.id === 0) &&
                         this.manager.data.senderId !== 0 &&
-                        !this.manager.data.selfPlayer.mustReceiveMessage,
+                        !this.manager.data.selfPlayer.hasTag(TagName.MUST_RECEIVE_MESSAGE),
                     },
                   ]);
                 };
@@ -393,7 +395,7 @@ export class UILayer extends Component {
       if (skill instanceof ActiveSkill) {
         if (
           skill.useablePhase.indexOf(this.manager.data.gamePhase) !== -1 &&
-          !this.manager.data.selfPlayer.skillBanned &&
+          !this.manager.data.selfPlayer.hasTag(TagName.SKILL_BANNED) &&
           data.type !== WaitingType.PLAYER_DYING
         ) {
           switch (this.manager.data.gamePhase) {
@@ -566,7 +568,12 @@ export class UILayer extends Component {
         canCancel,
       },
     });
-    if (message.lockable || forceLock) {
+    const selfPlayer = this.manager.data.selfPlayer;
+    if (
+      message.lockable ||
+      forceLock ||
+      (!selfPlayer.hasTag(TagName.SKILL_BANNED) && selfPlayer.hasTag(TagName.MESSAGE_CAN_LOCK))
+    ) {
       PlayerAction.addStep({
         step: new PlayerActionStep({
           name: "selectLockTarget",
