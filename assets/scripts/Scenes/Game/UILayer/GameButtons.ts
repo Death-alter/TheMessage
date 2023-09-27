@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Label, find, director, sys } from "cc";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { DataManager } from "../../../Manager/DataManager";
 import { NetworkManager } from "../../../Network/NetworkManager";

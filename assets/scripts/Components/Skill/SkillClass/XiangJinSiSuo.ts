@@ -17,7 +17,7 @@ export class XiangJinSiSuo extends TriggerSkill {
     super({
       name: "详尽思索",
       character,
-      description: "一名角色传出情报后，你可以指定一名角色。若本回合该角色接收了情报，你摸两张牌。",
+      description: "一名角色传出情报后，你可以指定一名角色。若本回合该角色接收了情报，你摸一张牌。",
     });
   }
 

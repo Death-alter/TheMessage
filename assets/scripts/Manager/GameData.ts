@@ -16,7 +16,6 @@ import { CharacterStatus } from "../Components/Chatacter/type";
 import { createIdentity } from "../Components/Identity";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
 import { GameManager } from "./GameManager";
-import { ShiTan } from "../Components/Card/CardClass/ShiTan";
 
 export class GameData extends DataBasic<GameManager> {
   public selfPlayer: Player;
@@ -147,6 +146,7 @@ export class GameData extends DataBasic<GameManager> {
     ProcessEventCenter.once(
       ProcessEvent.DRAW_CARDS,
       (data: ProcessEventType.DrawCards) => {
+        console.log(this, this.playerList);
         //设置座位号
         let i = data.playerId;
         let j = 0;
@@ -343,7 +343,7 @@ export class GameData extends DataBasic<GameManager> {
       if (data.card instanceof Card) {
         card = data.card;
       } else {
-        card = this.createCard(data.card);
+        card = this.playerRemoveHandCard(player, data.card);
       }
     } else {
       card = this.playerRemoveHandCard(player, data.cardId);

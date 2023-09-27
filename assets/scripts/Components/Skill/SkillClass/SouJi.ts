@@ -177,6 +177,8 @@ export class SouJi extends ActiveSkill {
         player,
       });
       gameData.messageInTransmit = null;
+    } else if (playerId === 0) {
+      gameData.messageInTransmit.flip();
     }
 
     if (playerId !== 0) {

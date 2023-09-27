@@ -151,15 +151,17 @@ export class DuMing extends TriggerSkill {
       seq: seq,
     });
 
-    gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}宣言${getCardColorText(<number>color)}色`)
-    );
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}宣言${getCardColorText(<number>color)}色`));
 
     if (playerId === 0) {
       const message = gameData.createMessage(card);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip();
+      message.flip().then(() => {
+        message.gameObject.scheduleOnce(() => {
+          message.flip();
+        }, 1);
+      });
 
       if (waitingSecond > 0) {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {

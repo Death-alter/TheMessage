@@ -54,6 +54,14 @@ export class EventCenter<T = string, D = any> {
   public once(type: T, callback, target?: any): void {
     this.eventTarget.once(type as string, callback, target);
   }
+
+  public targetOff(target?: any): void {
+    this.eventTarget.targetOff(target);
+  }
+
+  public reset(): void {
+    this.eventTarget = new EventTarget();
+  }
 }
 
 export const GameEventCenter = new EventCenter<GameEvent, any>();

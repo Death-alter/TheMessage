@@ -153,6 +153,7 @@ export class TanXuBianShi extends ActiveSkill {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
+        canCancel: false,
         filter: (card: Card) => {
           if (flag) {
             if (Card.hasColor(card, color)) {

@@ -2,7 +2,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
-import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
@@ -77,13 +77,19 @@ export class PoYi extends Card {
   }
 
   onShow(gameData: GameData, { userId, targetCard, flag }: CardOnEffectParams) {
-    if (flag && userId !== 0) {
-      const message = gameData.createMessage(targetCard);
-      this.showMessageInTransmit(gameData, message);
+    if (flag) {
+      if (userId !== 0) {
+        const message = gameData.createMessage(targetCard);
+        this.showMessageInTransmit(gameData, message);
+      }
+    } else {
+      if (userId === 0) {
+        gameData.messageInTransmit.flip();
+      }
     }
   }
 
-  showMessageInTransmit(gameData: GameData, message) {
+  showMessageInTransmit(gameData: GameData, message: Card) {
     message.gameObject = gameData.messageInTransmit.gameObject;
     gameData.messageInTransmit = message;
     message.flip();

@@ -56,6 +56,7 @@ export class GameManager extends GameObject<GameData> {
   public syncStatus: SyncStatus = SyncStatus.NO_SYNC;
   public isRecord: boolean = false;
   public seq: number = 0;
+  public initialized: boolean = false;
 
   get tooltip() {
     return this.uiLayer.tooltip;
@@ -103,7 +104,7 @@ export class GameManager extends GameObject<GameData> {
 
   onEnable() {
     //游戏初始化
-    ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
+    ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.onInit, this);
 
     //游戏结束
     GameEventCenter.on(GameEvent.GAME_OVER, this.gameOver, this);
@@ -118,7 +119,9 @@ export class GameManager extends GameObject<GameData> {
       this.syncStatus = SyncStatus.SYNC_COMPLETE;
       GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.syncHandCard, this);
       GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.syncHandCard, this);
-      this.init();
+      if (this.initialized) {
+        this.init();
+      }
     });
 
     this.popupLayer.init(this);
@@ -135,8 +138,13 @@ export class GameManager extends GameObject<GameData> {
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);
     ProcessEventCenter.emit(ProcessEvent.START_UNLOAD_GAME_SCENE);
-    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init, this);
+    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.onInit, this);
     GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver, this);
+    ProcessEventCenter.targetOff(this);
+    ProcessEventCenter.targetOff(this.data);
+    GameEventCenter.targetOff(this);
+    GameEventCenter.targetOff(this.data);
+    ProcessEventCenter.off(ProcessEvent.CONFIRM_SELECT_CHARACTER);
   }
 
   init() {
@@ -168,6 +176,11 @@ export class GameManager extends GameObject<GameData> {
       this.gameLog.addData(new GameLog(str));
       GameEventCenter.emit(GameEvent.GAME_INIT);
     }
+  }
+
+  onInit() {
+    this.initialized = true;
+    this.init();
   }
 
   startRender() {
