@@ -140,10 +140,10 @@ export class GameManager extends GameObject<GameData> {
     ProcessEventCenter.emit(ProcessEvent.START_UNLOAD_GAME_SCENE);
     ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.onInit, this);
     GameEventCenter.off(GameEvent.GAME_OVER, this.gameOver, this);
-    ProcessEventCenter.targetOff(this);
+    // ProcessEventCenter.targetOff(this);
     ProcessEventCenter.targetOff(this.data);
-    GameEventCenter.targetOff(this);
-    GameEventCenter.targetOff(this.data);
+    // GameEventCenter.targetOff(this);
+    // GameEventCenter.targetOff(this.data);
     ProcessEventCenter.off(ProcessEvent.CONFIRM_SELECT_CHARACTER);
   }
 

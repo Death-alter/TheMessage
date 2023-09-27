@@ -123,6 +123,7 @@ export interface SendMessage {
   targetPlayerId: number;
   lockPlayerIds: number[];
   direction: CardDirection;
+  fromHand: boolean;
 }
 
 export interface ChooseReceive {

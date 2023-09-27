@@ -100,6 +100,7 @@ export class YuQinGuZong extends Card {
       targetPlayerId,
       lockPlayerIds,
       direction: cardDir,
+      fromHand: false,
     });
   }
 }

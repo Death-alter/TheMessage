@@ -106,6 +106,7 @@ export class YouDiShenRu extends ActiveSkill {
       targetPlayerId,
       lockPlayerIds,
       direction: cardDir,
+      fromHand: true,
     });
 
     const message = gameData.createCard(card);

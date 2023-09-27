@@ -81,26 +81,25 @@ export class PopupLayer extends Component {
   }
 
   startSelectCharacter(data: StartSelectCharacter) {
-    // if (this.manager.syncStatus === SyncStatus.NO_SYNC ) {
-
-    // }
-    this.selectCharacterWindow.getComponent(SelectCharacter).init(
-      {
-        playerCount: data.playerCount,
-        identity: createIdentity(
-          (<number>data.identity) as IdentityType,
-          (<number>data.secretTask) as SecretTaskType
-        ),
-        roles: (<number[]>data.characterIdList) as CharacterType[],
-        waitingSecond: data.waitingSecond,
-        secretTaskList: data.secretTaskList
-          ? data.secretTaskList.map((task) => {
-              return createIdentity(IdentityType.GREEN, (<number>task) as SecretTaskType);
-            })
-          : [],
-      },
-      data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter
-    );
+    if (this.manager.syncStatus !== SyncStatus.IS_SYNCING) {
+      this.selectCharacterWindow.getComponent(SelectCharacter).init(
+        {
+          playerCount: data.playerCount,
+          identity: createIdentity(
+            (<number>data.identity) as IdentityType,
+            (<number>data.secretTask) as SecretTaskType
+          ),
+          roles: (<number[]>data.characterIdList) as CharacterType[],
+          waitingSecond: data.waitingSecond,
+          secretTaskList: data.secretTaskList
+            ? data.secretTaskList.map((task) => {
+                return createIdentity(IdentityType.GREEN, (<number>task) as SecretTaskType);
+              })
+            : [],
+        },
+        data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter
+      );
+    }
   }
 
   stopSelectCharacter() {

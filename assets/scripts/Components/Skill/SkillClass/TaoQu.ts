@@ -127,6 +127,7 @@ export class TaoQu extends ActiveSkill {
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
         filter: (player) => {
+          if (player.id === 0) return false;
           for (let color of colors) {
             if (player.messageCounts[color] > 0) return true;
           }

@@ -176,6 +176,7 @@ export class LengXueXunLian extends ActiveSkill {
       targetPlayerId: targetPlayerId,
       lockPlayerIds: [lockPlayerId],
       direction: sendCard.cardDir,
+      fromHand: false,
     });
 
     gameData.playerAddHandCard(player, card);

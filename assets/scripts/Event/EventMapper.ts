@@ -85,7 +85,7 @@ export class EventMapper {
         playerCount: data.playerCount,
         identity: data.identity,
         secretTask: data.secretTask,
-        secretTaskList:data.possibleSecretTask,
+        secretTaskList: data.possibleSecretTask,
         characterIdList: data.roles,
         waitingSecond: data.waitingSecond,
       });
@@ -196,6 +196,7 @@ export class EventMapper {
         targetPlayerId: data.targetPlayerId,
         lockPlayerIds: data.lockPlayerIds,
         direction: data.cardDir,
+        fromHand: true,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.CHOOSE_RECEIVE_TOC, (data: ProtobufType.choose_receive_toc) => {

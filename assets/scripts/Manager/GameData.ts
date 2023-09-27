@@ -343,7 +343,11 @@ export class GameData extends DataBasic<GameManager> {
       if (data.card instanceof Card) {
         card = data.card;
       } else {
-        card = this.playerRemoveHandCard(player, data.card);
+        if (data.fromHand) {
+          card = this.playerRemoveHandCard(player, data.card);
+        } else {
+          card = this.createCard(data.card);
+        }
       }
     } else {
       card = this.playerRemoveHandCard(player, data.cardId);
