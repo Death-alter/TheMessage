@@ -238,6 +238,11 @@ export class UILayer extends Component {
                   num: 1,
                   filter: (card) => this.manager.uiLayer.getCardUsableStatus(card),
                   onSelect: (card: Card) => {
+                    const tagData = this.manager.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
+                    if (tagData && tagData.cardTypeA === card.type) {
+                      card = this.manager.data.createCardWithNewType(card, tagData.cardTypeB);
+                    }
+
                     const canPlay = card.canPlay(this.manager);
                     if (canPlay) {
                       this.manager.tooltip.setText(`是否使用【${card.name}】`);
@@ -623,7 +628,6 @@ export class UILayer extends Component {
       },
     });
     const selfPlayer = this.manager.data.selfPlayer;
-    console.log(selfPlayer.hasTag(TagName.SKILL_BANNED), selfPlayer.hasTag(TagName.MESSAGE_CAN_LOCK));
     if (
       message.lockable ||
       forceLock ||

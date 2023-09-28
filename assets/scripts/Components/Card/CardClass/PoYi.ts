@@ -2,13 +2,16 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../../../Components/Card/Card";
-import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
+import { card } from "../../../../protobuf/proto";
 
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];
+
+  private messageStatus: CardStatus;
 
   constructor(option: CardDefaultOption) {
     super({
@@ -35,6 +38,7 @@ export class PoYi extends Card {
   }
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
+    this.messageStatus = gameData.messageInTransmit.status;
     if (userId === 0) {
       const message = gameData.createMessage(targetCard);
       this.showMessageInTransmit(gameData, message);
@@ -83,15 +87,17 @@ export class PoYi extends Card {
         this.showMessageInTransmit(gameData, message);
       }
     } else {
-      if (userId === 0) {
+      if (userId === 0 && this.messageStatus === CardStatus.FACE_DOWN) {
         gameData.messageInTransmit.flip();
       }
     }
   }
 
   showMessageInTransmit(gameData: GameData, message: Card) {
-    message.gameObject = gameData.messageInTransmit.gameObject;
-    gameData.messageInTransmit = message;
-    message.flip();
+    if (message.status === CardStatus.FACE_DOWN) {
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+      message.flip();
+    }
   }
 }

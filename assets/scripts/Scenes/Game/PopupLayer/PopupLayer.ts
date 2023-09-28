@@ -65,6 +65,7 @@ export class PopupLayer extends Component {
     UIEventCenter.on(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
     UIEventCenter.on(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
     UIEventCenter.on(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
+    UIEventCenter.on(UIEvent.STOP_SHOW_CARDS, this.showCardsWindow.hide, this.showCardsWindow);
     UIEventCenter.on(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.on(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
     this.selectIdentityWindow.getComponent(SelectIdentity).init();
@@ -75,6 +76,7 @@ export class PopupLayer extends Component {
     UIEventCenter.off(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
     UIEventCenter.off(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
     UIEventCenter.off(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
+    UIEventCenter.off(UIEvent.STOP_SHOW_CARDS, this.showCardsWindow.hide, this.showCardsWindow);
     UIEventCenter.off(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
     UIEventCenter.off(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
     this.selectIdentityWindow.getComponent(SelectIdentity).dispose();

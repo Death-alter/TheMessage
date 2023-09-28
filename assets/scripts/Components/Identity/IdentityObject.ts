@@ -24,6 +24,7 @@ export class IdentityObject extends GameObject<Identity> {
       identityLabel.string = "?";
       identityLabel.fontSize = 28;
       identityLabel.lineHeight = 22;
+      this.node.getChildByPath("Mask/Inverted").active = false;
     } else {
       if (this.data instanceof NoIdentity) {
         identityColor.color = color("#FFFFFF");

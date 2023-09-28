@@ -153,21 +153,21 @@ export class DuMing extends TriggerSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}宣言${getCardColorText(<number>color)}色`));
 
+    const message = gameData.createMessage(card);
     if (playerId === 0) {
-      const message = gameData.createMessage(card);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip().then(() => {
-        message.gameObject.scheduleOnce(() => {
-          message.flip();
-        }, 1);
-      });
+      message.flip();
 
       if (waitingSecond > 0) {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
           skill: this,
           handler: "promprtSelectHandCard",
         });
+      } else {
+        message.gameObject.scheduleOnce(() => {
+          message.flip();
+        }, 2);
       }
     }
 

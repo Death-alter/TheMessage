@@ -146,7 +146,6 @@ export class GameData extends DataBasic<GameManager> {
     ProcessEventCenter.once(
       ProcessEvent.DRAW_CARDS,
       (data: ProcessEventType.DrawCards) => {
-        console.log(this, this.playerList);
         //设置座位号
         let i = data.playerId;
         let j = 0;

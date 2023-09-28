@@ -179,7 +179,6 @@ export class MiLing extends Card {
           gui.gameLayer.startSelectHandCards({
             num: 1,
             filter: (card) => {
-              console.log(gui.uiLayer.messageCanSend(card));
               if (Card.hasColor(card, color) && (flag || gui.uiLayer.messageCanSend(card))) {
                 return CardUsableStatus.USABLE;
               } else {

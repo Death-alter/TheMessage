@@ -96,6 +96,7 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   onEnable() {
+    if (this.data.id === 0) return;
     if (sys.isMobile) {
       this.node.getChildByPath("Border/Identity").on(
         "tap",
@@ -129,6 +130,7 @@ export class PlayerObject extends GameObject<Player> {
   }
 
   onDisable() {
+    if (this.data.id === 0) return;
     this.node.getChildByPath("Border/Identity").off(Node.EventType.TOUCH_END);
   }
 
