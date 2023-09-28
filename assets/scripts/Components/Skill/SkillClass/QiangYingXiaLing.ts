@@ -11,7 +11,7 @@ export class QiangYingXiaLing extends PassiveSkill {
     super({
       name: "强硬下令",
       character,
-      description: "传出的情报均可以锁定。",
+      description: "你传出的情报均可以锁定。",
     });
   }
 
