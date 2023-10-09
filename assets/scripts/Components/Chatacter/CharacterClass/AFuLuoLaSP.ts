@@ -2,17 +2,18 @@ import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
 import { YingBianZiRu } from "../../Skill/SkillClass/YingBianZiRu";
+import { HunShuiMoYu } from "../../Skill/SkillClass/HunShuiMoYu";
 
-export class SPYAFuLuoLa extends Character {
+export class AFuLuoLaSP extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 3013,
-      name: "间谍阿芙罗拉",
-      sprite: "images/characters/SPYAFuLuoLa",
+      id: 1013,
+      name: "SP阿芙罗拉",
+      sprite: "images/characters/AFuLuoLaSP",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });
-    this.setSkills([new YingBianZiRu(this)]);
+    this.setSkills([new YingBianZiRu(this), new HunShuiMoYu(this)]);
   }
 }

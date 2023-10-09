@@ -4,12 +4,12 @@ import { CharacterObject } from "../CharacterObject";
 import { ShouKouRuPing } from "../../Skill/SkillClass/ShouKouRuPing";
 import { HanHouLaoShi } from "../../Skill/SkillClass/HanHouLaoShi";
 
-export class YaBa extends Character {
+export class YaPao extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 40,
-      name: "哑巴",
-      sprite: "images/characters/YaBa",
+      name: "哑炮",
+      sprite: "images/characters/YaPao",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,

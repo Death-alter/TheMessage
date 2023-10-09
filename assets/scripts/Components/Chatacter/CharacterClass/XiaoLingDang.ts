@@ -1,19 +1,19 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { MiXin } from "../../Skill/SkillClass/MiXin";
-import { JiangJiJiuJi } from "../../Skill/SkillClass/JiangJiJiuJi";
+import { XinGeLianLuo } from "../../Skill/SkillClass/XinGeLianLuo";
+import { HouZiQieXin } from "../../Skill/SkillClass/HouZiQieXin";
 
-export class MiddleAgeHanMei extends Character {
+export class XiaoLingDang extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 2014,
-      name: "中年韩梅",
+      id: 45,
+      name: "小铃铛",
       sprite: "images/characters/NoPanting_Famale",
-      status: CharacterStatus.FACE_DOWN,
+      status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });
-    this.setSkills([new MiXin(this), new JiangJiJiuJi(this)]);
+    this.setSkills([new XinGeLianLuo(this), new HouZiQieXin(this)]);
   }
 }

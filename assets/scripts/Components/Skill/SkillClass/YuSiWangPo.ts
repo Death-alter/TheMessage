@@ -21,7 +21,7 @@ export class YuSiWangPo extends ActiveSkill {
     super({
       name: "鱼死网破",
       character,
-      description: "出牌阶段限一次，你可以弃置至少一张手牌，令一名其他角色弃置对应数量的手牌，然后你们各摸一张牌。",
+      description: "出牌阶段限一次，你可以弃置至少一张手牌，令一名其他角色弃置[你弃置的手牌数量+1]张手牌，然后你们各摸一张牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }

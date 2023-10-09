@@ -19,7 +19,8 @@ export class MiXin extends TriggerSkill {
     super({
       name: "密信",
       character,
-      description: "你接收双色情报后，可以翻开此角色，将一张含有该情报颜色的手牌置入传出者的情报区，然后摸两张牌。",
+      description:
+        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报颜色的手牌置入传出者的情报区。",
     });
   }
 
@@ -42,7 +43,7 @@ export class MiXin extends TriggerSkill {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
-          tooltip.setText(`你接收了双色情报，是否使用【密信】？`);
+          tooltip.setText(`你接收了其他人传出的情报，是否使用【密信】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",

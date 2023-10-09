@@ -9,7 +9,6 @@ import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class HuoXin extends ActiveSkill {

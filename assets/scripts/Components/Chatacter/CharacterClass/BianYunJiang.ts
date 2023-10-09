@@ -4,11 +4,11 @@ import { CharacterObject } from "../CharacterObject";
 import { YouDiShenRu } from "../../Skill/SkillClass/YouDiShenRu";
 import { JianDiFengXing } from "../../Skill/SkillClass/JianDiFengXing";
 
-export class JunRen extends Character {
+export class BianYunJiang extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 47,
-      name: "军人",
+      name: "边云疆",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

@@ -327,7 +327,7 @@ export class CardAction extends Component {
     });
   }
 
-  //打出卡牌
+  //使用卡牌
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
     const { card, player } = data;
     if (player.id === 0 && card.id != null) {

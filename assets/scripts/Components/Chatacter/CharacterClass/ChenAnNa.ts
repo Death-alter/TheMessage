@@ -2,18 +2,18 @@ import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
 import { ZiZhengQingBai } from "../../Skill/SkillClass/ZiZhengQingBai";
-import { MiaoShouKuaiJi } from "../../Skill/SkillClass/MiaoShouKuaiJi";
+import { YiWenAnHao } from "../../Skill/SkillClass/YiWenAnHao";
 
-export class SuJiYuan extends Character {
+export class ChenAnNa extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 39,
-      name: "速记员",
-      sprite: "images/characters/SuJiYuan",
+      name: "陈安娜",
+      sprite: "images/characters/ChenAnNa",
       status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });
-    this.setSkills([new ZiZhengQingBai(this), new MiaoShouKuaiJi(this)]);
+    this.setSkills([new ZiZhengQingBai(this), new YiWenAnHao(this)]);
   }
 }

@@ -1,19 +1,19 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { TanXuBianShi } from "../../Skill/SkillClass/TanXuBianShi";
-import { CunBuBuRang } from "../../Skill/SkillClass/CunBuBuRang";
+import { MiXin } from "../../Skill/SkillClass/MiXin";
+import { JiangJiJiuJi } from "../../Skill/SkillClass/JiangJiJiuJi";
 
-export class QiShou extends Character {
+export class AdultHanMei extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 44,
-      name: "棋手",
+      id: 2014,
+      name: "成年韩梅",
       sprite: "images/characters/NoPanting_Famale",
-      status: CharacterStatus.FACE_UP,
+      status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });
-    this.setSkills([new TanXuBianShi(this), new CunBuBuRang(this)]);
+    this.setSkills([new MiXin(this), new JiangJiJiuJi(this)]);
   }
 }

@@ -72,6 +72,7 @@ export class DingLun extends ActiveSkill {
         await message.flip();
       }
 
+      gameData.playerAddHandCard(player, message);
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player,
         card: message,

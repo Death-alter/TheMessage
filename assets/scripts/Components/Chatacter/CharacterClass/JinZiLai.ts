@@ -1,18 +1,18 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { TaoQu } from "../../Skill/SkillClass/TaoQu";
+import { DuMing } from "../../Skill/SkillClass/DuMing";
 
-export class SPYBaiFeiFei extends Character {
+export class JinZiLai extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 3021,
-      name: "间谍白菲菲",
-      sprite: "images/characters/SPYBaiFeiFei",
+      id: 41,
+      name: "金自来",
+      sprite: "images/characters/JinZiLai",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.MALE,
       gameObject: gameObject,
     });
-    this.setSkills([new TaoQu(this)]);
+    this.setSkills([new DuMing(this)]);
   }
 }

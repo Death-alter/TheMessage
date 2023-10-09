@@ -6,7 +6,7 @@ import { GameData } from "../../../Manager/GameData";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { GameManager } from "../../../Manager/GameManager";
-import { skill_lian_luo_toc } from "../../../../protobuf/proto";
+import { skill_lian_xin_toc } from "../../../../protobuf/proto";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
@@ -14,18 +14,19 @@ import { Card } from "../../Card/Card";
 import { CardUsableStatus } from "../../Card/type";
 import { CardActionLocation } from "../../../Manager/type";
 
-export class LianLuo2 extends TriggerSkill {
+export class LianXin extends TriggerSkill {
   constructor(character: Character) {
     super({
-      name: "联络",
+      name: "联信",
       character,
-      description: "你接收单色情报后，可以翻开此角色，将一张含有不同颜色的手牌置入传出者的情报区，然后摸两张牌。",
+      description:
+        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有不同颜色的手牌置入传出者的情报区。",
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_LIAN_LUO_TOC,
+      NetworkEventToC.SKILL_LIAN_XIN_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -34,7 +35,7 @@ export class LianLuo2 extends TriggerSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_LIAN_LUO_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_LIAN_XIN_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
@@ -42,7 +43,7 @@ export class LianLuo2 extends TriggerSkill {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
-          tooltip.setText(`你接收了单色情报，是否使用【联络】？`);
+          tooltip.setText(`你接收了其他人传出的情报，是否使用【联信】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
@@ -88,7 +89,7 @@ export class LianLuo2 extends TriggerSkill {
       .start();
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_lian_luo_toc) {
+  onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_lian_xin_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;

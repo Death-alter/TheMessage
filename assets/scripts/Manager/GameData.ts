@@ -441,7 +441,7 @@ export class GameData extends DataBasic<GameManager> {
     }
   }
 
-  //打出卡牌
+  //使用卡牌
   private cardPlayed(data: ProcessEventType.CardPlayed) {
     let card: Card;
     const user = this.playerList[data.userId];

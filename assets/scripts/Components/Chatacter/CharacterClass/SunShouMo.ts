@@ -8,7 +8,7 @@ export class SunShouMo extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 48,
-      name: "孙守謨",
+      name: "孙守谟",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

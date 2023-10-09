@@ -3,7 +3,6 @@ import { Character } from "../../Chatacter/Character";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
-import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { skill_jiang_ji_jiu_ji_toc } from "../../../../protobuf/proto";
 
@@ -12,7 +11,7 @@ export class JiangJiJiuJi extends PassiveSkill {
     super({
       name: "将计就计",
       character,
-      description: "你使用【误导】或成为【误导】的目标之一时，可以将此角色牌翻至面朝下。",
+      description: "你使用【误导】或成为【误导】的目标之一时，可以将此角色牌翻至面朝下，摸一张牌。",
     });
   }
 
@@ -27,7 +26,7 @@ export class JiangJiJiuJi extends PassiveSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_ZHENG_DUO_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_JIANG_JI_JIU_JI_TOC);
   }
 
   onEffect(gameData: GameData, { playerId }: skill_jiang_ji_jiu_ji_toc) {

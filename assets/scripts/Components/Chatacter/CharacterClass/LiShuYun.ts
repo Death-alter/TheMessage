@@ -4,11 +4,11 @@ import { CharacterObject } from "../CharacterObject";
 import { DingLun } from "../../Skill/SkillClass/DingLun";
 import { ZhenLi } from "../../Skill/SkillClass/ZhenLi";
 
-export class JiaoShou extends Character {
+export class LiShuYun extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
       id: 43,
-      name: "教授",
+      name: "李书云",
       sprite: "images/characters/NoPanting_Famale",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.FAMALE,

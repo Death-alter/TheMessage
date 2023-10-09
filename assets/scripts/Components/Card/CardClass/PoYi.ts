@@ -6,7 +6,6 @@ import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType 
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
-import { card } from "../../../../protobuf/proto";
 
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];

@@ -53,7 +53,7 @@ export class AnimationLayer extends Component {
     //卡牌加入手牌
     GameEventCenter.on(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
 
-    //打出卡牌
+    //使用卡牌
     GameEventCenter.on(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
 
     //卡牌结算

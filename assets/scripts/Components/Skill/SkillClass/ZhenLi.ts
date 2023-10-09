@@ -11,7 +11,7 @@ export class ZhenLi extends PassiveSkill {
     super({
       name: "真理",
       character,
-      description: "你传出的红色或蓝色情报被其他角色接收后，你可以摸一张牌，将此角色牌翻至面朝下。",
+      description: "你传出的红色或蓝色情报被其他角色接收后，你可以摸两张牌，将此角色牌翻至面朝下。",
     });
   }
 
