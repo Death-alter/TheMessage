@@ -164,15 +164,6 @@ export class MiLing extends Card {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           let flag = true;
-          if (gui.data.selfPlayer.hasTag(TagName.HAN_HOU_LAO_SHI)) {
-            const handCards = [...gui.data.handCardList.list.filter((card) => Card.hasColor(card, color))];
-            for (let card of handCards) {
-              if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
-                flag = false;
-              }
-            }
-          }
-
           let tooltipText = "密令的暗号为" + secretText;
           tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
           tooltip.setText(tooltipText);

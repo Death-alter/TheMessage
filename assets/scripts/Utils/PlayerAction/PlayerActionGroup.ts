@@ -27,7 +27,7 @@ export class PlayerActionGroup {
     }
 
     this.dataList[this.index].current = { index: this.index, ...data } || { index: this.index };
-    
+
     if (this.index >= this.stepList.length) {
       return false;
     } else {

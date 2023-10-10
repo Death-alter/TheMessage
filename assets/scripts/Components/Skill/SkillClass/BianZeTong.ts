@@ -59,6 +59,12 @@ export class BianZeTong extends TriggerSkill {
   }
 
   onTrigger(gui: GameManager, params): void {
+    const cardList = [
+      gui.data.createCardByType(CardType.JIE_HUO),
+      gui.data.createCardByType(CardType.WU_DAO),
+      gui.data.createCardByType(CardType.DIAO_BAO),
+      gui.data.createCardByType(CardType.PO_YI),
+    ];
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
@@ -87,12 +93,7 @@ export class BianZeTong extends TriggerSkill {
             const showCardsWindow = gui.showCardsWindow;
             showCardsWindow.show({
               title: "请选择卡牌种类A",
-              cardList: [
-                gui.data.createCardByType(CardType.JIE_HUO),
-                gui.data.createCardByType(CardType.WU_DAO),
-                gui.data.createCardByType(CardType.DIAO_BAO),
-                gui.data.createCardByType(CardType.PO_YI),
-              ],
+              cardList,
               limit: 1,
               buttons: [
                 {
@@ -123,16 +124,35 @@ export class BianZeTong extends TriggerSkill {
       .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev }) => {
+            cardList.splice(cardList.indexOf(current.cardType), 1);
             const showCardsWindow = gui.showCardsWindow;
-            for (let card of showCardsWindow.cardList.list) {
-              if (card.type === current.cardType) {
-                showCardsWindow.removeCard(card);
-                break;
-              }
-            }
-            showCardsWindow.selectedCards.limit = 1;
-            showCardsWindow.setTitle("请选择卡牌种类B")
-            showCardsWindow.show();
+            showCardsWindow.show({
+              title: "请选择卡牌种类B",
+              cardList,
+              limit: 1,
+              buttons: [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    const type = showCardsWindow.selectedCards.list[0].type;
+                    showCardsWindow.hide();
+                    gui.gameLayer.pauseSelectPlayers();
+                    next({
+                      cardType: type,
+                    });
+                  },
+                  enabled: () => !!showCardsWindow.selectedCards.list.length,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    showCardsWindow.hide();
+                    gui.gameLayer.stopSelectPlayers();
+                    prev();
+                  },
+                },
+              ],
+            });
           },
         }),
       })

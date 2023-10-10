@@ -61,6 +61,7 @@ import { XiaoLingDang } from "./CharacterClass/XiaoLingDang";
 import { ChenDaEr } from "./CharacterClass/ChenDaEr";
 import { BianYunJiang } from "./CharacterClass/BianYunJiang";
 import { SunShouMo } from "./CharacterClass/SunShouMo";
+import { HuoCheSiJi } from "./CharacterClass/HuoCheSiJi";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -112,6 +113,7 @@ charactersMap[45] = XiaoLingDang;
 charactersMap[46] = ChenDaEr;
 charactersMap[47] = BianYunJiang;
 charactersMap[48] = SunShouMo;
+charactersMap[49] = HuoCheSiJi;
 charactersMap[1002] = ChengXiaoDieSP;
 charactersMap[1003] = LianYuanSP;
 charactersMap[1013] = AFuLuoLaSP;

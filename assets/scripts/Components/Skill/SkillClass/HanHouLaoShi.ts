@@ -17,7 +17,7 @@ export class HanHouLaoShi extends PassiveSkill {
     super({
       name: "憨厚老实",
       character,
-      description: "你无法主动传出纯黑色情报（除非你只能传出纯黑色情报）。",
+      description: "你的回合中，你无法把纯黑色手牌作为情报传出（除非你只有纯黑色手牌）。",
     });
   }
 

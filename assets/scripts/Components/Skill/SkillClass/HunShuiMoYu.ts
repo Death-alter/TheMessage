@@ -12,12 +12,13 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { TagName } from "../../../type";
+import { CharacterStatus } from "../../Chatacter/type";
 
 export class HunShuiMoYu extends ActiveSkill {
   private usageCount: number = 0;
 
   get useable() {
-    return this.usageCount === 0;
+    return this.usageCount === 0 && this.character.status === CharacterStatus.FACE_UP;
   }
 
   constructor(character: Character) {

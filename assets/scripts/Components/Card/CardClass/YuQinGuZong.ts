@@ -73,6 +73,7 @@ export class YuQinGuZong extends Card {
               {
                 text: "取消",
                 onclick: () => {
+                  showCardsWindow.hide();
                   prev();
                 },
               },

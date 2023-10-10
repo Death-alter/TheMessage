@@ -90,7 +90,11 @@ export abstract class PlayerAction {
         --this.index;
         const key = this.groupKeys.pop();
         delete this.groups[key];
-        this.handleStep();
+        if (this.groupKeys.length > 1) {
+          this.prev();
+        } else {
+          this.handleStep();
+        }
       }
     }
     return this;
@@ -131,6 +135,7 @@ export abstract class PlayerAction {
   }
 
   private static handleStep() {
+    console.log(this.currentGroup);
     this.currentGroup.handleStep({
       next: this.next.bind(this),
       prev: this.prev.bind(this),

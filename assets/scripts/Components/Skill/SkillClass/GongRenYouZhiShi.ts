@@ -87,6 +87,7 @@ export class GongRenYouZhiShi extends TriggerSkill {
       .addStep({
         step: PlayerActionStepName.SELECT_PLAYERS,
         data: {
+          tooltipText: `请选择最多${gui.data.selfPlayer.messageCounts[CardColor.BLACK]}名角色`,
           num: gui.data.selfPlayer.messageCounts[CardColor.BLACK],
           enabled: () => gui.selectedPlayers.list.length > 0,
         },
