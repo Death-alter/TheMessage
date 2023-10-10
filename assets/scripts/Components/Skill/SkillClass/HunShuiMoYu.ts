@@ -1,7 +1,7 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { GamePhase } from "../../../Manager/type";
-import { CardType } from "../../Card/type";
+import { CardType, CardUsableStatus } from "../../Card/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -11,6 +11,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { TagName } from "../../../type";
 
 export class HunShuiMoYu extends ActiveSkill {
   private usageCount: number = 0;
@@ -43,12 +44,20 @@ export class HunShuiMoYu extends ActiveSkill {
   }
 
   onUse(gui: GameManager) {
+    const data = gui.data.selfPlayer.getTagData(TagName.CARD_NAME_REPLACED);
     if (gui.data.gamePhase === GamePhase.MAIN_PHASE) {
       PlayerAction.addStep({
         step: PlayerActionStepName.SELECT_HAND_CARDS,
         data: {
           tooltipText: "请选择一张手牌当做【调虎离山】使用",
           enabled: () => gui.selectedHandCards.list.length > 0,
+          filter: (card) => {
+            if (data && data.cardTypeA === card.type) {
+              return CardUsableStatus.UNUSABLE;
+            } else {
+              return CardUsableStatus.USABLE;
+            }
+          },
         },
       }).addStep({
         step: new PlayerActionStep({
@@ -68,6 +77,13 @@ export class HunShuiMoYu extends ActiveSkill {
         data: {
           tooltipText: "请选择一张手牌当做【欲擒故纵】使用",
           enabled: () => gui.selectedHandCards.list.length > 0,
+          filter: (card) => {
+            if (data && data.cardTypeA === card.type) {
+              return CardUsableStatus.UNUSABLE;
+            } else {
+              return CardUsableStatus.USABLE;
+            }
+          },
         },
       }).addStep({
         step: new PlayerActionStep({

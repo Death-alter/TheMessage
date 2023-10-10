@@ -1,18 +1,18 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
-import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { GameManager } from "../../../Manager/GameManager";
-import { skill_mi_xin_toc } from "../../../../protobuf/proto";
+import { skill_mi_xin_a_toc, skill_mi_xin_b_toc } from "../../../../protobuf/proto";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Card } from "../../Card/Card";
 import { CardUsableStatus } from "../../Card/type";
-import { CardActionLocation } from "../../../Manager/type";
+import { CardActionLocation, WaitingType } from "../../../Manager/type";
 
 export class MiXin extends TriggerSkill {
   constructor(character: Character) {
@@ -20,22 +20,30 @@ export class MiXin extends TriggerSkill {
       name: "密信",
       character,
       description:
-        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报颜色的手牌置入传出者的情报区。",
+        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报相同颜色的手牌置入传出者的情报区。",
     });
   }
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_MI_XIN_TOC,
+      NetworkEventToC.SKILL_MI_XIN_A_TOC,
       (data) => {
-        this.onEffect(gameData, data);
+        this.onEffectA(gameData, data);
+      },
+      this
+    );
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_MI_XIN_B_TOC,
+      (data) => {
+        this.onEffectB(gameData, data);
       },
       this
     );
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_MI_XIN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_MI_XIN_A_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_MI_XIN_B_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
@@ -61,23 +69,8 @@ export class MiXin extends TriggerSkill {
         },
       }),
     })
-      .addStep({
-        step: PlayerActionStepName.SELECT_HAND_CARDS,
-        data: {
-          filter: (card: Card) => {
-            const messages = gui.data.selfPlayer.getMessagesCopy();
-            const color = messages[messages.length - 1].color;
-            if (Card.hasColor(card, color[0]) || Card.hasColor(card, color[1])) {
-              return CardUsableStatus.USABLE;
-            } else {
-              return CardUsableStatus.UNUSABLE;
-            }
-          },
-        },
-      })
-      .onComplete((data) => {
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_MI_XIN_TOS, {
-          cardId: data[0].cards[0].id,
+      .onComplete(() => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MI_XIN_A_TOS, {
           seq: gui.seq,
         });
       })
@@ -89,15 +82,68 @@ export class MiXin extends TriggerSkill {
       .start();
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_mi_xin_toc) {
+  onEffectA(gameData: GameData, { playerId, targetPlayerId, messageCard, waitingSecond, seq }: skill_mi_xin_a_toc) {
     const player = gameData.playerList[playerId];
-    const targetPlayer = gameData.playerList[targetPlayerId];
-    const gameLog = gameData.gameLog;
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
       player,
       skill: this,
     });
+
+    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      playerId: playerId,
+      second: waitingSecond,
+      type: WaitingType.HANDLE_SKILL,
+      seq: seq,
+    });
+
+    if (playerId === 0 && waitingSecond) {
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "selectHandcard",
+        params: {
+          message: gameData.createCard(messageCard),
+        },
+      });
+    }
+  }
+
+  selectHandcard(gui: GameManager, params: { message: Card }) {
+    const { message } = params;
+    PlayerAction.addStep({
+      step: PlayerActionStepName.SELECT_HAND_CARDS,
+      data: {
+        filter: (card: Card) => {
+          let flag = false;
+          for (let c of message.color) {
+            if (Card.hasColor(card, c)) {
+              flag = true;
+              break;
+            }
+          }
+
+          if (flag) {
+            return CardUsableStatus.USABLE;
+          } else {
+            return CardUsableStatus.UNUSABLE;
+          }
+        },
+        canCancel: false,
+      },
+    })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MI_XIN_B_TOS, {
+          cardId: data[0].cards[0].id,
+          seq: gui.seq,
+        });
+      })
+      .start();
+  }
+
+  onEffectB(gameData: GameData, { playerId, targetPlayerId, card }: skill_mi_xin_b_toc) {
+    const player = gameData.playerList[playerId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+    const gameLog = gameData.gameLog;
 
     const handCard = gameData.playerRemoveHandCard(player, card);
     targetPlayer.addMessage(handCard);

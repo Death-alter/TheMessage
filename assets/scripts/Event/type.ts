@@ -160,8 +160,10 @@ export enum NetworkEventToC {
   SKILL_WAIT_FOR_DU_MING_TOC = "skill_wait_for_du_ming_toc",
   SKILL_DU_MING_A_TOC = "skill_du_ming_a_toc",
   SKILL_DU_MING_B_TOC = "skill_du_ming_b_toc",
-  SKILL_LIAN_XIN_TOC = "skill_lian_xin_toc",
-  SKILL_MI_XIN_TOC = "skill_mi_xin_toc",
+  SKILL_LIAN_XIN_A_TOC = "skill_lian_xin_a_toc",
+  SKILL_LIAN_XIN_B_TOC = "skill_lian_xin_b_toc",
+  SKILL_MI_XIN_A_TOC = "skill_mi_xin_a_toc",
+  SKILL_MI_XIN_B_TOC = "skill_mi_xin_b_toc",
   SKILL_SHUN_SHI_ER_WEI_TOC = "skill_shun_shi_er_wei_toc",
   SKILL_JIANG_JI_JIU_JI_TOC = "skill_jiang_ji_jiu_ji_toc",
   SKILL_YU_SI_WANG_PO_A_TOC = "skill_yu_si_wang_po_a_toc",
@@ -189,6 +191,8 @@ export enum NetworkEventToC {
   SKILL_WAIT_FOR_XIANG_JIN_SI_SUO_TOC = "skill_wait_for_xiang_jin_si_suo_toc",
   SKILL_XIANG_JIN_SI_SUO_A_TOC = "skill_xiang_jin_si_suo_a_toc",
   SKILL_XIANG_JIN_SI_SUO_B_TOC = "skill_xiang_jin_si_suo_b_toc",
+  SKILL_WAIT_FOR_WORKERS_ARE_KNOWLEDGABLE_TOC = "skill_wait_for_workers_are_knowledgable_toc",
+  SKILL_WORKERS_ARE_KNOWLEDGABLE_TOC = "skill_workers_are_knowledgable_toc",
 }
 
 //tos协议，ws发送数据
@@ -307,8 +311,10 @@ export enum NetworkEventToS {
   SKILL_ZI_ZHENG_QING_BAI_TOS = "skill_zi_zheng_qing_bai_tos",
   SKILL_DU_MING_A_TOS = "skill_du_ming_a_tos",
   SKILL_DU_MING_B_TOS = "skill_du_ming_b_tos",
-  SKILL_LIAN_LUO_TOS = "skill_lian_luo_tos",
-  SKILL_MI_XIN_TOS = "skill_mi_xin_tos",
+  SKILL_LIAN_XIN_A_TOS = "skill_lian_xin_a_tos",
+  SKILL_LIAN_XIN_B_TOS = "skill_lian_xin_b_tos",
+  SKILL_MI_XIN_A_TOS = "skill_mi_xin_a_tos",
+  SKILL_MI_XIN_B_TOS = "skill_mi_xin_b_tos",
   SKILL_YU_SI_WANG_PO_A_TOS = "skill_yu_si_wang_po_a_tos",
   SKILL_YU_SI_WANG_PO_B_TOS = "skill_yu_si_wang_po_b_tos",
   SKILL_DING_LUN_TOS = "skill_ding_lun_tos",
@@ -327,6 +333,7 @@ export enum NetworkEventToS {
   SKILL_JIAN_DI_FENG_XING_B_TOS = "skill_jian_di_feng_xing_b_tos",
   SKILL_JIAN_DI_FENG_XING_C_TOS = "skill_jian_di_feng_xing_c_tos",
   SKILL_XIANG_JIN_SI_SUO_A_TOS = "skill_xiang_jin_si_suo_a_tos",
+  SKILL_WORKERS_ARE_KNOWLEDGABLE_TOS = "skill_workers_are_knowledgable_tos",
 }
 
 //程序事件，用于程序控制
