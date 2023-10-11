@@ -1,7 +1,7 @@
 import { Card } from "../Card";
 import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
-import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToS } from "../../../Event/type";
+import { NetworkEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
@@ -9,7 +9,6 @@ import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { GameLog } from "../../GameLog/GameLog";
-import { TagName } from "../../../type";
 
 export class DiaoHuLiShan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];

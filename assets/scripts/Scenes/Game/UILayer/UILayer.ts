@@ -291,7 +291,7 @@ export class UILayer extends Component {
                   filter: (card) => {
                     const flag = this.cardCanPlayed(card);
                     if (flag.banned) {
-                      return CardUsableStatus.USABLE;
+                      return CardUsableStatus.BANNED;
                     } else {
                       if (card.type === CardType.CHENG_QING) {
                         return CardUsableStatus.USABLE;
@@ -640,9 +640,6 @@ export class UILayer extends Component {
             this.manager.tooltip.setText("请选择一名角色锁定");
             this.manager.gameLayer.startSelectPlayers({
               num: 1,
-              filter: (player) => {
-                return player.id !== 0;
-              },
             });
             const buttons: ButtonConfig[] = [
               {

@@ -14,7 +14,7 @@ export class CunBuBuRang extends TriggerSkill {
     super({
       name: "寸步不让",
       character,
-      description: "一名其他角色获得你的手牌后，你可以抽取该角色的一张手牌。你在回合外弃置手牌时，你可以摸一张牌。",
+      description: "♦一名其他角色获得你的手牌后，你可以抽取该角色的一张手牌。\n♦你在回合外弃置手牌时，可以摸一张牌。",
     });
   }
 

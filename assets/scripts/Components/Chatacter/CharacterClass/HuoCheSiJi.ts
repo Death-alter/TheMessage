@@ -7,7 +7,7 @@ import { GongRenYouZhiShi } from "../../Skill/SkillClass/GongRenYouZhiShi";
 export class HuoCheSiJi extends Character {
   constructor(gameObject?: CharacterObject) {
     super({
-      id: 46,
+      id: 49,
       name: "火车司机",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
