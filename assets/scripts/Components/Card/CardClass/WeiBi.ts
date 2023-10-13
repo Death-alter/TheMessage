@@ -34,9 +34,6 @@ export class WeiBi extends Card {
         data: {
           tooltipText: "请选择威逼的目标",
           num: 1,
-          filter: (player) => {
-            return player.id !== 0;
-          },
           enabled: () => gui.selectedPlayers.list.length > 0,
         },
       })
