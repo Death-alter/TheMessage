@@ -6,7 +6,7 @@
   "main": "main.js",
   "version": "1.0.0",
   "creator": {
-    "version": "3.7.3"
+    "version": "3.8.0"
   },
   "dependencies": {
     "protobufjs": "^7.2.3",
@@ -15,7 +15,7 @@
   "scripts": {
     "build:electron": "electron-builder",
     "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js",
-    "build:proto-ts":"npx protoc --ts_out ./assets/protobuf --proto_path ./assets/network ./assets/network/common.proto ./assets/network/fengsheng.proto ./assets/network/role.proto"
+    "build:proto-ts": "npx protoc --ts_out ./assets/protobuf --proto_path ./assets/network ./assets/network/common.proto ./assets/network/fengsheng.proto ./assets/network/role.proto"
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.9.1",

@@ -59,12 +59,6 @@ export class BianZeTong extends TriggerSkill {
   }
 
   onTrigger(gui: GameManager, params): void {
-    const cardList = [
-      gui.data.createCardByType(CardType.JIE_HUO),
-      gui.data.createCardByType(CardType.WU_DAO),
-      gui.data.createCardByType(CardType.DIAO_BAO),
-      gui.data.createCardByType(CardType.PO_YI),
-    ];
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
@@ -91,9 +85,10 @@ export class BianZeTong extends TriggerSkill {
         step: new PlayerActionStep({
           handler: (data, { next, prev }) => {
             const showCardsWindow = gui.showCardsWindow;
+            const cardTypeList = [CardType.JIE_HUO, CardType.WU_DAO, CardType.DIAO_BAO, CardType.PO_YI];
             showCardsWindow.show({
               title: "请选择卡牌种类A",
-              cardList,
+              cardList: cardTypeList.map((type) => gui.data.createCardByType(type)),
               limit: 1,
               buttons: [
                 {
@@ -124,11 +119,12 @@ export class BianZeTong extends TriggerSkill {
       .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev }) => {
-            cardList.splice(cardList.indexOf(current.cardType), 1);
+            const cardTypeList = [CardType.JIE_HUO, CardType.WU_DAO, CardType.DIAO_BAO, CardType.PO_YI];
+            cardTypeList.splice(cardTypeList.indexOf(current.cardType), 1);
             const showCardsWindow = gui.showCardsWindow;
             showCardsWindow.show({
               title: "请选择卡牌种类B",
-              cardList,
+              cardList: cardTypeList.map((type) => gui.data.createCardByType(type)),
               limit: 1,
               buttons: [
                 {

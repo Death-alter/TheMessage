@@ -1,6 +1,6 @@
 # TheMessage
 风声客户端
-使用Cocos Creator v3.7.3
+使用Cocos Creator v3.8.0
 
 ## 安装依赖包
 `npm install`

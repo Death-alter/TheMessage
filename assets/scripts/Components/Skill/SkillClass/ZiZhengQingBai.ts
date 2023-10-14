@@ -16,6 +16,7 @@ import { Agent } from "../../Identity/IdentityClass/Agent";
 import { MysteriousPerson } from "../../Identity/IdentityClass/MysteriousPerson";
 import { CardColor, CardUsableStatus } from "../../Card/type";
 import { IdentityType } from "../../Identity/type";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class ZiZhengQingBai extends ActiveSkill {
   private usageCount: number = 0;
@@ -55,54 +56,31 @@ export class ZiZhengQingBai extends ActiveSkill {
 
   onUse(gui: GameManager) {
     PlayerAction.addStep({
-      step: new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          const tooltip = gui.tooltip;
-          tooltip.setText(`请选择一张手牌丢弃`);
-          gui.gameLayer.startSelectHandCards({
-            num: 1,
-            filter: (card: Card) => {
-              const identity = gui.data.selfPlayer.identityList[0];
-              if (identity instanceof Lurker) {
-                if (Card.hasColor(card, CardColor.RED)) {
-                  return CardUsableStatus.UNUSABLE;
-                } else {
-                  return CardUsableStatus.USABLE;
-                }
-              } else if (identity instanceof Agent) {
-                if (Card.hasColor(card, CardColor.BLUE)) {
-                  return CardUsableStatus.UNUSABLE;
-                } else {
-                  return CardUsableStatus.USABLE;
-                }
-              } else if (identity instanceof MysteriousPerson) {
-                return CardUsableStatus.USABLE;
-              }
-            },
-          });
-
-          tooltip.buttons.setButtons([
-            {
-              text: "确定",
-              onclick: () => {
-                next({ cardId: gui.selectedHandCards.list[0].id });
-              },
-              enabled: () => {
-                return gui.selectedHandCards.list.length === 1;
-              },
-            },
-            {
-              text: "取消",
-              onclick: () => {
-                prev();
-              },
-            },
-          ]);
+      step: PlayerActionStepName.SELECT_HAND_CARDS,
+      data: {
+        tooltipText: "请选择一张手牌丢弃",
+        filter: (card: Card) => {
+          const identity = gui.data.selfPlayer.identityList[0];
+          if (identity instanceof Lurker) {
+            if (Card.hasColor(card, CardColor.RED)) {
+              return CardUsableStatus.UNUSABLE;
+            } else {
+              return CardUsableStatus.USABLE;
+            }
+          } else if (identity instanceof Agent) {
+            if (Card.hasColor(card, CardColor.BLUE)) {
+              return CardUsableStatus.UNUSABLE;
+            } else {
+              return CardUsableStatus.USABLE;
+            }
+          } else if (identity instanceof MysteriousPerson) {
+            return CardUsableStatus.USABLE;
+          }
         },
-      }),
+      },
     }).onComplete((data) => {
       NetworkEventCenter.emit(NetworkEventToS.SKILL_ZI_ZHENG_QING_BAI_TOS, {
-        cardId: data[0].cardId,
+        cardId: data[0].cards[0].id,
         seq: gui.seq,
       });
     });
