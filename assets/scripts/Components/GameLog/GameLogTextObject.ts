@@ -1,4 +1,4 @@
-import { _decorator, Label, NodeEventType, UITransform } from "cc";
+import { _decorator, Label, NodeEventType, RichText, UITransform } from "cc";
 import { GameObject } from "../../GameObject";
 import { GameLog } from "./GameLog";
 const { ccclass } = _decorator;
@@ -7,13 +7,13 @@ const { ccclass } = _decorator;
 export class GameLogTextObject extends GameObject<GameLog> {
   onEnable(): void {
     this.scheduleOnce(() => {
-      const label = this.node.getChildByName("Label");
-      this.node.getComponent(UITransform).height = label.getComponent(UITransform).height + 20;
+      const text = this.node.getChildByName("RichText");
+      this.node.getComponent(UITransform).height = text.getComponent(UITransform).height + 20;
     });
   }
 
   setText(str) {
-    const label = this.node.getChildByName("Label");
-    label.getComponent(Label).string = str;
+    const text = this.node.getChildByName("RichText");
+    text.getComponent(RichText).string = `<color=#000000>${str}</color>`;
   }
 }
