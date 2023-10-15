@@ -106,6 +106,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.on(GameEvent.PLAYER_USE_SKILL, this.onPlayerUseSkill, this);
+    GameEventCenter.on(GameEvent.PLAYER_BEFORE_DEATH, this.onPlayerDie, this);
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
     GameEventCenter.on(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
@@ -119,6 +120,7 @@ export class GameLogList extends DataContainer<GameLog> {
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.onPlayerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.onPlayerReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_USE_SKILL, this.onPlayerUseSkill, this);
+    GameEventCenter.off(GameEvent.PLAYER_BEFORE_DEATH, this.onPlayerDie, this);
     GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.onMessageTransmission, this);
     GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.onMessageRemoved, this);
   }
@@ -184,6 +186,14 @@ export class GameLogList extends DataContainer<GameLog> {
 
   onPlayerUseSkill({ player, skill }: GameEventType.PlayerUseSkill) {
     this.addData(new GameLog(`${this.formatPlayer(player)}使用技能【${skill.name}】`));
+  }
+
+  onPlayerDie({ player, loseGame }: GameEventType.PlayerBeforeDeath) {
+    if (loseGame) {
+      this.addData(new GameLog(`${this.formatPlayer(player)}由于没有情报可以传出而输掉游戏`));
+    } else {
+      this.addData(new GameLog(`${this.formatPlayer(player)}死亡`));
+    }
   }
 
   onMessageTransmission({ messagePlayer, message }: GameEventType.MessageTransmission) {
