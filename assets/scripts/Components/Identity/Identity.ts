@@ -32,8 +32,5 @@ export class Identity extends DataBasic<IdentityObject> {
     if (option.inverted) {
       this._inverted = option.inverted;
     }
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 }

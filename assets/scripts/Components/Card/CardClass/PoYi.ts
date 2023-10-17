@@ -21,7 +21,6 @@ export class PoYi extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
     });
   }
 
@@ -94,7 +93,6 @@ export class PoYi extends Card {
 
   showMessageInTransmit(gameData: GameData, message: Card) {
     if (message.status === CardStatus.FACE_DOWN) {
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
     }

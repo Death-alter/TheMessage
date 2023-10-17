@@ -20,13 +20,6 @@ export class Character extends DataBasic<CharacterObject> {
   set status(status: CharacterStatus) {
     if (status == null || status === this._status) return;
     this._status = status;
-    if (this.gameObject) {
-      if (this._status === CharacterStatus.FACE_DOWN) {
-        this.gameObject.showCover();
-      } else {
-        this.gameObject.hideCover();
-      }
-    }
     // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
   }
 
@@ -62,9 +55,6 @@ export class Character extends DataBasic<CharacterObject> {
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._isHidden = this._status === CharacterStatus.FACE_DOWN;
     this._sex = option.sex;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 
   //翻面

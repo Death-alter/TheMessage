@@ -23,7 +23,6 @@ export class ChengQing extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
     });
   }
 

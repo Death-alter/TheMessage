@@ -10,10 +10,7 @@ export class CardGroupObject extends GameObjectContainer<CardObject> {
   init() {}
 
   onDataAdded(card: Card): void {
-    if (!card.gameObject) {
-      card.gameObject = GamePools.cardPool.get();
-    }
-    this.node.addChild(card.gameObject.node);
+
   }
 
   onDataRemoved(card: Card): void {}

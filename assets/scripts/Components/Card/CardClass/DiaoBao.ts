@@ -20,7 +20,6 @@ export class DiaoBao extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
     });
   }
 
@@ -41,7 +40,6 @@ export class DiaoBao extends Card {
       oldMessage = gameData.messageInTransmit;
     } else {
       oldMessage = gameData.createMessage(oldMessageCard);
-      oldMessage.gameObject = gameData.messageInTransmit.gameObject;
     }
 
     gameData.messageInTransmit = gameData.cardOnPlay;

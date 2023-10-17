@@ -28,11 +28,6 @@ export class HandCardList extends DataContainer<Card> {
 
     const card = this._list.splice(index, 1)[0];
     this.selectedCards.deselect(card);
-
-    if (this.gameObject && card.gameObject) {
-      this.gameObject.node.removeChild(card.gameObject.node);
-      this.gameObject.onDataRemoved(card);
-    }
     return card;
   }
 

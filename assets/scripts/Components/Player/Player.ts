@@ -39,11 +39,6 @@ export class Player extends DataBasic<PlayerObject> {
   set character(character: Character) {
     if (!character || character === this._character) return;
     this._character = character;
-    if (this.gameObject) {
-      this.character.gameObject = this.gameObject.node
-        .getChildByPath("Border/CharacterPanting")
-        .getComponent(CharacterObject);
-    }
   }
 
   get identityList() {
@@ -56,7 +51,6 @@ export class Player extends DataBasic<PlayerObject> {
   set seatNumber(number) {
     if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
-    this.gameObject?.setSeat();
   }
 
   get handCardCount() {
@@ -85,7 +79,6 @@ export class Player extends DataBasic<PlayerObject> {
   set status(status: PlayerStatus) {
     if (status == null || status === this._status || this._status === PlayerStatus.DEAD) return;
     this._status = status;
-    this.gameObject?.refreshStatus();
   }
 
   get isAlive() {
@@ -98,9 +91,6 @@ export class Player extends DataBasic<PlayerObject> {
     this._name = option.name;
     this.character = option.character;
     if (option.identity != null) {
-    }
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
     }
   }
 

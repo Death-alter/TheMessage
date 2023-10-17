@@ -29,9 +29,7 @@ export abstract class Skill extends DataBasic<SkillButton> {
     this._name = option.name;
     this._description = option.description;
     this._character = option.character;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
+
   }
 
   //player是拥有该技能的角色

@@ -155,7 +155,6 @@ export class DuMing extends TriggerSkill {
 
     const message = gameData.createMessage(card);
     if (playerId === 0) {
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
 

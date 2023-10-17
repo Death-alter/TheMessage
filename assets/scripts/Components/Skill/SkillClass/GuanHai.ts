@@ -40,7 +40,6 @@ export class GuanHai extends PassiveSkill {
 
     if (playerId === 0) {
       const message = gameData.createMessage(card);
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       message.flip();
     }

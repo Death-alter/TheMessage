@@ -125,11 +125,11 @@ export class GameData {
   private _skillOnUse: Skill;
 
   //正在传递的情报信息
+  private _messageInTransmit: Card | null = null;
+  private _messageDirection: CardDirection;
   private _senderId: number = -1;
   private _messagePlayerId: number = -1;
   private _lockedPlayerId: number = -1;
-  private _messageInTransmit: Card | null = null;
-  private _messageDirection: CardDirection;
 
   get sender() {
     return this._playerList[this._senderId];

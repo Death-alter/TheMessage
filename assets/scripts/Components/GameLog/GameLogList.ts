@@ -21,10 +21,6 @@ export class GameLogList extends DataContainer<GameLog> {
   }
 
   addData(data: GameLog) {
-    if (this.gameObject) {
-      this._list.push(data);
-      this.gameObject.onDataAdded(data);
-    }
     this.logHistory.addData(new GameLog(data.text));
   }
 

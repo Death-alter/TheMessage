@@ -1,12 +1,11 @@
 import { CardStatus, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
 import { DataBasic } from "../../DataBasic";
-import { CardObject } from "./CardObject";
 import { GameData } from "../../Manager/GameData";
 import { Tween, Node } from "cc";
 import { GamePhase } from "../../Manager/type";
 import { GameManager } from "../../Manager/GameManager";
 
-export abstract class Card extends DataBasic<CardObject> {
+export abstract class Card extends DataBasic {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
 
   protected _id: number;
@@ -39,9 +38,6 @@ export abstract class Card extends DataBasic<CardObject> {
   set status(status) {
     if (status == null || status === this._status) return;
     this._status = status;
-    if (this._gameObject) {
-      this._gameObject.refresh(this);
-    }
   }
 
   get direction() {
@@ -65,9 +61,6 @@ export abstract class Card extends DataBasic<CardObject> {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
-    }
   }
 
   onPlay(gui: GameManager): void {}
@@ -90,9 +83,6 @@ export abstract class Card extends DataBasic<CardObject> {
       this._status = CardStatus.FACE_DOWN;
     } else {
       this._status = CardStatus.FACE_UP;
-    }
-    if (this.gameObject) {
-      return this.gameObject.flip();
     }
   }
 
