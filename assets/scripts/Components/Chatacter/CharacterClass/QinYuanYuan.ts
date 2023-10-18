@@ -1,18 +1,16 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { ZuoYouFengYuan } from "../../Skill/SkillClass/ZuoYouFengYuan";
 import { BiYiShuangFei } from "../../Skill/SkillClass/BiYiShuangFei";
 
 export class QinYuanYuan extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 34,
       name: "秦圆圆",
       sprite: "images/characters/QinYuanYuan",
-      status: CharacterStatus.FACE_DOWN,
+      isHidden: true,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new ZuoYouFengYuan(this), new BiYiShuangFei(this)]);
   }

@@ -1,17 +1,15 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { SouJi } from "../../Skill/SkillClass/SouJi";
 
 export class LiXing extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 11,
       name: "李醒",
       sprite: "images/characters/LiXing",
-      status: CharacterStatus.FACE_DOWN,
+      isHidden: true,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new SouJi(this)]);
   }

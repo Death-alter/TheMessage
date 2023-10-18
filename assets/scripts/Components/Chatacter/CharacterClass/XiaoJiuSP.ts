@@ -1,17 +1,15 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { ChiZiZhiXin } from "../../Skill/SkillClass/ChiZiZhiXin";
 
 export class XiaoJiuSP extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 1027,
       name: "SP小九",
       sprite: "images/characters/XiaoJiuSP",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new ChiZiZhiXin(this)]);
   }

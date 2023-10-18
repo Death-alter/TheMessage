@@ -1,17 +1,15 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { YuSiWangPo } from "../../Skill/SkillClass/YuSiWangPo";
 
 export class QinWuMing extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 42,
       name: "秦无命",
       sprite: "images/characters/NoPanting",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new YuSiWangPo(this)]);
   }

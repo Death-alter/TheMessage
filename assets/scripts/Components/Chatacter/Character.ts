@@ -1,9 +1,8 @@
 import { Skill } from "../Skill/Skill";
 import { CharacterOptions, CharacterStatus, Sex } from "./type";
-import { CharacterObject } from "./CharacterObject";
 import { DataBasic } from "../../DataBasic";
 
-export class Character extends DataBasic<CharacterObject> {
+export class Character extends DataBasic {
   protected _id: number;
   protected _name: string;
   protected _sprite: string;
@@ -20,7 +19,6 @@ export class Character extends DataBasic<CharacterObject> {
   set status(status: CharacterStatus) {
     if (status == null || status === this._status) return;
     this._status = status;
-    // EventTarget.emit(GameEvent.CHARACTER_STATUS_CHANGE, status);
   }
 
   get id() {
@@ -52,8 +50,8 @@ export class Character extends DataBasic<CharacterObject> {
     this._id = option.id;
     this._name = option.name;
     this._sprite = option.sprite;
-    this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
-    this._isHidden = this._status === CharacterStatus.FACE_DOWN;
+    this._isHidden = option.isHidden;
+    this._status = this._isHidden ? CharacterStatus.FACE_DOWN : CharacterStatus.FACE_UP;
     this._sex = option.sex;
   }
 

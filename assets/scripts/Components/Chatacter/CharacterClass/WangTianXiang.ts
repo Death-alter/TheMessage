@@ -1,17 +1,15 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { JinBi } from "../../Skill/SkillClass/JinBi";
 
 export class WangTianXiang extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 10,
       name: "王田香",
       sprite: "images/characters/WangTianXiang",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new JinBi(this)]);
   }

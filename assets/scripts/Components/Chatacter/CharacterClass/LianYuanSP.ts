@@ -1,17 +1,14 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { TanQiuZhenLi } from "../../Skill/SkillClass/TanQiuZhenLi";
+import { Sex } from "../type";import { TanQiuZhenLi } from "../../Skill/SkillClass/TanQiuZhenLi";
 
 export class LianYuanSP extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 1003,
       name: "SP连鸢",
       sprite: "images/characters/LianYuanSP",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new TanQiuZhenLi(this)]);
   }

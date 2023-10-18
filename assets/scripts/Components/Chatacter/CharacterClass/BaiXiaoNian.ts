@@ -1,17 +1,14 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { ZhuanJiao } from "../../Skill/SkillClass/ZhuanJiao";
+import { Sex } from "../type";import { ZhuanJiao } from "../../Skill/SkillClass/ZhuanJiao";
 
 export class BaiXiaoNian extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 25,
       name: "白小年",
       sprite: "images/characters/BaiXiaoNian",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new ZhuanJiao(this)]);
   }

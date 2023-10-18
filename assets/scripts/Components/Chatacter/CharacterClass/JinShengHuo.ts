@@ -1,17 +1,14 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { JinShen } from "../../Skill/SkillClass/JinShen";
+import { Sex } from "../type";import { JinShen } from "../../Skill/SkillClass/JinShen";
 
 export class JinShengHuo extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 19,
       name: "金生火",
       sprite: "images/characters/JinShengHuo",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new JinShen(this)]);
   }

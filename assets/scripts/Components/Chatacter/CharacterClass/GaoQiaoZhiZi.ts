@@ -1,17 +1,14 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { HuoXin } from "../../Skill/SkillClass/HuoXin";
+import { Sex } from "../type";import { HuoXin } from "../../Skill/SkillClass/HuoXin";
 
 export class GaoQiaoZhiZi extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 36,
       name: "高桥智子",
       sprite: "images/characters/GaoQiaoZhiZi",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new HuoXin(this)]);
   }

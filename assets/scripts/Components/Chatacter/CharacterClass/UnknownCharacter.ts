@@ -1,16 +1,14 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 
 export class UnknownCharacter extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 0,
       name: "未知角色",
       sprite: "images/characters/Unknown",
-      status: CharacterStatus.FACE_DOWN,
+      isHidden: true,
       sex: Sex.UNKNOWN,
-      gameObject: gameObject,
     });
   }
 }

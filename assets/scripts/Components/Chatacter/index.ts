@@ -126,10 +126,10 @@ charactersMap[1028] = LiNingYuSP;
 charactersMap[2014] = AdultHanMei;
 charactersMap[2027] = AdultXiaoJiu;
 
-export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {
+export function createCharacterById(id: CharacterType): Character {
   if (charactersMap[id]) {
-    return new charactersMap[id](gameObject);
+    return new charactersMap[id]();
   } else {
-    return new charactersMap[0](gameObject);
+    return new charactersMap[0]();
   }
 }

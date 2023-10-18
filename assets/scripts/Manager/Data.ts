@@ -3,7 +3,6 @@ import { GameEventCenter } from "../Event/EventTarget";
 import { Player } from "../Components/Player/Player";
 import { GamePhase } from "./type";
 import { Card } from "../Components/Card/Card";
-import { HandCardList } from "../Components/Container/HandCardList";
 import { CardDirection } from "../Components/Card/type";
 import { SecretTaskType } from "../Components/Identity/type";
 import { Skill } from "../Components/Skill/Skill";
@@ -13,13 +12,34 @@ export interface Option {
   secretTaskList: SecretTaskType[];
 }
 
+export interface Deck {
+  count: number;
+  topCard: Card;
+}
+
+export interface CardInUsing {
+  card: Card;
+  userId: number;
+  targetPlayerId?: number;
+}
+
+export interface SkillInUsing {
+  skill: Skill;
+  userId: number;
+}
+
+export interface MessageInTransmiting {
+  card: Card;
+  senderId: number;
+  lockedPlayerId: number;
+  messagePlayerId: number;
+  direction: CardDirection;
+}
+
 export class GameData {
   //对局信息
   private _playerCount: number = 0;
   private _secretTaskList: SecretTaskType[] = [];
-  private _deckCardCount: number = 0;
-  private _discardPile: Card[] = [];
-  private _banishedCards: Card[] = [];
 
   get playerCount() {
     return this._playerCount;
@@ -29,16 +49,25 @@ export class GameData {
     return [...this._secretTaskList];
   }
 
-  set deckCardCount(count: number) {
-    this._deckCardCount = count;
-  }
-  get deckCardCount() {
-    return this._deckCardCount;
-  }
+  //牌堆
+  private _deck: Deck = {
+    count: 0,
+    topCard: null,
+  };
+  //弃牌堆
+  private _discardPile: Card[] = [];
+  //被移出游戏的卡牌
+  private _banishedCards: Card[] = [];
+  //正在传递的情报
+  private _message_in_transmiting: MessageInTransmiting;
+  //正在使用的卡牌
+  private _card_in_using: Card;
+  //正在使用的技能
+  private _skill_in_using: Skill;
 
   //玩家信息
   private _playerList: Player[];
-  private _handCardList: HandCardList = new HandCardList();
+  private _handCardList: Card[];
 
   get playerList() {
     return this._playerList;
@@ -79,7 +108,6 @@ export class GameData {
         GameEventCenter.emit(GameEvent.FIGHT_PHASE_END);
         break;
       case GamePhase.RECEIVE_PHASE:
-        this._senderId = -1;
         GameEventCenter.emit(GameEvent.RECEIVE_PHASE_END);
         break;
     }
@@ -96,7 +124,6 @@ export class GameData {
         GameEventCenter.emit(GameEvent.SEND_PHASE_START);
         break;
       case GamePhase.FIGHT_PHASE:
-        this.lockedPlayerId = null;
         GameEventCenter.emit(GameEvent.FIGHT_PHASE_START);
         break;
       case GamePhase.RECEIVE_PHASE:
@@ -118,82 +145,6 @@ export class GameData {
     return this._turnPlayerId;
   }
 
-  //正在使用的卡牌信息
-  private _cardOnPlay: Card;
-
-  //正在使用的技能信息
-  private _skillOnUse: Skill;
-
-  //正在传递的情报信息
-  private _messageInTransmit: Card | null = null;
-  private _messageDirection: CardDirection;
-  private _senderId: number = -1;
-  private _messagePlayerId: number = -1;
-  private _lockedPlayerId: number = -1;
-
-  get sender() {
-    return this._playerList[this._senderId];
-  }
-
-  get senderId() {
-    return this._senderId;
-  }
-  set senderId(playerId: number) {
-    this._senderId = playerId;
-  }
-
-  get lockedPlayer() {
-    return this._playerList[this._lockedPlayerId];
-  }
-
-  get lockedPlayerId() {
-    return this._lockedPlayerId;
-  }
-  set lockedPlayerId(playerId: number) {
-    if (playerId === this._lockedPlayerId) return;
-    if (playerId == null) {
-      this._lockedPlayerId = -1;
-    } else {
-      this._lockedPlayerId = playerId;
-    }
-  }
-
-  get messageInTransmit() {
-    return this._messageInTransmit;
-  }
-
-  get messagePlayer() {
-    return this._playerList[this._messagePlayerId];
-  }
-
-  get messagePlayerId() {
-    return this._messagePlayerId;
-  }
-  set messagePlayerId(playerId: number) {
-    if (playerId === this._messagePlayerId) return;
-    const oldId = this._messagePlayerId;
-    if (playerId == null) {
-      this._messagePlayerId = -1;
-    } else {
-      this._messagePlayerId = playerId;
-    }
-
-    if (oldId !== -1 && this.messageInTransmit && playerId !== -1) {
-      GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
-        sender: this.playerList[this._senderId],
-        message: this.messageInTransmit,
-        messagePlayer: this.playerList[playerId],
-      });
-    }
-  }
-
-  set messageDirection(direction: CardDirection) {
-    this._messageDirection = direction;
-  }
-  get messageDirection() {
-    return this._messageDirection;
-  }
-
   //濒死相关信息
   private _dyingPlayerId: number = -1; //等待澄清的玩家
 
@@ -202,7 +153,7 @@ export class GameData {
   }
 
   set dyingPlayerId(playerId: number) {
-    if (playerId === this._messagePlayerId) return;
+    if (playerId === this._dyingPlayerId) return;
     if (playerId == null) {
       this._dyingPlayerId = -1;
     } else {

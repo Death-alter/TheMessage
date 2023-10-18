@@ -1,17 +1,14 @@
 import { Character } from "../Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { MiaoShou } from "../../Skill/SkillClass/MiaoShou";
+import { Sex } from "../type";import { MiaoShou } from "../../Skill/SkillClass/MiaoShou";
 
 export class AFuLuoLa extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 13,
       name: "阿芙罗拉",
       sprite: "images/characters/AFuLuoLa",
-      status: CharacterStatus.FACE_DOWN,
+      isHidden: true,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new MiaoShou(this)]);
   }

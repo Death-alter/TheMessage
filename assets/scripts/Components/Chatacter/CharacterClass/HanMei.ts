@@ -1,17 +1,14 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { YiHuaJieMu } from "../../Skill/SkillClass/YiHuaJieMu";
+import { Sex } from "../type";import { YiHuaJieMu } from "../../Skill/SkillClass/YiHuaJieMu";
 
 export class HanMei extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 14,
       name: "韩梅",
       sprite: "images/characters/HanMei",
-      status: CharacterStatus.FACE_DOWN,
+      isHidden: true,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new YiHuaJieMu(this)]);
   }

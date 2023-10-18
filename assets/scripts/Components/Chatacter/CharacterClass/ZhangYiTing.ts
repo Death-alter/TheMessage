@@ -1,17 +1,15 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { QiangLing } from "../../Skill/SkillClass/QiangLing";
 
 export class ZhangYiTing extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 5,
       name: "张一挺",
       sprite: "images/characters/ZhangYiTing",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new QiangLing(this)]);
   }

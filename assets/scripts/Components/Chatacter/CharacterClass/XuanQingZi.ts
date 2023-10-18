@@ -1,17 +1,15 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
+import { Sex } from "../type";
 import { JinKouYiKai } from "../../Skill/SkillClass/JinKouYiKai";
 
 export class XuanQingZi extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 16,
       name: "玄青子",
       sprite: "images/characters/XuanQingZi",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new JinKouYiKai(this)]);
   }

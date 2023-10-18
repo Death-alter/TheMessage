@@ -67,7 +67,6 @@ export interface CharacterOptions {
   id: number;
   name: string;
   sprite: string;
-  status?: CharacterStatus;
   sex: Sex;
-  gameObject?: CharacterObject;
+  isHidden: boolean;
 }

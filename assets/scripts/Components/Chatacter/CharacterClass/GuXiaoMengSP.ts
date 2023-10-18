@@ -1,17 +1,14 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { JiBan } from "../../Skill/SkillClass/JiBan";
+import { Sex } from "../type";import { JiBan } from "../../Skill/SkillClass/JiBan";
 
 export class GuXiaoMengSP extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 1020,
       name: "SP顾小梦",
       sprite: "images/characters/GuXiaoMengSP",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.FAMALE,
-      gameObject: gameObject,
     });
     this.setSkills([new JiBan(this)]);
   }

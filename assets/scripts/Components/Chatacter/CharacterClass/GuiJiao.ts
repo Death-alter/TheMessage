@@ -1,17 +1,14 @@
 import { Character } from "../../../Components/Chatacter/Character";
-import { Sex, CharacterStatus } from "../type";
-import { CharacterObject } from "../CharacterObject";
-import { JiSong } from "../../Skill/SkillClass/JiSong";
+import { Sex } from "../type";import { JiSong } from "../../Skill/SkillClass/JiSong";
 
 export class GuiJiao extends Character {
-  constructor(gameObject?: CharacterObject) {
+  constructor() {
     super({
       id: 17,
       name: "鬼脚",
       sprite: "images/characters/GuiJiao",
-      status: CharacterStatus.FACE_UP,
+      isHidden: false,
       sex: Sex.MALE,
-      gameObject: gameObject,
     });
     this.setSkills([new JiSong(this)]);
   }

@@ -2,6 +2,7 @@ import { IdentityType } from "../Identity/type";
 import { Card } from "./Card";
 import { ChengQing } from "./CardClass/ChengQing";
 import { DiaoBao } from "./CardClass/DiaoBao";
+import { DiaoHuLiShan } from "./CardClass/DiaoHuLiShan";
 import { FengYunBianHuan } from "./CardClass/FengYunBianHuan";
 import { JieHuo } from "./CardClass/JieHuo";
 import { LiYou } from "./CardClass/LiYou";
@@ -12,6 +13,7 @@ import { ShiTan } from "./CardClass/ShiTan";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { WeiBi } from "./CardClass/WeiBi";
 import { WuDao } from "./CardClass/WuDao";
+import { YuQinGuZong } from "./CardClass/YuQinGuZong";
 import { CardColor, CardDirection } from "./type";
 
 export const deck: { [index: number]: Card } = {
@@ -652,5 +654,112 @@ export const deck: { [index: number]: Card } = {
     direction: CardDirection.UP,
     lockable: true,
     secretColor: [CardColor.BLUE, CardColor.BLACK, CardColor.RED],
+  }),
+  104: new MiLing({
+    id: 104,
+    color: [CardColor.BLUE],
+    direction: CardDirection.RIGHT,
+    lockable: false,
+    secretColor: [CardColor.BLACK, CardColor.BLUE, CardColor.RED],
+  }),
+  105: new MiLing({
+    id: 105,
+    color: [CardColor.BLUE],
+    direction: CardDirection.LEFT,
+    lockable: false,
+    secretColor: [CardColor.BLUE, CardColor.RED, CardColor.BLACK],
+  }),
+  106: new MiLing({
+    id: 106,
+    color: [CardColor.RED, CardColor.BLACK],
+    direction: CardDirection.UP,
+    lockable: true,
+    secretColor: [CardColor.RED, CardColor.BLACK, CardColor.BLUE],
+  }),
+  107: new MiLing({
+    id: 107,
+    color: [CardColor.RED],
+    direction: CardDirection.LEFT,
+    lockable: false,
+    secretColor: [CardColor.BLUE, CardColor.RED, CardColor.BLACK],
+  }),
+  108: new MiLing({
+    id: 108,
+    color: [CardColor.RED],
+    direction: CardDirection.RIGHT,
+    lockable: false,
+    secretColor: [CardColor.RED, CardColor.BLUE, CardColor.BLACK],
+  }),
+  109: new DiaoHuLiShan({
+    id: 109,
+    color: [CardColor.BLACK],
+    direction: CardDirection.UP,
+    lockable: false,
+  }),
+  110: new DiaoHuLiShan({
+    id: 110,
+    color: [CardColor.BLACK],
+    direction: CardDirection.LEFT,
+    lockable: false,
+  }),
+  111: new DiaoHuLiShan({
+    id: 111,
+    color: [CardColor.BLACK],
+    direction: CardDirection.RIGHT,
+    lockable: false,
+  }),
+  112: new DiaoHuLiShan({
+    id: 112,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.UP,
+    lockable: false,
+  }),
+  113: new DiaoHuLiShan({
+    id: 113,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.LEFT,
+    lockable: false,
+  }),
+  114: new DiaoHuLiShan({
+    id: 114,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.RIGHT,
+    lockable: false,
+  }),
+  115: new YuQinGuZong({
+    id: 115,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.UP,
+    lockable: false,
+  }),
+  116: new YuQinGuZong({
+    id: 116,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.LEFT,
+    lockable: false,
+  }),
+  117: new YuQinGuZong({
+    id: 117,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.RIGHT,
+    lockable: false,
+  }),
+  118: new YuQinGuZong({
+    id: 118,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.UP,
+    lockable: false,
+  }),
+  119: new YuQinGuZong({
+    id: 119,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.LEFT,
+    lockable: false,
+  }),
+  120: new YuQinGuZong({
+    id: 120,
+    color: [CardColor.RED, CardColor.BLUE],
+    direction: CardDirection.RIGHT,
+    lockable: false,
   }),
 };
