@@ -6,7 +6,7 @@ import { GameLogTextObject } from "../../../Components/GameLog/GameLogTextObject
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogWindow")
-export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
+export class GameLogWindow extends GameObjectContainer {
   @property(Prefab)
   logPrefab: Prefab | null = null;
 
@@ -34,8 +34,8 @@ export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
 
   onDataAdded(data: GameLog): void {
     const object = instantiate(this.logPrefab);
-    data.gameObject = <GameLogTextObject & GameLogMessageObject>object.getComponent(GameLogTextObject);
-    data.gameObject.setText(data.text);
+    // data.gameObject = <GameLogTextObject & GameLogMessageObject>object.getComponent(GameLogTextObject);
+    // data.gameObject.setText(data.text);
     this.viewContent.addChild(object);
   }
   onDataRemoved(data: GameLog): void {}

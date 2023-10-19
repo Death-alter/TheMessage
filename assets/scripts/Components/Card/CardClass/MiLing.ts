@@ -12,7 +12,6 @@ import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { TagName } from "../../../type";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
@@ -237,13 +236,13 @@ export class MiLing extends Card {
       const handCardContainer = gui.gameLayer.handCardContainer;
       let message;
       gui.gameLayer.startSelectHandCards({ num: 1 });
-      for (let item of handCardContainer.data.list) {
-        if ((<Card>item).id === cardId) {
-          message = item;
-          handCardContainer.selectCard(<Card>item);
-          break;
-        }
-      }
+      // for (let item of handCardContainer.data.list) {
+      //   if ((<Card>item).id === cardId) {
+      //     message = item;
+      //     handCardContainer.selectCard(<Card>item);
+      //     break;
+      //   }
+      // }
       gui.gameLayer.pauseSelectHandCards();
       gui.uiLayer.doSendMessage({ message, canCancel: false });
       PlayerAction.start();

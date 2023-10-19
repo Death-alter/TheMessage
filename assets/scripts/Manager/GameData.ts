@@ -6,7 +6,6 @@ import { GamePhase } from "./type";
 import { PlayerStatus } from "../Components/Player/type";
 import * as ProcessEventType from "../Event/ProcessEventType";
 import { Card } from "../Components/Card/Card";
-import { card } from "../../protobuf/proto.js";
 import { DataBasic } from "../DataBasic";
 import { HandCardList } from "../Components/Container/HandCardList";
 import { createCard, createUnknownCard } from "../Components/Card";
@@ -17,7 +16,7 @@ import { createIdentity } from "../Components/Identity";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
 import { GameManager } from "./GameManager";
 
-export class GameData extends DataBasic<GameManager> {
+export class GameData extends DataBasic {
   public selfPlayer: Player;
   public playerCount: number;
   public playerList: Player[];
@@ -116,11 +115,7 @@ export class GameData extends DataBasic<GameManager> {
   set lockedPlayer(player: Player) {
     if (player) {
       this._lockedPlayer = player;
-      player.gameObject.locked = true;
     } else {
-      if (this._lockedPlayer) {
-        this._lockedPlayer.gameObject.locked = false;
-      }
       this._lockedPlayer = null;
     }
   }
@@ -135,9 +130,6 @@ export class GameData extends DataBasic<GameManager> {
 
   constructor(gameObject?: GameManager) {
     super();
-    if (gameObject) {
-      this.gameObject = gameObject;
-    }
   }
 
   registerEvents() {
@@ -248,9 +240,9 @@ export class GameData extends DataBasic<GameManager> {
       this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<number>data.messageDirection) as CardDirection;
       if (data.messageInTransmit) {
-        if (!this.messageInTransmit || data.messageInTransmit.cardId !== this.messageInTransmit.id) {
-          this.messageInTransmit = this.createMessage(data.messageInTransmit);
-        }
+        // if (!this.messageInTransmit || data.messageInTransmit.cardId !== this.messageInTransmit.id) {
+          // this.messageInTransmit = this.createMessage(data.messageInTransmit);
+        // }
       }
 
       if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting && this.messageInTransmit) {
@@ -292,8 +284,8 @@ export class GameData extends DataBasic<GameManager> {
     }
     if (data.cards && data.cards.length) {
       for (let item of data.cards) {
-        const card = this.createCard(item);
-        cardList.push(card);
+        // const card = this.createCard(item);
+        // cardList.push(card);
       }
     }
     this.playerAddHandCard(player, cardList);
@@ -303,12 +295,12 @@ export class GameData extends DataBasic<GameManager> {
   //弃牌
   private discardCards(data: ProcessEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
-    const cardList = this.playerRemoveHandCard(
-      player,
-      data.cards.map((card) => card)
-    );
+    // const cardList = this.playerRemoveHandCard(
+    //   player,
+    //   data.cards.map((card) => card)
+    // );
 
-    GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
+    // GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
 
   //角色翻面
@@ -343,9 +335,9 @@ export class GameData extends DataBasic<GameManager> {
         card = data.card;
       } else {
         if (data.fromHand) {
-          card = this.playerRemoveHandCard(player, data.card);
+          // card = this.playerRemoveHandCard(player, data.card);
         } else {
-          card = this.createCard(data.card);
+          // card = this.createCard(data.card);
         }
       }
     } else {
@@ -447,10 +439,10 @@ export class GameData extends DataBasic<GameManager> {
     const user = this.playerList[data.userId];
     if (data.isActual) {
       if (data.hasOwnProperty("card")) {
-        card = this.playerRemoveHandCard(user, data.card);
-        if (data.card === null || card.type !== data.cardType) {
-          card = this.createCardByType(data.cardType);
-        }
+        // card = this.playerRemoveHandCard(user, data.card);
+        // if (data.card === null || card.type !== data.cardType) {
+        //   card = this.createCardByType(data.cardType);
+        // }
       } else if (data.hasOwnProperty("cardId")) {
         card = this.playerRemoveHandCard(user, data.cardId);
         if (data.cardId === 0 || card.type !== data.cardType) {
@@ -517,21 +509,21 @@ export class GameData extends DataBasic<GameManager> {
     return arr;
   }
 
-  createCard(card?: card, status?: CardStatus): Card {
-    if (card) {
-      return createCard({
-        id: card.cardId,
-        color: (<number[]>card.cardColor) as CardColor[],
-        type: (<number>card.cardType) as CardType,
-        status,
-        direction: (<number>card.cardDir) as CardDirection,
-        drawCardColor: (<number[]>card.whoDrawCard) as IdentityType[],
-        secretColor: (<number[]>card.secretColor) as CardColor[],
-        lockable: card.canLock,
-      });
-    } else {
+  createCard(card?: Card, status?: CardStatus): Card {
+    // if (card) {
+    //   return createCard({
+    //     id: card.cardId,
+    //     color: (<number[]>card.cardColor) as CardColor[],
+    //     type: (<number>card.cardType) as CardType,
+    //     status,
+    //     direction: (<number>card.cardDir) as CardDirection,
+    //     drawCardColor: (<number[]>card.whoDrawCard) as IdentityType[],
+    //     secretColor: (<number[]>card.secretColor) as CardColor[],
+    //     lockable: card.canLock,
+    //   });
+    // } else {
       return createUnknownCard();
-    }
+    // }
   }
 
   createCardByType(type: CardType) {
@@ -549,7 +541,7 @@ export class GameData extends DataBasic<GameManager> {
     });
   }
 
-  createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
+  createMessage(card?: Card, status: CardStatus = CardStatus.FACE_DOWN): Card {
     return this.createCard(card, status);
   }
 
@@ -577,15 +569,15 @@ export class GameData extends DataBasic<GameManager> {
     }
   }
 
-  playerRemoveHandCard(playerId: number, card: card): Card;
-  playerRemoveHandCard(player: Player, card: card): Card;
-  playerRemoveHandCard(playerId: number, cards: card[]): Card[];
-  playerRemoveHandCard(player: Player, cards: card[]): Card[];
+  // playerRemoveHandCard(playerId: number, card: card): Card;
+  // playerRemoveHandCard(player: Player, card: card): Card;
+  // playerRemoveHandCard(playerId: number, cards: card[]): Card[];
+  // playerRemoveHandCard(player: Player, cards: card[]): Card[];
   playerRemoveHandCard(playerId: number, card: number): Card;
   playerRemoveHandCard(player: Player, cardId: number): Card;
   playerRemoveHandCard(playerId: number, cardIds: number[]): Card[];
   playerRemoveHandCard(player: Player, cardIds: number[]): Card[];
-  playerRemoveHandCard(player: number | Player, card: number | number[] | card | card[]): Card | Card[] {
+  playerRemoveHandCard(player: number | Player, card: number | number[]): Card | Card[] {
     let p = <Player>player;
     if (typeof player === "number") {
       p = this.playerList[player];
@@ -605,8 +597,8 @@ export class GameData extends DataBasic<GameManager> {
         const arr = (<number[]>cards).map((card) => this.handCardList.removeData(card));
         return isArray ? arr : arr[0];
       } else {
-        const arr = (<card[]>cards).map((card) => this.handCardList.removeData(card.cardId));
-        return isArray ? arr : arr[0];
+        // const arr = (<card[]>cards).map((card) => this.handCardList.removeData(card.cardId));
+        // return isArray ? arr : arr[0];
       }
     } else {
       if (typeof cards[0] === "number") {

@@ -5,12 +5,12 @@ import { DataContainer } from "./DataContainer";
 const { ccclass } = _decorator;
 
 @ccclass("GameObjectContainer")
-export abstract class GameObjectContainer<T extends GameObject<any>> extends GameObject<DataContainer<DataBasic<T>>> {
+export abstract class GameObjectContainer extends GameObject<DataContainer<DataBasic>> {
   abstract init(): void;
 
-  abstract onDataAdded(data: DataBasic<T> | DataBasic<T>[]): void;
+  abstract onDataAdded(data: DataBasic | DataBasic[]): void;
 
-  abstract onDataRemoved(data: DataBasic<T> | DataBasic<T>[]): void;
+  abstract onDataRemoved(data: DataBasic | DataBasic[]): void;
 
   abstract onAllDataRemoved(): void;
 }

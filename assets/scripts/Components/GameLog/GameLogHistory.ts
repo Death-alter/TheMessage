@@ -4,7 +4,7 @@ import { GameLog } from "./GameLog";
 import { GameLogTextObject } from "./GameLogTextObject";
 
 export class GameLogHistory extends DataContainer<GameLog> {
-  constructor(gameObject?: GameObjectContainer<GameLogTextObject>) {
+  constructor(gameObject?: GameObjectContainer) {
     super(gameObject);
   }
 }

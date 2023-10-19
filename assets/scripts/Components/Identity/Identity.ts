@@ -2,7 +2,7 @@ import { DataBasic } from "../../DataBasic";
 import { IdentityObject } from "./IdentityObject";
 import { IdentityType, IdentityOption } from "./type";
 
-export class Identity extends DataBasic<IdentityObject> {
+export class Identity extends DataBasic {
   public static readonly colors = ["#07C160", "#e10602", "#2932e1", "#ffffff"];
 
   protected _type: IdentityType;

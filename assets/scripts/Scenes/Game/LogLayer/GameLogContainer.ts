@@ -6,7 +6,7 @@ import GamePools from "../../../Components/Pool/GamePools";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
-export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> {
+export class GameLogContainer extends GameObjectContainer {
   public showLog: boolean = true;
 
   onLoad() {
@@ -30,24 +30,24 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
   init() {}
 
   onDataAdded(data: GameLog): void {
-    if (this.showLog) {
-      if (!data.gameObject) {
-        data.gameObject = GamePools.logMessagePool.get();
-      }
-      this.node.addChild(data.gameObject.node);
-      data.gameObject.setText(data.text);
-      data.gameObject.show(3).then(() => {
-        this.data.removeData(data);
-      });
-    } else {
-      this.data.removeData(data);
-    }
+    // if (this.showLog) {
+    //   if (!data.gameObject) {
+    //     data.gameObject = GamePools.logMessagePool.get();
+    //   }
+    //   this.node.addChild(data.gameObject.node);
+    //   data.gameObject.setText(data.text);
+    //   data.gameObject.show(3).then(() => {
+    //     this.data.removeData(data);
+    //   });
+    // } else {
+    //   this.data.removeData(data);
+    // }
   }
   onDataRemoved(data: GameLog): void {
-    if (data.gameObject) {
-      GamePools.logMessagePool.put(data.gameObject);
-      data.gameObject = null;
-    }
+    // if (data.gameObject) {
+    //   GamePools.logMessagePool.put(data.gameObject);
+    //   data.gameObject = null;
+    // }
   }
   onAllDataRemoved(): void {}
 }

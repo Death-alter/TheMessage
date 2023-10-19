@@ -1,4 +1,3 @@
-import { card } from "../../protobuf/proto";
 import { Card } from "../Components/Card/Card";
 import { CardDirection, CardType, CardOnEffectParams } from "../Components/Card/type";
 import { CharacterType } from "../Components/Chatacter/type";
@@ -83,7 +82,7 @@ export interface UpdateCharacterStatus {
 
 export interface DrawCards {
   playerId: number;
-  cards: card[];
+  cards: Card[];
   unknownCardCount: number;
 }
 
@@ -94,7 +93,7 @@ export interface SyncDeckNum {
 
 export interface DiscardCards {
   playerId: number;
-  cards: card[];
+  cards: Card[];
 }
 
 export interface GetPhaseData {
@@ -102,7 +101,7 @@ export interface GetPhaseData {
   currentPhase: GamePhase;
   messagePlayerId: number;
   messageDirection: CardDirection;
-  messageInTransmit: card;
+  messageInTransmit: Card;
   senderId: number;
   needWaiting: boolean;
 }
@@ -118,7 +117,7 @@ export interface StartCountDown {
 
 export interface SendMessage {
   cardId?: number;
-  card?: card | Card;
+  card?: Card | Card;
   senderId: number;
   targetPlayerId: number;
   lockPlayerIds: number[];
@@ -159,7 +158,7 @@ export interface PlayerWin {
 export interface PlayerDieGiveCard {
   playerId: number;
   targetPlayerId: number;
-  cards: card[];
+  cards: Card[];
   unknownCardCount: number;
 }
 
@@ -167,7 +166,7 @@ export interface CardPlayed {
   userId: number;
   cardType: CardType;
   cardId?: number;
-  card?: card;
+  card?: Card;
   isActual: boolean;
   targetPlayerId?: number;
   [index: string]: any;

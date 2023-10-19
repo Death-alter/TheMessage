@@ -6,7 +6,7 @@ import { CardObject } from "../Card/CardObject";
 const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupObject")
-export class CardGroupObject extends GameObjectContainer<CardObject> {
+export class CardGroupObject extends GameObjectContainer {
   init() {}
 
   onDataAdded(card: Card): void {

@@ -1,4 +1,4 @@
-import { skill_bian_ze_tong_toc } from "../../../../protobuf/proto";
+import { skill_bian_ze_tong_toc } from "../../../../protobuf/skill";
 import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";

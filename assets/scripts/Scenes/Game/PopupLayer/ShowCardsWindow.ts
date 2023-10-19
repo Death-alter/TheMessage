@@ -43,7 +43,7 @@ export class ShowCardsWindow extends Component {
 
   onLoad() {
     this.cardContainer.addComponent(CardGroupObject);
-    this.cardList.gameObject = this.cardContainer.getComponent(CardGroupObject);
+    // this.cardList.gameObject = this.cardContainer.getComponent(CardGroupObject);
     this.buttons = this.buttonNode.getComponent(DynamicButtons);
     this.buttons.init(this);
   }
@@ -90,15 +90,15 @@ export class ShowCardsWindow extends Component {
   }
 
   addCard(card: Card) {
-    card.gameObject = GamePools.cardPool.get();
-    card.gameObject.node.scale = new Vec3(1, 1, 1);
-    card.gameObject.node.on(
-      Node.EventType.TOUCH_END,
-      (event) => {
-        this.selectCard(card);
-      },
-      this
-    );
+    // card.gameObject = GamePools.cardPool.get();
+    // card.gameObject.node.scale = new Vec3(1, 1, 1);
+    // card.gameObject.node.on(
+    //   Node.EventType.TOUCH_END,
+    //   (event) => {
+    //     this.selectCard(card);
+    //   },
+    //   this
+    // );
     this.cardList.addData(card);
   }
 
@@ -114,7 +114,7 @@ export class ShowCardsWindow extends Component {
     labelComponent.horizontalAlign = HorizontalTextAlignment.CENTER;
     labelComponent.overflow = Overflow.RESIZE_HEIGHT;
     label.getComponent(UITransform).width = 100;
-    card.gameObject.node.addChild(label);
+    // card.gameObject.node.addChild(label);
     label.position = new Vec3(0, -50, 0);
     const outerline = label.getComponent(LabelOutline);
     outerline.color = color("#FFFFFF");
@@ -123,19 +123,19 @@ export class ShowCardsWindow extends Component {
 
   removeCard(card: Card) {
     this.cardList.removeData(card);
-    const gameObject = card.gameObject;
-    gameObject.node.off(Node.EventType.TOUCH_END);
-    card.gameObject = null;
-    GamePools.cardPool.put(gameObject);
+    // const gameObject = card.gameObject;
+    // gameObject.node.off(Node.EventType.TOUCH_END);
+    // card.gameObject = null;
+    // GamePools.cardPool.put(gameObject);
   }
 
   refresh() {
     for (let card of this.cardList.list) {
-      if (this.selectedCards.isSelected(card)) {
-        card.gameObject?.getComponentInChildren(OuterGlow).openOuterGlow();
-      } else {
-        card.gameObject?.getComponentInChildren(OuterGlow).closeOuterGlow();
-      }
+      // if (this.selectedCards.isSelected(card)) {
+      //   card.gameObject?.getComponentInChildren(OuterGlow).openOuterGlow();
+      // } else {
+      //   card.gameObject?.getComponentInChildren(OuterGlow).closeOuterGlow();
+      // }
     }
   }
 

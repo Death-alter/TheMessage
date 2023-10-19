@@ -1,15 +1,14 @@
 import { DataBasic } from "../../DataBasic";
 import { GameObjectContainer } from "./GameObjectContainer";
-import { GameObject } from "../../GameObject";
 
-export class DataContainer<T extends DataBasic<any>> extends DataBasic<GameObjectContainer<GameObject<T>>> {
+export class DataContainer<T extends DataBasic> extends DataBasic {
   protected _list: T[] = [];
 
   get list() {
     return this._list;
   }
 
-  constructor(gameObject?: GameObjectContainer<GameObject<T>>) {
+  constructor(gameObject?: GameObjectContainer) {
     super();
   }
 

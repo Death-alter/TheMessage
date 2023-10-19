@@ -4,10 +4,9 @@ import { GameData } from "../../Manager/GameData";
 import { GameManager } from "../../Manager/GameManager";
 import { Character } from "../Chatacter/Character";
 import { Player } from "../Player/Player";
-import { SkillButton } from "./SkillButton";
 import { ActiveSkillOption, SkillOption } from "./type";
 
-export abstract class Skill extends DataBasic<SkillButton> {
+export abstract class Skill extends DataBasic {
   protected _name: string;
   protected _description: string;
   protected _character: Character;

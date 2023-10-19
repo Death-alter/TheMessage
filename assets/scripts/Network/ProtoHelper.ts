@@ -1,16 +1,18 @@
-import * as fengsheng from "../../protobuf/fengsheng";
-import * as game from "../../protobuf/game";
-import * as card from "../../protobuf/card";
-import * as skill from "../../protobuf/skill";
-
 import { sys } from "cc";
-import { MessageType } from "@protobuf-ts/runtime";
+import proto from "../../protobuf/proto.js";
+// import { MessageType } from "@protobuf-ts/runtime";
 
-const proto: { [index: string]: MessageType<any> } = { ...fengsheng, ...game, ...card, ...skill };
+// import * as fengsheng from "../../protobuf/fengsheng";
+// import * as game from "../../protobuf/game";
+// import * as card from "../../protobuf/card";
+// import * as skill from "../../protobuf/skill";
+// import { heart_toc } from "../../protobuf/fengsheng";
+
+// const proto: { [index: string]: any } = {};
 
 class ProtoHelper {
   static encode(protoName: string, data: Object) {
-    const dataBuffer: Uint8Array = proto[protoName].toBinary(data);
+    const dataBuffer: Uint8Array = proto[protoName].encode(data);
     const length = protoName.length;
     const lengthBuffer = new Uint16Array(2);
     const buffer = new ArrayBuffer(length);
@@ -56,7 +58,7 @@ class ProtoHelper {
             const dataBuffer = buffer.slice(length + 2);
             resolve({
               protoName,
-              data: proto[protoName].fromBinary(new Uint8Array(dataBuffer)),
+              data: proto[protoName].decode(new Uint8Array(dataBuffer)),
             });
           };
         }

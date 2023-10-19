@@ -7,7 +7,6 @@ import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Player } from "../../Player/Player";
 

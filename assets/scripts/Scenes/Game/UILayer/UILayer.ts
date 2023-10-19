@@ -386,19 +386,17 @@ export class UILayer extends Component {
 
     if (data.type === WaitingType.PLAYER_DYING) {
       for (let player of this.manager.data.playerList) {
-        if (player.id === data.params.diePlayerId) {
-          player.gameObject.showInnerGlow("#FF000080");
-        } else {
-          player.gameObject.hideInnerGlow();
-        }
+        // if (player.id === data.params.diePlayerId) {
+        //   player.gameObject.showInnerGlow("#FF000080");
+        // } else {
+        //   player.gameObject.hideInnerGlow();
+        // }
       }
     }
 
     const buttons = this.skillButtons.getComponent(SkillButtons);
     this.manager.data.selfPlayer.character.skills.forEach((skill, index) => {
-      if (!skill.gameObject.locked) {
-        skill.gameObject.isOn = false;
-      }
+
 
       if (skill instanceof ActiveSkill) {
         if (
@@ -442,10 +440,10 @@ export class UILayer extends Component {
   }
 
   playerUseSkill({ player, skill }: GameEventType.PlayerUseSkill) {
-    if (!(skill instanceof PassiveSkill)) {
-      skill.gameObject?.lock();
-      player?.gameObject.setSkillOnUse(skill);
-    }
+    // if (!(skill instanceof PassiveSkill)) {
+    //   skill.gameObject?.lock();
+    //   player?.gameObject.setSkillOnUse(skill);
+    // }
   }
 
   skillOnEffect(data: GameEventType.SkillOnEffect) {
@@ -456,13 +454,13 @@ export class UILayer extends Component {
   }
 
   afterPlayerUseSkill({ player, skill }: GameEventType.AfterPlayerUseSkill) {
-    if (!(skill instanceof PassiveSkill)) {
-      if (skill.gameObject) {
-        skill.gameObject.unlock();
-        skill.gameObject.isOn = false;
-      }
-      player?.gameObject.setSkillOnUse(null);
-    }
+    // if (!(skill instanceof PassiveSkill)) {
+    //   if (skill.gameObject) {
+    //     skill.gameObject.unlock();
+    //     skill.gameObject.isOn = false;
+    //   }
+    //   player?.gameObject.setSkillOnUse(null);
+    // }
   }
 
   cardCanPlayed(card) {
