@@ -67,8 +67,8 @@ export class DingLun extends ActiveSkill {
       let message = gameData.messageInTransmit;
       if (message instanceof UnknownCard || message.status === CardStatus.FACE_DOWN) {
         message = gameData.createMessage(card);
-        gameData.messageInTransmit = message;
         message.gameObject = gameData.messageInTransmit.gameObject;
+        gameData.messageInTransmit = message;
         await message.flip();
       }
 
