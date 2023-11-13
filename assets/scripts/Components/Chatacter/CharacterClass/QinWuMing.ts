@@ -2,6 +2,7 @@ import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
 import { YuSiWangPo } from "../../Skill/SkillClass/YuSiWangPo";
+import { PinMingSanLang } from "../../Skill/SkillClass/PinMingSanLang";
 
 export class QinWuMing extends Character {
   constructor(gameObject?: CharacterObject) {
@@ -13,6 +14,6 @@ export class QinWuMing extends Character {
       sex: Sex.MALE,
       gameObject: gameObject,
     });
-    this.setSkills([new YuSiWangPo(this)]);
+    this.setSkills([new PinMingSanLang(this), new YuSiWangPo(this)]);
   }
 }

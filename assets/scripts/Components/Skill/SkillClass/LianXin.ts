@@ -20,7 +20,7 @@ export class LianXin extends TriggerSkill {
       name: "联信",
       character,
       description:
-        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报不同颜色的手牌置入传出者的情报区。",
+        "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报相同颜色的手牌置入传出者的情报区。",
     });
   }
 
@@ -110,17 +110,12 @@ export class LianXin extends TriggerSkill {
 
   selectHandcard(gui: GameManager, params: { message: Card }) {
     const { message } = params;
-    const color = [CardColor.RED, CardColor.BLUE, CardColor.BLACK];
-    for (let c of message.color) {
-      color.splice(color.indexOf(c), 1);
-    }
-
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
         filter: (card: Card) => {
           let flag = false;
-          for (let c of color) {
+          for (let c of message.color) {
             if (Card.hasColor(card, c)) {
               flag = true;
               break;

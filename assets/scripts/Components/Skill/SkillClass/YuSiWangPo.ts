@@ -9,6 +9,7 @@ import { Character } from "../../Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { CardColor } from "../../Card/type";
 
 export class YuSiWangPo extends ActiveSkill {
   private usageCount: number = 0;
@@ -21,7 +22,7 @@ export class YuSiWangPo extends ActiveSkill {
     super({
       name: "鱼死网破",
       character,
-      description: "出牌阶段限一次，你可以弃置至少一张手牌，令一名其他角色弃置[你弃置的手牌数量+1]张手牌，然后你们各摸一张牌。",
+      description: "出牌阶段限一次，你可以弃置一张手牌，令一名其他角色弃置[你的黑色情报数量+1]张手牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
@@ -58,8 +59,8 @@ export class YuSiWangPo extends ActiveSkill {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
-        tooltipText: "请选择至少一张手牌弃置",
-        num: gui.data.selfPlayer.handCardCount,
+        tooltipText: "请选择一张手牌弃置",
+        num: 1,
         enabled: () => gui.selectedHandCards.list.length > 0,
       },
     })
@@ -78,10 +79,7 @@ export class YuSiWangPo extends ActiveSkill {
       });
   }
 
-  onEffectA(
-    gameData: GameData,
-    { playerId, targetPlayerId, cardCount, waitingSecond, seq }: skill_yu_si_wang_po_a_toc
-  ) {
+  onEffectA(gameData: GameData, { playerId, targetPlayerId, waitingSecond, seq }: skill_yu_si_wang_po_a_toc) {
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
@@ -102,7 +100,7 @@ export class YuSiWangPo extends ActiveSkill {
           skill: this,
           handler: "chooseDiscardCards",
           params: {
-            num: cardCount,
+            num: player.messageCounts[CardColor.BLACK],
           },
         });
       }
