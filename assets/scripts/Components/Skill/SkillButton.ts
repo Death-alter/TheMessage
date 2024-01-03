@@ -77,7 +77,8 @@ export class SkillButton extends GameObject<Skill> {
             } else {
               tooltipText = `不满足使用条件，不能使用【${skill.name}】`;
             }
-            PlayerAction.switchToGroup("UseSkill")
+            PlayerAction.clearGroup("UseSkill")
+              .switchToGroup("UseSkill")
               .addStep({
                 step: PlayerActionStepName.CONFIRM_USE_SKILL,
                 data: {
