@@ -50,6 +50,10 @@ export class PinMingSanLang extends ActiveSkill {
     this.usageCount = 0;
   }
 
+  canUse(gui: GameManager): boolean {
+    return gui.data.selfPlayer.messageCounts[CardColor.BLACK] < 2;
+  }
+
   onUse(gui: GameManager) {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,

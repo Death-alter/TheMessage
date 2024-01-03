@@ -73,7 +73,7 @@ export class YuSiWangPo extends ActiveSkill {
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_YU_SI_WANG_PO_A_TOS, {
           targetPlayerId: data[0].players[0].id,
-          cardIds: data[1].cards.map((card) => card.id),
+          cardId: data[1].cards[0].id,
           seq: gui.seq,
         });
       });
@@ -100,7 +100,7 @@ export class YuSiWangPo extends ActiveSkill {
           skill: this,
           handler: "chooseDiscardCards",
           params: {
-            num: player.messageCounts[CardColor.BLACK],
+            num: player.messageCounts[CardColor.BLACK] + 1,
           },
         });
       }

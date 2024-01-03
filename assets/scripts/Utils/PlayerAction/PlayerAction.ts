@@ -50,7 +50,7 @@ export abstract class PlayerAction {
   }
 
   public static clearGroup(groupName) {
-    this.groups[groupName].clear();
+    if (this.groups[groupName]) this.groups[groupName].clear();
     return this;
   }
 
