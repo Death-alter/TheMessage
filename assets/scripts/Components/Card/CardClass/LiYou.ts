@@ -2,16 +2,19 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Card } from "../Card";
-import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GamePhase } from "../../../Manager/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { Player } from "../../Player/Player";
 
 export class LiYou extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
+
+  get description() {
+    return "出牌阶段，指定一名角色，然后翻开牌堆顶的一张牌并置入其情报区，若如此做会让其收集三张或更多同色情报，则改为将翻开的牌加入你的手牌。";
+  }
 
   constructor(option: CardDefaultOption) {
     super({

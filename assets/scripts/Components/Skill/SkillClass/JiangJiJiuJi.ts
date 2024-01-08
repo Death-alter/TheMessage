@@ -11,7 +11,7 @@ export class JiangJiJiuJi extends PassiveSkill {
     super({
       name: "将计就计",
       character,
-      description: "你使用【误导】或成为【误导】的目标之一时，可以将此角色牌翻至面朝下，摸一张牌。",
+      description: "你使用的【误导】或你为目标之一的【误导】结算后，可以将此角色牌翻至面朝下，摸一张牌。",
     });
   }
 

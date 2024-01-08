@@ -10,6 +10,7 @@ import { CardOnEffect } from "../../../Event/GameEventType";
 import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { Identity } from "../../Identity/Identity";
 
 export class ShiTan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
@@ -17,6 +18,33 @@ export class ShiTan extends Card {
 
   get drawCardColor() {
     return this._drawCardColor;
+  }
+
+  get description() {
+    let str = "出牌阶段，将这张牌面朝下递给另一名角色，其必须根据自己的身份牌如实执行：<br/>";
+    if (this.drawCardColor) {
+      const array = ["神秘人", "潜伏战线", "特工机关"];
+      let drawStr = "";
+      let disCardStr = "";
+      for (let i = 0; i < 3; i++) {
+        if (this.drawCardColor.indexOf(i) === -1) {
+          if (disCardStr.length) {
+            disCardStr += "或";
+          }
+          disCardStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
+        } else {
+          if (drawStr.length) {
+            drawStr += "或";
+          }
+          drawStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
+        }
+      }
+
+      disCardStr += "：弃置一张手牌。<br/>";
+      drawStr += "：摸一张牌。";
+      str += disCardStr + drawStr;
+    }
+    return str;
   }
 
   constructor(option: ShiTanOption) {

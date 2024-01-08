@@ -13,6 +13,10 @@ import { GameLog } from "../../GameLog/GameLog";
 export class DiaoHuLiShan extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
 
+  get description() {
+    return "出牌阶段，指定一名角色并选择一项：<br/>♦该角色本回合所有技能无效。<br/>♦该角色本回合不能使用手牌。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

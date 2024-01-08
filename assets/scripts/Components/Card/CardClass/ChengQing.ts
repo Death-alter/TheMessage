@@ -7,12 +7,15 @@ import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Player } from "../../Player/Player";
 
 export class ChengQing extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE, GamePhase.RECEIVE_PHASE];
+
+  get description() {
+    return "♦ 出牌阶段，从一名角色的情报区弃置一张黑色情报。<br/>♦ 某名角色濒死时，从该角色的情报区弃置一张黑色情报。";
+  }
 
   constructor(option: CardDefaultOption) {
     super({

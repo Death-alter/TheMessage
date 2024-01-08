@@ -56,6 +56,10 @@ export abstract class Card extends DataBasic<CardObject> {
     return this._lockable;
   }
 
+  get description() {
+    return "";
+  }
+
   constructor(option: CardOption) {
     super();
     this._id = option.id;

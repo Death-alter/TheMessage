@@ -13,6 +13,10 @@ export class YuQinGuZong extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
   public messageToReplaced: Card = null;
 
+  get description() {
+    return "传递阶段，从你的情报区选择一张红色或蓝色情报，面朝上作为情报传出，然后摸两张牌。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

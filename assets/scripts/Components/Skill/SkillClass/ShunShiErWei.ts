@@ -11,7 +11,7 @@ export class ShunShiErWei extends PassiveSkill {
     super({
       name: "顺势而为",
       character,
-      description: "你使用【截获】或成为【截获】的目标时，可以将此角色牌翻至面朝下，摸一张牌。",
+      description: "你使用的【截获】或以你为目标的【截获】结算后，可以将此角色牌翻至面朝下，摸一张牌。",
     });
   }
 

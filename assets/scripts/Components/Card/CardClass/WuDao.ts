@@ -11,6 +11,10 @@ import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 export class WuDao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
 
+  get description() {
+    return "争夺阶段，将待收情报由当前角色面前移至其相邻角色的面前。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
@@ -26,23 +30,25 @@ export class WuDao extends Card {
 
   onPlay(gui: GameManager): void {
     const neighbors = gui.data.getPlayerNeighbors(gui.data.messagePlayerId);
-    PlayerAction.switchToGroup("PlayCard").addStep({
-      step: PlayerActionStepName.SELECT_PLAYERS,
-      data: {
-        tooltipText: "请选择误导的目标",
-        num: 1,
-        filter: (player) => {
-          return neighbors.indexOf(player) !== -1;
+    PlayerAction.switchToGroup("PlayCard")
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          tooltipText: "请选择误导的目标",
+          num: 1,
+          filter: (player) => {
+            return neighbors.indexOf(player) !== -1;
+          },
+          enabled: () => gui.selectedPlayers.list.length > 0,
         },
-        enabled: () => gui.selectedPlayers.list.length > 0,
-      },
-    }).onComplete((data) => {
-      NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
-        cardId: this.id,
-        targetPlayerId: data[0].players[0].id,
-        seq: gui.seq,
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.USE_WU_DAO_TOS, {
+          cardId: this.id,
+          targetPlayerId: data[0].players[0].id,
+          seq: gui.seq,
+        });
       });
-    });
   }
 
   onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {

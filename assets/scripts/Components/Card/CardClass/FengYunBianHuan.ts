@@ -13,6 +13,10 @@ export class FengYunBianHuan extends Card {
 
   private cardList: Card[];
 
+  get description() {
+    return "出牌阶段，你从牌堆顶翻出等同于存活角色数量的牌，从你开始，逆时针顺序，每名角色选择其中一张加入手牌，若其情报区中没有与所选牌同色的情报，则其可以改为将所选牌置入自己的情报区。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
