@@ -28,9 +28,9 @@ export class GameLogList extends DataContainer<GameLog> {
     this.logHistory.addData(new GameLog(data.text));
   }
 
-  formatCard(card: Card) {
+  formatCard(card: Card, hasColor: boolean = true) {
     let colorStr = "";
-    if (card.color && card.color.length) {
+    if (card.color && card.color.length && hasColor) {
       if (card.color.length === 1) {
         switch (card.color[0]) {
           case CardColor.BLACK:

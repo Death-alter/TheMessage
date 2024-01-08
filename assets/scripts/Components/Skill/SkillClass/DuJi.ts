@@ -109,9 +109,9 @@ export class DuJi extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(
-          targetPlayer1
-        )}和${gameLog.formatPlayer(targetPlayer2)}`
+        `${gameLog.formatPlayer(player)}指定${gameLog.formatPlayer(targetPlayer1)}和${gameLog.formatPlayer(
+          targetPlayer2
+        )}`
       )
     );
 
@@ -275,7 +275,7 @@ export class DuJi extends ActiveSkill {
     const tooltip = gui.tooltip;
     const gameLog = gui.gameLog;
     const { card } = params;
-    tooltip.setText(`请选择将${gameLog.formatCard(card)}置入谁的情报区`);
+    tooltip.setText(`请选择将${gameLog.formatCard(card, false)}置入谁的情报区`);
     tooltip.buttons.setButtons([
       {
         text: "自己",

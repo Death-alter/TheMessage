@@ -74,12 +74,12 @@ export class HouZiQieXin extends ActiveSkill {
         data: {
           tooltipText: "请选择一张手牌",
           filter: (card: Card, current) => {
-            const { playerId, cardId }: { playerId: number; cardId: number } = current;
+            const { playerId, message }: { playerId: number; message: Card } = current;
             const player = gui.data.playerList[playerId];
             const messages = player.getMessagesCopy();
-            for (let message of messages) {
-              if (message.id === cardId && message.color.length === card.color.length) {
-                if (message.color.every((color, index) => color === card.color[index])) {
+            for (let m of messages) {
+              if (m.id === message.id && m.color.length === card.color.length) {
+                if (m.color.every((color, index) => color === card.color[index])) {
                   return CardUsableStatus.USABLE;
                 }
               }
@@ -92,7 +92,7 @@ export class HouZiQieXin extends ActiveSkill {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_HOU_ZI_QIE_XIN_TOS, {
           handCardId: data[0].cards[0].id,
           targetPlayerId: data[2].playerId,
-          messageCardId: data[1].cardId,
+          messageCardId: data[1].message.id,
           seq: gui.seq,
         });
       });

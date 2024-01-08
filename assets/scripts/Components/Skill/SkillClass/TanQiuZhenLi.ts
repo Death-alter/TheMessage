@@ -92,7 +92,7 @@ export class TanQiuZhenLi extends ActiveSkill {
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_TAN_QIU_ZHEN_LI_A_TOS, {
-          cardId: data[0].cardId,
+          cardId: data[0].message.id,
           targetPlayerId: data[1].playerId,
           seq: gui.seq,
         });

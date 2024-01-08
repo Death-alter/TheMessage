@@ -63,7 +63,7 @@ export class ChengQing extends Card {
         NetworkEventCenter.emit(NetworkEventToS.USE_CHENG_QING_TOS, {
           cardId: this.id,
           playerId: data[1].playerId,
-          targetCardId: data[0].cardId,
+          targetCardId: data[0].message.id,
           seq: gui.seq,
         });
       });

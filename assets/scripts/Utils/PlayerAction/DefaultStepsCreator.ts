@@ -215,9 +215,9 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           {
             text: "确定",
             onclick: () => {
-              const cardId = showCardsWindow.selectedCards.list[0].id;
+              const message = showCardsWindow.selectedCards.list[0];
               showCardsWindow.hide();
-              next({ playerId: player.id, cardId });
+              next({ playerId: player.id, message });
             },
             enabled: enabled != null ? enabled : () => showCardsWindow.selectedCards.list.length === limit,
           },

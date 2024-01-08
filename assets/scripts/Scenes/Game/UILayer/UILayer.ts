@@ -318,7 +318,7 @@ export class UILayer extends Component {
                         NetworkEventCenter.emit(NetworkEventToS.CHENG_QING_SAVE_DIE_TOS, {
                           use: true,
                           cardId: card.id,
-                          targetCardId: data[0].cardId,
+                          targetCardId: data[0].message.id,
                           seq: this.seq,
                         });
                       });
@@ -450,7 +450,7 @@ export class UILayer extends Component {
 
   skillOnEffect(data: GameEventType.SkillOnEffect) {
     const { skill, handler, params } = data;
-    if (handler) {
+    if (handler && !this.manager.isRecord) {
       skill[handler](this.manager, params);
     }
   }

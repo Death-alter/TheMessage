@@ -118,7 +118,7 @@ export class YiHuaJieMu extends ActiveSkill {
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_YI_HUA_JIE_MU_B_TOS, {
           fromPlayerId: data[2].playerId,
-          cardId: data[1].cardId,
+          cardId: data[1].message.id,
           toPlayerId: data[0].playerId,
           seq: gui.seq,
         });
@@ -145,7 +145,7 @@ export class YiHuaJieMu extends ActiveSkill {
       });
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(fromPlayer)}的情报【${gameLog.formatCard(message)}】加入${gameLog.formatPlayer(
+          `${gameLog.formatPlayer(fromPlayer)}的情报${gameLog.formatCard(message)}加入${gameLog.formatPlayer(
             player
           )}的手牌`
         )

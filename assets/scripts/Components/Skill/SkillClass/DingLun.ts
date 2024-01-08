@@ -1,7 +1,7 @@
 import { skill_ding_lun_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
-import { GamePhase } from "../../../Manager/type";
+import { CardActionLocation, GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Character } from "../../Chatacter/Character";
@@ -76,6 +76,7 @@ export class DingLun extends ActiveSkill {
       GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
         player,
         card: message,
+        from: { location: CardActionLocation.PLAYER, player },
       });
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把待收情报${gameLog.formatCard(message)}加入手牌`));
     }
