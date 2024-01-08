@@ -10,9 +10,14 @@ import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { Player } from "../../Player/Player";
 
 export class WeiBi extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
+
+  get description() {
+    return "出牌阶段，指定一名角色，并宣言以下一种卡牌名称：【截获】【误导】【调包】【澄清】。该角色必须从手牌中将一张被宣言的卡牌交给你。若其手牌中没有，则必须让你查看全部手牌。";
+  }
 
   constructor(option: CardDefaultOption) {
     super({
@@ -34,6 +39,9 @@ export class WeiBi extends Card {
         data: {
           tooltipText: "请选择威逼的目标",
           num: 1,
+          filter: (player: Player) => {
+            return player.id !== 0;
+          },
           enabled: () => gui.selectedPlayers.list.length > 0,
         },
       })

@@ -11,6 +11,10 @@ export class DiaoBao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
   public messageToReplaced: Card = null;
 
+  get description() {
+    return "争夺阶段，弃置待收情报，然后用此牌面朝下代替之。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

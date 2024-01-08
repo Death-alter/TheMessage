@@ -9,6 +9,10 @@ import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class PingHeng extends Card {
   public readonly availablePhases = [GamePhase.MAIN_PHASE];
+  
+  get description() {
+    return "出牌阶段，你和另一名角色弃置所有手牌，然后由你开始，双方各摸三张牌。";
+  }
 
   constructor(option: CardDefaultOption) {
     super({

@@ -9,6 +9,10 @@ import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
 export class JieHuo extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
 
+  get description() {
+    return "争夺阶段，将待收情报移至你的面前。";
+  }
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

@@ -12,6 +12,10 @@ export class PoYi extends Card {
 
   private messageStatus: CardStatus;
 
+  get description() {
+    return "传递阶段，查看传递到你面前的情报，若该情报是黑色，你可以将其翻开，然后摸一张牌。";
+  }
+  
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,

@@ -12,11 +12,30 @@ import { GameLog } from "../../GameLog/GameLog";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { TagName } from "../../../type";
 
 export class MiLing extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE_START];
   private _secretColor: CardColor[];
+
+  get description() {
+    let str = "传递阶段，指定一名角色代替你传出情报，你将这张牌面朝下递给该角色，并说出以下一个暗号,";
+    if (this.secretColor) {
+      const arr = ["东", "西", "静"];
+      for (let i = 0; i < this.secretColor.length; i++) {
+        const secretColor = this.secretColor[i];
+        str += `<color=${Card.colors[secretColor]}>${arr[i]}风</color>`;
+        if (i === 2) {
+          str += "，";
+        } else {
+          str += "、";
+        }
+      }
+    } else {
+      str += "东风、西风、静风，";
+    }
+    str += "其必须传出暗号对应颜色的情报。若其没有对应颜色的手牌，则让你查看其手牌，你选择一张由其传出。";
+    return str;
+  }
 
   get secretColor() {
     return this._secretColor;
