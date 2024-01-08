@@ -17,14 +17,14 @@ export class HouZiQieXin extends ActiveSkill {
   private usageCount: number = 0;
 
   get useable() {
-    return this.usageCount === 0;
+    return this.usageCount < 2;
   }
 
   constructor(character: Character) {
     super({
       name: "猴子窃信",
       character,
-      description: "出牌阶段限一次，你可以用一张手牌与其他角色情报区中的完全同色的情报互换。",
+      description: "出牌阶段限两次，你可以用一张手牌与其他角色情报区中的完全同色的情报互换。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
