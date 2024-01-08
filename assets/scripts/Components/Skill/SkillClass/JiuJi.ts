@@ -66,7 +66,9 @@ export class JiuJi extends TriggerSkill {
       cardPlayed = gui.data.createCardByType(cardType);
     }
 
-    tooltip.setText(`${gameLog.formatPlayer(fromPlayer)}对你使用${gameLog.formatCard(cardPlayed)}，是否使用【就计】`);
+    tooltip.setText(
+      `${gameLog.formatPlayer(fromPlayer)}对你使用${gameLog.formatCard(cardPlayed, false)}，是否使用【就计】`
+    );
     tooltip.buttons.setButtons([
       {
         text: "确定",

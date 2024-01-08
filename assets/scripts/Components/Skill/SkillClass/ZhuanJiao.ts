@@ -61,7 +61,7 @@ export class ZhuanJiao extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`一名角色传出了情报,是否使用【转交】？`);
+          tooltip.setText(`你使用了手牌,是否使用【转交】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
@@ -95,13 +95,16 @@ export class ZhuanJiao extends TriggerSkill {
       .addStep({
         step: PlayerActionStepName.SELECT_PLAYERS,
         data: {
-          filter: (player) => player.id !== 0,
+          filter: (player, current) => {
+            if (player.id === 0) return false;
+            return player.sameMessageCountOver(current.message);
+          },
         },
       })
       .onComplete((data) => {
         NetworkEventCenter.emit(NetworkEventToS.SKILL_ZHUAN_JIAO_TOS, {
           enable: true,
-          cardId: data[1].cardId,
+          cardId: data[1].message.id,
           targetPlayerId: data[0].players[0].id,
           seq: gui.seq,
         });

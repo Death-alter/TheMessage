@@ -1,6 +1,7 @@
-import { _decorator, Component, Node } from "cc";
+import { _decorator, Component, Node, director, find } from "cc";
 import { NetworkEventCenter } from "../../Event/EventTarget";
 import { NetworkEventToS } from "../../Event/type";
+import { NetworkManager } from "../../Network/NetworkManager";
 const { ccclass, property } = _decorator;
 
 @ccclass("RoomButtons")
@@ -18,6 +19,11 @@ export class RoomButtons extends Component {
     });
     this.node.getChildByName("RemoveRoomPostion").on(Node.EventType.TOUCH_END, (event) => {
       NetworkEventCenter.emit(NetworkEventToS.REMOVE_ONE_POSITION_TOS);
+    });
+    this.node.getChildByName("LeaveRoom").on(Node.EventType.TOUCH_END, (event) => {
+      director.loadScene("login", () => {
+        find("Resident").getComponent(NetworkManager).reconnect();
+      });
     });
   }
 }
