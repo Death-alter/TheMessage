@@ -11,13 +11,13 @@ import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { Card } from "../../Card/Card";
-import { CardColor, CardUsableStatus } from "../../Card/type";
+import { CardUsableStatus } from "../../Card/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 
 export class LianXin extends TriggerSkill {
   constructor(character: Character) {
     super({
-      name: "联信",
+      name: "暗度陈仓",
       character,
       description:
         "你接收其他角色传出的情报后，可以翻开此角色，摸两张牌，然后将一张含有该情报相同颜色的手牌置入传出者的情报区。",
@@ -28,14 +28,14 @@ export class LianXin extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_LIAN_XIN_A_TOC,
       (data) => {
-        this.onEffectA(gameData, data);
+        if (data.playerId === player.id) this.onEffectA(gameData, data);
       },
       this
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_LIAN_XIN_B_TOC,
       (data) => {
-        this.onEffectB(gameData, data);
+        if (data.playerId === player.id) this.onEffectB(gameData, data);
       },
       this
     );
@@ -51,7 +51,7 @@ export class LianXin extends TriggerSkill {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
-          tooltip.setText(`你接收了其他人传出的情报，是否使用【联信】？`);
+          tooltip.setText(`你接收了其他人传出的情报，是否使用【暗度陈仓】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",

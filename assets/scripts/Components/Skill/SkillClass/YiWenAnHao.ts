@@ -15,15 +15,17 @@ import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { TagName } from "../../../type";
 
 export class YiWenAnHao extends ActiveSkill {
+  private usageCount: number = 0;
+
   get useable() {
-    return true;
+    return this.usageCount === 0;
   }
 
   constructor(character: Character) {
     super({
       name: "译文暗号",
       character,
-      description: "你的【破译】可以当做【调包】使用。",
+      description: "每局游戏限一次，你可以将一张【破译】当做【调包】使用。",
       useablePhase: [GamePhase.FIGHT_PHASE],
     });
   }
@@ -82,6 +84,7 @@ export class YiWenAnHao extends ActiveSkill {
       player,
       skill: this,
     });
+    ++this.usageCount;
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
       skill: this,
