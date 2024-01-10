@@ -25,7 +25,7 @@ export class PinMingSanLang extends ActiveSkill {
       name: "拼命三郎",
       character,
       description:
-        "出牌阶段限一次，你可以将一张纯黑色手牌置入自己的情报区，然后摸三张牌。你不能通过此技能获得第三张黑色情报。",
+        "出牌阶段限一次，你可以将一张纯黑色手牌置入自己的情报区，然后摸三张牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
@@ -48,10 +48,6 @@ export class PinMingSanLang extends ActiveSkill {
 
   resetUsageCount() {
     this.usageCount = 0;
-  }
-
-  canUse(gui: GameManager): boolean {
-    return gui.data.selfPlayer.messageCounts[CardColor.BLACK] < 2;
   }
 
   onUse(gui: GameManager) {

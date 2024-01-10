@@ -185,6 +185,7 @@ export class Player extends DataBasic<PlayerObject> {
       this.gameObject?.refreshMessageCount();
       if (this.messageCounts[CardColor.BLACK] < 3) {
         this.status = PlayerStatus.ALIVE;
+        GameEventCenter.emit(GameEvent.PLAYER_RECOVERY, this);
       }
       return message;
     } else {
@@ -198,6 +199,8 @@ export class Player extends DataBasic<PlayerObject> {
         }
       }
       this.gameObject?.refreshMessageCount();
+      console.log(this.messageCounts);
+      console.log(this.status);
       if (this.messageCounts[CardColor.BLACK] < 3) {
         this.status = PlayerStatus.ALIVE;
         GameEventCenter.emit(GameEvent.PLAYER_RECOVERY, this);

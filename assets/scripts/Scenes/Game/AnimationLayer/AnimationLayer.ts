@@ -4,10 +4,11 @@ import { GameEvent } from "../../../Event/type";
 import { CardAction } from "../../../Scenes/Game/AnimationLayer/CardAction";
 import * as GameEventType from "../../../Event/GameEventType";
 import { Card } from "../../../Components/Card/Card";
-import { CardActionLocation } from "../../../Manager/type";
+import { CardActionLocation, GamePhase } from "../../../Manager/type";
 import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
+import { Player } from "../../../Components/Player/Player";
 
 const { ccclass, property } = _decorator;
 
@@ -88,6 +89,9 @@ export class AnimationLayer extends Component {
     //玩家死亡
     GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
 
+    //玩家从濒死恢复
+    GameEventCenter.on(GameEvent.PLAYER_RECOVERY, this.playerRecovery, this);
+
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
@@ -111,6 +115,7 @@ export class AnimationLayer extends Component {
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
+    GameEventCenter.off(GameEvent.PLAYER_RECOVERY, this.playerRecovery, this);
     GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
     GameEventCenter.off(GameEvent.CARD_MOVED, this.moveCard, this);
   }
@@ -192,6 +197,18 @@ export class AnimationLayer extends Component {
     const { player, messages } = data;
     this.cardAction.removeMessage({ player, messageList: messages });
     data.player.gameObject.hideInnerGlow();
+  }
+
+  playerRecovery(player: Player) {
+    if (this.manager.data.gamePhase === GamePhase.SEND_PHASE || this.manager.data.gamePhase === GamePhase.FIGHT_PHASE) {
+      if (player.id === this.manager.data.turnPlayerId) {
+        player.gameObject.showInnerGlow("#00FF0080");
+      } else {
+        player.gameObject.showInnerGlow("FF00FF80");
+      }
+    } else {
+      player.gameObject.hideInnerGlow();
+    }
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {

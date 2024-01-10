@@ -1,8 +1,8 @@
 import { Character } from "../Character";
 import { Sex, CharacterStatus } from "../type";
 import { CharacterObject } from "../CharacterObject";
-import { MiXin } from "../../Skill/SkillClass/MiXin";
 import { JiangJiJiuJi } from "../../Skill/SkillClass/JiangJiJiuJi";
+import { LianXin } from "../../Skill/SkillClass/LianXin";
 
 export class AdultHanMei extends Character {
   constructor(gameObject?: CharacterObject) {
@@ -14,6 +14,6 @@ export class AdultHanMei extends Character {
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });
-    this.setSkills([new MiXin(this), new JiangJiJiuJi(this)]);
+    this.setSkills([new LianXin(this), new JiangJiJiuJi(this)]);
   }
 }

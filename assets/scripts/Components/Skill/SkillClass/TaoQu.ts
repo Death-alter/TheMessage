@@ -26,7 +26,7 @@ export class TaoQu extends ActiveSkill {
       name: "套取",
       character,
       description:
-        "出牌阶段限一次，你可以弃置两张含有相同颜色的手牌，然后从一名其他角色的情报区，把一张对应颜色的情报加入手牌。",
+        "出牌阶段限一次，你可以展示两张含有相同颜色的手牌，然后从一名其他角色的情报区，把一张对应颜色的情报加入手牌，该角色摸一张牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
@@ -76,7 +76,7 @@ export class TaoQu extends ActiveSkill {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_HAND_CARDS,
       data: {
-        tooltipText: "请选择两张含有相同颜色的手牌弃置",
+        tooltipText: "请选择两张含有相同颜色的手牌展示",
         num: 2,
         enabled: () => {
           const list = gui.selectedHandCards.list;
@@ -97,7 +97,7 @@ export class TaoQu extends ActiveSkill {
     });
   }
 
-  onEffectA(gameData: GameData, { playerId, colors, waitingSecond, seq }: skill_tao_qu_a_toc) {
+  onEffectA(gameData: GameData, { playerId, colors, cards, waitingSecond, seq }: skill_tao_qu_a_toc) {
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
@@ -118,7 +118,35 @@ export class TaoQu extends ActiveSkill {
         handler: "chooseMessage",
         params: { colors },
       });
+    } else {
+      const cardList = cards.map((card) => gameData.createCard(card));
+      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+        skill: this,
+        handler: "showHandcard",
+        params: {
+          cardList,
+        },
+      });
     }
+  }
+
+  showHandcard(gui: GameManager, params) {
+    const { cardList } = params;
+    const showCardsWindow = gui.showCardsWindow;
+
+    showCardsWindow.show({
+      title: "【套取】展示手牌",
+      limit: 0,
+      cardList,
+      buttons: [
+        {
+          text: "关闭",
+          onclick: () => {
+            showCardsWindow.hide();
+          },
+        },
+      ],
+    });
   }
 
   chooseMessage(gui: GameManager, params) {
