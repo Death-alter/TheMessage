@@ -107,8 +107,9 @@ export class YiHuaJieMu extends ActiveSkill {
         step: PlayerActionStepName.SELECT_PLAYERS,
         data: {
           tooltipText: "请选择要置入情报的角色",
-          filter: (player, data) => {
-            return player.id !== data.playerId;
+          filter: (player, current) => {
+            console.log(current)
+            return player.id !== current.playerId;
           },
         },
         resolver: (data) => {
