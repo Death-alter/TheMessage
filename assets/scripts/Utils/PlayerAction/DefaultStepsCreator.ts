@@ -129,6 +129,7 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
       const { tooltipText, filter, enabled, canCancel } = initial;
       const num = initial.num != null ? initial.num : 1;
       gui.tooltip.setText(tooltipText || "请选择一名角色");
+      gui.gameLayer.stopSelectPlayers();
       gui.gameLayer.startSelectPlayers({
         num,
         filter: (player) => {

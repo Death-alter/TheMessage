@@ -1,6 +1,6 @@
 const config = {
   webSocketUrl: "ws://localhost:12222/ws",
-  version: 137,
+  version: 138,
   heartBeatInterval: 20,
   maxRetryTimes: 3,
 };

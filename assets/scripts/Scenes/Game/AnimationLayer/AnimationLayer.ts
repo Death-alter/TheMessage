@@ -203,7 +203,7 @@ export class AnimationLayer extends Component {
     if (this.manager.data.gamePhase === GamePhase.SEND_PHASE || this.manager.data.gamePhase === GamePhase.FIGHT_PHASE) {
       if (player.id === this.manager.data.turnPlayerId) {
         player.gameObject.showInnerGlow("#00FF0080");
-      } else {
+      } else if (player.id === this.manager.data.senderId) {
         player.gameObject.showInnerGlow("FF00FF80");
       }
     } else {
