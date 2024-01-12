@@ -95,8 +95,6 @@ export class YiYaHuanYa extends TriggerSkill {
               {
                 text: "取消",
                 onclick: () => {
-                  gui.gameLayer.stopSelectPlayers();
-                  gui.gameLayer.stopSelectHandCards();
                   prev();
                 },
               },

@@ -10,6 +10,9 @@ import { CardColor } from "../../Card/type";
 import { CardActionLocation } from "../../../Manager/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class LianMin extends TriggerSkill {
   constructor(character: Character) {
@@ -36,73 +39,65 @@ export class LianMin extends TriggerSkill {
 
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
-    tooltip.setText(`你传出的非黑色情报被接收，是否使用【怜悯】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          tooltip.setText(`请选择一名角色`);
-          gui.gameLayer.startSelectPlayers({
-            num: 1,
-            filter: (player) => {
-              return (
-                (player.id === 0 || player.id === gui.data.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0
-              );
-            },
-            onSelect: (player) => {
-              const showCardsWindow = gui.showCardsWindow;
-              showCardsWindow.show({
-                title: "请选择一张情报",
-                limit: 1,
-                cardList: player.getMessagesCopy(),
-                buttons: [
-                  {
-                    text: "确定",
-                    onclick: () => {
-                      NetworkEventCenter.emit(NetworkEventToS.SKILL_LIAN_MIN_TOS, {
-                        targetPlayerId: player.id,
-                        cardId: showCardsWindow.selectedCards.list[0].id,
-                        seq: gui.seq,
-                      });
-                    },
-                    enabled: () =>
-                      showCardsWindow.selectedCards.list[0] &&
-                      Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
-                  },
-                  {
-                    text: "取消",
-                    onclick: () => {
-                      showCardsWindow.hide();
-                      gui.gameLayer.stopSelectPlayers();
-                      tooltip.setText(`请选择一名角色`);
-                    },
-                  },
-                ],
-              });
-            },
-          });
+    const showCardsWindow = gui.showCardsWindow;
+
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText(`你传出的非黑色情报被接收，是否使用【怜悯】？`);
           tooltip.buttons.setButtons([
+            {
+              text: "确定",
+              onclick: () => {
+                next();
+              },
+            },
             {
               text: "取消",
               onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-                  seq: gui.seq,
-                });
-                gui.gameLayer.stopSelectPlayers();
+                prev();
               },
             },
           ]);
         },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gui.seq,
-          });
+      }),
+    })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+        data: {
+          num: 1,
+          filter: (player) => {
+            return (
+              (player.id === 0 || player.id === gui.data.messagePlayerId) && player.messageCounts[CardColor.BLACK] > 0
+            );
+          },
+          enabled: () => gui.selectedPlayers.list.length > 0,
         },
-      },
-    ]);
+        resolver: (data) => {
+          return { playerId: data.players[0].id };
+        },
+      })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYER_MESSAGE,
+        data: {
+          enabled: () =>
+            showCardsWindow.selectedCards.list[0] &&
+            Card.hasColor(showCardsWindow.selectedCards.list[0], CardColor.BLACK),
+        },
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_LIAN_MIN_TOS, {
+          targetPlayerId: data[1].playerId,
+          cardId: data[0].message.id,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, cardId, targetPlayerId }: skill_lian_min_toc) {

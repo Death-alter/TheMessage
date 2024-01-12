@@ -67,14 +67,12 @@ export class GuiZha extends ActiveSkill {
               {
                 text: "威逼",
                 onclick: () => {
-                  gui.gameLayer.pauseSelectPlayers();
                   next({ cardType: CardType.WEI_BI });
                 },
               },
               {
                 text: "利诱",
                 onclick: () => {
-                  gui.gameLayer.pauseSelectPlayers();
                   next({ cardType: CardType.LI_YOU });
                 },
               },

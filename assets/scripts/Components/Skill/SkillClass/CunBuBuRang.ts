@@ -14,7 +14,7 @@ export class CunBuBuRang extends TriggerSkill {
     super({
       name: "寸步不让",
       character,
-      description: "♦一名其他角色获得你的手牌后，你可以抽取该角色的一张手牌。\n♦你在回合外弃置手牌时，可以摸一张牌。",
+      description: "一名其他角色获得你的手牌后，你可以抽取该角色的一张手牌。",
     });
   }
 
@@ -85,18 +85,9 @@ export class CunBuBuRang extends TriggerSkill {
     ]);
   }
 
-  onEffect(gameData: GameData, { playerId, targetPlayerId, isDrawCard, enable, card }: skill_cun_bu_bu_rang_toc) {
+  onEffect(gameData: GameData, { playerId, targetPlayerId, enable, card }: skill_cun_bu_bu_rang_toc) {
     const player = gameData.playerList[playerId];
-    if (isDrawCard) {
-      GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
-        player,
-        skill: this,
-      });
-      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
-        player,
-        skill: this,
-      });
-    } else if (enable) {
+    if (enable) {
       const targetPlayer = gameData.playerList[targetPlayerId];
       const gameLog = gameData.gameLog;
 

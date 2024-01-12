@@ -32,7 +32,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "确定",
               onclick: () => {
-                gui.gameLayer.pauseSelectHandCards();
                 card.onPlay(gui);
                 next();
               },
@@ -72,7 +71,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "使用卡牌",
               onclick: () => {
-                gui.gameLayer.pauseSelectHandCards();
                 card.onPlay(gui);
                 next();
               },
@@ -81,7 +79,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "传递情报",
               onclick: () => {
-                gui.gameLayer.pauseSelectHandCards();
                 gui.uiLayer.doSendMessage({ message: card });
                 next();
               },
@@ -143,7 +140,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             gui.tooltip.setText("");
             gui.tooltip.buttons.setButtons([]);
-            gui.gameLayer.pauseSelectPlayers();
             next({ players: [...gui.selectedPlayers.list] });
           },
           enabled: enabled != null ? enabled : () => gui.selectedPlayers.list.length === num,
@@ -155,7 +151,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             gui.tooltip.setText("");
             gui.tooltip.buttons.setButtons([]);
-            gui.gameLayer.stopSelectPlayers();
             prev();
           },
         });
@@ -181,7 +176,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             gui.tooltip.setText("");
             gui.tooltip.buttons.setButtons([]);
-            gui.gameLayer.pauseSelectHandCards();
             next({ cards: [...gui.selectedHandCards.list] });
           },
           enabled: enabled != null ? enabled : () => gui.selectedHandCards.list.length === num,
@@ -193,7 +187,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
           onclick: () => {
             gui.tooltip.setText("");
             gui.tooltip.buttons.setButtons([]);
-            gui.gameLayer.stopSelectHandCards();
             prev();
           },
         });
@@ -272,7 +265,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             {
               text: "确定",
               onclick: () => {
-                gui.gameLayer.pauseSelectPlayers();
                 next({
                   targetPlayerId: gui.selectedPlayers.list[0].id,
                 });
@@ -284,7 +276,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
             buttons.push({
               text: "取消",
               onclick: () => {
-                gui.gameLayer.stopSelectPlayers();
                 prev();
               },
             });

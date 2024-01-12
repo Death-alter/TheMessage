@@ -56,7 +56,6 @@ export class HanHouLaoShi extends PassiveSkill {
                 {
                   text: "使用卡牌",
                   onclick: () => {
-                    gui.gameLayer.pauseSelectHandCards();
                     card.onPlay(gui);
                     next();
                   },
@@ -65,7 +64,6 @@ export class HanHouLaoShi extends PassiveSkill {
                 {
                   text: "传递情报",
                   onclick: () => {
-                    gui.gameLayer.pauseSelectHandCards();
                     gui.uiLayer.doSendMessage({ message: card });
                     next();
                   },
