@@ -1,8 +1,10 @@
 import { PlayerActionStep, PlayerActionStepDataResolver } from "./PlayerActionStep";
 import { PlayerActionStepName } from "./type";
 import { PlayerActionGroup } from "./PlayerActionGroup";
+import { GameManager } from "../../Manager/GameManager";
 
 export abstract class PlayerAction {
+  private static gui: GameManager;
   private static _index: number = 0;
   private static groups: { [index: string]: PlayerActionGroup } = { default: new PlayerActionGroup() };
   private static groupKeys: string[] = ["default"];
@@ -25,6 +27,14 @@ export abstract class PlayerAction {
       this.switch();
       this.switch = null;
     }
+  }
+
+  public static init(gui: GameManager) {
+    this.gui = gui;
+  }
+
+  public static dispose() {
+    this.gui = null;
   }
 
   public static switchToGroup(index: number): typeof PlayerAction;
@@ -65,6 +75,8 @@ export abstract class PlayerAction {
   }
 
   public static next(data?: { [index: string]: any }) {
+    this.gui.gameLayer.lockSelectHandCards();
+    this.gui.gameLayer.lockSelectPlayers();
     const flag = this.currentGroup.next(data);
     if (flag) {
       this.handleStep();
@@ -80,6 +92,8 @@ export abstract class PlayerAction {
   }
 
   public static prev() {
+    this.gui.gameLayer.stopSelectHandCards();
+    this.gui.gameLayer.stopSelectPlayers();
     const flag = this.currentGroup.prev();
     if (flag) {
       this.handleStep();

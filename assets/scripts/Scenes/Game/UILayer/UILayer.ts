@@ -254,7 +254,6 @@ export class UILayer extends Component {
                       {
                         text: "确定",
                         onclick: () => {
-                          this.manager.gameLayer.pauseSelectHandCards();
                           card.onPlay(this.manager);
                           next();
                         },
@@ -599,7 +598,6 @@ export class UILayer extends Component {
                   text: "确定",
                   onclick: () => {
                     const targetPlayerId = this.manager.selectedPlayers.list[0].id;
-                    this.manager.gameLayer.stopSelectPlayers();
                     next({
                       targetPlayerId,
                       direction,
@@ -612,7 +610,6 @@ export class UILayer extends Component {
                 buttons.push({
                   text: "取消",
                   onclick: () => {
-                    this.manager.gameLayer.stopSelectPlayers();
                     prev();
                   },
                 });
@@ -646,7 +643,6 @@ export class UILayer extends Component {
                 text: "锁定",
                 onclick: () => {
                   const lockPlayerId = [this.manager.selectedPlayers.list[0].id];
-                  this.manager.gameLayer.stopSelectPlayers();
                   next({
                     lockPlayerId,
                   });
@@ -660,13 +656,12 @@ export class UILayer extends Component {
               buttons.push({
                 text: "不锁定",
                 onclick: () => {
-                  this.manager.gameLayer.stopSelectPlayers();
                   next();
                 },
               });
             }
 
-            if (initial.canCancel && current.direction === CardDirection.UP) {
+            if (initial.canCancel) {
               buttons.push({
                 text: "取消",
                 onclick: () => {

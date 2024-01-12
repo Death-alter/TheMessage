@@ -142,10 +142,10 @@ export class GameLayer extends Component {
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     UIEventCenter.on(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
     UIEventCenter.on(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
-    UIEventCenter.on(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
+    UIEventCenter.on(UIEvent.SELECT_HAND_CARD_COMPLETE, this.lockSelectHandCards, this);
     UIEventCenter.on(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
     UIEventCenter.on(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
-    UIEventCenter.on(UIEvent.SELECT_PLAYER_COMPLETE, this.pauseSelectPlayers, this);
+    UIEventCenter.on(UIEvent.SELECT_PLAYER_COMPLETE, this.lockSelectPlayers, this);
   }
 
   stopRender() {
@@ -158,10 +158,10 @@ export class GameLayer extends Component {
     GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     UIEventCenter.off(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
     UIEventCenter.off(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
-    UIEventCenter.off(UIEvent.SELECT_HAND_CARD_COMPLETE, this.pauseSelectHandCards, this);
+    UIEventCenter.off(UIEvent.SELECT_HAND_CARD_COMPLETE, this.lockSelectHandCards, this);
     UIEventCenter.off(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
     UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
-    UIEventCenter.off(UIEvent.SELECT_PLAYER_COMPLETE, this.pauseSelectPlayers, this);
+    UIEventCenter.off(UIEvent.SELECT_PLAYER_COMPLETE, this.lockSelectPlayers, this);
   }
 
   onStartCountDown(data: StartCountDown) {
@@ -274,8 +274,8 @@ export class GameLayer extends Component {
     onDeselect?: (player: Player) => void;
   }) {
     const { num, filter, onSelect, onDeselect } = option;
+    this.stopSelectPlayers();
     this.selectedPlayers.limit = num || 1;
-    this.selectedPlayers.unlock();
 
     for (let player of this.playerObjectList) {
       if (filter) {
@@ -296,7 +296,7 @@ export class GameLayer extends Component {
     }
   }
 
-  pauseSelectPlayers() {
+  lockSelectPlayers() {
     for (let player of this.playerObjectList) {
       player.selectable = true;
       player.enableSelectIdentity = true;
@@ -307,11 +307,17 @@ export class GameLayer extends Component {
   }
 
   stopSelectPlayers() {
+    for (let player of this.playerObjectList) {
+      player.selectable = true;
+      player.enableSelectIdentity = true;
+    }
+
     this.selectedPlayers.limit = 0;
     this.selectedPlayers.unlock();
     this.selectedPlayers.clear();
     this.refreshPlayerSelectedState();
-    this.pauseSelectPlayers();
+    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
   }
 
   //开始选择手牌
@@ -335,7 +341,7 @@ export class GameLayer extends Component {
     }
   }
 
-  pauseSelectHandCards() {
+  lockSelectHandCards() {
     this.selectedHandCards.lock();
     ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
     ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);

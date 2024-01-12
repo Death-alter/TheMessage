@@ -199,7 +199,6 @@ export class DuMing extends TriggerSkill {
             {
               text: "确定",
               onclick: () => {
-                gui.gameLayer.pauseSelectHandCards();
                 next({ cards: [...gui.selectedHandCards.list] });
               },
               enabled: () => gui.selectedHandCards.list.length === 1,

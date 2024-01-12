@@ -11,6 +11,9 @@ import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { Card } from "../../Card/Card";
+import { CardColor } from "../../Card/type";
 
 export class MiaoShou extends ActiveSkill {
   constructor(character: Character) {
@@ -107,48 +110,52 @@ export class MiaoShou extends ActiveSkill {
   promptSelectCard(gui: GameManager, params) {
     const { cards, messages } = params;
 
-    const tooltip = gui.tooltip;
     const showCardsWindow = gui.showCardsWindow;
     const cardList = [...cards, ...messages];
     const tags = cards.map(() => "手牌");
     messages.forEach(() => {
       tags.push("情报区");
     });
-    const data: any = {
-      seq: gui.seq,
-    };
 
-    showCardsWindow.show({
-      title: "请选择一张牌作为待收情报",
-      limit: 1,
-      cardList,
-      tags,
-      buttons: [
-        {
-          text: "确定",
-          onclick: () => {
-            const selectedCard = showCardsWindow.selectedCards.list[0];
-            if (cardList.indexOf(selectedCard) < cards.length) {
-              data.cardId = selectedCard.id;
-            } else {
-              data.messageCardId = selectedCard.id;
-            }
-            gui.showCardsWindow.hide();
-          },
-          enabled: () => !!showCardsWindow.selectedCards.list.length,
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          showCardsWindow.show({
+            title: "请选择一张牌作为待收情报",
+            limit: 1,
+            cardList,
+            tags,
+            buttons: [
+              {
+                text: "确定",
+                onclick: () => {
+                  const selectedCard = showCardsWindow.selectedCards.list[0];
+                  if (cardList.indexOf(selectedCard) < cards.length) {
+                    next({ cardId: selectedCard.id });
+                  } else {
+                    next({ messageCardId: selectedCard.id });
+                  }
+                  showCardsWindow.hide();
+                },
+                enabled: () => !!showCardsWindow.selectedCards.list.length,
+              },
+            ],
+          });
         },
-      ],
-    });
-
-    tooltip.setText("请选择一名角色");
-    gui.gameLayer.startSelectPlayers({
-      num: 1,
-      onSelect: (player) => {
-        data.targetPlayerId = player.id;
-        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_B_TOS, data);
-        gui.gameLayer.stopSelectPlayers();
-      },
-    });
+      }),
+    })
+      .addStep({
+        step: PlayerActionStepName.SELECT_PLAYERS,
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_MIAO_SHOU_B_TOS, {
+          targetPlayerId: data[0].players[0].id,
+          cardId: data[1].cardId,
+          messageCardId: data[1].messageCardId,
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffectB(

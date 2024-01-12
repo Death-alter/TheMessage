@@ -64,7 +64,6 @@ export class WeiBi extends Card {
                   onclick: () => {
                     const type = showCardsWindow.selectedCards.list[0].type;
                     showCardsWindow.hide();
-                    gui.gameLayer.pauseSelectPlayers();
                     next({
                       wantType: type,
                     });
@@ -75,7 +74,6 @@ export class WeiBi extends Card {
                   text: "取消",
                   onclick: () => {
                     showCardsWindow.hide();
-                    gui.gameLayer.stopSelectPlayers();
                     prev();
                   },
                 },

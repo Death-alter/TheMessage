@@ -96,7 +96,6 @@ export class BianZeTong extends TriggerSkill {
                   onclick: () => {
                     const type = showCardsWindow.selectedCards.list[0].type;
                     showCardsWindow.hide();
-                    gui.gameLayer.pauseSelectPlayers();
                     next({
                       cardType: type,
                     });
@@ -107,7 +106,6 @@ export class BianZeTong extends TriggerSkill {
                   text: "取消",
                   onclick: () => {
                     showCardsWindow.hide();
-                    gui.gameLayer.stopSelectPlayers();
                     prev();
                   },
                 },
@@ -132,7 +130,6 @@ export class BianZeTong extends TriggerSkill {
                   onclick: () => {
                     const type = showCardsWindow.selectedCards.list[0].type;
                     showCardsWindow.hide();
-                    gui.gameLayer.pauseSelectPlayers();
                     next({
                       cardType: type,
                     });
@@ -143,7 +140,6 @@ export class BianZeTong extends TriggerSkill {
                   text: "取消",
                   onclick: () => {
                     showCardsWindow.hide();
-                    gui.gameLayer.stopSelectPlayers();
                     prev();
                   },
                 },

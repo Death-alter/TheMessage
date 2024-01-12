@@ -21,6 +21,7 @@ import { PlayerActionStepManager } from "../Utils/PlayerAction/PlayerActionStepM
 import { GameLog } from "../Components/GameLog/GameLog";
 import { createIdentity } from "../Components/Identity";
 import { IdentityType } from "../Components/Identity/type";
+import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 
 const { ccclass, property } = _decorator;
 
@@ -128,12 +129,14 @@ export class GameManager extends GameObject<GameData> {
     this.popupLayer.startRender();
 
     PlayerActionStepManager.init(this);
+    PlayerAction.init(this);
   }
 
   onDisable() {
     //移除事件监听
 
     PlayerActionStepManager.dispose();
+    PlayerAction.dispose();
     this.popupLayer.stopRender();
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);

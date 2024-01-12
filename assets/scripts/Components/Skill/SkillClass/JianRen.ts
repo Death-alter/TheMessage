@@ -165,7 +165,6 @@ export class JianRen extends TriggerSkill {
             {
               text: "取消",
               onclick: () => {
-                gui.gameLayer.stopSelectPlayers();
                 showCardsWindow.hide();
               },
             },

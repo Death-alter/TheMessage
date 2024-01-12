@@ -264,7 +264,7 @@ export class MiLing extends Card {
           break;
         }
       }
-      gui.gameLayer.pauseSelectHandCards();
+      gui.gameLayer.lockSelectHandCards();
       gui.uiLayer.doSendMessage({ message, canCancel: false });
       PlayerAction.start();
     }
