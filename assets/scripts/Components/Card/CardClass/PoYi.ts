@@ -6,6 +6,7 @@ import { CardColor, CardDefaultOption, CardOnEffectParams, CardStatus, CardType 
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardOnEffect } from "../../../Event/GameEventType";
+import { GameLog } from "../../GameLog/GameLog";
 
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];
@@ -15,7 +16,7 @@ export class PoYi extends Card {
   get description() {
     return "传递阶段，查看传递到你面前的情报，若该情报是黑色，你可以将其翻开，然后摸一张牌。";
   }
-  
+
   constructor(option: CardDefaultOption) {
     super({
       id: option.id,
@@ -41,11 +42,13 @@ export class PoYi extends Card {
   }
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
+    const gamelog = gameData.gameLog;
     this.messageStatus = gameData.messageInTransmit.status;
     if (userId === 0) {
       const message = gameData.createMessage(targetCard);
       this.showMessageInTransmit(gameData, message);
       const isBlackMessage = Card.hasColor(message, CardColor.BLACK);
+      gamelog.addData(new GameLog(`传递中的情报是${gamelog.formatCard(message)}`));
       GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
         card: this,
         handler: "promptChooseDraw",

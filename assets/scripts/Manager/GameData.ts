@@ -358,6 +358,8 @@ export class GameData extends DataBasic<GameManager> {
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
       this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
+    } else {
+      this.lockedPlayer = null;
     }
     if (!data.card && data.senderId === 0) {
       card.status = CardStatus.FACE_DOWN;

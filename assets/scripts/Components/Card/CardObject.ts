@@ -13,7 +13,7 @@ import {
   find,
   sys,
 } from "cc";
-import { CardDirection, CardStatus, CardUsableStatus } from "./type";
+import { CardDirection, CardStatus, CardType, CardUsableStatus } from "./type";
 import { GameObject } from "../../GameObject";
 import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
@@ -82,10 +82,7 @@ export class CardObject extends GameObject<Card> {
 
     detailNode.getChildByPath("Name/Label").getComponent(Label).string = card.name;
 
-    if (card instanceof UnknownCard) {
-      imageNode.active = false;
-      coverNode.active = true;
-    } else {
+    if (card.type != null && card.type !== CardType.UNKNOWN) {
       imageNode.active = true;
       resources.load(`images/cards/${getCardTypeText(card.type)}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
         sprite.spriteFrame = spriteFrame;
@@ -159,6 +156,9 @@ export class CardObject extends GameObject<Card> {
       } else {
         otherNode.active = false;
       }
+    } else {
+      imageNode.active = false;
+      coverNode.active = true;
     }
   }
 

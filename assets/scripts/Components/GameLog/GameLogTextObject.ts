@@ -1,11 +1,11 @@
-import { _decorator, Label, NodeEventType, RichText, UITransform } from "cc";
+import { _decorator, RichText, UITransform } from "cc";
 import { GameObject } from "../../GameObject";
 import { GameLog } from "./GameLog";
 const { ccclass } = _decorator;
 
 @ccclass("GameLogTextObject")
 export class GameLogTextObject extends GameObject<GameLog> {
-  onEnable(): void {
+  onEnable() {
     this.scheduleOnce(() => {
       const text = this.node.getChildByName("RichText");
       this.node.getComponent(UITransform).height = text.getComponent(UITransform).height + 20;
