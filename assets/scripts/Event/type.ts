@@ -157,6 +157,7 @@ export enum NetworkEventToC {
   SKILL_ZI_ZHENG_QING_BAI_TOC = "skill_zi_zheng_qing_bai_toc",
   SKILL_YI_WEN_AN_HAO_TOC = "skill_yi_wen_an_hao_toc",
   SKILL_SHOU_KOU_RU_PING_TOC = "skill_shou_kou_ru_ping_toc",
+  SKILL_HAN_HOU_LAO_SHI_TOC = "skill_han_hou_lao_shi_toc",
   SKILL_WAIT_FOR_DU_MING_TOC = "skill_wait_for_du_ming_toc",
   SKILL_DU_MING_A_TOC = "skill_du_ming_a_toc",
   SKILL_DU_MING_B_TOC = "skill_du_ming_b_toc",

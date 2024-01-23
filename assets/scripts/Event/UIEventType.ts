@@ -9,6 +9,7 @@ export interface StartSelectCharacter {
   secretTaskList: SecretTaskType[];
   characterIdList: CharacterType[];
   waitingSecond: number;
+  position: number;
   confirm?: (role: role) => void;
 }
 

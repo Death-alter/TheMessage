@@ -24,28 +24,41 @@ export class NetworkManager extends Component {
         if (ws.connected) {
           ws.send(NetworkEventToS[eventName], data);
         } else {
-          ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: "未能连接到服务器，请重启应用程序" });
+          this.createConnection()
+            .then(() => {
+              ws.send(NetworkEventToS[eventName], data);
+            })
+            .catch(() => {
+            });
         }
       });
     }
 
     NetworkEventCenter.on(NetworkEventToC.NOTIFY_KICKED_TOC, () => {
-      director.loadScene("login", () => {
-        this.reconnect();
-      });
+      if (director.getScene().name !== "login") {
+        director.loadScene("login", () => {
+          this.reconnect();
+        });
+      }
     });
 
     EventMapper.init();
   }
 
   createConnection() {
-    ws.createConnection();
+    const p = ws.createConnection();
     ws.setHeartBeatFunction(() => {
       ws.send("heart_tos");
     });
     ws.on("disconnect", () => {
-      director.loadScene("login");
+      if (director.getScene().name !== "login") {
+        director.loadScene("login");
+      }
     });
+    ws.on("network_error", () => {
+      ProcessEventCenter.emit(ProcessEvent.NETWORK_ERROR, { msg: "未能连接到服务器，请检查网络状态" });
+    });
+    return p;
   }
 
   closeConnection() {

@@ -16,6 +16,7 @@ export class WS {
     connect: [],
     reconnect: [],
     disconnect: [],
+    network_error: [],
     error: [],
   };
   private initList: Array<{ (): void }> = [];
@@ -57,18 +58,11 @@ export class WS {
         return;
       }
       console.log("正在连接到：" + this.url);
-      if (this.retryTime >= WS.retryLimit) {
-        console.log("无法连接到服务器，请稍检查网络连接并刷新页面重试");
-        return;
-      }
       if (this.ws == null) {
         this.retryTime++;
         this.ws = new WebSocket(this.url);
         this.autoReconnect = true; //连接以后开启自动重连
         this.ws.onopen = (event) => {
-          if (this.retryTime > 1) {
-            console.log("重新连接服务器成功");
-          }
           this.retryTime = 0;
           for (const func of this.initList) {
             func();
@@ -118,9 +112,19 @@ export class WS {
           for (const callback of this.eventList.error) {
             callback({});
           }
-          this.reconnect();
+          if (this.state !== WebSocket.OPEN) {
+            if (this.retryTime >= WS.retryLimit) {
+              for (const callback of this.eventList.network_error) {
+                callback({});
+              }
+              this.autoReconnect = false;
+              console.log("无法连接到服务器，请稍检查网络连接并刷新页面重试");
+              return;
+            }
+            this.reconnect();
+            reject(error);
+          }
           console.log(error);
-          reject(error);
         };
       }
     });

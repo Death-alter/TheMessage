@@ -1,14 +1,11 @@
-import { CardColor } from "../../Card/type";
 import { PassiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import { UIEvent } from "../../../Event/type";
-import { UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
-import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { GameManager } from "../../../Manager/GameManager";
-import { Card } from "../../Card/Card";
-import { TagName } from "../../../type";
+import { skill_han_hou_lao_shi_toc } from "../../../../protobuf/proto";
+import { GameLog } from "../../GameLog/GameLog";
+import { CardActionLocation } from "../../../Manager/type";
 
 export class HanHouLaoShi extends PassiveSkill {
   doSendMessage: Function;
@@ -17,67 +14,53 @@ export class HanHouLaoShi extends PassiveSkill {
     super({
       name: "憨厚老实",
       character,
-      description: "你的回合中，你无法把纯黑色手牌作为情报传出（除非你只有纯黑色手牌）。",
+      description: "当你传出的情报被其他角色接收后，接收者抽取你的一张手牌。",
     });
   }
 
   init(gameData: GameData, player) {
-    player.addTag(TagName.CANNOT_SEND_MESSAGE_COLOR, { color: [CardColor.BLACK], strict: true });
-    player.addTag(TagName.HAN_HOU_LAO_SHI);
-    if (player.id === 0) {
-      UIEventCenter.on(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.onSelectMessageToSend, this);
-    }
+    NetworkEventCenter.on(
+      NetworkEventToC.SKILL_HAN_HOU_LAO_SHI_TOC,
+      (data) => {
+        this.onEffect(gameData, data);
+      },
+      this
+    );
   }
 
   dispose() {
-    UIEventCenter.off(UIEvent.ON_SELECT_MESSAGE_TO_SEND, this.onSelectMessageToSend, this);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_HAN_HOU_LAO_SHI_TOC);
   }
 
-  onSelectMessageToSend(gui: GameManager) {
-    const handCards = [...gui.data.handCardList.list];
-    let flag = true;
-    for (let card of handCards) {
-      if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
-        flag = false;
-      }
-    }
+  onEffect(gameData: GameData, { playerId, targetPlayerId, card }: skill_han_hou_lao_shi_toc) {
+    const player = gameData.playerList[playerId];
+    const targetPlayer = gameData.playerList[targetPlayerId];
+    const gameLog = gameData.gameLog;
 
-    PlayerAction.clear();
-    PlayerAction.addStep({
-      step: new PlayerActionStep({
-        handler: (data, { next, prev }) => {
-          gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
-          gui.tooltip.buttons.setButtons([]);
-          gui.gameLayer.startSelectHandCards({
-            num: 1,
-            onSelect: (card: Card) => {
-              gui.tooltip.setText(`请选择一项操作`);
-              gui.tooltip.buttons.setButtons([
-                {
-                  text: "使用卡牌",
-                  onclick: () => {
-                    card.onPlay(gui);
-                    next();
-                  },
-                  enabled: () => gui.uiLayer.cardCanPlayed(card).canPlay && card.canPlay(gui),
-                },
-                {
-                  text: "传递情报",
-                  onclick: () => {
-                    gui.uiLayer.doSendMessage({ message: card });
-                    next();
-                  },
-                  enabled: () => flag || !(card.color.length === 1 && card.color[0] === CardColor.BLACK),
-                },
-              ]);
-            },
-            onDeselect: (card: Card) => {
-              gui.tooltip.setText("传递阶段，请选择要传递的情报或要使用的卡牌");
-              gui.tooltip.buttons.setButtons([]);
-            },
-          });
-        },
-      }),
-    }).start();
+    GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
+      player,
+      skill: this,
+    });
+
+    const handCard = gameData.playerRemoveHandCard(player, card);
+    gameData.playerAddHandCard(targetPlayer, handCard);
+
+    GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
+      targetPlayer,
+      card: handCard,
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
+    });
+    gameLog.addData(
+      new GameLog(
+        `${gameLog.formatPlayer(targetPlayer)}抽取了${gameLog.formatPlayer(player)}的${
+          card ? gameLog.formatCard(handCard) : "一张手牌"
+        }`
+      )
+    );
+
+    GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+      player,
+      skill: this,
+    });
   }
 }
