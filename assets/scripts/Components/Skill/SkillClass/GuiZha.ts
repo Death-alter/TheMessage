@@ -4,7 +4,6 @@ import { NetworkEventToC, GameEvent, NetworkEventToS } from "../../../Event/type
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardType } from "../../Card/type";
-import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
@@ -58,17 +57,15 @@ export class GuiZha extends ActiveSkill {
     })
       .addStep({
         step: new PlayerActionStep({
-          handler: (data, { next, prev }) => {
+          handler: ({ current }, { next, prev }) => {
             tooltip.setText(`请选择要执行的操作`);
-            gui.gameLayer.startSelectPlayers({
-              num: 1,
-            });
             tooltip.buttons.setButtons([
               {
                 text: "威逼",
                 onclick: () => {
                   next({ cardType: CardType.WEI_BI });
                 },
+                enabled: () => current.players[0].id !== 0,
               },
               {
                 text: "利诱",
@@ -86,6 +83,7 @@ export class GuiZha extends ActiveSkill {
           },
         }),
       })
+
       .addStep({
         step: new PlayerActionStep({
           handler: ({ current }, { next, prev }) => {

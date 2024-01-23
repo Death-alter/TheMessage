@@ -10,6 +10,8 @@ export class GameLogMessageObject extends GameObject<GameLog> {
   private label: Node = null;
   private background: Node = null;
 
+  onEnable() {}
+
   onLoad() {
     this.background = this.node.getChildByName("Background");
     this.label = this.node.getChildByName("RichText");

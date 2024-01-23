@@ -7,6 +7,5 @@ export enum TagName {
   MUST_RECEIVE_MESSAGE = "must_receive_message",
   CANNOT_RECEIVE_MESSAGE = "cannot_receive_message",
   CANNOT_SEND_MESSAGE_COLOR = "cannot_send_message_color",
-  MUST_SEND_MESSAGE_COLOR = "MUST_send_message_color",
-  HAN_HOU_LAO_SHI = "han_hou_lao_shi",
+  MUST_SEND_MESSAGE_COLOR = "must_send_message_color",
 }

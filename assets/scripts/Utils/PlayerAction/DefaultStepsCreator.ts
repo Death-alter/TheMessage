@@ -49,16 +49,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
       let flag = true;
-      const self = gui.data.selfPlayer;
-      if (self.hasTag(TagName.HAN_HOU_LAO_SHI) && !self.hasTag(TagName.SKILL_BANNED)) {
-        const handCards = [...gui.data.handCardList.list];
-        for (let card of handCards) {
-          if (!(card.color.length === 1 && card.color[0] === CardColor.BLACK)) {
-            flag = false;
-          }
-        }
-      }
-
       const { tooltipText, filter } = initial;
       gui.tooltip.setText(tooltipText);
       gui.tooltip.buttons.setButtons([]);

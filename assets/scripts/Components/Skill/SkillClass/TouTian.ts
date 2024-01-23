@@ -48,7 +48,6 @@ export class TouTian extends ActiveSkill {
   }
 
   onEffect(gameData: GameData, { playerId }: skill_tou_tian_toc) {
-    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
 
     GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
