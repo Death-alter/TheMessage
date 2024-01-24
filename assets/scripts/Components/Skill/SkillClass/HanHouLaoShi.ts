@@ -46,9 +46,9 @@ export class HanHouLaoShi extends PassiveSkill {
     gameData.playerAddHandCard(targetPlayer, handCard);
 
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-      targetPlayer,
+      player: targetPlayer,
       card: handCard,
-      from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
+      from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
     });
     gameLog.addData(
       new GameLog(
