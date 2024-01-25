@@ -28,7 +28,7 @@ export class YouDiShenRu extends ActiveSkill {
       name: "诱敌深入",
       character,
       description:
-        "每局游戏限一次，传递阶段，你改为将一张手牌作为情报面朝上传出。身份与该情报颜色相同的角色必须选择接收该情报，身份与该情报颜色不同的角色不能选择接收该情报。",
+        "每局游戏限一次，你的传递阶段，你改为将一张手牌作为情报面朝上传出。身份与该情报颜色相同的角色必须选择接收该情报，身份与该情报颜色不同的角色不能选择接收该情报。",
       useablePhase: [GamePhase.SEND_PHASE_START],
     });
   }
