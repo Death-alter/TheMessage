@@ -17,9 +17,10 @@ import { TagName } from "../../../type";
 
 export class YouDiShenRu extends ActiveSkill {
   private usageCount: number = 0;
+  private isSelfTurn: boolean = false;
 
   get useable() {
-    return this.usageCount === 0;
+    return this.usageCount === 0 && this.isSelfTurn;
   }
 
   constructor(character: Character) {
@@ -40,10 +41,16 @@ export class YouDiShenRu extends ActiveSkill {
       },
       this
     );
+    GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
 
   dispose() {
     NetworkEventCenter.off(NetworkEventToC.SKILL_YOU_DI_SHEN_RU_TOC);
+    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onTurnChange, this);
+  }
+
+  onTurnChange({ turnPlayer }) {
+    this.isSelfTurn = turnPlayer.id === 0;
   }
 
   onUse(gui: GameManager) {
