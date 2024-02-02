@@ -101,11 +101,9 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       [CardColor.BLUE]: 0,
     };
     for (let player of gui.data.playerList) {
-      if (player.id !== 0) {
-        totalCounts[CardColor.BLACK] += player.messageCounts[CardColor.BLACK];
-        totalCounts[CardColor.RED] += player.messageCounts[CardColor.RED];
-        totalCounts[CardColor.BLUE] += player.messageCounts[CardColor.BLUE];
-      }
+      totalCounts[CardColor.BLACK] += player.messageCounts[CardColor.BLACK];
+      totalCounts[CardColor.RED] += player.messageCounts[CardColor.RED];
+      totalCounts[CardColor.BLUE] += player.messageCounts[CardColor.BLUE];
     }
 
     const tooltip = gui.tooltip;
