@@ -37,6 +37,10 @@
     },
     "win": {
       "icon": "./icon.jpg"
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "icon": "./icon.jpg"
     }
   }
 }
