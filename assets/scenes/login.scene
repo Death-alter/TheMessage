@@ -474,7 +474,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -655,
+      "x": -631.898,
       "y": 340,
       "z": 0
     },
@@ -3196,12 +3196,12 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 800,
-      "height": 690.4000000000001
+      "width": 300,
+      "height": 700
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0.6,
       "y": 0.5
     },
     "_id": "c4xoTRwA9GopHI0N3sDNDy"
@@ -3217,15 +3217,18 @@
     "_enabled": true,
     "__prefab": null,
     "_lineHeight": 40,
-    "_string": "<color=black>\n游玩教程\n1.为什么只有我一个人？\n一般晚上才有人，需要组局在群里拉人，积极主动一点。\n2.怎么增加机器人？\n游戏支持2-9人，5人以下游戏可以添加机器人。\n3.如何开始游戏？\n房间满座时，自动开始游戏，可通过增删座位来开始。\n4.如何传递情报？\n先点击情报，再点击角色指定方向，最后确定传递情报。\n5.如何澄清自己？\n选择角色，再选黑情报，最后确定。\n6.技能如何发动？\n点击角色底下技能名称框发动。\n</color>\n\n<color=green>点击任意空白处关闭此教程</color>",
-    "_horizontalAlign": 1,
+    "_string": "<color=blue><b>\n1.如何注册？\n在群里输入 注册 名字（QQ群 :364857312）\n\n2.如何与其他人一起玩？\n同一时间登录，进入游戏后会在同一个房间。\n\n3.如何查看技能/神秘人？\n电脑悬停查看，手机长按角色框/神秘人框查看。\n\n4.角色列表在哪看？\n群文件——【规则文件】——【角色列表】查看。\n\n5.技能如何发动？\n点击角色底下技能名称框发动。</color><b>\n<color=green>点击任意空白处关闭此教程</color>",
+    "_horizontalAlign": 0,
     "_verticalAlign": 0,
-    "_fontSize": 32,
+    "_fontSize": 25,
     "_maxWidth": 0,
-    "_fontFamily": "Arial",
+    "_fontFamily": "Microsoft YaHei",
     "_font": null,
     "_isSystemFontUsed": true,
-    "_userDefinedFont": null,
+    "_userDefinedFont": {
+      "__uuid__": "0e4dafe1-3c4f-4c6c-a771-ee17c40bba6f",
+      "__expectedType__": "cc.BitmapFont"
+    },
     "_cacheMode": 0,
     "_imageAtlas": null,
     "_handleTouchEvent": false,
@@ -3243,12 +3246,12 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1280,
-      "height": 720
+      "width": 600,
+      "height": 650
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0.5,
+      "x": 0.6,
       "y": 0.5
     },
     "_id": "89rIVWsqlHgaa56vsszgc3"
@@ -3268,13 +3271,13 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 218,
-      "g": 218,
-      "b": 218,
+      "r": 250,
+      "g": 250,
+      "b": 250,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
+      "__uuid__": "5b0960a7-fc8b-46f1-b22d-c3cdc4f47d8d@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
