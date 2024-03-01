@@ -87,10 +87,9 @@ export class PopupLayer extends Component {
       this.selectCharacterWindow.getComponent(SelectCharacter).init(
         {
           playerCount: data.playerCount,
-          identity: createIdentity(
-            (<number>data.identity) as IdentityType,
-            (<number>data.secretTask) as SecretTaskType
-          ),
+          identity: data.identity
+            ? createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
+            : null,
           roles: (<number[]>data.characterIdList) as CharacterType[],
           waitingSecond: data.waitingSecond,
           secretTaskList: data.secretTaskList
