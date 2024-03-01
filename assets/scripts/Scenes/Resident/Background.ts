@@ -13,7 +13,7 @@ export class Background extends Component {
     this._audioSource = audioSource;
 
     if (!this._audioSource.clip) {
-      resources.load(`audio/bgm`, (err, clip: AudioClip) => {
+      resources.load(`audio/bgm2`, (err, clip: AudioClip) => {
         if (err) {
         } else {
           this._audioSource.clip = clip;
