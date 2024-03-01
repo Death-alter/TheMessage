@@ -30,9 +30,9 @@
     {
       "backgroundColor": {
         "__type__": "cc.Color",
-        "r": 121,
-        "g": 184,
-        "b": 252,
+        "r": 172,
+        "g": 164,
+        "b": 161,
         "a": 255
       },
       "backgroundSize": {
