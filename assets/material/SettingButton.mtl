@@ -11,7 +11,8 @@
   "_techIdx": 0,
   "_defines": [
     {
-      "USE_TEXTURE": true
+      "USE_TEXTURE": true,
+      "USE_BACKGROUND": true
     }
   ],
   "_states": [
@@ -29,10 +30,15 @@
     {
       "backgroundColor": {
         "__type__": "cc.Color",
-        "r": 255,
-        "g": 255,
-        "b": 255,
+        "r": 121,
+        "g": 184,
+        "b": 252,
         "a": 255
+      },
+      "backgroundSize": {
+        "__type__": "cc.Vec2",
+        "x": 0.85,
+        "y": 0.85
       }
     }
   ]

@@ -31,7 +31,7 @@ export class AnimationLayer extends Component {
     this.cardAction = this.cardActionNode.getComponent(CardAction);
     this.cardAction.handCardList = this.manager.data.handCardList;
     this.cardAction.clear();
-    this.audioManager = new AudioMgr();
+    this.audioManager = AudioMgr.inst;
 
     //如果有传递中的情报
     if (this.manager.data.messageInTransmit) {

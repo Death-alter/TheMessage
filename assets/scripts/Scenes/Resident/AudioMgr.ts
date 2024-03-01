@@ -15,6 +15,8 @@ export class AudioMgr {
     return this._inst;
   }
 
+  private _paused: boolean = false;
+  private _muted: boolean = false;
   private _audioSource: AudioSource;
   constructor() {
     //@en create a node as audioMgr
@@ -28,7 +30,7 @@ export class AudioMgr {
 
     //@en make it as a persistent node, so it won't be destroied when scene change.
     //@zh 标记为常驻节点，这样场景切换的时候就不会被销毁了
-    // director.addPersistRootNode(audioMgr);
+    director.addPersistRootNode(audioMgr);
 
     //@en add AudioSource componrnt to play audios.
     //@zh 添加 AudioSource 组件，用于播放音频。
@@ -37,6 +39,10 @@ export class AudioMgr {
 
   public get audioSource() {
     return this._audioSource;
+  }
+
+  public get muted() {
+    return this._muted;
   }
 
   /**
@@ -48,6 +54,7 @@ export class AudioMgr {
    * @param volume
    */
   playOneShot(sound: AudioClip | string, volume: number = 1.0) {
+    if (this._muted) return;
     if (sound instanceof AudioClip) {
       this._audioSource.playOneShot(sound, volume);
     } else {
@@ -70,6 +77,7 @@ export class AudioMgr {
    * @param volume
    */
   play(sound: AudioClip | string, volume: number = 1.0) {
+    if (this._muted) return;
     if (sound instanceof AudioClip) {
       this._audioSource.clip = sound;
       this._audioSource.play();
@@ -92,6 +100,7 @@ export class AudioMgr {
    */
   stop() {
     this._audioSource.stop();
+    this._paused = false;
   }
 
   /**
@@ -99,6 +108,7 @@ export class AudioMgr {
    */
   pause() {
     this._audioSource.pause();
+    this._paused = true;
   }
 
   /**
@@ -106,5 +116,18 @@ export class AudioMgr {
    */
   resume() {
     this._audioSource.play();
+    this._paused = false;
+  }
+
+  mute() {
+    this._muted = true;
+    this.pause();
+  }
+
+  unMute() {
+    this._muted = false;
+    if (this._paused) {
+      this.resume();
+    }
   }
 }
