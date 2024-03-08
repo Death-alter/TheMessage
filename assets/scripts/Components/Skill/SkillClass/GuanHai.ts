@@ -3,7 +3,6 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Character } from "../../Chatacter/Character";
-import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
 

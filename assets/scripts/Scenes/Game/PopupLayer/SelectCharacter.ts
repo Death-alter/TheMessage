@@ -5,7 +5,7 @@ import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarg
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { createCharacterById } from "../../../Components/Chatacter";
 import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
-import { CharacterType, CharacterStatus } from "../../../Components/Chatacter/type";
+import { CharacterStatus } from "../../../Components/Chatacter/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { ProgressControl } from "../../../Components/Utils/ProgressControl";
@@ -15,7 +15,7 @@ const { ccclass, property } = _decorator;
 interface InitOption {
   playerCount: number;
   identity?: Identity;
-  roles: CharacterType[];
+  roles: number[];
   waitingSecond: number;
   secretTaskList: Identity[];
   position: number;
@@ -38,7 +38,7 @@ export class SelectCharacter extends Component {
   @property(Button)
   confirmButton: Button | null = null;
 
-  private characterTypes: CharacterType[];
+  private characterTypes: number[];
   private characterList: Character[] = [];
   private selectedCharacterIndex: number;
 

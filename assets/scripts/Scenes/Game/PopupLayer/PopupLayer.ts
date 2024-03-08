@@ -2,7 +2,6 @@ import { _decorator, Component, instantiate, Prefab, Node } from "cc";
 import { GameManager } from "../../../Manager/GameManager";
 import { ShowCardsWindow } from "./ShowCardsWindow";
 import { StartSelectCharacter } from "../../../Event/UIEventType";
-import { CharacterType } from "../../../Components/Chatacter/type";
 import { createIdentity } from "../../../Components/Identity";
 import { IdentityType, SecretTaskType } from "../../../Components/Identity/type";
 import { SyncStatus } from "../../../Manager/type";
@@ -90,7 +89,7 @@ export class PopupLayer extends Component {
           identity: data.identity
             ? createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
             : null,
-          roles: (<number[]>data.characterIdList) as CharacterType[],
+          roles: data.characterIdList,
           waitingSecond: data.waitingSecond,
           secretTaskList: data.secretTaskList
             ? data.secretTaskList.map((task) => {

@@ -1,5 +1,4 @@
 import { role } from "../../protobuf/proto.js";
-import { CharacterType } from "../Components/Chatacter/type";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
 
 export interface StartSelectCharacter {
@@ -7,7 +6,7 @@ export interface StartSelectCharacter {
   identity: IdentityType;
   secretTask: SecretTaskType;
   secretTaskList: SecretTaskType[];
-  characterIdList: CharacterType[];
+  characterIdList: number[];
   waitingSecond: number;
   position: number;
   confirm?: (role: role) => void;

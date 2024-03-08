@@ -195,6 +195,8 @@ export enum NetworkEventToC {
   SKILL_XIANG_JIN_SI_SUO_B_TOC = "skill_xiang_jin_si_suo_b_toc",
   SKILL_WAIT_FOR_WORKERS_ARE_KNOWLEDGABLE_TOC = "skill_wait_for_workers_are_knowledgable_toc",
   SKILL_WORKERS_ARE_KNOWLEDGABLE_TOC = "skill_workers_are_knowledgable_toc",
+  SKILL_ZHUANG_ZHI_MAN_HUAI_TOC = "skill_zhuang_zhi_man_huai_toc",
+  SKILL_AN_CANG_SHA_JI_TOC = "skill_an_cang_sha_ji_toc",
 }
 
 //tos协议，ws发送数据
@@ -337,6 +339,8 @@ export enum NetworkEventToS {
   SKILL_JIAN_DI_FENG_XING_C_TOS = "skill_jian_di_feng_xing_c_tos",
   SKILL_XIANG_JIN_SI_SUO_A_TOS = "skill_xiang_jin_si_suo_a_tos",
   SKILL_WORKERS_ARE_KNOWLEDGABLE_TOS = "skill_workers_are_knowledgable_tos",
+  SKILL_ZHUANG_ZHI_MAN_HUAI_TOS = "skill_zhuang_zhi_man_huai_tos",
+  SKILL_AN_CANG_SHA_JI_TOS = "skill_an_cang_sha_ji_tos",
 }
 
 //程序事件，用于程序控制

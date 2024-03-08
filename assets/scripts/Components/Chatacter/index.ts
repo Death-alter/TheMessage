@@ -1,6 +1,5 @@
 import { Character } from "./Character";
 import { CharacterObject } from "./CharacterObject";
-import { CharacterType } from "./type";
 import { AFuLuoLa } from "./CharacterClass/AFuLuoLa";
 import { BaiCangLang } from "./CharacterClass/BaiCangLang";
 import { BaiFeiFei } from "./CharacterClass/BaiFeiFei";
@@ -62,6 +61,8 @@ import { ChenDaEr } from "./CharacterClass/ChenDaEr";
 import { BianYunJiang } from "./CharacterClass/BianYunJiang";
 import { SunShouMo } from "./CharacterClass/SunShouMo";
 import { HuoCheSiJi } from "./CharacterClass/HuoCheSiJi";
+import { CPHanMei } from "./CharacterClass/CPHanMei";
+import { CPXiaoJiu } from "./CharacterClass/CPXiaoJiu";
 
 const charactersMap: { [index: number]: { new (option?: any): Character } } = {};
 charactersMap[0] = UnknownCharacter;
@@ -125,8 +126,10 @@ charactersMap[1027] = XiaoJiuSP;
 charactersMap[1028] = LiNingYuSP;
 charactersMap[2014] = AdultHanMei;
 charactersMap[2027] = AdultXiaoJiu;
+charactersMap[3014] = CPHanMei;
+charactersMap[3027] = CPXiaoJiu;
 
-export function createCharacterById(id: CharacterType, gameObject?: CharacterObject): Character {
+export function createCharacterById(id: number, gameObject?: CharacterObject): Character {
   if (charactersMap[id]) {
     return new charactersMap[id](gameObject);
   } else {
