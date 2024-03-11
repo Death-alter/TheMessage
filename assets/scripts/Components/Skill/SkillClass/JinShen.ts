@@ -7,6 +7,12 @@ import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { Character } from "../../../Components/Chatacter/Character";
 import { GameManager } from "../../../Manager/GameManager";
+import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { Card } from "../../Card/Card";
+import { CardColor } from "../../Card/type";
+import { CardActionLocation } from "../../../Manager/type";
 
 export class JinShen extends TriggerSkill {
   constructor(character: Character) {
@@ -33,39 +39,46 @@ export class JinShen extends TriggerSkill {
 
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
-    tooltip.setText(`你接收了双色情报，是否使用【谨慎】？`);
-    tooltip.buttons.setButtons([
-      {
-        text: "确定",
-        onclick: () => {
-          const handCardList = gui.data.handCardList;
-          handCardList.selectedCards.limit = 1;
-          tooltip.setText(`请选择一张手牌与接收的情报互换`);
+    PlayerAction.addStep({
+      step: new PlayerActionStep({
+        handler: (data, { next, prev }) => {
+          tooltip.setText(`你接收了双色情报，是否使用【谨慎】？`);
           tooltip.buttons.setButtons([
             {
               text: "确定",
               onclick: () => {
-                NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_SHEN_TOS, {
-                  cardId: handCardList.selectedCards.list[0].id,
-                  seq: gui.seq,
-                });
+                next();
               },
-              enabled: () => {
-                return handCardList.selectedCards.list.length === 1;
+            },
+            {
+              text: "取消",
+              onclick: () => {
+                prev();
               },
             },
           ]);
         },
-      },
-      {
-        text: "取消",
-        onclick: () => {
-          NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
-            seq: gui.seq,
-          });
+      }),
+    })
+      .addStep({
+        step: PlayerActionStepName.SELECT_HAND_CARDS,
+        data: {
+          tooltipText: "请选择一张手牌与接收的情报互换",
+          num: 1,
         },
-      },
-    ]);
+      })
+      .onComplete((data) => {
+        NetworkEventCenter.emit(NetworkEventToS.SKILL_JIN_SHEN_TOS, {
+          cardId: data[0].cards[0].id,
+          seq: gui.seq,
+        });
+      })
+      .onCancel(() => {
+        NetworkEventCenter.emit(NetworkEventToS.END_RECEIVE_PHASE_TOS, {
+          seq: gui.seq,
+        });
+      })
+      .start();
   }
 
   onEffect(gameData: GameData, { playerId, card, messageCardId }: skill_jin_shen_toc) {
@@ -80,7 +93,9 @@ export class JinShen extends TriggerSkill {
     });
 
     gameData.playerAddHandCard(player, message);
+    gameData.handCardList.addData(message);
     player.addMessage(handCard);
+
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}和情报${gameLog.formatCard(message)}互换`
