@@ -10,7 +10,7 @@ export class CPHanMei extends Character {
       id: 3014,
       name: "CP韩梅",
       sprite: "images/characters/NoPanting_Famale",
-      status: CharacterStatus.FACE_DOWN,
+      status: CharacterStatus.FACE_UP,
       sex: Sex.FAMALE,
       gameObject: gameObject,
     });

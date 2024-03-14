@@ -10,7 +10,7 @@ export class CPXiaoJiu extends Character {
       id: 3027,
       name: "CP小九",
       sprite: "images/characters/NoPanting",
-      status: CharacterStatus.FACE_DOWN,
+      status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       gameObject: gameObject,
     });
