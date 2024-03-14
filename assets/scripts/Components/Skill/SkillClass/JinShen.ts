@@ -10,9 +10,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { Card } from "../../Card/Card";
-import { CardColor } from "../../Card/type";
-import { CardActionLocation } from "../../../Manager/type";
 
 export class JinShen extends TriggerSkill {
   constructor(character: Character) {

@@ -2,7 +2,7 @@ import { skill_an_cang_sha_ji_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
-import { CardColor } from "../../Card/type";
+import { CardColor, CardUsableStatus } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
@@ -24,7 +24,7 @@ export class AnCangShaJi extends TriggerSkill {
 
   init(gameData: GameData, player: Player) {
     NetworkEventCenter.on(
-      NetworkEventToC.SKILL_MIAN_LI_CANG_ZHEN_TOC,
+      NetworkEventToC.SKILL_AN_CANG_SHA_JI_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
@@ -33,7 +33,7 @@ export class AnCangShaJi extends TriggerSkill {
   }
 
   dispose() {
-    NetworkEventCenter.off(NetworkEventToC.SKILL_MIAN_LI_CANG_ZHEN_TOC);
+    NetworkEventCenter.off(NetworkEventToC.SKILL_AN_CANG_SHA_JI_TOC);
   }
 
   onTrigger(gui: GameManager, params): void {
@@ -93,7 +93,16 @@ export class AnCangShaJi extends TriggerSkill {
               });
             } else {
               tooltip.setText(`请选择一张纯黑色手牌`);
-              gui.gameLayer.startSelectHandCards({ num: 1 });
+              gui.gameLayer.startSelectHandCards({
+                num: 1,
+                filter: (card) => {
+                  if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
+                    return CardUsableStatus.USABLE;
+                  } else {
+                    return CardUsableStatus.UNUSABLE;
+                  }
+                },
+              });
               tooltip.buttons.setButtons([
                 {
                   text: "确定",
@@ -102,9 +111,7 @@ export class AnCangShaJi extends TriggerSkill {
                       cardId: gui.selectedHandCards.list[0].id,
                     });
                   },
-                  enabled: () =>
-                    gui.selectedHandCards.list.length === 1 &&
-                    gui.selectedHandCards.list[0].color[0] === CardColor.BLACK,
+                  enabled: () => gui.selectedHandCards.list.length === 1,
                 },
                 {
                   text: "取消",

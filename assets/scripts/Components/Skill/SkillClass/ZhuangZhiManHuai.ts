@@ -95,7 +95,45 @@ export class ZhuangZhiManHuai extends TriggerSkill {
                 next();
               });
             } else {
-              let player = gui.data.playerList[gui.data.senderId === 0 ? gui.data.messagePlayerId : gui.data.senderId];
+              gui.tooltip.setText("请选择一名角色");
+              gui.gameLayer.stopSelectPlayers();
+              gui.gameLayer.startSelectPlayers({
+                num: 1,
+                filter: (player) => player.id === gui.data.senderId || player.id === gui.data.messagePlayerId,
+              });
+              const buttons: any[] = [
+                {
+                  text: "确定",
+                  onclick: () => {
+                    gui.tooltip.setText("");
+                    gui.tooltip.buttons.setButtons([]);
+                    next({ playerId: gui.selectedPlayers.list[0].id });
+                  },
+                  enabled: () => gui.selectedPlayers.list.length === 1,
+                },
+                {
+                  text: "取消",
+                  onclick: () => {
+                    gui.tooltip.setText("");
+                    gui.tooltip.buttons.setButtons([]);
+                    prev();
+                  },
+                },
+              ];
+              gui.tooltip.buttons.setButtons(buttons);
+            }
+          },
+        }),
+      })
+      .addStep({
+        step: new PlayerActionStep({
+          handler: ({ current }, { next, prev, passOnPrev }) => {
+            if (current.playerId == null) {
+              passOnPrev(() => {
+                next();
+              });
+            } else {
+              let player = gui.data.playerList[current.playerId];
               showCardsWindow.show({
                 title: "请选择一张黑色情报加入手牌",
                 limit: 1,
