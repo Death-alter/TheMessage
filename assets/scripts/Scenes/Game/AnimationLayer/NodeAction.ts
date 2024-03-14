@@ -21,10 +21,10 @@ export class NodeAction {
 export class NodeAnimation {
   private actionQueue: NodeAction[];
 
-  addAction() {}
+  start() {}
 }
 
 export abstract class NodeAnimationManager {
   static animationList: NodeAnimation[];
-  static nodeList: Node[]; 
+  static nodeList: Node[];
 }

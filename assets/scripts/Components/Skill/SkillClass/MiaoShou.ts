@@ -12,8 +12,6 @@ import { CharacterStatus } from "../../Chatacter/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
-import { Card } from "../../Card/Card";
-import { CardColor } from "../../Card/type";
 
 export class MiaoShou extends ActiveSkill {
   constructor(character: Character) {

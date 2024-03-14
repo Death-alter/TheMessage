@@ -87,30 +87,37 @@ export class HuoXin extends ActiveSkill {
     gameLog.addData(new GameLog(`【惑心】展示牌堆顶的牌${gameLog.formatCard(topCard)}`));
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌`));
 
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
-      playerId: playerId,
-      second: waitingSecond,
-      type: WaitingType.HANDLE_SKILL,
-      seq: seq,
-    });
-
-    if (playerId === 0) {
-      const handCards = cards.map((card) => gameData.createCard(card));
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "promptSelectCard",
-        params: {
-          topCard,
-          handCards,
-        },
+    if (waitingSecond > 0) {
+      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        playerId: playerId,
+        second: waitingSecond,
+        type: WaitingType.HANDLE_SKILL,
+        seq: seq,
       });
+
+      if (playerId === 0) {
+        const handCards = cards.map((card) => gameData.createCard(card));
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "promptSelectCard",
+          params: {
+            topCard,
+            handCards,
+          },
+        });
+      } else {
+        GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+          skill: this,
+          handler: "showTopCard",
+          params: {
+            topCard,
+          },
+        });
+      }
     } else {
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+      GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
+        player,
         skill: this,
-        handler: "showTopCard",
-        params: {
-          topCard,
-        },
       });
     }
   }

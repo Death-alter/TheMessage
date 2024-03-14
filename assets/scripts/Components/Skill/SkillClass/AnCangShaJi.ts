@@ -11,6 +11,7 @@ import { GameManager } from "../../../Manager/GameManager";
 import { CardActionLocation } from "../../../Manager/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { Card } from "../../Card/Card";
 
 export class AnCangShaJi extends TriggerSkill {
   constructor(character: Character) {
@@ -73,11 +74,17 @@ export class AnCangShaJi extends TriggerSkill {
                 onclick: () => {
                   next({ drawCard: false });
                 },
+                enabled: () => Card.hasColor(gui.data.handCardList.list, CardColor.BLACK),
               },
               {
                 text: "抽取手牌",
                 onclick: () => {
                   next({ drawCard: true });
+                },
+                enabled: () => {
+                  const player =
+                    gui.data.playerList[gui.data.senderId === 0 ? gui.data.messagePlayerId : gui.data.senderId];
+                  return player.handCardCount > 0;
                 },
               },
             ]);
