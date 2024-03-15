@@ -11,6 +11,7 @@ export class Settings extends Component {
       bgmCheckBox.getComponent(Toggle).isChecked = false;
     }
     if (sys.localStorage.getItem("sound") === "0") {
+      AudioMgr.inst.mute();
       soundCheckBox.getComponent(Toggle).isChecked = false;
     }
 

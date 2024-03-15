@@ -158,12 +158,12 @@ export class RuBiZhiShi extends ActiveSkill {
                   if (data && data.cardTypeA === card.type) {
                     card = gui.data.createCardWithNewType(card, data.cardTypeB);
                   }
-                  const banndeCardTypes = targetPlayer.getTagData(TagName.CARD_BANNED);
+                  const bannedCardTypes = targetPlayer.getTagData(TagName.CARD_BANNED);
                   const banned =
                     targetPlayer.hasTag(TagName.ALL_CARD_BANNED) ||
-                    (banndeCardTypes && banndeCardTypes.indexOf(card.type) !== -1);
+                    (bannedCardTypes && bannedCardTypes.indexOf(card.type) !== -1);
                   if (card.availablePhases.indexOf(gui.data.gamePhase) === -1 || banned) return false;
-                  return card.canPlay(gui);
+                  return gui.uiLayer.cardCanPlayed(card).canPlay;
                 },
               },
               {
