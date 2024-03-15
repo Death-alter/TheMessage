@@ -13,9 +13,11 @@ export class NodeAction {
   actions: AttributeAction[] = [];
   totalDuration: number;
 
-  constructor(action: AttributeAction) {
-    this.actions.push(action);
+  constructor(action?: AttributeAction) {
+    if (action) this.actions.push(action);
   }
+
+  addAttribute() {}
 }
 
 export class NodeAnimation {
