@@ -3,6 +3,7 @@ const config = {
   version: 142,
   heartBeatInterval: 20,
   maxRetryTimes: 3,
+  animationDuration: 0.6,
 };
 
 export default config;

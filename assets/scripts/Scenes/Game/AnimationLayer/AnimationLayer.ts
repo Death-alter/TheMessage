@@ -9,6 +9,7 @@ import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 import { Player } from "../../../Components/Player/Player";
+import { KeyFrameAnimationPlayer } from "./KeyFrameAnimationPLayer";
 
 const { ccclass, property } = _decorator;
 
@@ -23,12 +24,14 @@ export class AnimationLayer extends Component {
 
   public manager: GameManager;
   public cardAction: CardAction;
+  public animationPlayer: KeyFrameAnimationPlayer;
   public audioManager: AudioMgr;
 
   init(manager: GameManager) {
     this.manager = manager;
 
     this.cardAction = this.cardActionNode.getComponent(CardAction);
+    this.animationPlayer = this.cardActionNode.getComponent(KeyFrameAnimationPlayer);
     this.cardAction.handCardList = this.manager.data.handCardList;
     this.cardAction.clear();
     this.audioManager = AudioMgr.inst;
@@ -219,7 +222,7 @@ export class AnimationLayer extends Component {
     this.audioManager.playOneShot(getCardAudioSrc(data.cardType || data.card, data.player.character.sex));
 
     if (data.targetPlayer) {
-      this.cardAction.showIndicantLine({
+      this.animationPlayer.showIndicantLine({
         from: { location: CardActionLocation.PLAYER, player: data.player },
         to: { location: CardActionLocation.PLAYER, player: data.targetPlayer },
       });

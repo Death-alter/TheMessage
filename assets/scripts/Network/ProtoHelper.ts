@@ -1,10 +1,5 @@
 import proto from "../../protobuf/proto.js";
-// import * as common from "../../protobuf/common";
-// import * as fengsheng from "../../protobuf/fengsheng";
-// import * as role from "../../protobuf/role";
 import { sys } from "cc";
-
-// const protots = { ...common, ...fengsheng, ...role };
 
 class ProtoHelper {
   static encode(protoName: string, data: Object) {
