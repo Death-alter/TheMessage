@@ -1,7 +1,6 @@
 import { _decorator, Node, Component } from "cc";
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
-import { CardAction } from "../../../Scenes/Game/AnimationLayer/CardAction";
 import * as GameEventType from "../../../Event/GameEventType";
 import { Card } from "../../../Components/Card/Card";
 import { CardActionLocation, GamePhase } from "../../../Manager/type";
@@ -20,34 +19,33 @@ export class AnimationLayer extends Component {
   @property(Node)
   discardPileNode: Node | null = null;
   @property(Node)
-  cardActionNode: Node | null = null;
+  animationPlayerNode: Node | null = null;
 
   public manager: GameManager;
-  public cardAction: CardAction;
   public animationPlayer: KeyFrameAnimationPlayer;
   public audioManager: AudioMgr;
 
   init(manager: GameManager) {
     this.manager = manager;
 
-    this.cardAction = this.cardActionNode.getComponent(CardAction);
-    this.animationPlayer = this.cardActionNode.getComponent(KeyFrameAnimationPlayer);
-    this.cardAction.handCardList = this.manager.data.handCardList;
-    this.cardAction.clear();
+    this.animationPlayer = this.animationPlayerNode.getComponent(KeyFrameAnimationPlayer);
+    this.animationPlayer.handCardList = this.manager.data.handCardList;
+    this.animationPlayer.clear();
+
     this.audioManager = AudioMgr.inst;
 
     //如果有传递中的情报
     if (this.manager.data.messageInTransmit) {
-      this.cardAction.setCard(this.manager.data.messageInTransmit, {
+      this.animationPlayer.setCard(this.manager.data.messageInTransmit, {
         location: CardActionLocation.PLAYER,
         player: this.manager.data.playerList[this.manager.data.messagePlayerId],
       });
-      this.cardAction.transmissionMessageObject = this.manager.data.messageInTransmit.gameObject;
+      this.animationPlayer.transmissionMessageObject = this.manager.data.messageInTransmit.gameObject;
     }
   }
 
   startRender() {
-    this.cardAction.node.active = true;
+    this.animationPlayer.node.active = true;
     //抽牌
     GameEventCenter.on(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
 
@@ -101,7 +99,7 @@ export class AnimationLayer extends Component {
   }
 
   stopRender() {
-    this.cardAction.node.active = false;
+    this.animationPlayer.node.active = false;
 
     GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
     GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
@@ -124,16 +122,16 @@ export class AnimationLayer extends Component {
   }
 
   drawCards(data: GameEventType.PlayerDrawCard) {
-    this.cardAction.drawCards(data);
+    this.animationPlayer.drawCards(data);
   }
 
   discardCards(data: GameEventType.PlayerDiscardCard) {
-    this.cardAction.discardCards(data);
+    this.animationPlayer.discardCards(data);
   }
 
   cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
     const { player, card, from } = data;
-    this.cardAction.addCardToHandCard({
+    this.animationPlayer.addCardToHandCard({
       player: player,
       card: <Card>card,
       from: from || { location: CardActionLocation.DECK },
@@ -141,42 +139,42 @@ export class AnimationLayer extends Component {
   }
 
   playerSendMessage(data: GameEventType.PlayerSendMessage) {
-    this.cardAction.playerSendMessage(data);
+    this.animationPlayer.playerSendMessage(data);
     if (data.player.id !== this.manager.data.turnPlayerId) {
       data.player.gameObject.showInnerGlow("FF00FF80");
     }
   }
 
   moveCard(data: GameEventType.CardMoved) {
-    this.cardAction.moveCard(data);
+    this.animationPlayer.moveCard(data);
   }
 
   removeMessage(message) {
-    this.cardAction.discardMessage(message);
+    this.animationPlayer.discardMessage(message);
   }
 
   transmitMessage(data: GameEventType.MessageTransmission) {
-    this.cardAction.transmitMessage(data);
+    this.animationPlayer.transmitMessage(data);
   }
 
   replaceMessage(data: GameEventType.MessageReplaced) {
-    this.cardAction.replaceMessage(data);
+    this.animationPlayer.replaceMessage(data);
   }
 
   playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
-    this.cardAction.chooseReceiveMessage(data);
+    this.animationPlayer.chooseReceiveMessage(data);
   }
 
   playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
-    this.cardAction.receiveMessage(data);
+    this.animationPlayer.receiveMessage(data);
     if (this.manager.data.senderId !== this.manager.data.turnPlayerId) {
       const player = this.manager.data.playerList[this.manager.data.senderId];
-      player.gameObject.hideInnerGlow();
+      player?.gameObject.hideInnerGlow();
     }
   }
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
-    this.cardAction.removeMessage(data);
+    this.animationPlayer.removeMessage(data);
     const player = data.player;
     if (player === this.manager.data.dyingPlayer) {
       if (player.id === this.manager.data.turnPlayerId) {
@@ -189,7 +187,7 @@ export class AnimationLayer extends Component {
 
   messagePlacedIntoMessageZone(data: GameEventType.MessagePlacedIntoMessageZone) {
     const { player, message, from } = data;
-    this.cardAction.addCardToMessageZone({
+    this.animationPlayer.addCardToMessageZone({
       player,
       card: <Card>message,
       from: from || { location: CardActionLocation.DECK },
@@ -198,7 +196,7 @@ export class AnimationLayer extends Component {
 
   playerDie(data: GameEventType.PlayerDie) {
     const { player, messages } = data;
-    this.cardAction.removeMessage({ player, messageList: messages });
+    this.animationPlayer.removeMessage({ player, messageList: messages });
     data.player.gameObject.hideInnerGlow();
   }
 
@@ -215,7 +213,7 @@ export class AnimationLayer extends Component {
   }
 
   playerGiveCard(data: GameEventType.PlayerGiveCard) {
-    this.cardAction.giveCards(data);
+    this.animationPlayer.giveCards(data);
   }
 
   playerPlayCard(data: GameEventType.PlayerPlayCard) {
@@ -228,7 +226,7 @@ export class AnimationLayer extends Component {
       });
     }
 
-    this.cardAction.playerPlayCard(data);
+    this.animationPlayer.playerPlayCard(data);
   }
 
   cardOnEffect(data: GameEventType.CardOnEffect) {
@@ -241,7 +239,7 @@ export class AnimationLayer extends Component {
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     const flag = data.card.onFinish(this.manager) && data.flag !== false;
     if (flag !== false) {
-      this.cardAction.afterPlayerPlayCard(data);
+      this.animationPlayer.afterPlayerPlayCard(data);
     }
   }
 }

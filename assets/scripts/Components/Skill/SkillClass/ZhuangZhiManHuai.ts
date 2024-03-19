@@ -105,8 +105,6 @@ export class ZhuangZhiManHuai extends TriggerSkill {
                 {
                   text: "确定",
                   onclick: () => {
-                    gui.tooltip.setText("");
-                    gui.tooltip.buttons.setButtons([]);
                     next({ playerId: gui.selectedPlayers.list[0].id });
                   },
                   enabled: () => gui.selectedPlayers.list.length === 1,
@@ -114,8 +112,6 @@ export class ZhuangZhiManHuai extends TriggerSkill {
                 {
                   text: "取消",
                   onclick: () => {
-                    gui.tooltip.setText("");
-                    gui.tooltip.buttons.setButtons([]);
                     prev();
                   },
                 },

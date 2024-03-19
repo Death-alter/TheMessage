@@ -152,6 +152,7 @@ export class JinKouYiKai extends ActiveSkill {
       GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
         message: card,
         oldMessage,
+        messagePlayer: gameData.playerList[gameData.messagePlayerId],
       });
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择将牌堆顶的牌和待收情报互换`));

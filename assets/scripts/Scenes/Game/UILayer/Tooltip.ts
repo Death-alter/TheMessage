@@ -54,9 +54,7 @@ export class Tooltip extends Component {
   }
 
   startCountDown(second: number) {
-    this.progressBar.getComponent(ProgressControl).startCountDown(second, () => {
-      this.hide();
-    });
+    this.progressBar.getComponent(ProgressControl).startCountDown(second);
     this.show();
   }
 

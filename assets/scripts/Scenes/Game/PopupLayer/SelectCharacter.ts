@@ -133,8 +133,6 @@ export class SelectCharacter extends Component {
 
     //显示窗口并开始倒计时
     this.show();
-
-    //倒计时结束自动选择当前选中人物
     this.node.getChildByName("Progress").getComponent(ProgressControl).startCountDown(waitingSecond);
   }
 

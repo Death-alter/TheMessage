@@ -22,6 +22,7 @@ import { GameLog } from "../Components/GameLog/GameLog";
 import { createIdentity } from "../Components/Identity";
 import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
+import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyFrameAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -188,7 +189,6 @@ export class GameManager extends GameObject<GameData> {
 
   startRender() {
     ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     this.gameLayer.startRender();
     this.animationLayer.startRender();
     this.logLayer.startRender();
@@ -197,7 +197,6 @@ export class GameManager extends GameObject<GameData> {
 
   stopRender() {
     ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
     this.gameLayer.stopRender();
     this.animationLayer.stopRender();
     this.logLayer.stopRender();
@@ -212,7 +211,6 @@ export class GameManager extends GameObject<GameData> {
       this.seq = data.seq;
     }
   }
-  onStopCountDown() {}
 
   gameOver(data: GameEventType.GameOver) {
     ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
@@ -236,5 +234,9 @@ export class GameManager extends GameObject<GameData> {
         this.data.handCardList.addData(card);
       }
     }
+  }
+
+  update(dt: number): void {
+    KeyframeAnimationManager.apf();
   }
 }

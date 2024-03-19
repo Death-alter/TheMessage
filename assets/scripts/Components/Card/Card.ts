@@ -2,7 +2,6 @@ import { CardStatus, CardOption, CardDirection, CardType, CardColor, CardOnEffec
 import { DataBasic } from "../../DataBasic";
 import { CardObject } from "./CardObject";
 import { GameData } from "../../Manager/GameData";
-import { Tween, Node } from "cc";
 import { GamePhase } from "../../Manager/type";
 import { GameManager } from "../../Manager/GameManager";
 
@@ -16,7 +15,6 @@ export abstract class Card extends DataBasic<CardObject> {
   protected _direction: CardDirection;
   protected _color: CardColor[];
   protected _lockable: boolean;
-  public action: Tween<Node> | null = null;
 
   public static readonly backSprite: string = "images/cards/CardBack";
   public abstract readonly availablePhases: GamePhase[];

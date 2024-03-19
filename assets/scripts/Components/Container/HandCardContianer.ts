@@ -17,8 +17,6 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
   spacingX: number = 0;
-  @property(Node)
-  cardActionNode: Node | null;
 
   private _maxLength: number;
   private _childWith: number;

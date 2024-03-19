@@ -69,9 +69,8 @@ class KeyframeAnimationTrack<T extends Object> {
   private _animation: KeyframeAnimation;
   private _startTime: number;
   private initialValues: any[] = [];
-
-  resolve: (value: any) => void;
-  reject: (value: any) => void;
+  public onComplete: () => void;
+  public onCancel: () => void;
 
   get startTime() {
     return this._startTime;
@@ -81,14 +80,16 @@ class KeyframeAnimationTrack<T extends Object> {
     return this._startTime + this._animation.duration;
   }
 
-  constructor(object: T, animation: KeyframeAnimation) {
+  constructor(object: T, animation: KeyframeAnimation, onComplete?: () => void, onCancel?: () => void) {
     this._object = object;
     this._animation = animation;
+    this.onComplete = onComplete;
+    this.onCancel = onCancel;
   }
 
   start() {
     for (let variation of this._animation.variations) {
-      if (!variation.from) {
+      if (variation.from == null) {
         this.initialValues.push(this.getAttribute(variation));
       } else {
         this.initialValues.push(null);
@@ -107,8 +108,14 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   apf(time: number) {
+    if (!this._object) return false;
     time -= this._startTime;
-    if (time > this._animation.duration) return false;
+    if (time > this._animation.duration) {
+      this._animation.variations.forEach((variation) => {
+        this.setAttribute(variation, variation.to);
+      });
+      return false;
+    }
     this._animation.variations.forEach((variation, i) => {
       const t = time - variation.startTime;
       const p = t / variation.duration;
@@ -128,34 +135,53 @@ class KeyframeAnimationTrack<T extends Object> {
     return true;
   }
 
-  isBindingTo(object: T) {
+  isTarget(object: T) {
     return object === this._object;
   }
 
   private getAttribute(variation: AttributeVariation) {
-    const attrList = variation.attribute.split(".");
-    if (attrList.length > 1) {
-      let o = this._object;
-      for (let i of attrList) {
-        o = o[i];
+    if (!this._object) return undefined;
+    if (this._object[variation.attribute] !== undefined) {
+      if (typeof this._object[variation.attribute] === "number") {
+        return this._object[variation.attribute];
+      } else {
+        return this._object[variation.attribute].clone();
       }
-      return o;
     } else {
-      return this._object[attrList[0]];
+      const attrList = variation.attribute.split(".");
+      if (attrList.length > 1) {
+        const l = attrList.length - 1;
+        let o = this._object;
+        for (let i = 0; i < l; i++) {
+          o = o[attrList[i]];
+        }
+        if (typeof o[attrList[l]] === "number") {
+          return o[attrList[l]];
+        } else {
+          return o[attrList[l]].clone();
+        }
+      } else {
+        return undefined;
+      }
     }
   }
 
   private setAttribute(variation: AttributeVariation, val) {
-    const attrList = variation.attribute.split(".");
-    if (attrList.length > 1) {
-      const l = attrList.length - 1;
-      let o = this._object;
-      for (let i = 0; i < l; i++) {
-        o = o[attrList[i]];
-      }
-      o[attrList[l]] = val;
+    if (!this._object) throw new Error("对象不存在");
+    if (this._object[variation.attribute] !== undefined) {
+      this._object[variation.attribute] = val;
     } else {
-      this._object[attrList[0]] = val;
+      const attrList = variation.attribute.split(".");
+      if (attrList.length > 1) {
+        const l = attrList.length - 1;
+        let o = this._object;
+        for (let i = 0; i < l; i++) {
+          o = o[attrList[i]];
+        }
+        o[attrList[l]] = val;
+      } else {
+        throw new Error("对象没有该属性");
+      }
     }
   }
 }
@@ -184,39 +210,58 @@ export abstract class KeyframeAnimationManager {
     return this.animations[name];
   }
 
-  static playAnimation(object: Object, animation: KeyframeAnimation): Promise<any>;
   static playAnimation(
     object: Object,
-    animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[]
-  ): Promise<any>;
-  static playAnimation(object: Object, animation: string): Promise<any>;
+    animation: KeyframeAnimation,
+    onComplete?: () => void,
+    onCancel?: () => void
+  ): KeyframeAnimationTrack<typeof object>;
   static playAnimation(
     object: Object,
-    animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[]
-  ): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (typeof animation === "string") {
-        animation = this.getAnimation(animation);
-        if (!animation) return;
-      } else if (animation instanceof Array) {
-        animation = new KeyframeAnimation(animation.map((option) => new AttributeVariation(option)));
-      }
-      const track = new KeyframeAnimationTrack<typeof object>(object, animation);
-      this.activeAnimationList.push(track);
-      track.resolve = resolve;
-      track.reject = reject;
-      track.start();
-    });
+    animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
+    onComplete?: () => void,
+    onCancel?: () => void
+  ): KeyframeAnimationTrack<typeof object>;
+  static playAnimation(
+    object: Object,
+    animation: string,
+    onComplete?: () => void,
+    onCancel?: () => void
+  ): KeyframeAnimationTrack<typeof object>;
+  static playAnimation(
+    object: Object,
+    animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
+    onComplete?: () => void,
+    onCancel?: () => void
+  ): KeyframeAnimationTrack<typeof object> {
+    if (typeof animation === "string") {
+      animation = this.getAnimation(animation);
+      if (!animation) return;
+    } else if (animation instanceof Array) {
+      animation = new KeyframeAnimation(animation.map((option) => new AttributeVariation(option)));
+    }
+    const track = new KeyframeAnimationTrack<typeof object>(object, animation, onComplete, onCancel);
+    this.activeAnimationList.push(track);
+    track.start();
+    return track;
   }
 
-  static stopAnimation(object: Object, skip: boolean = true) {
-    for (let i = 0; i < this.activeAnimationList.length; i++) {
-      const track = this.activeAnimationList[i];
-      if (track.isBindingTo(object)) {
-        this.activeAnimationList.splice(i, 1);
-        --i;
-        track.stop(skip);
-        track.reject(null);
+  static stopAnimation(track: KeyframeAnimationTrack<Object>, skip?: boolean);
+  static stopAnimation(object: Object, skip?: boolean);
+  static stopAnimation(object: Object | KeyframeAnimationTrack<Object>, skip: boolean = true) {
+    if (object instanceof KeyframeAnimationTrack) {
+      if (typeof object.onCancel === "function") object.onCancel();
+      object.stop(skip);
+      this.activeAnimationList.splice(this.activeAnimationList.indexOf(object), 1);
+    } else {
+      for (let i = 0; i < this.activeAnimationList.length; i++) {
+        const track = this.activeAnimationList[i];
+        if (track.isTarget(object)) {
+          track.stop(skip);
+          if (typeof track.onCancel === "function") track.onCancel();
+          this.activeAnimationList.splice(i, 1);
+          --i;
+        }
       }
     }
   }
@@ -227,9 +272,9 @@ export abstract class KeyframeAnimationManager {
       const track = this.activeAnimationList[i];
       const isActive = track.apf(time);
       if (!isActive) {
+        if (typeof track.onComplete === "function") track.onComplete();
         this.activeAnimationList.splice(i, 1);
         --i;
-        track.resolve(null);
       }
     }
   }

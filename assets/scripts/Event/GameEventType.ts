@@ -35,6 +35,7 @@ export interface MessageTransmission {
 export interface MessageReplaced {
   message: Card;
   oldMessage: Card;
+  messagePlayer: Player;
 }
 
 export interface MessagePlacedIntoMessageZone {
