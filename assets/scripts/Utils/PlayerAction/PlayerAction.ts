@@ -149,7 +149,6 @@ export abstract class PlayerAction {
   }
 
   private static handleStep() {
-    console.log(this.currentGroup);
     this.currentGroup.handleStep({
       next: this.next.bind(this),
       prev: this.prev.bind(this),

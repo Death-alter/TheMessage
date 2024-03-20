@@ -234,6 +234,7 @@ export abstract class KeyframeAnimationManager {
     onComplete?: () => void,
     onCancel?: () => void
   ): KeyframeAnimationTrack<typeof object> {
+    if (!(typeof object === "object")) return null;
     if (typeof animation === "string") {
       animation = this.getAnimation(animation);
       if (!animation) return;

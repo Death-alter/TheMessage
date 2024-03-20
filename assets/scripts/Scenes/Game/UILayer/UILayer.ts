@@ -152,7 +152,6 @@ export class UILayer extends Component {
           switch (this.manager.data.gamePhase) {
             case GamePhase.MAIN_PHASE:
               this.tooltip.showNextPhaseButton("传递情报");
-              console.log("出牌阶段，请选择要使用的卡牌");
               PlayerAction.addStep({
                 step: PlayerActionStepName.SELECT_HAND_CARD_TO_PLAY,
                 data: {

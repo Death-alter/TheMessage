@@ -56,7 +56,6 @@ export class DiaoBao extends Card {
   }
 
   onFinish(gui: GameManager) {
-    console.log(gui.data.playerList[gui.data.messagePlayerId]);
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
       message: gui.data.messageInTransmit,
       oldMessage: this.messageToReplaced,

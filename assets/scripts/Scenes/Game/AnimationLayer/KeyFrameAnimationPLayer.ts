@@ -12,6 +12,7 @@ import GamePools from "../../../Components/Pool/GamePools";
 import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
 import * as GameEventType from "../../../Event/GameEventType";
 import { CardStatus } from "../../../Components/Card/type";
+import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 
 @ccclass("KeyFrameAnimationLayer")
 export class KeyFrameAnimationPlayer extends Component {
@@ -64,6 +65,7 @@ export class KeyFrameAnimationPlayer extends Component {
           resolve(track);
         }
       );
+      if (!track) reject(new Error("对象不存在"));
     });
   }
 
@@ -90,6 +92,7 @@ export class KeyFrameAnimationPlayer extends Component {
           resolve(track);
         }
       );
+      if (!track) reject(new Error("对象不存在"));
     });
   }
 
@@ -307,7 +310,7 @@ export class KeyFrameAnimationPlayer extends Component {
     this.moveNode({
       node,
       to: { location: CardActionLocation.DISCARD_PILE },
-      duration: config.animationDuration * 1.5,
+      duration: config.animationDuration * 1.35,
     });
   }
 
@@ -335,6 +338,8 @@ export class KeyFrameAnimationPlayer extends Component {
       }
       if (player.id === 0) {
         message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      } else {
+        message.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
 
       const node = this.addCard(message, { location: CardActionLocation.PLAYER, player });
@@ -366,17 +371,18 @@ export class KeyFrameAnimationPlayer extends Component {
   //选择接收情报
   chooseReceiveMessage({ player, message }: GameEventType.PlayerChooseReceiveMessage) {
     if (message) {
-      KeyframeAnimationManager.playAnimation(message.gameObject.node, [
+      const track = KeyframeAnimationManager.playAnimation(message.gameObject.node, [
         {
           attribute: "scale",
           to: new Vec3(1, 1, 1),
-          duration: config.animationDuration * 0.55,
+          duration: config.animationDuration,
         },
         {
           attribute: "scale",
+          from: new Vec3(1, 1, 1),
           to: new Vec3(0.6, 0.6, 1),
-          startTime: config.animationDuration * 0.55,
-          duration: config.animationDuration * 0.55,
+          startTime: config.animationDuration,
+          duration: config.animationDuration,
         },
       ]);
     }

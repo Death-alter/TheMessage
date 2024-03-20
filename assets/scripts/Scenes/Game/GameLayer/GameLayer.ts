@@ -1,4 +1,4 @@
-import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, color, Component } from "cc";
+import { _decorator, Node, Prefab, instantiate, Layout, Label, sys, color, Component, UITransform } from "cc";
 import { GameEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, ProcessEvent, UIEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Components/Container/HandCardContianer";
