@@ -188,4 +188,15 @@ export class ShiTan extends Card {
       }
     }
   }
+
+  copy() {
+    return new ShiTan({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+      drawCardColor: this.drawCardColor?.slice(),
+    });
+  }
 }

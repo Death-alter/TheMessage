@@ -269,4 +269,15 @@ export class MiLing extends Card {
       PlayerAction.start();
     }
   }
+
+  copy() {
+    return new MiLing({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+      secretColor: this.secretColor?.slice(),
+    });
+  }
 }

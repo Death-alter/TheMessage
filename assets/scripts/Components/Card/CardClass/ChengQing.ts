@@ -84,4 +84,14 @@ export class ChengQing extends Card {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}被弃置`));
   }
+
+  copy() {
+    return new ChengQing({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

@@ -108,4 +108,14 @@ export class YuQinGuZong extends Card {
       fromHand: false,
     });
   }
+
+  copy() {
+    return new YuQinGuZong({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

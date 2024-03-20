@@ -5,7 +5,7 @@ import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../.
 import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
-import { CardColor, CardUsableStatus } from "../../Card/type";
+import { CardColor, CardStatus, CardUsableStatus } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
@@ -157,7 +157,8 @@ export class DuMing extends TriggerSkill {
     if (playerId === 0) {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip();
+      message.status = CardStatus.FACE_UP;
+      message.gameObject?.flip();
 
       if (waitingSecond > 0) {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
@@ -166,7 +167,8 @@ export class DuMing extends TriggerSkill {
         });
       } else {
         message.gameObject.scheduleOnce(() => {
-          message.flip();
+          message.status = CardStatus.FACE_DOWN;
+          message.gameObject?.flip();
         }, 2);
       }
     }
@@ -231,7 +233,8 @@ export class DuMing extends TriggerSkill {
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把手牌${gameLog.formatCard(message)}置入自己的情报区`));
 
     if (playerId === 0) {
-      gameData.messageInTransmit.flip();
+      message.status = CardStatus.FACE_DOWN;
+      message.gameObject?.flip();
     }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

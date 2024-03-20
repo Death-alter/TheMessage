@@ -92,4 +92,14 @@ export class DiaoHuLiShan extends Card {
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合不能使用卡牌。`));
     }
   }
+
+  copy() {
+    return new DiaoHuLiShan({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

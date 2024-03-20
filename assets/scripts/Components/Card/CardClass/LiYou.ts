@@ -72,4 +72,14 @@ export class LiYou extends Card {
       gameLog.addData(new GameLog(`${gameLog.formatCard(card)}被置入${gameLog.formatPlayer(targetPlayer)}的情报区`));
     }
   }
+
+  copy() {
+    return new LiYou({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

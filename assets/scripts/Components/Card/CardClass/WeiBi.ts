@@ -240,4 +240,14 @@ export class WeiBi extends Card {
       ],
     });
   }
+
+  copy() {
+    return new WeiBi({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

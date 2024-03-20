@@ -22,6 +22,7 @@ import { MiLing } from "./CardClass/MiLing";
 import { Identity } from "../Identity/Identity";
 import { GameManager } from "../../Manager/GameManager";
 import { getCardTypeText } from "./index";
+import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyFrameAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -189,19 +190,41 @@ export class CardObject extends GameObject<Card> {
         resolve(null);
       } else {
         //翻面动画
-        tween(node)
-          .to(0.2, { scale: new Vec3(0, 1, 1) })
-          .call(() => {
-            if (this.data) {
-              this.refresh(this.data);
+        const temp = this.data.copy();
+        const data = this.data;
+        if (temp.status === CardStatus.FACE_DOWN) {
+          temp.status = CardStatus.FACE_UP;
+        } else {
+          temp.status = CardStatus.FACE_DOWN;
+        }
+        this.data = temp;
+        const track = KeyframeAnimationManager.playAnimation(node, [
+          {
+            attribute: "scale",
+            to: new Vec3(0, 1, 1),
+            duration: 0.2,
+          },
+          {
+            attribute: "scale",
+            to: new Vec3(1, 1, 1),
+            startTime: 0.2,
+            duration: 0.2,
+          },
+        ])
+          .on(0.2, () => {
+            if (temp.status === CardStatus.FACE_DOWN) {
+              temp.status = CardStatus.FACE_UP;
+            } else {
+              temp.status = CardStatus.FACE_DOWN;
             }
+            this.refresh(temp);
           })
-          .to(0.2, { scale: new Vec3(1, 1, 1) })
-          .delay(0.1)
-          .call(() => {
+          .on(0.9, () => {
+            this.data = data;
             resolve(null);
-          })
-          .start();
+          });
+
+        console.log(track);
       }
     });
   }

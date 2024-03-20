@@ -2,6 +2,7 @@ import { skill_guan_hai_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
+import { CardStatus } from "../../Card/type";
 import { Character } from "../../Chatacter/Character";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
@@ -41,9 +42,11 @@ export class GuanHai extends PassiveSkill {
       const message = gameData.createMessage(card);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip().then(() => {
+      message.status = CardStatus.FACE_UP;
+      message.gameObject?.flip().then(() => {
         message.gameObject.scheduleOnce(() => {
-          message.flip();
+          message.status = CardStatus.FACE_DOWN;
+          message.gameObject?.flip();
         }, 1);
       });
     }

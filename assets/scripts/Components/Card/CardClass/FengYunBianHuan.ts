@@ -160,4 +160,14 @@ export class FengYunBianHuan extends Card {
   onFinish(gui: GameManager) {
     gui.showCardsWindow.hide();
   }
+
+  copy() {
+    return new FengYunBianHuan({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
+  }
 }

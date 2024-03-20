@@ -74,7 +74,8 @@ export class YingBianZiRu extends ActiveSkill {
     const message = gameData.createMessage(card);
     message.gameObject = gameData.messageInTransmit.gameObject;
     gameData.messageInTransmit = message;
-    await message.flip();
+    message.status = CardStatus.FACE_UP;
+    await message.gameObject?.flip();
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}翻开待收情报${gameLog.formatCard(message)}`));
 

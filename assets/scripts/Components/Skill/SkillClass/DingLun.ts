@@ -69,7 +69,8 @@ export class DingLun extends ActiveSkill {
         message = gameData.createMessage(card);
         message.gameObject = gameData.messageInTransmit.gameObject;
         gameData.messageInTransmit = message;
-        await message.flip();
+        message.status = CardStatus.FACE_UP;
+        await message.gameObject?.flip();
       }
 
       gameData.playerAddHandCard(player, message);

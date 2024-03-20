@@ -1,5 +1,4 @@
-import { _decorator, Component, instantiate, Node, Prefab, tween, UITransform, Vec2, Vec3 } from "cc";
-const { ccclass, property } = _decorator;
+import { _decorator, Component, instantiate, Node, Prefab, UITransform, Vec2, Vec3 } from "cc";
 import { KeyframeAnimationManager } from "./KeyFrameAnimation";
 import { Player } from "../../../Components/Player/Player";
 import { ActionLocation, CardActionLocation, MoveNodeParams } from "../../../Manager/type";
@@ -13,6 +12,7 @@ import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
 import * as GameEventType from "../../../Event/GameEventType";
 import { CardStatus } from "../../../Components/Card/type";
 import { OuterGlow } from "../../../Components/Utils/OuterGlow";
+const { ccclass, property } = _decorator;
 
 @ccclass("KeyFrameAnimationLayer")
 export class KeyFrameAnimationPlayer extends Component {
@@ -177,21 +177,15 @@ export class KeyFrameAnimationPlayer extends Component {
     const degree = (dir.signAngle(new Vec2(1, 0)) / Math.PI) * 180;
     line.angle = degree;
     line.active = true;
-    KeyframeAnimationManager.playAnimation(
-      transform,
-      [
-        {
-          attribute: "width",
-          to: Math.sqrt(dx * dx + dy * dy),
-          duration,
-        },
-      ],
-      () => {
-        setTimeout(() => {
-          this.node.removeChild(line);
-        }, 1000);
-      }
-    );
+    KeyframeAnimationManager.playAnimation(transform, [
+      {
+        attribute: "width",
+        to: Math.sqrt(dx * dx + dy * dy),
+        duration,
+      },
+    ]).on(duration + 1, () => {
+      this.node.removeChild(line);
+    });
   }
 
   addCardToHandCard({ player, card, from }: { player: Player; card: Card; from?: ActionLocation });
@@ -317,9 +311,9 @@ export class KeyFrameAnimationPlayer extends Component {
   afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
     const { card, flag } = data;
     if (!flag && card && card.gameObject) {
-      setTimeout(() => {
+      KeyframeAnimationManager.playAnimation(card.gameObject.node, []).on(1, () => {
         this.removeCardNode(card.gameObject.node);
-      }, 1000);
+      });
     }
   }
 
@@ -371,18 +365,17 @@ export class KeyFrameAnimationPlayer extends Component {
   //选择接收情报
   chooseReceiveMessage({ player, message }: GameEventType.PlayerChooseReceiveMessage) {
     if (message) {
-      const track = KeyframeAnimationManager.playAnimation(message.gameObject.node, [
+      KeyframeAnimationManager.playAnimation(message?.gameObject?.node, [
         {
           attribute: "scale",
           to: new Vec3(1, 1, 1),
-          duration: config.animationDuration,
+          duration: config.animationDuration * 0.55,
         },
         {
           attribute: "scale",
-          from: new Vec3(1, 1, 1),
           to: new Vec3(0.6, 0.6, 1),
-          startTime: config.animationDuration,
-          duration: config.animationDuration,
+          startTime: config.animationDuration * 0.55,
+          duration: config.animationDuration * 0.55,
         },
       ]);
     }
@@ -395,11 +388,12 @@ export class KeyFrameAnimationPlayer extends Component {
         message.gameObject = this.transmissionMessageObject;
       }
       if (message.status === CardStatus.FACE_DOWN) {
-        message.flip().then(() => {
+        message.status = CardStatus.FACE_UP;
+        message.gameObject?.flip().then(() => {
           this.moveNode({
             node: message?.gameObject?.node,
             to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-          }).catch((e) => {});
+          });
           this.scaleNode({
             node: message.gameObject.node,
             scale: new Vec3(0, 0, 1),
@@ -429,7 +423,10 @@ export class KeyFrameAnimationPlayer extends Component {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
-      if (message.status === CardStatus.FACE_DOWN) await message.flip();
+      if (message.status === CardStatus.FACE_DOWN) {
+        message.status = CardStatus.FACE_UP;
+        await message.gameObject?.flip();
+      }
       await this.moveNode({
         node: message.gameObject.node,
         to: { location: CardActionLocation.DISCARD_PILE },
@@ -448,7 +445,8 @@ export class KeyFrameAnimationPlayer extends Component {
       this.transmissionMessageObject = message.gameObject;
       const worldPosition = this.getLocation(CardActionLocation.PLAYER, messagePlayer);
       await this.discardMessage(oldMessage);
-      await message.flip();
+      message.status = CardStatus.FACE_UP;
+      await message.gameObject?.flip();
       await this.moveNode({
         node: this.transmissionMessageObject.node,
         to: { position: worldPosition },

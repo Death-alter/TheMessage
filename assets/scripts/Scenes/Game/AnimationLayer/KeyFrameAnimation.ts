@@ -30,7 +30,7 @@ export class AttributeVariation {
     this.attribute = option.attribute;
     this.from = option.from || null;
     this.to = option.to;
-    this.startTime = option.startTime || 0;
+    this.startTime = option.startTime * 1000 || 0;
     this.duration = option.duration * 1000;
     this.easing = option.easing;
   }
@@ -67,8 +67,11 @@ export class KeyframeAnimation {
 class KeyframeAnimationTrack<T extends Object> {
   private _object: T;
   private _animation: KeyframeAnimation;
+  private _duration: number;
   private _startTime: number;
   private initialValues: any[] = [];
+  private timeLine: { time: number; events: (() => void)[] }[] = [];
+  private timeLineIndex: number = -1;
   public onComplete: () => void;
   public onCancel: () => void;
 
@@ -77,29 +80,25 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   get endTime() {
-    return this._startTime + this._animation.duration;
+    return this._startTime + this._duration;
   }
 
   constructor(object: T, animation: KeyframeAnimation, onComplete?: () => void, onCancel?: () => void) {
     this._object = object;
     this._animation = animation;
+    this._duration = this._animation.duration;
     this.onComplete = onComplete;
     this.onCancel = onCancel;
   }
 
   start() {
-    for (let variation of this._animation.variations) {
-      if (variation.from == null) {
-        this.initialValues.push(this.getAttribute(variation));
-      } else {
-        this.initialValues.push(null);
-      }
-    }
     this._startTime = new Date().getTime();
+    this.timeLineIndex = 0;
   }
 
   stop(skip: boolean = true) {
     this._startTime = 0;
+    this.timeLineIndex = -1;
     if (skip) {
       for (let variation of this._animation.variations) {
         this.setAttribute(variation, variation.to);
@@ -107,10 +106,39 @@ class KeyframeAnimationTrack<T extends Object> {
     }
   }
 
+  on(time: number, callback: () => void) {
+    time *= 1000;
+    if (this._duration < time) this._duration = time;
+    if (this.timeLine.length === 0) {
+      this.timeLine.push({ time, events: [callback] });
+    } else {
+      for (let i = 0; i < this.timeLine.length; i++) {
+        const item = this.timeLine[i];
+        if (time >= item.time) {
+          if (time === item.time) {
+            item.events.push(callback);
+          } else {
+            this.timeLine.splice(i + 1, 0, { time, events: [callback] });
+          }
+          break;
+        }
+      }
+    }
+    return this;
+  }
+
   apf(time: number) {
     if (!this._object) return false;
     time -= this._startTime;
-    if (time > this._animation.duration) {
+    if (this.timeLineIndex < this.timeLine.length) {
+      while (this.timeLine[this.timeLineIndex] && time >= this.timeLine[this.timeLineIndex].time) {
+        for (let func of this.timeLine[this.timeLineIndex].events) {
+          func();
+        }
+        ++this.timeLineIndex;
+      }
+    }
+    if (time > this._duration) {
       this._animation.variations.forEach((variation) => {
         this.setAttribute(variation, variation.to);
       });
@@ -118,14 +146,22 @@ class KeyframeAnimationTrack<T extends Object> {
     }
     this._animation.variations.forEach((variation, i) => {
       const t = time - variation.startTime;
+      if (t < 0) return;
+      if (this.initialValues[i] === undefined) {
+        if (variation.from) {
+          this.initialValues[i] = variation.from;
+        } else {
+          this.initialValues[i] = this.getAttribute(variation);
+        }
+      }
       const p = t / variation.duration;
       //当前属性在执行时间范围内
       if (p < 1) {
         let val;
         if (typeof variation.to === "number") {
-          val = (1 - p) * (variation.from != null ? variation.from : this.initialValues[i]) + p * variation.to;
+          val = (1 - p) * this.initialValues[i] + p * variation.to;
         } else {
-          const from = (<Vec3>(variation.from != null ? variation.from : this.initialValues[i])).clone();
+          const from = (<Vec3>this.initialValues[i]).clone();
           const to = (<Vec3>variation.to).clone();
           val = from.multiplyScalar(1 - p).add(to.multiplyScalar(p));
         }
@@ -140,7 +176,7 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   private getAttribute(variation: AttributeVariation) {
-    if (!this._object) return undefined;
+    if (!this._object) return null;
     if (this._object[variation.attribute] !== undefined) {
       if (typeof this._object[variation.attribute] === "number") {
         return this._object[variation.attribute];
@@ -161,7 +197,7 @@ class KeyframeAnimationTrack<T extends Object> {
           return o[attrList[l]].clone();
         }
       } else {
-        return undefined;
+        return null;
       }
     }
   }

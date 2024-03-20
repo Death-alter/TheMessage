@@ -7,7 +7,7 @@ import { GamePhase, WaitingType, CardActionLocation } from "../../../Manager/typ
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
-import { CardColor } from "../../Card/type";
+import { CardColor, CardStatus } from "../../Card/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
@@ -86,7 +86,8 @@ export class SouJi extends ActiveSkill {
       const message = gameData.createMessage(messageCard);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip();
+      message.status = CardStatus.FACE_UP;
+      message.gameObject?.flip();
 
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
@@ -182,7 +183,8 @@ export class SouJi extends ActiveSkill {
       });
       gameData.messageInTransmit = null;
     } else if (playerId === 0) {
-      gameData.messageInTransmit.flip();
+      gameData.messageInTransmit.status = CardStatus.FACE_DOWN;
+      gameData.messageInTransmit.gameObject.flip();
     }
 
     if (playerId !== 0) {

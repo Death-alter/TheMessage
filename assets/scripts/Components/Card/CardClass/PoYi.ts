@@ -94,7 +94,8 @@ export class PoYi extends Card {
       }
     } else {
       if (userId === 0 && this.messageStatus === CardStatus.FACE_DOWN) {
-        gameData.messageInTransmit.flip();
+        gameData.messageInTransmit.status = CardStatus.FACE_UP;
+        gameData.messageInTransmit.gameObject?.flip();
       }
     }
   }
@@ -103,7 +104,18 @@ export class PoYi extends Card {
     if (message.status === CardStatus.FACE_DOWN) {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.flip();
+      message.status = CardStatus.FACE_UP;
+      message.gameObject?.flip();
     }
+  }
+
+  copy() {
+    return new PoYi({
+      id: this.id,
+      direction: this.direction,
+      color: this.color?.slice(),
+      lockable: this.lockable,
+      status: this.status,
+    });
   }
 }

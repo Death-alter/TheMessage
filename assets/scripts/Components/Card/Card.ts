@@ -86,17 +86,7 @@ export abstract class Card extends DataBasic<CardObject> {
     return true;
   }
 
-  //翻面
-  flip() {
-    if (this._status === CardStatus.FACE_UP) {
-      this._status = CardStatus.FACE_DOWN;
-    } else {
-      this._status = CardStatus.FACE_UP;
-    }
-    if (this.gameObject) {
-      return this.gameObject.flip();
-    }
-  }
+  abstract copy(): Card;
 
   static hasColor(card: Card, color: CardColor): boolean;
   static hasColor(cards: Card[], color: CardColor): boolean;

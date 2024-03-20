@@ -5,7 +5,7 @@ import { CardDefaultOption, CardStatus, CardType } from "../type";
 export class UnknownCard extends Card {
   public readonly availablePhases = [];
 
-  constructor(option: CardDefaultOption) {
+  constructor(option?: CardDefaultOption) {
     super({
       id: 0,
       name: "未知卡牌",
@@ -14,11 +14,15 @@ export class UnknownCard extends Card {
       color: [],
       lockable: false,
       status: CardStatus.FACE_DOWN,
-      gameObject: option.gameObject,
+      gameObject: option && option.gameObject,
     });
   }
 
   canPlay(gui: GameManager) {
     return false;
+  }
+
+  copy() {
+    return new UnknownCard();
   }
 }
