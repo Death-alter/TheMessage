@@ -42,13 +42,7 @@ export class GuanHai extends PassiveSkill {
       const message = gameData.createMessage(card);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.status = CardStatus.FACE_UP;
-      message.gameObject?.flip().then(() => {
-        message.gameObject.scheduleOnce(() => {
-          message.status = CardStatus.FACE_DOWN;
-          message.gameObject?.flip();
-        }, 1);
-      });
+      GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
     }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

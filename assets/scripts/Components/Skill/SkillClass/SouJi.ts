@@ -86,8 +86,7 @@ export class SouJi extends ActiveSkill {
       const message = gameData.createMessage(messageCard);
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.status = CardStatus.FACE_UP;
-      message.gameObject?.flip();
+      GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
 
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
@@ -182,9 +181,6 @@ export class SouJi extends ActiveSkill {
         player,
       });
       gameData.messageInTransmit = null;
-    } else if (playerId === 0) {
-      gameData.messageInTransmit.status = CardStatus.FACE_DOWN;
-      gameData.messageInTransmit.gameObject.flip();
     }
 
     if (playerId !== 0) {

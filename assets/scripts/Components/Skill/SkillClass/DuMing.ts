@@ -157,19 +157,13 @@ export class DuMing extends TriggerSkill {
     if (playerId === 0) {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
-      message.status = CardStatus.FACE_UP;
-      message.gameObject?.flip();
+      GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
 
       if (waitingSecond > 0) {
         GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
           skill: this,
           handler: "promprtSelectHandCard",
         });
-      } else {
-        message.gameObject.scheduleOnce(() => {
-          message.status = CardStatus.FACE_DOWN;
-          message.gameObject?.flip();
-        }, 2);
       }
     }
 
@@ -231,11 +225,6 @@ export class DuMing extends TriggerSkill {
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
     });
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把手牌${gameLog.formatCard(message)}置入自己的情报区`));
-
-    if (playerId === 0) {
-      message.status = CardStatus.FACE_DOWN;
-      message.gameObject?.flip();
-    }
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

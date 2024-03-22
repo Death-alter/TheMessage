@@ -86,6 +86,14 @@ export abstract class Card extends DataBasic<CardObject> {
     return true;
   }
 
+  toogleStatus() {
+    if (this.status === CardStatus.FACE_DOWN) {
+      this.status = CardStatus.FACE_UP;
+    } else {
+      this.status = CardStatus.FACE_DOWN;
+    }
+  }
+
   abstract copy(): Card;
 
   static hasColor(card: Card, color: CardColor): boolean;

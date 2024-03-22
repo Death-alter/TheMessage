@@ -84,6 +84,12 @@ export class AnimationLayer extends Component {
     //接收情报
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
 
+    //查看待收情报
+    GameEventCenter.on(GameEvent.PLAYER_VIEW_MESSAGE, this.playerViewMessage, this);
+
+    //翻开待收情报
+    GameEventCenter.on(GameEvent.MESSAGE_TURNED_OVER, this.playerTurnOverMessage, this);
+
     //移除情报
     GameEventCenter.on(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
 
@@ -114,6 +120,8 @@ export class AnimationLayer extends Component {
     GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
     GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
+    GameEventCenter.off(GameEvent.PLAYER_VIEW_MESSAGE, this.playerViewMessage, this);
+    GameEventCenter.off(GameEvent.MESSAGE_TURNED_OVER, this.playerTurnOverMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
     GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
     GameEventCenter.off(GameEvent.PLAYER_RECOVERY, this.playerRecovery, this);
@@ -171,6 +179,14 @@ export class AnimationLayer extends Component {
       const player = this.manager.data.playerList[this.manager.data.senderId];
       player?.gameObject.hideInnerGlow();
     }
+  }
+
+  playerViewMessage(data: GameEventType.PlayerViewMessage) {
+    this.animationPlayer.viewMessage(data);
+  }
+
+  playerTurnOverMessage({ message }: GameEventType.MessageTurnedOver) {
+    this.animationPlayer.turnOverMessage(message);
   }
 
   playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {

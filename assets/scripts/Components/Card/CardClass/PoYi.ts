@@ -11,8 +11,6 @@ import { GameLog } from "../../GameLog/GameLog";
 export class PoYi extends Card {
   public readonly availablePhases = [GamePhase.SEND_PHASE];
 
-  private messageStatus: CardStatus;
-
   get description() {
     return "传递阶段，查看传递到你面前的情报，若该情报是黑色，你可以将其翻开，然后摸一张牌。";
   }
@@ -42,11 +40,15 @@ export class PoYi extends Card {
   }
 
   onEffect(gameData: GameData, { userId, targetCard }: CardOnEffectParams): void {
+    const player = gameData.playerList[userId];
     const gamelog = gameData.gameLog;
-    this.messageStatus = gameData.messageInTransmit.status;
     if (userId === 0) {
       const message = gameData.createMessage(targetCard);
-      this.showMessageInTransmit(gameData, message);
+      message.gameObject = gameData.messageInTransmit.gameObject;
+      gameData.messageInTransmit = message;
+
+      GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
+
       const isBlackMessage = Card.hasColor(message, CardColor.BLACK);
       gamelog.addData(new GameLog(`传递中的情报是${gamelog.formatCard(message)}`));
       GameEventCenter.emit(GameEvent.CARD_ON_EFFECT, {
@@ -88,24 +90,16 @@ export class PoYi extends Card {
 
   onShow(gameData: GameData, { userId, targetCard, flag }: CardOnEffectParams) {
     if (flag) {
+      const gamelog = gameData.gameLog;
+      const player = gameData.playerList[userId];
       if (userId !== 0) {
         const message = gameData.createMessage(targetCard);
-        this.showMessageInTransmit(gameData, message);
+        message.gameObject = gameData.messageInTransmit.gameObject;
+        gameData.messageInTransmit = message;
       }
-    } else {
-      if (userId === 0 && this.messageStatus === CardStatus.FACE_DOWN) {
-        gameData.messageInTransmit.status = CardStatus.FACE_UP;
-        gameData.messageInTransmit.gameObject?.flip();
-      }
-    }
-  }
-
-  showMessageInTransmit(gameData: GameData, message: Card) {
-    if (message.status === CardStatus.FACE_DOWN) {
-      message.gameObject = gameData.messageInTransmit.gameObject;
-      gameData.messageInTransmit = message;
-      message.status = CardStatus.FACE_UP;
-      message.gameObject?.flip();
+      gameData.messageInTransmit.status = CardStatus.FACE_UP;
+      GameEventCenter.emit(GameEvent.MESSAGE_TURNED_OVER, { message: gameData.messageInTransmit });
+      gamelog.addData(new GameLog(`${gamelog.formatPlayer(player)}翻开待收情报`));
     }
   }
 

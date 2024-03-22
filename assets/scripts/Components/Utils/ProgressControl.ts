@@ -41,24 +41,24 @@ export class ProgressControl extends Component {
       const bar = this.node.getChildByName("Bar");
       const barTransform = bar.getComponent(UITransform);
       barTransform.width = this.node.getComponent(UITransform).width;
-      this.track = KeyframeAnimationManager.playAnimation(
-        barTransform,
-        [
+      this.track = KeyframeAnimationManager.playAnimation({
+        target: barTransform,
+        animation: [
           {
             attribute: "width",
             to: 0,
             duration: seconds,
           },
         ],
-        () => {
+        onComplete: () => {
           this.node.active = false;
           resolve(true);
         },
-        () => {
+        onCancel: () => {
           this.node.active = false;
           resolve(false);
-        }
-      );
+        },
+      });
     });
   }
 }

@@ -17,6 +17,8 @@ export interface AttributeVertexVariationOption extends AttributeVariationOption
   to: Vec2 | Vec3 | Vec4;
 }
 
+type AnimationAction = "default" | "mix" | "replace" | "clear";
+
 //属性
 export class AttributeVariation {
   attribute: string;
@@ -65,7 +67,7 @@ export class KeyframeAnimation {
 
 //绑定节点和动画
 class KeyframeAnimationTrack<T extends Object> {
-  private _object: T;
+  private _target: T;
   private _animation: KeyframeAnimation;
   private _duration: number;
   private _startTime: number;
@@ -83,8 +85,12 @@ class KeyframeAnimationTrack<T extends Object> {
     return this._startTime + this._duration;
   }
 
-  constructor(object: T, animation: KeyframeAnimation, onComplete?: () => void, onCancel?: () => void) {
-    this._object = object;
+  get target() {
+    return this._target;
+  }
+
+  constructor(target: T, animation: KeyframeAnimation, onComplete?: () => void, onCancel?: () => void) {
+    this._target = target;
     this._animation = animation;
     this._duration = this._animation.duration;
     this.onComplete = onComplete;
@@ -97,13 +103,19 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   stop(skip: boolean = true) {
-    this._startTime = 0;
-    this.timeLineIndex = -1;
+    if (this.timeLineIndex < 0) return;
     if (skip) {
+      for (let i = this.timeLineIndex; i < this.timeLine.length; i++) {
+        for (let func of this.timeLine[i].events) {
+          func();
+        }
+      }
       for (let variation of this._animation.variations) {
         this.setAttribute(variation, variation.to);
       }
     }
+    this._startTime = 0;
+    this.timeLineIndex = -1;
   }
 
   on(time: number, callback: () => void) {
@@ -112,14 +124,13 @@ class KeyframeAnimationTrack<T extends Object> {
     if (this.timeLine.length === 0) {
       this.timeLine.push({ time, events: [callback] });
     } else {
-      for (let i = 0; i < this.timeLine.length; i++) {
+      for (let i = this.timeLine.length - 1; i >= 0; i--) {
         const item = this.timeLine[i];
-        if (time >= item.time) {
-          if (time === item.time) {
-            item.events.push(callback);
-          } else {
-            this.timeLine.splice(i + 1, 0, { time, events: [callback] });
-          }
+        if (time === item.time) {
+          item.events.push(callback);
+          break;
+        } else if (time > item.time) {
+          this.timeLine.splice(i + 1, 0, { time, events: [callback] });
           break;
         }
       }
@@ -128,7 +139,7 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   apf(time: number) {
-    if (!this._object) return false;
+    if (!this._target) return false;
     time -= this._startTime;
     if (this.timeLineIndex < this.timeLine.length) {
       while (this.timeLine[this.timeLineIndex] && time >= this.timeLine[this.timeLineIndex].time) {
@@ -171,23 +182,19 @@ class KeyframeAnimationTrack<T extends Object> {
     return true;
   }
 
-  isTarget(object: T) {
-    return object === this._object;
-  }
-
   private getAttribute(variation: AttributeVariation) {
-    if (!this._object) return null;
-    if (this._object[variation.attribute] !== undefined) {
-      if (typeof this._object[variation.attribute] === "number") {
-        return this._object[variation.attribute];
+    if (!this._target) return null;
+    if (this._target[variation.attribute] !== undefined) {
+      if (typeof this._target[variation.attribute] === "number") {
+        return this._target[variation.attribute];
       } else {
-        return this._object[variation.attribute].clone();
+        return this._target[variation.attribute].clone();
       }
     } else {
       const attrList = variation.attribute.split(".");
       if (attrList.length > 1) {
         const l = attrList.length - 1;
-        let o = this._object;
+        let o = this._target;
         for (let i = 0; i < l; i++) {
           o = o[attrList[i]];
         }
@@ -203,14 +210,14 @@ class KeyframeAnimationTrack<T extends Object> {
   }
 
   private setAttribute(variation: AttributeVariation, val) {
-    if (!this._object) throw new Error("对象不存在");
-    if (this._object[variation.attribute] !== undefined) {
-      this._object[variation.attribute] = val;
+    if (!this._target) throw new Error("对象不存在");
+    if (this._target[variation.attribute] !== undefined) {
+      this._target[variation.attribute] = val;
     } else {
       const attrList = variation.attribute.split(".");
       if (attrList.length > 1) {
         const l = attrList.length - 1;
-        let o = this._object;
+        let o = this._target;
         for (let i = 0; i < l; i++) {
           o = o[attrList[i]];
         }
@@ -225,7 +232,28 @@ class KeyframeAnimationTrack<T extends Object> {
 //管理所有动画
 export abstract class KeyframeAnimationManager {
   private static animations: { [index: string]: KeyframeAnimation } = {};
-  private static activeAnimationList: KeyframeAnimationTrack<Object>[] = [];
+  private static animationQueue = new Map<Object, KeyframeAnimationTrack<Object>[]>();
+  private static activeAnimationMap = new Map<Object, KeyframeAnimationTrack<Object>[]>();
+
+  private static enQueue(target: Object, track: KeyframeAnimationTrack<Object>) {
+    if (!this.animationQueue.has(target)) {
+      this.animationQueue.set(target, []);
+    }
+    const queue = this.animationQueue.get(target);
+    queue.push(track);
+  }
+
+  private static deQueue(target: Object) {
+    if (!this.animationQueue.has(target)) {
+      return null;
+    }
+    const queue = this.animationQueue.get(target);
+    const track = queue.shift();
+    if (queue.length === 0) {
+      this.animationQueue.delete(target);
+    }
+    return track;
+  }
 
   static createAnimation(
     name: string,
@@ -247,72 +275,136 @@ export abstract class KeyframeAnimationManager {
   }
 
   static playAnimation(
-    object: Object,
-    animation: KeyframeAnimation,
-    onComplete?: () => void,
-    onCancel?: () => void
-  ): KeyframeAnimationTrack<typeof object>;
+    option: {
+      target: Object;
+      animation: KeyframeAnimation;
+      onComplete?: () => void;
+      onCancel?: () => void;
+    },
+    action?: AnimationAction
+  ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
-    object: Object,
-    animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
-    onComplete?: () => void,
-    onCancel?: () => void
-  ): KeyframeAnimationTrack<typeof object>;
+    option: {
+      target: Object;
+      animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
+      onComplete?: () => void;
+      onCancel?: () => void;
+    },
+    action?: AnimationAction
+  ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
-    object: Object,
-    animation: string,
-    onComplete?: () => void,
-    onCancel?: () => void
-  ): KeyframeAnimationTrack<typeof object>;
+    option: {
+      target: Object;
+      animation: string;
+      onComplete?: () => void;
+      onCancel?: () => void;
+    },
+    action?: AnimationAction
+  ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
-    object: Object,
-    animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
-    onComplete?: () => void,
-    onCancel?: () => void
-  ): KeyframeAnimationTrack<typeof object> {
-    if (!(typeof object === "object")) return null;
+    option: {
+      target: Object;
+      animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
+      onComplete?: () => void;
+      onCancel?: () => void;
+    },
+    action: AnimationAction = "default"
+  ): KeyframeAnimationTrack<typeof option.target> {
+    let { target, animation, onComplete, onCancel } = option;
+    if (!(typeof target === "object")) return null;
     if (typeof animation === "string") {
       animation = this.getAnimation(animation);
       if (!animation) return;
     } else if (animation instanceof Array) {
       animation = new KeyframeAnimation(animation.map((option) => new AttributeVariation(option)));
     }
-    const track = new KeyframeAnimationTrack<typeof object>(object, animation, onComplete, onCancel);
-    this.activeAnimationList.push(track);
-    track.start();
+    let track;
+    switch (action) {
+      case "replace":
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        this.activeAnimationMap.set(target, [track]);
+        track.start();
+        break;
+      case "mix":
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        if (this.activeAnimationMap.has(target)) {
+          const tracks = this.activeAnimationMap.get(target);
+          tracks.push(track);
+        } else {
+          this.activeAnimationMap.set(target, [track]);
+        }
+        track.start();
+        break;
+      case "clear":
+        this.animationQueue.delete(track);
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        this.activeAnimationMap.set(target, [track]);
+        track.start();
+        break;
+      case "default":
+      default:
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        if (this.animationQueue.has(target) || this.activeAnimationMap.has(target)) {
+          this.enQueue(target, track);
+          this.enQueue(target, track);
+        } else {
+          this.activeAnimationMap.set(target, [track]);
+        }
+        track.start();
+    }
+
     return track;
   }
 
   static stopAnimation(track: KeyframeAnimationTrack<Object>, skip?: boolean);
-  static stopAnimation(object: Object, skip?: boolean);
+  static stopAnimation(target: Object, skip?: boolean);
   static stopAnimation(object: Object | KeyframeAnimationTrack<Object>, skip: boolean = true) {
     if (object instanceof KeyframeAnimationTrack) {
+      //删除一个track
       if (typeof object.onCancel === "function") object.onCancel();
+      const target = object.target;
       object.stop(skip);
-      this.activeAnimationList.splice(this.activeAnimationList.indexOf(object), 1);
-    } else {
-      for (let i = 0; i < this.activeAnimationList.length; i++) {
-        const track = this.activeAnimationList[i];
-        if (track.isTarget(object)) {
-          track.stop(skip);
-          if (typeof track.onCancel === "function") track.onCancel();
-          this.activeAnimationList.splice(i, 1);
-          --i;
+      const tracks = this.activeAnimationMap.get(target);
+      if (!tracks) return;
+      if (tracks.length > 1) {
+        tracks.splice(tracks.indexOf(object), 1);
+      } else {
+        if (this.animationQueue.has(target)) {
+          this.activeAnimationMap.set(target, [this.deQueue(target)]);
+        } else {
+          this.activeAnimationMap.delete(target);
         }
+      }
+    } else {
+      //删除一个target对应的所有track
+      if (this.animationQueue.has(object)) {
+        this.activeAnimationMap.set(object, [this.deQueue(object)]);
+      } else {
+        this.activeAnimationMap.delete(object);
       }
     }
   }
 
   static apf() {
     const time = new Date().getTime();
-    for (let i = 0; i < this.activeAnimationList.length; i++) {
-      const track = this.activeAnimationList[i];
-      const isActive = track.apf(time);
-      if (!isActive) {
-        if (typeof track.onComplete === "function") track.onComplete();
-        this.activeAnimationList.splice(i, 1);
-        --i;
+    this.activeAnimationMap.forEach((tracks, target) => {
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i];
+        const isActive = track.apf(time);
+        if (!isActive) {
+          if (typeof track.onComplete === "function") track.onComplete();
+          tracks.splice(i, 1);
+          --i;
+        }
       }
-    }
+      if (tracks.length === 0) {
+        if (this.animationQueue.has(target)) {
+          const track = this.deQueue(target);
+          this.activeAnimationMap.set(target, [track]);
+        } else {
+          this.activeAnimationMap.delete(target);
+        }
+      }
+    });
   }
 }

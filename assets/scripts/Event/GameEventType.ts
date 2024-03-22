@@ -38,6 +38,10 @@ export interface MessageReplaced {
   messagePlayer: Player;
 }
 
+export interface MessageTurnedOver {
+  message: Card;
+}
+
 export interface MessagePlacedIntoMessageZone {
   player: Player;
   message?: Card | Card[];
@@ -79,6 +83,11 @@ export interface PlayerChooseReceiveMessage {
 }
 
 export interface PlayerReceiveMessage {
+  player: Player;
+  message: Card;
+}
+
+export interface PlayerViewMessage {
   player: Player;
   message: Card;
 }
