@@ -1,4 +1,4 @@
-import { Vec2, Vec3, Vec4 } from "cc";
+import { ECollider2DType, EventInfo, Vec2, Vec3, Vec4 } from "cc";
 
 interface AttributeVariationOption {
   attribute: string;
@@ -18,6 +18,7 @@ export interface AttributeVertexVariationOption extends AttributeVariationOption
 }
 
 type AnimationAction = "default" | "mix" | "replace" | "clear";
+type AnimationTrackEvent = "complete" | "cancel";
 
 //属性
 export class AttributeVariation {
@@ -74,8 +75,7 @@ class KeyframeAnimationTrack<T extends Object> {
   private initialValues: any[] = [];
   private timeLine: { time: number; events: (() => void)[] }[] = [];
   private timeLineIndex: number = -1;
-  public onComplete: () => void;
-  public onCancel: () => void;
+  private events: { [key in AnimationTrackEvent]?: (() => void)[] } = {};
 
   get startTime() {
     return this._startTime;
@@ -93,8 +93,10 @@ class KeyframeAnimationTrack<T extends Object> {
     this._target = target;
     this._animation = animation;
     this._duration = this._animation.duration;
-    this.onComplete = onComplete;
-    this.onCancel = onCancel;
+    this.events.complete = [];
+    if (typeof onComplete === "function") this.events.complete.push(onComplete);
+    this.events.cancel = [];
+    if (typeof onCancel === "function") this.events.cancel.push(onCancel);
   }
 
   start() {
@@ -118,24 +120,40 @@ class KeyframeAnimationTrack<T extends Object> {
     this.timeLineIndex = -1;
   }
 
-  on(time: number, callback: () => void) {
-    time *= 1000;
-    if (this._duration < time) this._duration = time;
-    if (this.timeLine.length === 0) {
-      this.timeLine.push({ time, events: [callback] });
+  on(time: number, callback: () => void); //单位s
+  on(eventName: AnimationTrackEvent, callback: () => void);
+  on(event: number | AnimationTrackEvent, callback: () => void) {
+    if (typeof event === "string") {
+      if (!this.events[event]) this.events[event] = [];
+      this.events[event].push(callback);
     } else {
-      for (let i = this.timeLine.length - 1; i >= 0; i--) {
-        const item = this.timeLine[i];
-        if (time === item.time) {
-          item.events.push(callback);
-          break;
-        } else if (time > item.time) {
-          this.timeLine.splice(i + 1, 0, { time, events: [callback] });
-          break;
+      let time = event * 1000;
+      if (this._duration < time) this._duration = time;
+      if (this.timeLine.length === 0) {
+        this.timeLine.push({ time, events: [callback] });
+      } else {
+        for (let i = this.timeLine.length - 1; i >= 0; i--) {
+          const item = this.timeLine[i];
+          if (time === item.time) {
+            item.events.push(callback);
+            break;
+          } else if (time > item.time) {
+            this.timeLine.splice(i + 1, 0, { time, events: [callback] });
+            break;
+          }
         }
       }
     }
+
     return this;
+  }
+
+  trigger(eventName: AnimationTrackEvent) {
+    if (this.events[eventName] && this.events[eventName].length > 0) {
+      for (let func of this.events[eventName]) {
+        func();
+      }
+    }
   }
 
   apf(time: number) {
@@ -257,7 +275,7 @@ export abstract class KeyframeAnimationManager {
 
   static createAnimation(
     name: string,
-    variations: (AttributeNumberVariationOption | AttributeVertexVariationOption)[]
+    variations: (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
   ) {
     this.animations[name] = new KeyframeAnimation(variations.map((option) => new AttributeVariation(option)));
   }
@@ -281,7 +299,7 @@ export abstract class KeyframeAnimationManager {
       onComplete?: () => void;
       onCancel?: () => void;
     },
-    action?: AnimationAction
+    action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
@@ -290,7 +308,7 @@ export abstract class KeyframeAnimationManager {
       onComplete?: () => void;
       onCancel?: () => void;
     },
-    action?: AnimationAction
+    action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
@@ -299,7 +317,7 @@ export abstract class KeyframeAnimationManager {
       onComplete?: () => void;
       onCancel?: () => void;
     },
-    action?: AnimationAction
+    action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
@@ -308,7 +326,7 @@ export abstract class KeyframeAnimationManager {
       onComplete?: () => void;
       onCancel?: () => void;
     },
-    action: AnimationAction = "default"
+    action: AnimationAction = "default",
   ): KeyframeAnimationTrack<typeof option.target> {
     let { target, animation, onComplete, onCancel } = option;
     if (!(typeof target === "object")) return null;
@@ -346,11 +364,10 @@ export abstract class KeyframeAnimationManager {
         track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
         if (this.animationQueue.has(target) || this.activeAnimationMap.has(target)) {
           this.enQueue(target, track);
-          this.enQueue(target, track);
         } else {
           this.activeAnimationMap.set(target, [track]);
+          track.start();
         }
-        track.start();
     }
 
     return track;
@@ -361,7 +378,7 @@ export abstract class KeyframeAnimationManager {
   static stopAnimation(object: Object | KeyframeAnimationTrack<Object>, skip: boolean = true) {
     if (object instanceof KeyframeAnimationTrack) {
       //删除一个track
-      if (typeof object.onCancel === "function") object.onCancel();
+      object.trigger("cancel");
       const target = object.target;
       object.stop(skip);
       const tracks = this.activeAnimationMap.get(target);
@@ -392,15 +409,18 @@ export abstract class KeyframeAnimationManager {
         const track = tracks[i];
         const isActive = track.apf(time);
         if (!isActive) {
-          if (typeof track.onComplete === "function") track.onComplete();
+          track.trigger("complete");
           tracks.splice(i, 1);
           --i;
         }
       }
+    });
+    this.activeAnimationMap.forEach((tracks, target) => {
       if (tracks.length === 0) {
         if (this.animationQueue.has(target)) {
           const track = this.deQueue(target);
           this.activeAnimationMap.set(target, [track]);
+          track.start();
         } else {
           this.activeAnimationMap.delete(target);
         }

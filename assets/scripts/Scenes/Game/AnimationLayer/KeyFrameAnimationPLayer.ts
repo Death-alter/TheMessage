@@ -51,6 +51,22 @@ export class KeyFrameAnimationPlayer extends Component {
   }
 
   private moveNode({ node, from, to, duration = config.animationDuration }: MoveNodeParams) {
+    const f = from ? from.position || this.getLocation(from.location, from.player) : null;
+    const t = to.position || this.getLocation(to.location, to.player);
+    return KeyframeAnimationManager.playAnimation({
+      target: node,
+      animation: [
+        {
+          attribute: "worldPosition",
+          from: f,
+          to: t,
+          duration,
+        },
+      ],
+    });
+  }
+
+  private moveNodeAsync({ node, from, to, duration = config.animationDuration }: MoveNodeParams) {
     return new Promise((resolve, reject) => {
       const track = KeyframeAnimationManager.playAnimation({
         target: node,
@@ -79,6 +95,30 @@ export class KeyFrameAnimationPlayer extends Component {
     scale: Vec3;
     duration?: number;
   }) {
+    return KeyframeAnimationManager.playAnimation(
+      {
+        target: node,
+        animation: [
+          {
+            attribute: "scale",
+            to: scale,
+            duration,
+          },
+        ],
+      },
+      "mix",
+    );
+  }
+
+  private scaleNodeAsync({
+    node,
+    scale,
+    duration = config.animationDuration,
+  }: {
+    node: Node;
+    scale: Vec3;
+    duration?: number;
+  }) {
     return new Promise((resolve, reject) => {
       const track = KeyframeAnimationManager.playAnimation(
         {
@@ -94,7 +134,7 @@ export class KeyFrameAnimationPlayer extends Component {
             resolve(track);
           },
         },
-        "mix"
+        "mix",
       );
       if (!track) reject(new Error("对象不存在"));
     });
@@ -103,7 +143,7 @@ export class KeyFrameAnimationPlayer extends Component {
   private addCard(card: Card, loaction?: ActionLocation): Node;
   private addCard(cards: Card[], loaction?: ActionLocation): Node;
   private addCard(card: Card | Card[], loaction?: ActionLocation): Node {
-    let node;
+    let node: Node;
     const obj: any = {};
     if (card instanceof Array) {
       const cardGroup = new DataContainer<Card>();
@@ -111,6 +151,8 @@ export class KeyFrameAnimationPlayer extends Component {
       for (let c of card) {
         if (!c?.gameObject?.node) {
           c.gameObject = GamePools.cardPool.get();
+        } else {
+          c.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
         cardGroup.addData(c);
@@ -118,8 +160,10 @@ export class KeyFrameAnimationPlayer extends Component {
       node = cardGroup.gameObject.node;
       obj.data = cardGroup;
     } else {
-      if (!(card.gameObject && card.gameObject.node)) {
+      if (!card?.gameObject?.node) {
         card.gameObject = GamePools.cardPool.get();
+      } else {
+        card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
       card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
       node = card.gameObject.node;
@@ -202,7 +246,7 @@ export class KeyFrameAnimationPlayer extends Component {
     const card = data.card || data.cards;
     return new Promise((resolve, reject) => {
       const node = this.addCard(<Card>card, from);
-      this.moveNode({
+      this.moveNodeAsync({
         node,
         from,
         to: { location: CardActionLocation.PLAYER_HAND_CARD, player },
@@ -228,38 +272,35 @@ export class KeyFrameAnimationPlayer extends Component {
   addCardToMessageZone(data: { player: Player; card?: Card; cards?: Card[]; from?: ActionLocation }) {
     const { player, from } = data;
     const card = data.card || data.cards;
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const node = this.addCard(<Card>card, from);
+      if (!from.player || from.player !== player) {
+        await this.moveNodeAsync({
+          node,
+          from,
+          to: { location: CardActionLocation.PLAYER, player },
+        });
+      }
       this.moveNode({
         node,
-        from,
-        to: { location: CardActionLocation.PLAYER, player },
-      }).then(() => {
-        this.moveNode({
-          node,
-          to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-        });
-        this.scaleNode({
-          node,
-          scale: new Vec3(0, 0, 1),
-        }).then(() => {
-          this.removeCardNode(node);
-          resolve(null);
-        });
+        to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+      });
+      this.scaleNode({
+        node,
+        scale: new Vec3(0, 0, 1),
+      }).on("complete", () => {
+        this.removeCardNode(node);
+        resolve(null);
       });
     });
   }
 
   moveCard({ card, from, to }: { card: Card; from?: ActionLocation; to: ActionLocation }) {
-    return new Promise((resolve, reject) => {
-      const node = this.addCard(<Card>card, from);
-      this.moveNode({
-        node,
-        from,
-        to,
-      }).then(() => {
-        resolve(null);
-      });
+    const node = this.addCard(<Card>card, from);
+    return this.moveNodeAsync({
+      node,
+      from,
+      to,
     });
   }
 
@@ -275,29 +316,15 @@ export class KeyFrameAnimationPlayer extends Component {
   //弃牌动画
   discardCards({ player, cardList }: GameEventType.PlayerDiscardCard) {
     return new Promise((resolve, reject) => {
-      if (player.id === 0) {
-        cardList.forEach((card) => {
-          card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-          const node = this.addCard(card);
-          this.moveNode({
-            node,
-            from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
-            to: { location: CardActionLocation.DISCARD_PILE },
-          }).then(() => {
-            this.removeCardNode(node);
-            resolve(null);
-          });
-        });
-      } else {
-        const node = this.addCard(cardList, { location: CardActionLocation.PLAYER_HAND_CARD, player });
-        this.moveNode({
-          node,
-          to: { location: CardActionLocation.DISCARD_PILE },
-        }).then(() => {
-          this.removeCardNode(node);
-          resolve(null);
-        });
-      }
+      const node = this.addCard(cardList, { location: CardActionLocation.PLAYER_HAND_CARD, player });
+      this.moveNodeAsync({
+        node,
+        from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
+        to: { location: CardActionLocation.DISCARD_PILE },
+      }).then(() => {
+        this.removeCardNode(node);
+        resolve(null);
+      });
     });
   }
 
@@ -336,39 +363,22 @@ export class KeyFrameAnimationPlayer extends Component {
   }
 
   playerSendMessage({ player, message, targetPlayer }: GameEventType.PlayerSendMessage) {
-    return new Promise(async (resolve, reject) => {
-      if (!message.gameObject) {
-        message.gameObject = GamePools.cardPool.get();
-      }
-      if (player.id === 0) {
-        message.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      } else {
-        message.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
-      }
-
-      const node = this.addCard(message, { location: CardActionLocation.PLAYER, player });
-      this.transmissionMessageObject = message.gameObject;
-      this.moveNode({
-        node,
-        to: { location: CardActionLocation.PLAYER, player: targetPlayer },
-      }).then(() => {
-        resolve(null);
-      });
+    const node = this.addCard(message, { location: CardActionLocation.PLAYER, player });
+    this.transmissionMessageObject = message.gameObject;
+    return this.moveNode({
+      node,
+      to: { location: CardActionLocation.PLAYER, player: targetPlayer },
     });
   }
 
   //传递情报动画
   transmitMessage({ messagePlayer, message }: GameEventType.MessageTransmission) {
-    return new Promise((resolve, reject) => {
-      if (!message.gameObject) {
-        message.gameObject = this.transmissionMessageObject;
-      }
-      this.moveNode({
-        node: message.gameObject.node,
-        to: { location: CardActionLocation.PLAYER, player: messagePlayer },
-      }).then(() => {
-        resolve(null);
-      });
+    if (!message.gameObject) {
+      message.gameObject = this.transmissionMessageObject;
+    }
+    return this.moveNode({
+      node: message.gameObject.node,
+      to: { location: CardActionLocation.PLAYER, player: messagePlayer },
     });
   }
 
@@ -396,38 +406,25 @@ export class KeyFrameAnimationPlayer extends Component {
 
   //接收情报动画
   receiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!message.gameObject) {
         message.gameObject = this.transmissionMessageObject;
       }
       if (message.status === CardStatus.FACE_DOWN) {
         message.status = CardStatus.FACE_UP;
-        this.turnOverMessage(message).then(() => {
-          this.moveNode({
-            node: message?.gameObject?.node,
-            to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-          });
-          this.scaleNode({
-            node: message.gameObject.node,
-            scale: new Vec3(0, 0, 1),
-          }).then(() => {
-            this.removeCardNode(message.gameObject.node);
-            resolve(null);
-          });
-        });
-      } else {
-        this.moveNode({
-          node: message.gameObject.node,
-          to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
-        });
-        this.scaleNode({
-          node: message.gameObject.node,
-          scale: new Vec3(0, 0, 1),
-        }).then(() => {
-          this.removeCardNode(message.gameObject.node);
-          resolve(null);
-        });
+        await this.turnOverMessage(message);
       }
+      this.moveNode({
+        node: message?.gameObject?.node,
+        to: { location: CardActionLocation.PLAYER_MESSAGE_ZONE, player },
+      });
+      this.scaleNode({
+        node: message.gameObject.node,
+        scale: new Vec3(0, 0, 1),
+      }).on("complete", () => {
+        this.removeCardNode(message.gameObject.node);
+        resolve(null);
+      });
     });
   }
 
@@ -549,13 +546,15 @@ export class KeyFrameAnimationPlayer extends Component {
         message.status = CardStatus.FACE_UP;
         await this.turnOverMessage(message);
       }
-      await this.moveNode({
+      const track = this.moveNode({
         node: message.gameObject.node,
         to: { location: CardActionLocation.DISCARD_PILE },
-        duration: config.animationDuration * 0.5,
+        duration: config.animationDuration,
       });
-      this.removeCardNode(message.gameObject.node);
-      resolve(null);
+      track.on("complete", () => {
+        this.removeCardNode(message.gameObject.node);
+        resolve(null);
+      });
     });
   }
 
@@ -565,13 +564,11 @@ export class KeyFrameAnimationPlayer extends Component {
         this.addCard(message, { location: CardActionLocation.DECK });
       }
       this.transmissionMessageObject = message.gameObject;
-      const worldPosition = this.getLocation(CardActionLocation.PLAYER, messagePlayer);
       await this.discardMessage(oldMessage);
-      message.status = CardStatus.FACE_UP;
       await this.turnOverMessage(message);
       await this.moveNode({
         node: this.transmissionMessageObject.node,
-        to: { position: worldPosition },
+        to: { location: CardActionLocation.PLAYER, player: messagePlayer },
         duration: config.animationDuration,
       });
       resolve(null);
@@ -581,7 +578,7 @@ export class KeyFrameAnimationPlayer extends Component {
   removeMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
     return new Promise((resolve, reject) => {
       const node = this.addCard(messageList, { location: CardActionLocation.PLAYER, player });
-      this.moveNode({
+      this.moveNodeAsync({
         node,
         to: { location: CardActionLocation.DISCARD_PILE },
       }).then(() => {

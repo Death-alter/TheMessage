@@ -1,5 +1,5 @@
 import { Card } from "../../../Components/Card/Card";
-import { CardDefaultOption, CardOnEffectParams, CardType } from "../type";
+import { CardDefaultOption, CardOnEffectParams, CardStatus, CardType } from "../type";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
@@ -56,6 +56,7 @@ export class DiaoBao extends Card {
   }
 
   onFinish(gui: GameManager) {
+    this.status = CardStatus.FACE_DOWN;
     GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
       message: gui.data.messageInTransmit,
       oldMessage: this.messageToReplaced,

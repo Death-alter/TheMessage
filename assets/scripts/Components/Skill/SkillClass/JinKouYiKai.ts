@@ -10,6 +10,7 @@ import { Player } from "../../../Components/Player/Player";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
+import { CardStatus } from "../../Card/type";
 
 export class JinKouYiKai extends ActiveSkill {
   private usageCount: number = 0;
@@ -36,14 +37,14 @@ export class JinKouYiKai extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIN_KOU_YI_KAI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.FIGHT_PHASE_END, this.resetUsageCount, this);
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
@@ -149,6 +150,7 @@ export class JinKouYiKai extends ActiveSkill {
       const card = this.topCard || gameData.createCard();
       const oldMessage = gameData.messageInTransmit;
       gameData.messageInTransmit = card;
+      card.status = CardStatus.FACE_DOWN;
       GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
         message: card,
         oldMessage,
