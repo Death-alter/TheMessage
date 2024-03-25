@@ -15,7 +15,8 @@
   "scripts": {
     "build:electron": "electron-builder",
     "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js",
-    "build:proto-ts": "npx protoc --ts_out ./assets/protobuf --proto_path ./assets/network ./assets/network/common.proto ./assets/network/fengsheng.proto ./assets/network/role.proto"
+    "build:proto-ts": "npx protoc --ts_out ./assets/protobuf --proto_path ./assets/network ./assets/network/common.proto ./assets/network/fengsheng.proto ./assets/network/role.proto",
+    "lint": "eslint --ext .ts scripts"
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.9.1",
@@ -26,8 +27,8 @@
     "electron-builder": "^24.4.0",
     "eslint": "^8.57.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "pre-commit": "^1.2.2",
     "protobufjs-cli": "^1.1.1"
   },
   "build": {
@@ -48,5 +49,16 @@
       "category": "public.app-category.games",
       "icon": "./icon.jpg"
     }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "assets/scripts/**/*.{ts}": [
+      "assets/eslint --fix",
+      "git add"
+    ]
   }
 }

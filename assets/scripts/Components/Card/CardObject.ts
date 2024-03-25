@@ -22,7 +22,7 @@ import { MiLing } from "./CardClass/MiLing";
 import { Identity } from "../Identity/Identity";
 import { GameManager } from "../../Manager/GameManager";
 import { getCardTypeText } from "./index";
-import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyFrameAnimation";
+import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 

@@ -1,5 +1,5 @@
 import { _decorator, animation, Component, instantiate, Node, Prefab, UITransform, Vec2, Vec3 } from "cc";
-import { KeyframeAnimationManager } from "./KeyFrameAnimation";
+import { KeyframeAnimationManager } from "./KeyframeAnimation";
 import { Player } from "../../../Components/Player/Player";
 import { ActionLocation, CardActionLocation, MoveNodeParams } from "../../../Manager/type";
 import { CardObject } from "../../../Components/Card/CardObject";
@@ -15,8 +15,8 @@ import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 import { UnknownCard } from "../../../Components/Card/CardClass/UnknownCard";
 const { ccclass, property } = _decorator;
 
-@ccclass("KeyFrameAnimationLayer")
-export class KeyFrameAnimationPlayer extends Component {
+@ccclass("KeyframeAnimationLayer")
+export class KeyframeAnimationPlayer extends Component {
   @property(Node)
   deckNode: Node | null = null;
   @property(Node)

@@ -1,4 +1,4 @@
-import { ECollider2DType, EventInfo, Vec2, Vec3, Vec4 } from "cc";
+import { Vec2, Vec3, Vec4 } from "cc";
 
 interface AttributeVariationOption {
   attribute: string;
@@ -426,5 +426,11 @@ export abstract class KeyframeAnimationManager {
         }
       }
     });
+  }
+
+  static reset() {
+    this.animations = {};
+    this.animationQueue = new Map<Object, KeyframeAnimationTrack<Object>[]>();
+    this.activeAnimationMap = new Map<Object, KeyframeAnimationTrack<Object>[]>();
   }
 }

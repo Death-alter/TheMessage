@@ -22,7 +22,7 @@ import { GameLog } from "../Components/GameLog/GameLog";
 import { createIdentity } from "../Components/Identity";
 import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
-import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyFrameAnimation";
+import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -98,6 +98,8 @@ export class GameManager extends GameObject<GameData> {
 
     this.gameLayer.node.active = false;
 
+    KeyframeAnimationManager.reset();
+
     //预加载卡图
     resources.preloadDir("images/cards");
     //预加载材质
@@ -160,7 +162,7 @@ export class GameManager extends GameObject<GameData> {
           () => {
             this.popupLayer.hideCardInfo();
           },
-          this
+          this,
         );
       }
 

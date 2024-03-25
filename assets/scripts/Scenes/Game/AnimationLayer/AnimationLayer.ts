@@ -8,7 +8,7 @@ import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 import { Player } from "../../../Components/Player/Player";
-import { KeyFrameAnimationPlayer } from "./KeyFrameAnimationPLayer";
+import { KeyframeAnimationPlayer } from "./KeyframeAnimationPLayer";
 
 const { ccclass, property } = _decorator;
 
@@ -22,13 +22,13 @@ export class AnimationLayer extends Component {
   animationPlayerNode: Node | null = null;
 
   public manager: GameManager;
-  public animationPlayer: KeyFrameAnimationPlayer;
+  public animationPlayer: KeyframeAnimationPlayer;
   public audioManager: AudioMgr;
 
   init(manager: GameManager) {
     this.manager = manager;
 
-    this.animationPlayer = this.animationPlayerNode.getComponent(KeyFrameAnimationPlayer);
+    this.animationPlayer = this.animationPlayerNode.getComponent(KeyframeAnimationPlayer);
     this.animationPlayer.handCardList = this.manager.data.handCardList;
     this.animationPlayer.clear();
 

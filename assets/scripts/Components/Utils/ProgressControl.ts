@@ -1,7 +1,7 @@
 import { _decorator, Component, UITransform } from "cc";
 import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
-import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyFrameAnimation";
+import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 
 @ccclass("ProgressControl")
