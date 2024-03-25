@@ -1,4 +1,5 @@
 import { _decorator, assert, AudioClip, AudioSource, Component, director, find, resources, sys } from "cc";
+import { KeyframeAnimationManager } from "../Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 
 @ccclass("Background")
@@ -23,5 +24,9 @@ export class Background extends Component {
         }
       });
     }
+  }
+
+  update(dt: number): void {
+    KeyframeAnimationManager.apf();
   }
 }

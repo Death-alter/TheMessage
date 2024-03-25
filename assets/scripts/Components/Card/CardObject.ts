@@ -6,23 +6,19 @@ import {
   Sprite,
   SpriteFrame,
   Label,
-  Vec3,
   color,
-  tween,
   UIOpacity,
   find,
   sys,
 } from "cc";
 import { CardDirection, CardStatus, CardType, CardUsableStatus } from "./type";
 import { GameObject } from "../../GameObject";
-import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
 import { ShiTan } from "./CardClass/ShiTan";
 import { MiLing } from "./CardClass/MiLing";
 import { Identity } from "../Identity/Identity";
 import { GameManager } from "../../Manager/GameManager";
 import { getCardTypeText } from "./index";
-import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 

@@ -1,4 +1,4 @@
-import { _decorator, animation, Component, instantiate, Node, Prefab, UITransform, Vec2, Vec3 } from "cc";
+import { _decorator, Component, instantiate, Node, Prefab, UITransform, Vec2, Vec3 } from "cc";
 import { KeyframeAnimationManager } from "./KeyframeAnimation";
 import { Player } from "../../../Components/Player/Player";
 import { ActionLocation, CardActionLocation, MoveNodeParams } from "../../../Manager/type";

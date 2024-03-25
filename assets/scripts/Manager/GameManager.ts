@@ -238,7 +238,7 @@ export class GameManager extends GameObject<GameData> {
     }
   }
 
-  update(dt: number): void {
-    KeyframeAnimationManager.apf();
-  }
+  // update(dt: number): void {
+  //   KeyframeAnimationManager.apf();
+  // }
 }

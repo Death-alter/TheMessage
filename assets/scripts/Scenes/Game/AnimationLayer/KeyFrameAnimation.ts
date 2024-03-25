@@ -99,11 +99,19 @@ class KeyframeAnimationTrack<T extends object> {
     if (typeof onCancel === "function") this.events.cancel.push(onCancel);
   }
 
+  /**
+   * 开始当前track，该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。
+   */
   start() {
     this._startTime = new Date().getTime();
     this.timeLineIndex = 0;
   }
 
+  /**
+   * 停止当前track，该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。要停止该track请使用KeyframeAnimationManager.stopAnimation()
+   * @param {boolean} [skip=true] 是否跳当前动画的剩余部分，直接跳到结束位置
+   * @returns
+   */
   stop(skip: boolean = true) {
     if (this.timeLineIndex < 0) return;
     if (skip) {
@@ -120,7 +128,18 @@ class KeyframeAnimationTrack<T extends object> {
     this.timeLineIndex = -1;
   }
 
-  on(time: number, callback: () => void); //单位s
+  /**
+   * 注册一个动画事件
+   * @param {number} time 触发事件的时间，从动画播放开始计算（单位：秒）
+   * @param {Function} callback 回调函数
+   */
+  on(time: number, callback: () => void);
+
+  /**
+   * 注册一个动画事件
+   * @param {AnimationTrackEvent} eventName 事件名称
+   * @param {Function} callback 回调函数
+   */
   on(eventName: AnimationTrackEvent, callback: () => void);
   on(event: number | AnimationTrackEvent, callback: () => void) {
     if (typeof event === "string") {
@@ -148,6 +167,10 @@ class KeyframeAnimationTrack<T extends object> {
     return this;
   }
 
+  /**
+   * 手动触发一个动画事件
+   * @param {string} eventName 要触发的事件名
+   */
   trigger(eventName: AnimationTrackEvent) {
     if (this.events[eventName] && this.events[eventName].length > 0) {
       for (const func of this.events[eventName]) {
@@ -292,6 +315,16 @@ export abstract class KeyframeAnimationManager {
     return this.animations[name];
   }
 
+  /**
+   * 播放一个KeyframeAnimation动画
+   * @param {Object} option 动画选项
+   * @param {object} option.target 执行动画的对象，必须是js的object类型
+   * @param {KeyframeAnimation} option.animation KeyframeAnimation动画对象
+   * @param {Function} [option.onComplete] 动画执行完成的回调
+   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {string} action 动画添加方式
+   * @returns 返回根据传入参数生成的KeyframeAnimationTrack
+   */
   static playAnimation(
     option: {
       target: object;
@@ -301,6 +334,17 @@ export abstract class KeyframeAnimationManager {
     },
     action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
+
+  /**
+   * 创建并播放一个KeyframeAnimation动画
+   * @param {Object} option 动画选项
+   * @param {object} option.target 执行动画的对象，必须是js的object类型
+   * @param {(AttributeNumberVariationOption | AttributeVertexVariationOption)[]} option.animation 动画关键帧数组
+   * @param {Function} [option.onComplete] 动画执行完成的回调
+   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {string} action 动画添加方式
+   * @returns 返回根据传入参数生成的KeyframeAnimationTrack
+   */
   static playAnimation(
     option: {
       target: object;
@@ -310,6 +354,17 @@ export abstract class KeyframeAnimationManager {
     },
     action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
+
+  /**
+   * 播放一个已经注册过的动画
+   * @param {Object} option 动画选项
+   * @param {Object} option.target 执行动画的对象，必须是js的object类型
+   * @param {string} option.animation 已经注册过的动画名称
+   * @param {Function} [option.onComplete] 动画执行完成的回调
+   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {string} action 动画添加方式
+   * @returns 返回根据传入参数生成的KeyframeAnimationTrack
+   */
   static playAnimation(
     option: {
       target: object;
@@ -374,9 +429,19 @@ export abstract class KeyframeAnimationManager {
     return track;
   }
 
-  static stopAnimation(track: KeyframeAnimationTrack<object>, skip?: boolean);
-  static stopAnimation(target: object, skip?: boolean);
-  static stopAnimation(object: object | KeyframeAnimationTrack<object>, skip: boolean = true) {
+  /**
+   * 结束一个KeyframeAnimation动画
+   * @param {KeyframeAnimationTrack} track KeyframeAnimationTrack对象
+   * @param {boolean} [skip=true] 是否跳当前动画的剩余部分，直接跳到结束位置
+   */
+  static stopAnimation(track: KeyframeAnimationTrack<object>, skip?: boolean): void;
+  /**
+   * 结束一个target所有正在播放的动画，继续播放队列中其他的动画
+   * @param {Object} target 正在执行动画的target
+   * @param {boolean} [skip=true] 是否跳当前动画的剩余部分，直接跳到结束位置
+   */
+  static stopAnimation(target: object, skip?: boolean): void;
+  static stopAnimation(object: object | KeyframeAnimationTrack<object>, skip: boolean = true): void {
     if (object instanceof KeyframeAnimationTrack) {
       //删除一个track
       object.trigger("cancel");
@@ -403,6 +468,9 @@ export abstract class KeyframeAnimationManager {
     }
   }
 
+  /**
+   * 每帧需要执行的动画
+   */
   static apf() {
     const time = new Date().getTime();
     this.activeAnimationMap.forEach((tracks, target) => {

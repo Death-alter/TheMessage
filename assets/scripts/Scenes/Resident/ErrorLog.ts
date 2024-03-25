@@ -1,6 +1,7 @@
-import { _decorator, Component, Label, Graphics, tween, UIOpacity, Node, UITransform, Size, Tween } from "cc";
+import { _decorator, Component, Label, Graphics, UIOpacity, Node, UITransform, Size } from "cc";
 import { NetworkEventCenter, ProcessEventCenter } from "../../Event/EventTarget";
 import { NetworkEventToC, ProcessEvent } from "../../Event/type";
+import { KeyframeAnimationManager } from "../Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 
 @ccclass("ErrorLog")
@@ -8,12 +9,12 @@ export class ErrorLog extends Component {
   private _mask: Node | null = null;
   private _label: Node | null = null;
   private _opacityTarget: UIOpacity | null = null;
-  private _action: Tween<any> = null;
 
   start() {
     this._label = this.node.getChildByName("Label");
     this._mask = this.node.getChildByName("Mask");
     this._opacityTarget = this.getComponent(UIOpacity);
+    this._opacityTarget.opacity = 0;
 
     ProcessEventCenter.on(ProcessEvent.NETWORK_ERROR, (data) => {
       const labelComp = this._label.getComponent(Label);
@@ -33,20 +34,31 @@ export class ErrorLog extends Component {
       this.drawMask(width, 40, 5);
       this.show();
     });
-
-    tween(this._opacityTarget).hide().start();
   }
 
   show(seconds = 2) {
-    if (this._action !== null) this._action.stop();
-    this.node.setSiblingIndex(-1);
-    this._opacityTarget.opacity = 0;
-    this._action = tween(this._opacityTarget)
-      .show()
-      .to(0.5, { opacity: 255 }, { easing: "fade" })
-      .delay(seconds)
-      .to(0.5, { opacity: 0 }, { easing: "fade" })
-      .start();
+    KeyframeAnimationManager.playAnimation(
+      {
+        target: this._opacityTarget,
+        animation: [
+          {
+            attribute: "opacity",
+            from: 0,
+            to: 255,
+            duration: 0.5,
+          },
+          {
+            attribute: "opacity",
+            to: 0,
+            startTime: seconds + 0.5,
+            duration: 0.5,
+          },
+        ],
+      },
+      "clear",
+    ).on(0, () => {
+      this.node.setSiblingIndex(-1);
+    });
   }
 
   drawMask(width, height, radius) {

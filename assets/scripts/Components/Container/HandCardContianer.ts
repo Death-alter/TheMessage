@@ -1,4 +1,4 @@
-import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node, tween } from "cc";
+import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node } from "cc";
 import { CardObject } from "../Card/CardObject";
 import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
@@ -8,6 +8,7 @@ import { HandCardList } from "./HandCardList";
 import GamePools from "../Pool/GamePools";
 import { OuterGlow } from "../Utils/OuterGlow";
 import { CardUsableStatus } from "../Card/type";
+import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -49,7 +50,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         (event) => {
           this.selectCard(<Card>card);
         },
-        this
+        this,
       );
     }
     this.refresh();
@@ -63,7 +64,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
         if (card.gameObject.usableStatus !== CardUsableStatus.USABLE) return;
         this.selectCard(card);
       },
-      this
+      this,
     );
     if (this.filter) card.gameObject.usableStatus = this.filter(card);
     this.scheduleOnce(this.refresh, 0);
@@ -104,9 +105,16 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
           data.list[i].gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
-          tween(node)
-            .to(0.5, { position: new Vec3(x, node.position.y, 0) })
-            .start();
+          KeyframeAnimationManager.playAnimation({
+            target: node,
+            animation: [
+              {
+                attribute: "position",
+                to: new Vec3(x, node.position.y, 0),
+                duration: 0.5,
+              },
+            ],
+          });
         }
       }
     } else {
@@ -122,9 +130,16 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
           data.list[i].gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
-          tween(node)
-            .to(0.5, { position: new Vec3(x, node.position.y, 0) })
-            .start();
+          KeyframeAnimationManager.playAnimation({
+            target: node,
+            animation: [
+              {
+                attribute: "position",
+                to: new Vec3(x, node.position.y, 0),
+                duration: 0.5,
+              },
+            ],
+          });
         }
       }
     }
