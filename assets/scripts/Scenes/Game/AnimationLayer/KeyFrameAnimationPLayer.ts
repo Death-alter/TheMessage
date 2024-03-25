@@ -15,7 +15,7 @@ import { OuterGlow } from "../../../Components/Utils/OuterGlow";
 import { UnknownCard } from "../../../Components/Card/CardClass/UnknownCard";
 const { ccclass, property } = _decorator;
 
-@ccclass("KeyframeAnimationLayer")
+@ccclass("KeyframeAnimationPlayer")
 export class KeyframeAnimationPlayer extends Component {
   @property(Node)
   deckNode: Node | null = null;

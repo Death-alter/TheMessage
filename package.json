@@ -16,7 +16,6 @@
     "prepare": "husky",
     "build:electron": "electron-builder",
     "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js",
-    "build:proto-ts": "npx protoc --ts_out ./assets/protobuf --proto_path ./assets/network ./assets/network/common.proto ./assets/network/fengsheng.proto ./assets/network/role.proto",
     "lint": "eslint --ext .ts assets/scripts",
     "lint:fix": "eslint --ext .ts --fix assets/scripts"
   },
