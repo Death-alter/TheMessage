@@ -49,7 +49,7 @@ export class SelectCharacter extends Component {
       let text;
       if (secretTaskList.length < 7) {
         text = "本局游戏中可能出现的神秘人身份有：";
-        for (let identity of secretTaskList) {
+        for (const identity of secretTaskList) {
           text += `【<color=${identity.color}>${identity.name}</color>】`;
         }
       } else {

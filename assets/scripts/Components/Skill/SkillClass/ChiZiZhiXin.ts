@@ -143,7 +143,7 @@ export class ChiZiZhiXin extends TriggerSkill {
                   },
                   enabled: () => {
                     if (gui.selectedHandCards.list.length === 0) return false;
-                    for (let c of message.color) {
+                    for (const c of message.color) {
                       if (Card.hasColor(gui.selectedHandCards.list[0], c)) {
                         return true;
                       }

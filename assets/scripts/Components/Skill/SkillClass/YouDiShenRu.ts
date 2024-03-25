@@ -70,7 +70,7 @@ export class YouDiShenRu extends ActiveSkill {
                 gui.uiLayer.doSendMessage({ message: sendCard });
                 PlayerAction.onComplete((data) => {
                   let d: any = {};
-                  for (let item of data) {
+                  for (const item of data) {
                     d = { ...d, ...item };
                   }
                   NetworkEventCenter.emit(NetworkEventToS.SKILL_YOU_DI_SHEN_RU_TOS, {

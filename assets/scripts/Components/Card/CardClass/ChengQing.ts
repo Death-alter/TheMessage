@@ -31,7 +31,7 @@ export class ChengQing extends Card {
   }
 
   canPlay(gui: GameManager) {
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       if (player.messageCounts[CardColor.BLACK] > 0) {
         return true;
       }

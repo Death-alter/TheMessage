@@ -77,7 +77,7 @@ export class HouZiQieXin extends ActiveSkill {
             const { playerId, message }: { playerId: number; message: Card } = current;
             const player = gui.data.playerList[playerId];
             const messages = player.getMessagesCopy();
-            for (let m of messages) {
+            for (const m of messages) {
               if (m.id === message.id && m.color.length === card.color.length) {
                 if (m.color.every((color, index) => color === card.color[index])) {
                   return CardUsableStatus.USABLE;

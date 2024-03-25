@@ -127,7 +127,7 @@ export class UILayer extends Component {
         identityNode.on(
           Node.EventType.MOUSE_MOVE,
           characterInfoWindowComponent.setPosition,
-          characterInfoWindowComponent
+          characterInfoWindowComponent,
         );
         identityNode.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
           this.manager.popupLayer.characterInfoWindow.active = false;
@@ -372,7 +372,7 @@ export class UILayer extends Component {
             (<TriggerSkill>data.params.skill).onTrigger(this.manager, data.params);
           } else {
             const player = this.manager.data.playerList[data.playerId];
-            for (let skill of player.character.skills) {
+            for (const skill of player.character.skills) {
               if (skill instanceof TriggerSkill || "onTrigger" in skill) {
                 (<TriggerSkill>skill).onTrigger(this.manager, data.params);
               }
@@ -384,7 +384,7 @@ export class UILayer extends Component {
     }
 
     if (data.type === WaitingType.PLAYER_DYING) {
-      for (let player of this.manager.data.playerList) {
+      for (const player of this.manager.data.playerList) {
         if (player.id === data.params.diePlayerId) {
           player.gameObject.showInnerGlow("#FF000080");
         } else {
@@ -490,7 +490,7 @@ export class UILayer extends Component {
           return false;
         }
       } else {
-        for (let color of mustSendColor.color) {
+        for (const color of mustSendColor.color) {
           if (Card.hasColor(card, color)) {
             return true;
           }
@@ -508,7 +508,7 @@ export class UILayer extends Component {
           return true;
         }
       } else {
-        for (let color of cannotSendColor.color) {
+        for (const color of cannotSendColor.color) {
           if (Card.hasColor(card, color)) {
             return false;
           }
@@ -677,7 +677,7 @@ export class UILayer extends Component {
     }
     PlayerAction.onComplete((data) => {
       let d: any = {};
-      for (let item of data) {
+      for (const item of data) {
         d = { ...d, ...item };
       }
       NetworkEventCenter.emit(NetworkEventToS.SEND_MESSAGE_CARD_TOS, {

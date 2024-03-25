@@ -109,12 +109,12 @@ export class QiangLing extends TriggerSkill {
 
     const cards = types.map((type) => gameData.createCardByType(<number>type));
 
-    for (let player of gameData.playerList) {
+    for (const player of gameData.playerList) {
       player.banCardByType(<number[]>types);
     }
 
     let str = `${gameLog.formatPlayer(player)}宣言`;
-    for (let card of cards) {
+    for (const card of cards) {
       str += gameLog.formatCard(card);
     }
     gameLog.addData(new GameLog(str));

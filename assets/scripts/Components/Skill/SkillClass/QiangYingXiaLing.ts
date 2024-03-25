@@ -5,8 +5,6 @@ import { Player } from "../../Player/Player";
 import { TagName } from "../../../type";
 
 export class QiangYingXiaLing extends PassiveSkill {
-  doSendMessage: Function;
-
   constructor(character: Character) {
     super({
       name: "强硬下令",

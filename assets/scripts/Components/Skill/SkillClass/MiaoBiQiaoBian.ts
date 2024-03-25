@@ -51,7 +51,7 @@ export class MiaoBiQiaoBian extends ActiveSkill {
   }
 
   canUse(gui: GameManager): boolean {
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       if (player.messageCounts.total > 0) {
         return true;
       }

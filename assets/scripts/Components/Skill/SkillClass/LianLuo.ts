@@ -10,8 +10,6 @@ import { GameManager } from "../../../Manager/GameManager";
 import { TagName } from "../../../type";
 
 export class LianLuo extends PassiveSkill {
-  doSendMessage: Function;
-
   constructor(character: Character) {
     super({
       name: "联络",

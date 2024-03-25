@@ -148,7 +148,7 @@ export class KeyframeAnimationPlayer extends Component {
     if (card instanceof Array) {
       const cardGroup = new DataContainer<Card>();
       cardGroup.gameObject = GamePools.cardGroupPool.get();
-      for (let c of card) {
+      for (const c of card) {
         if (!c?.gameObject?.node) {
           c.gameObject = GamePools.cardPool.get();
         } else {
@@ -184,7 +184,7 @@ export class KeyframeAnimationPlayer extends Component {
       GamePools.cardPool.put(node.getComponent(CardObject));
     } else {
       const data = node.getComponent(CardGroupObject).data;
-      for (let card of data.list) {
+      for (const card of data.list) {
         GamePools.cardPool.put(card.gameObject);
         card.gameObject = null;
       }
@@ -253,7 +253,7 @@ export class KeyframeAnimationPlayer extends Component {
       }).then(() => {
         if (player.id === 0) {
           if (card instanceof Array) {
-            for (let c of card) {
+            for (const c of card) {
               this.handCardList.addData(c);
             }
           } else {

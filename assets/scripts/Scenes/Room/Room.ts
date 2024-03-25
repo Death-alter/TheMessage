@@ -125,7 +125,7 @@ export class PlayerList extends Component {
 
   private setGameStartCountDown() {
     if (this.timer) return;
-    for (let item of this.playerList) {
+    for (const item of this.playerList) {
       if (!item || !item.userName) return;
     }
     const countDownText = this.countDownNode.getComponent(Label);

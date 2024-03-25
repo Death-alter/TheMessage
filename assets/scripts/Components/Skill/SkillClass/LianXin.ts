@@ -115,7 +115,7 @@ export class LianXin extends TriggerSkill {
       data: {
         filter: (card: Card) => {
           let flag = false;
-          for (let c of message.color) {
+          for (const c of message.color) {
             if (Card.hasColor(card, c)) {
               flag = true;
               break;

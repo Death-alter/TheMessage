@@ -100,7 +100,7 @@ export class GameLayer extends Component {
         (event) => {
           this.selectPlayer(player);
         },
-        this
+        this,
       );
 
       //角色信息展示
@@ -176,14 +176,14 @@ export class GameLayer extends Component {
   }
 
   onUnknownWaiting(second) {
-    for (let playerObject of this.playerObjectList)
+    for (const playerObject of this.playerObjectList)
       if (playerObject.data.id !== 0) {
         playerObject.startCountDown(second);
       }
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {
-    for (let player of this.manager.data.playerList) {
+    for (const player of this.manager.data.playerList) {
       if (player === data.turnPlayer) {
         player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
         player.gameObject.showInnerGlow("#00FF0080");
@@ -253,7 +253,7 @@ export class GameLayer extends Component {
   }
 
   refreshPlayerSelectedState() {
-    for (let player of this.manager.data.playerList) {
+    for (const player of this.manager.data.playerList) {
       if (this.selectedPlayers.isSelected(player)) {
         player.gameObject.node.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
@@ -277,7 +277,7 @@ export class GameLayer extends Component {
     this.stopSelectPlayers();
     this.selectedPlayers.limit = num || 1;
 
-    for (let player of this.playerObjectList) {
+    for (const player of this.playerObjectList) {
       if (filter) {
         player.selectable = filter(player.data);
       }
@@ -297,7 +297,7 @@ export class GameLayer extends Component {
   }
 
   lockSelectPlayers() {
-    for (let player of this.playerObjectList) {
+    for (const player of this.playerObjectList) {
       player.selectable = true;
       player.enableSelectIdentity = true;
     }
@@ -307,7 +307,7 @@ export class GameLayer extends Component {
   }
 
   stopSelectPlayers() {
-    for (let player of this.playerObjectList) {
+    for (const player of this.playerObjectList) {
       player.selectable = true;
       player.enableSelectIdentity = true;
     }

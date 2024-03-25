@@ -176,7 +176,7 @@ export class GameManager extends GameObject<GameData> {
 
       this.startRender();
       let str = "游戏开始，本局游戏的神秘人将从以下随机：";
-      for (let task of this.data.secretTaskList) {
+      for (const task of this.data.secretTaskList) {
         str += `【${createIdentity(IdentityType.GREEN, task).name}】`;
       }
       this.gameLog.addData(new GameLog(str));
@@ -229,7 +229,7 @@ export class GameManager extends GameObject<GameData> {
 
     if (player.id === 0) {
       if (card instanceof Array) {
-        for (let c of card) {
+        for (const c of card) {
           this.data.handCardList.addData(c);
         }
       } else {

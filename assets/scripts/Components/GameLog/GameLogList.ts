@@ -44,7 +44,7 @@ export class GameLogList extends DataContainer<GameLog> {
             break;
         }
       } else {
-        for (let item of card.color) {
+        for (const item of card.color) {
           switch (item) {
             case CardColor.BLACK:
               colorStr += `黑`;
@@ -132,7 +132,7 @@ export class GameLogList extends DataContainer<GameLog> {
   onPlayerDiscardCard({ cardList, player }: GameEventType.PlayerDiscardCard) {
     let str = `${this.formatPlayer(player)}弃了`;
     if (cardList.length <= 3) {
-      for (let card of cardList) {
+      for (const card of cardList) {
         str += this.formatCard(card);
       }
     } else {

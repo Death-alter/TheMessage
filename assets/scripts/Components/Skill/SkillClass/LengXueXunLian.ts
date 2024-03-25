@@ -117,7 +117,7 @@ export class LengXueXunLian extends ActiveSkill {
                   gui.uiLayer.doSendMessage({ message: sendCard, forceLock: true });
                   PlayerAction.onComplete((data) => {
                     let d: any = {};
-                    for (let item of data) {
+                    for (const item of data) {
                       d = { ...d, ...item };
                     }
                     NetworkEventCenter.emit(NetworkEventToS.SKILL_LENG_XUE_XUN_LIAN_B_TOS, {
@@ -191,7 +191,7 @@ export class LengXueXunLian extends ActiveSkill {
       from: { location: CardActionLocation.DECK },
     });
 
-    for (let player of gameData.playerList) {
+    for (const player of gameData.playerList) {
       player.banCardByType(CardType.DIAO_BAO);
     }
 

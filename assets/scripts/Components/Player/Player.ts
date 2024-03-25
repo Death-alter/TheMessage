@@ -70,8 +70,8 @@ export class Player extends DataBasic<PlayerObject> {
       [CardColor.RED]: 0,
       [CardColor.BLUE]: 0,
     };
-    for (let message of this._messages) {
-      for (let color of message.color) {
+    for (const message of this._messages) {
+      for (const color of message.color) {
         ++data[color];
       }
     }
@@ -190,7 +190,7 @@ export class Player extends DataBasic<PlayerObject> {
       return message;
     } else {
       const arr = [];
-      for (let messageId of messageIds) {
+      for (const messageId of messageIds) {
         for (let i = 0; i < this._messages.length; i++) {
           if (messageId === this._messages[i].id) {
             arr.push(this._messages.splice(i, 1)[0]);
@@ -222,7 +222,7 @@ export class Player extends DataBasic<PlayerObject> {
     if (identity instanceof Identity) {
       this._identityList = [identity];
     } else {
-      for (let item of this._identityList) {
+      for (const item of this._identityList) {
         if (item.type === identity) {
           this._identityList = [item];
         }
@@ -256,7 +256,7 @@ export class Player extends DataBasic<PlayerObject> {
 
   getMessagesCopy(): Card[] {
     const arr = [];
-    for (let message of this._messages) {
+    for (const message of this._messages) {
       arr.push(copyCard(message));
     }
     return arr;
@@ -269,15 +269,15 @@ export class Player extends DataBasic<PlayerObject> {
       card = [card];
     }
     const counts = {};
-    for (let c of card) {
-      for (let color of c.color) {
+    for (const c of card) {
+      for (const color of c.color) {
         if (!counts[color]) {
           counts[color] = 0;
         }
         ++counts[color];
       }
     }
-    for (let i in counts) {
+    for (const i in counts) {
       if (counts[i] + this.messageCounts[i] >= num) {
         return false;
       }

@@ -111,7 +111,7 @@ export class MiXin extends TriggerSkill {
   selectHandcard(gui: GameManager, params: { message: Card }) {
     const { message } = params;
     const color = [CardColor.RED, CardColor.BLUE, CardColor.BLACK];
-    for (let c of message.color) {
+    for (const c of message.color) {
       color.splice(color.indexOf(c), 1);
     }
     PlayerAction.addStep({
@@ -119,7 +119,7 @@ export class MiXin extends TriggerSkill {
       data: {
         filter: (card: Card) => {
           let flag = false;
-          for (let c of color) {
+          for (const c of color) {
             if (Card.hasColor(card, c)) {
               flag = true;
               break;

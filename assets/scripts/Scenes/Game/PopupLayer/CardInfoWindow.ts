@@ -38,7 +38,7 @@ export class CardInfoWindow extends Component {
 
     //颜色
     if (this.card.color) {
-      for (let color of this.card.color) {
+      for (const color of this.card.color) {
         switch (color) {
           case CardColor.BLACK:
             str += `<color=#FFFFFF>黑</color>`;

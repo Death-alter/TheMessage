@@ -42,7 +42,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   init() {
     this.onResize();
     this.node.removeAllChildren();
-    for (let card of this.data.list) {
+    for (const card of this.data.list) {
       this.addCardNode(<Card>card);
       card.gameObject.node.on(
         Node.EventType.TOUCH_END,
@@ -156,14 +156,14 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
 
   setHandCardsUsable(filter: (card: Card) => CardUsableStatus) {
     this.filter = filter;
-    for (let handCard of this.data.list) {
+    for (const handCard of this.data.list) {
       handCard.gameObject.usableStatus = filter(<Card>handCard);
     }
   }
 
   refreshHandCardsUseable() {
     this.filter = null;
-    for (let handCard of this.data.list) {
+    for (const handCard of this.data.list) {
       handCard.gameObject.usableStatus = CardUsableStatus.USABLE;
     }
   }

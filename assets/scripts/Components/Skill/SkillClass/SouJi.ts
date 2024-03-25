@@ -128,7 +128,7 @@ export class SouJi extends ActiveSkill {
               messageCard: false,
               seq: gui.seq,
             };
-            for (let card of showCardsWindow.selectedCards.list) {
+            for (const card of showCardsWindow.selectedCards.list) {
               if (card.id === message.id) {
                 data.messageCard = true;
               } else {
@@ -140,7 +140,7 @@ export class SouJi extends ActiveSkill {
             showCardsWindow.hide();
           },
           enabled: () => {
-            for (let card of showCardsWindow.selectedCards.list) {
+            for (const card of showCardsWindow.selectedCards.list) {
               if (!Card.hasColor(card, CardColor.BLACK)) {
                 return false;
               }

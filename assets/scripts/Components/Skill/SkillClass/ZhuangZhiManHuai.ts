@@ -129,7 +129,7 @@ export class ZhuangZhiManHuai extends TriggerSkill {
                 next();
               });
             } else {
-              let player = gui.data.playerList[current.playerId];
+              const player = gui.data.playerList[current.playerId];
               showCardsWindow.show({
                 title: "请选择一张黑色情报加入手牌",
                 limit: 1,

@@ -61,7 +61,7 @@ export class TanQiuZhenLi extends ActiveSkill {
 
   canUse(gui: GameManager): boolean {
     let total = 0;
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       if (player.id !== 0) {
         total += player.messageCounts.total;
       }
@@ -158,7 +158,7 @@ export class TanQiuZhenLi extends ActiveSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           let flag = false;
-          for (let card of [...handCards, ...messages]) {
+          for (const card of [...handCards, ...messages]) {
             if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
               flag = true;
             }

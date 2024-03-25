@@ -43,21 +43,21 @@ export class XianFaZhiRen extends ActiveSkill {
           },
         });
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_A_TOC,
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_XIAN_FA_ZHI_REN_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -69,7 +69,7 @@ export class XianFaZhiRen extends ActiveSkill {
 
   canUse(gui: GameManager): boolean {
     let total = 0;
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       total += player.messageCounts.total;
     }
     return total !== 0;
@@ -159,7 +159,7 @@ export class XianFaZhiRen extends ActiveSkill {
 
   onEffectA(
     gameData: GameData,
-    { enable, playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_xian_fa_zhi_ren_a_toc
+    { enable, playerId, targetPlayerId, cardId, waitingSecond, seq }: skill_xian_fa_zhi_ren_a_toc,
   ) {
     if (enable) {
       const player = gameData.playerList[playerId];
@@ -177,8 +177,8 @@ export class XianFaZhiRen extends ActiveSkill {
 
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(player)}弃置${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}`
-        )
+          `${gameLog.formatPlayer(player)}弃置${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(message)}`,
+        ),
       );
 
       ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {

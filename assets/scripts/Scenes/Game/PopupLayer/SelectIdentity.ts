@@ -38,7 +38,7 @@ export class SelectIdentity extends Component {
 
   show({ identityList, playerObject }: { identityList: Identity[]; playerObject: PlayerObject }) {
     let hasMysteriousPerson = false;
-    for (let identity of identityList) {
+    for (const identity of identityList) {
       if (identity instanceof MysteriousPerson) {
         hasMysteriousPerson = true;
         break;
@@ -50,13 +50,13 @@ export class SelectIdentity extends Component {
       identityList.push(new NotMysteriousPerson());
     }
     if (hasMysteriousPerson) {
-      for (let task of this.secretTaskList) {
+      for (const task of this.secretTaskList) {
         identityList.push(createIdentity(IdentityType.GREEN, task));
       }
     }
 
     this.listNode.removeAllChildren();
-    for (let identity of identityList) {
+    for (const identity of identityList) {
       const node = instantiate(this.identityPrefab);
       node.getComponent(IdentityObject).data = identity;
       node.on(NodeEventType.TOUCH_END, (event: EventTouch) => {

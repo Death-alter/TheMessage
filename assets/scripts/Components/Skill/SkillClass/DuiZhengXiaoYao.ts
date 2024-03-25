@@ -100,7 +100,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       [CardColor.RED]: 0,
       [CardColor.BLUE]: 0,
     };
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       totalCounts[CardColor.BLACK] += player.messageCounts[CardColor.BLACK];
       totalCounts[CardColor.RED] += player.messageCounts[CardColor.RED];
       totalCounts[CardColor.BLUE] += player.messageCounts[CardColor.BLUE];
@@ -125,8 +125,8 @@ export class DuiZhengXiaoYao extends ActiveSkill {
         enabled: () => {
           const list = gui.selectedHandCards.list;
           if (list.length < 2) return false;
-          for (let color0 of list[0].color) {
-            for (let color1 of list[1].color) {
+          for (const color0 of list[0].color) {
+            for (const color1 of list[1].color) {
               if (color0 === color1 && totalCounts[color0] > 0) return true;
             }
           }
@@ -167,8 +167,8 @@ export class DuiZhengXiaoYao extends ActiveSkill {
         });
       } else {
         const colorList = [];
-        for (let color0 of cardList[0].color) {
-          for (let color1 of cardList[1].color) {
+        for (const color0 of cardList[0].color) {
+          for (const color1 of cardList[1].color) {
             if (color0 === color1) colorList.push(color0);
           }
         }
@@ -232,7 +232,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
           gui.gameLayer.startSelectPlayers({
             num: 1,
             filter: (player) => {
-              for (let color of colorList) {
+              for (const color of colorList) {
                 if (player.messageCounts[color] > 0) return true;
               }
               return false;
@@ -265,7 +265,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
                   },
                   enabled: () => {
                     if (showCardsWindow.selectedCards.list.length === 0) return false;
-                    for (let color of showCardsWindow.selectedCards.list[0].color) {
+                    for (const color of showCardsWindow.selectedCards.list[0].color) {
                       if (colorList.indexOf(color) !== -1) {
                         return true;
                       }

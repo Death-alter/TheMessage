@@ -120,7 +120,7 @@ export class SelectCardsWindow extends Component {
   }
 
   refresh() {
-    for (let card of this.cardList.list) {
+    for (const card of this.cardList.list) {
       if (this.selectedCards.isSelected(card)) {
         card.gameObject?.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {

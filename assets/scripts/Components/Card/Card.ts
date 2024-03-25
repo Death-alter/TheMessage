@@ -102,7 +102,7 @@ export abstract class Card extends DataBasic<CardObject> {
     if (card instanceof Card) {
       return card.color.indexOf(color) !== -1;
     } else {
-      for (let c of card) {
+      for (const c of card) {
         if (c.color.indexOf(color) !== -1) {
           return true;
         }

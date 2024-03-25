@@ -13,13 +13,13 @@ export class NetworkManager extends Component {
 
     this.createConnection();
 
-    for (let eventName in NetworkEventToC) {
+    for (const eventName in NetworkEventToC) {
       ws.on(NetworkEventToC[eventName], (data) => {
         NetworkEventCenter.emit(NetworkEventToC[eventName], data);
       });
     }
 
-    for (let eventName in NetworkEventToS) {
+    for (const eventName in NetworkEventToS) {
       NetworkEventCenter.on(NetworkEventToS[eventName], (data) => {
         if (ws.connected) {
           ws.send(NetworkEventToS[eventName], data);

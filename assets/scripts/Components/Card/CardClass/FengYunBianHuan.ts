@@ -39,7 +39,7 @@ export class FengYunBianHuan extends Card {
 
   onShowCards(gameData: GameData, { cards }: CardOnEffectParams) {
     this.cardList = [];
-    for (let card of cards) {
+    for (const card of cards) {
       this.cardList.push(gameData.createCard(card, CardStatus.FACE_UP));
     }
   }
@@ -81,7 +81,7 @@ export class FengYunBianHuan extends Card {
               const messages = player.getMessagesCopy();
               //flag为情报区是否有同色情报
               let flag = false;
-              for (let color of card.color) {
+              for (const color of card.color) {
                 if (Card.hasColor(messages, color)) {
                   flag = true;
                   break;

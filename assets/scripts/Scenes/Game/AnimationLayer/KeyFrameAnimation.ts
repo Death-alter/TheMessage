@@ -53,7 +53,7 @@ export class KeyframeAnimation {
 
   constructor(variations?: AttributeVariation[]) {
     if (variations) {
-      for (let variation of variations) {
+      for (const variation of variations) {
         this.addVariation(variation);
       }
     }
@@ -67,7 +67,7 @@ export class KeyframeAnimation {
 }
 
 //绑定节点和动画
-class KeyframeAnimationTrack<T extends Object> {
+class KeyframeAnimationTrack<T extends object> {
   private _target: T;
   private _animation: KeyframeAnimation;
   private _duration: number;
@@ -108,11 +108,11 @@ class KeyframeAnimationTrack<T extends Object> {
     if (this.timeLineIndex < 0) return;
     if (skip) {
       for (let i = this.timeLineIndex; i < this.timeLine.length; i++) {
-        for (let func of this.timeLine[i].events) {
+        for (const func of this.timeLine[i].events) {
           func();
         }
       }
-      for (let variation of this._animation.variations) {
+      for (const variation of this._animation.variations) {
         this.setAttribute(variation, variation.to);
       }
     }
@@ -127,7 +127,7 @@ class KeyframeAnimationTrack<T extends Object> {
       if (!this.events[event]) this.events[event] = [];
       this.events[event].push(callback);
     } else {
-      let time = event * 1000;
+      const time = event * 1000;
       if (this._duration < time) this._duration = time;
       if (this.timeLine.length === 0) {
         this.timeLine.push({ time, events: [callback] });
@@ -150,7 +150,7 @@ class KeyframeAnimationTrack<T extends Object> {
 
   trigger(eventName: AnimationTrackEvent) {
     if (this.events[eventName] && this.events[eventName].length > 0) {
-      for (let func of this.events[eventName]) {
+      for (const func of this.events[eventName]) {
         func();
       }
     }
@@ -161,7 +161,7 @@ class KeyframeAnimationTrack<T extends Object> {
     time -= this._startTime;
     if (this.timeLineIndex < this.timeLine.length) {
       while (this.timeLine[this.timeLineIndex] && time >= this.timeLine[this.timeLineIndex].time) {
-        for (let func of this.timeLine[this.timeLineIndex].events) {
+        for (const func of this.timeLine[this.timeLineIndex].events) {
           func();
         }
         ++this.timeLineIndex;
@@ -250,10 +250,10 @@ class KeyframeAnimationTrack<T extends Object> {
 //管理所有动画
 export abstract class KeyframeAnimationManager {
   private static animations: { [index: string]: KeyframeAnimation } = {};
-  private static animationQueue = new Map<Object, KeyframeAnimationTrack<Object>[]>();
-  private static activeAnimationMap = new Map<Object, KeyframeAnimationTrack<Object>[]>();
+  private static animationQueue = new Map<object, KeyframeAnimationTrack<object>[]>();
+  private static activeAnimationMap = new Map<object, KeyframeAnimationTrack<object>[]>();
 
-  private static enQueue(target: Object, track: KeyframeAnimationTrack<Object>) {
+  private static enQueue(target: object, track: KeyframeAnimationTrack<object>) {
     if (!this.animationQueue.has(target)) {
       this.animationQueue.set(target, []);
     }
@@ -261,7 +261,7 @@ export abstract class KeyframeAnimationManager {
     queue.push(track);
   }
 
-  private static deQueue(target: Object) {
+  private static deQueue(target: object) {
     if (!this.animationQueue.has(target)) {
       return null;
     }
@@ -294,7 +294,7 @@ export abstract class KeyframeAnimationManager {
 
   static playAnimation(
     option: {
-      target: Object;
+      target: object;
       animation: KeyframeAnimation;
       onComplete?: () => void;
       onCancel?: () => void;
@@ -303,7 +303,7 @@ export abstract class KeyframeAnimationManager {
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
-      target: Object;
+      target: object;
       animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
       onComplete?: () => void;
       onCancel?: () => void;
@@ -312,7 +312,7 @@ export abstract class KeyframeAnimationManager {
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
-      target: Object;
+      target: object;
       animation: string;
       onComplete?: () => void;
       onCancel?: () => void;
@@ -321,14 +321,15 @@ export abstract class KeyframeAnimationManager {
   ): KeyframeAnimationTrack<typeof option.target>;
   static playAnimation(
     option: {
-      target: Object;
+      target: object;
       animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
       onComplete?: () => void;
       onCancel?: () => void;
     },
     action: AnimationAction = "default",
   ): KeyframeAnimationTrack<typeof option.target> {
-    let { target, animation, onComplete, onCancel } = option;
+    const { target, onComplete, onCancel } = option;
+    let { animation } = option;
     if (!(typeof target === "object")) return null;
     if (typeof animation === "string") {
       animation = this.getAnimation(animation);
@@ -373,9 +374,9 @@ export abstract class KeyframeAnimationManager {
     return track;
   }
 
-  static stopAnimation(track: KeyframeAnimationTrack<Object>, skip?: boolean);
-  static stopAnimation(target: Object, skip?: boolean);
-  static stopAnimation(object: Object | KeyframeAnimationTrack<Object>, skip: boolean = true) {
+  static stopAnimation(track: KeyframeAnimationTrack<object>, skip?: boolean);
+  static stopAnimation(target: object, skip?: boolean);
+  static stopAnimation(object: object | KeyframeAnimationTrack<object>, skip: boolean = true) {
     if (object instanceof KeyframeAnimationTrack) {
       //删除一个track
       object.trigger("cancel");
@@ -430,7 +431,7 @@ export abstract class KeyframeAnimationManager {
 
   static reset() {
     this.animations = {};
-    this.animationQueue = new Map<Object, KeyframeAnimationTrack<Object>[]>();
-    this.activeAnimationMap = new Map<Object, KeyframeAnimationTrack<Object>[]>();
+    this.animationQueue = new Map<object, KeyframeAnimationTrack<object>[]>();
+    this.activeAnimationMap = new Map<object, KeyframeAnimationTrack<object>[]>();
   }
 }

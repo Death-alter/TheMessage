@@ -65,7 +65,7 @@ export class TaoQu extends ActiveSkill {
       [CardColor.RED]: 0,
       [CardColor.BLUE]: 0,
     };
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       if (player.id !== 0) {
         totalCounts[CardColor.BLACK] += player.messageCounts[CardColor.BLACK];
         totalCounts[CardColor.RED] += player.messageCounts[CardColor.RED];
@@ -81,8 +81,8 @@ export class TaoQu extends ActiveSkill {
         enabled: () => {
           const list = gui.selectedHandCards.list;
           if (list.length < 2) return false;
-          for (let color0 of list[0].color) {
-            for (let color1 of list[1].color) {
+          for (const color0 of list[0].color) {
+            for (const color1 of list[1].color) {
               if (color0 === color1 && totalCounts[color0] > 0) return true;
             }
           }
@@ -156,7 +156,7 @@ export class TaoQu extends ActiveSkill {
       data: {
         filter: (player) => {
           if (player.id === 0) return false;
-          for (let color of colors) {
+          for (const color of colors) {
             if (player.messageCounts[color] > 0) return true;
           }
           return false;
@@ -190,7 +190,7 @@ export class TaoQu extends ActiveSkill {
                   },
                   enabled: () => {
                     if (showCardsWindow.selectedCards.list.length === 0) return false;
-                    for (let color of showCardsWindow.selectedCards.list[0].color) {
+                    for (const color of showCardsWindow.selectedCards.list[0].color) {
                       if (colors.indexOf(color) !== -1) {
                         return true;
                       }

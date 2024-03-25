@@ -25,7 +25,7 @@ export class CharacterInfoWindow extends Component {
 
   setCharacterInfo(character: Character) {
     let str = character.name;
-    for (let skill of character.skills) {
+    for (const skill of character.skills) {
       str += "\n" + skill.name;
       str += "\n" + skill.description;
     }

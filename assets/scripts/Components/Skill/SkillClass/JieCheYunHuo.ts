@@ -6,7 +6,7 @@ import { GameEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
 
 export class JieCheYunHuo extends PassiveSkill {
-  banWuDao: Function;
+  banWuDao: (data) => void;
 
   constructor(character: Character) {
     super({
@@ -20,7 +20,7 @@ export class JieCheYunHuo extends PassiveSkill {
     this.banWuDao = (data) => {
       const sender = data.player;
       if (sender.id === player.id) {
-        for (let player of gameData.playerList) {
+        for (const player of gameData.playerList) {
           player.banCardByType(CardType.WU_DAO);
         }
       }
@@ -29,6 +29,6 @@ export class JieCheYunHuo extends PassiveSkill {
   }
 
   dispose() {
-    UIEventCenter.off(UIEvent.BEFORE_SEND_MESSAGE, this.banWuDao, this);
+    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.banWuDao, this);
   }
 }

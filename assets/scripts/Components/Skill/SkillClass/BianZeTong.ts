@@ -172,12 +172,12 @@ export class BianZeTong extends TriggerSkill {
       const cardA = gameData.createCardByType(<number>cardTypeA);
       const cardB = gameData.createCardByType(<number>cardTypeB);
 
-      for (let player of gameData.playerList) {
+      for (const player of gameData.playerList) {
         player.addTag(TagName.CARD_NAME_REPLACED, { cardTypeA, cardTypeB });
       }
 
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
-        for (let player of gameData.playerList) {
+        for (const player of gameData.playerList) {
           player.removeTag(TagName.CARD_NAME_REPLACED);
         }
       });

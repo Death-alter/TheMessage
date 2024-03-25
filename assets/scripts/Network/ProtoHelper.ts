@@ -2,7 +2,7 @@ import proto from "../../protobuf/proto.js";
 import { sys } from "cc";
 
 class ProtoHelper {
-  static encode(protoName: string, data: Object) {
+  static encode(protoName: string, data: object) {
     const dataBuffer: Uint8Array = proto[protoName].encode(data).finish();
     const length = protoName.length;
     const lengthBuffer = new Uint16Array(2);

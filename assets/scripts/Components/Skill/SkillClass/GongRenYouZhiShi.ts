@@ -117,7 +117,7 @@ export class GongRenYouZhiShi extends TriggerSkill {
       skill: this,
     });
 
-    for (let id of targetPlayerId) {
+    for (const id of targetPlayerId) {
       const targetPlayer = gameData.playerList[id];
       targetPlayer.addTag(TagName.CANNOT_RECEIVE_MESSAGE);
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {

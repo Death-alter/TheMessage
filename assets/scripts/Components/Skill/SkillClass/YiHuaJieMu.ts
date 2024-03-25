@@ -51,7 +51,7 @@ export class YiHuaJieMu extends ActiveSkill {
 
   canUse(gui: GameManager): boolean {
     let total = 0;
-    for (let player of gui.data.playerList) {
+    for (const player of gui.data.playerList) {
       total += player.messageCounts.total;
     }
     return total !== 0;

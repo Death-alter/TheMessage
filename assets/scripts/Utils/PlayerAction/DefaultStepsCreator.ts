@@ -48,7 +48,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
   [PlayerActionStepName.SELECT_HAND_CARD_TO_SEND]:
     (gui: GameManager) =>
     ({ initial }, { next, prev }) => {
-      let flag = true;
       const { tooltipText, filter } = initial;
       gui.tooltip.setText(tooltipText);
       gui.tooltip.buttons.setButtons([]);
@@ -72,7 +71,6 @@ const list: { [key in PlayerActionStepName]: (gui: GameManager) => PlayerActionS
                 gui.uiLayer.doSendMessage({ message: card });
                 next();
               },
-              enabled: () => flag || gui.uiLayer.messageCanSend(card),
             },
           ]);
         },

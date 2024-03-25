@@ -107,7 +107,7 @@ export class HouLaiRen extends ActiveSkill {
 
     //移除情报
     const messages = [];
-    for (let card of player.getMessagesCopy()) {
+    for (const card of player.getMessagesCopy()) {
       if (card.id !== remainCardId) {
         messages.push(player.removeMessage(card.id));
       }
@@ -150,7 +150,7 @@ export class HouLaiRen extends ActiveSkill {
 
     UIEventCenter.emit(UIEvent.STOP_CHOOSE_CHARACTER);
 
-    for (let skill of player.character.skills) {
+    for (const skill of player.character.skills) {
       skill.dispose();
     }
 
@@ -158,7 +158,7 @@ export class HouLaiRen extends ActiveSkill {
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把角色更换为【${character.name}】`));
     player.character = character;
 
-    for (let skill of character.skills) {
+    for (const skill of character.skills) {
       skill.init(gameData, player);
     }
 

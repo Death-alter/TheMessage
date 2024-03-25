@@ -12,7 +12,7 @@ export function getCardColorText(c: Card | CardColor) {
   }
 
   let str = "";
-  for (let item of arr) {
+  for (const item of arr) {
     switch (item) {
       case CardColor.BLACK:
         str += "黑";

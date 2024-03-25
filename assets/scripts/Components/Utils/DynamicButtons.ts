@@ -111,7 +111,7 @@ export default class DynamicButtons extends Component {
   }
 
   refreshButtonState() {
-    for (let i in this.buttonEnabled) {
+    for (const i in this.buttonEnabled) {
       const button = this.node.children[i];
       button.getComponent(Button).interactable = this.buttonEnabled[i](this.parent);
     }

@@ -182,14 +182,13 @@ export class MiLing extends Card {
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
-          let flag = true;
           let tooltipText = "密令的暗号为" + secretText;
           tooltipText += `,请选择一张${getCardColorText(color)}色情报传出`;
           tooltip.setText(tooltipText);
           gui.gameLayer.startSelectHandCards({
             num: 1,
             filter: (card) => {
-              if (Card.hasColor(card, color) && (flag || gui.uiLayer.messageCanSend(card))) {
+              if (Card.hasColor(card, color)) {
                 return CardUsableStatus.USABLE;
               } else {
                 return CardUsableStatus.UNUSABLE;
@@ -257,7 +256,7 @@ export class MiLing extends Card {
       const handCardContainer = gui.gameLayer.handCardContainer;
       let message;
       gui.gameLayer.startSelectHandCards({ num: 1 });
-      for (let item of handCardContainer.data.list) {
+      for (const item of handCardContainer.data.list) {
         if ((<Card>item).id === cardId) {
           message = item;
           handCardContainer.selectCard(<Card>item);

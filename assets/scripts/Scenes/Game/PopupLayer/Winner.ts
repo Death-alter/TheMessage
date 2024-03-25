@@ -42,7 +42,7 @@ export class Winner extends Component {
     const mysteriousPersonList = [];
     const noIdeneityList = [];
 
-    for (let winner of winners) {
+    for (const winner of winners) {
       if (winner.identity instanceof Lurker) {
         luckerList.push(winner);
       } else if (winner.identity instanceof Agent) {
@@ -54,25 +54,25 @@ export class Winner extends Component {
       }
     }
 
-    for (let item of luckerList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+    for (const item of luckerList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
       list.addChild(node);
     }
 
-    for (let item of agentList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+    for (const item of agentList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
       list.addChild(node);
     }
 
-    for (let item of mysteriousPersonList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+    for (const item of mysteriousPersonList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
       list.addChild(node);
     }
 
-    for (let item of noIdeneityList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
+    for (const item of noIdeneityList.sort((a, b) => a.player.seatNumber - b.player.seatNumber)) {
       const node = instantiate(this.winnerPlayerIndoPrefab);
       node.getComponent(WinnerPlayer).init(item);
       list.addChild(node);

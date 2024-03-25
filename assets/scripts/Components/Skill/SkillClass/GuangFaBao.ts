@@ -149,7 +149,7 @@ export class GuangFaBao extends ActiveSkill {
       });
 
       let str = "";
-      for (let card of handCards) {
+      for (const card of handCards) {
         str += gameLog.formatCard(card);
       }
       gameLog.addData(

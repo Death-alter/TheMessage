@@ -21,7 +21,7 @@ export class AudioMgr {
   constructor() {
     //@en create a node as audioMgr
     //@zh 创建一个节点作为 audioMgr
-    let audioMgr = new Node();
+    const audioMgr = new Node();
     audioMgr.name = "__audioMgr__";
 
     //@en add to the scene.

@@ -17,7 +17,7 @@ export class ProgressControl extends Component {
   }
 
   //倒计时
-  startCountDown(seconds, callback?: Function) {
+  startCountDown(seconds, callback?: () => void) {
     // this.stopCountDown();
     if (seconds < 0) return;
     this.node.active = true;

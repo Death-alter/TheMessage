@@ -53,7 +53,7 @@ export class YuQinGuZong extends Card {
                   gui.uiLayer.doSendMessage({ message: sendCard });
                   PlayerAction.onComplete((data) => {
                     let d: any = {};
-                    for (let item of data) {
+                    for (const item of data) {
                       d = { ...d, ...item };
                     }
                     NetworkEventCenter.emit(NetworkEventToS.USE_YU_QIN_GU_ZONG_TOS, {

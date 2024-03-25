@@ -18,7 +18,7 @@ export class ReplayList extends Component {
   renderRecordList({ records }) {
     const viewContent = this.node.getChildByPath("ScrollView/view/content");
     viewContent.removeAllChildren();
-    for (let item of records) {
+    for (const item of records) {
       const recordId = item.slice(item.length - 6);
       const replay = instantiate(this.replayPrefab);
       replay.getChildByName("Label").getComponent(Label).string = item.slice(0, -7);

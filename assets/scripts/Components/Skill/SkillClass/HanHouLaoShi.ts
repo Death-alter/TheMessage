@@ -8,8 +8,6 @@ import { GameLog } from "../../GameLog/GameLog";
 import { CardActionLocation } from "../../../Manager/type";
 
 export class HanHouLaoShi extends PassiveSkill {
-  doSendMessage: Function;
-
   constructor(character: Character) {
     super({
       name: "憨厚老实",
@@ -24,7 +22,7 @@ export class HanHouLaoShi extends PassiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -54,8 +52,8 @@ export class HanHouLaoShi extends PassiveSkill {
       new GameLog(
         `${gameLog.formatPlayer(targetPlayer)}抽取了${gameLog.formatPlayer(player)}的${
           card ? gameLog.formatCard(handCard) : "一张手牌"
-        }`
-      )
+        }`,
+      ),
     );
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

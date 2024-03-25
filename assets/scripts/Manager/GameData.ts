@@ -200,7 +200,7 @@ export class GameData extends DataBasic<GameManager> {
     this.secretTaskList = data.secretTaskList;
 
     //创建所有角色
-    for (let item of data.players) {
+    for (const item of data.players) {
       const player = new Player({
         id: item.id,
         name: item.name,
@@ -209,7 +209,7 @@ export class GameData extends DataBasic<GameManager> {
       this.playerList.push(player);
 
       //加载角色技能
-      for (let skill of player.character.skills) {
+      for (const skill of player.character.skills) {
         skill.init(this, player);
       }
     }
@@ -291,7 +291,7 @@ export class GameData extends DataBasic<GameManager> {
       }
     }
     if (data.cards && data.cards.length) {
-      for (let item of data.cards) {
+      for (const item of data.cards) {
         const card = this.createCard(item);
         cardList.push(card);
       }
@@ -318,7 +318,7 @@ export class GameData extends DataBasic<GameManager> {
         const character = createCharacterById(data.characterId);
         this.playerList[data.playerId].character = character;
 
-        for (let skill of character.skills) {
+        for (const skill of character.skills) {
           skill.init(this, this.playerList[data.playerId]);
         }
       }
@@ -436,8 +436,8 @@ export class GameData extends DataBasic<GameManager> {
         };
       }),
     });
-    for (let player of this.playerList) {
-      for (let skill of player.character.skills) {
+    for (const player of this.playerList) {
+      for (const skill of player.character.skills) {
         skill.dispose();
       }
     }

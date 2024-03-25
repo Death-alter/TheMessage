@@ -66,7 +66,7 @@ export class GongFen extends ActiveSkill {
         skill: this,
       });
   
-      for (let player of gameData.playerList) {
+      for (const player of gameData.playerList) {
         if (player.isAlive) {
           ++this.total;
         }

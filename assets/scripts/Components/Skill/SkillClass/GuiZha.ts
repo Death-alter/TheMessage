@@ -124,7 +124,7 @@ export class GuiZha extends ActiveSkill {
       })
       .onComplete((data) => {
         let d: any = {};
-        for (let item of data) {
+        for (const item of data) {
           d = { ...d, ...item };
         }
         NetworkEventCenter.emit(NetworkEventToS.SKILL_GUI_ZHA_TOS, {
