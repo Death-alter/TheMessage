@@ -8,7 +8,7 @@ import { AudioMgr } from "../../../Scenes/Resident/AudioMgr";
 import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 import { Player } from "../../../Components/Player/Player";
-import { KeyframeAnimationPlayer } from "./KeyFrameAnimationPlayer";
+import { KeyframeAnimationPlayer } from "./KeyframeAnimationPlayer";
 
 const { ccclass, property } = _decorator;
 
