@@ -179,7 +179,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   refreshHandCardsUseable() {
     this.filter = null;
     for (const handCard of this.data.list) {
-      handCard.gameObject.usableStatus = CardUsableStatus.USABLE;
+      handCard.gameObject && (handCard.gameObject.usableStatus = CardUsableStatus.USABLE);
     }
   }
 
