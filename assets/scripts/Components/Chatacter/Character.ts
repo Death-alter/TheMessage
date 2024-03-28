@@ -76,13 +76,6 @@ export class Character extends DataBasic<CharacterObject> {
     }
   }
 
-  //技能
-  useSkill(index: number) {
-    if (index >= this._skills.length) {
-      return;
-    }
-  }
-
   setSkills(skills: Skill[]) {
     this._skills = skills;
   }

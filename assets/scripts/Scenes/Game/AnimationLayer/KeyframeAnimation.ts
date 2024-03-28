@@ -1,26 +1,64 @@
-import { Vec2, Vec3, Vec4 } from "cc";
+import { TweenEasing, Vec2, Vec3, Vec4, easing } from "cc";
 
 interface AttributeVariationOption {
+  /**
+   * 需要修改的属性名称
+   */
   attribute: string;
+  /**
+   * 开始时间，单位秒
+   */
   startTime?: number;
-  duration: number; //持续时间，单位秒
-  easing?: (t: number) => number;
+  /**
+   * 持续时间，单位秒
+   */
+  duration: number;
+  /**
+   * 缓动函数，可以使用内置缓动函数名称或自定义一个函数
+   */
+  easing?: TweenEasing | ((t: number) => number);
 }
 
+/**
+ * 值为数字的动画选项
+ */
 export interface AttributeNumberVariationOption extends AttributeVariationOption {
+  /**
+   * 初始值，默认为当前值
+   */
   from?: number;
+  /**
+   * 结束值
+   */
   to: number;
 }
 
+/**
+ * 值为向量的动画选项
+ */
 export interface AttributeVertexVariationOption extends AttributeVariationOption {
+  /**
+   * 初始值，默认为当前值
+   */
   from?: Vec2 | Vec3 | Vec4;
+  /**
+   * 结束值
+   */
   to: Vec2 | Vec3 | Vec4;
 }
 
+/**
+ * 动画的添加方式
+ */
 type AnimationAction = "default" | "mix" | "replace" | "clear";
+/**
+ * 可以使用的动画事件
+ */
 type AnimationTrackEvent = "complete" | "cancel";
 
-//属性
+/**
+ * 关键帧动画属性
+ */
 export class AttributeVariation {
   attribute: string;
   from: number | Vec2 | Vec3 | Vec4;
@@ -35,13 +73,16 @@ export class AttributeVariation {
     this.to = option.to;
     this.startTime = option.startTime * 1000 || 0;
     this.duration = option.duration * 1000;
-    this.easing = option.easing;
+    if (typeof option.easing === "function") {
+      this.easing = option.easing;
+    } else {
+      this.easing = easing[option.easing];
+    }
   }
 }
 
 /**
  * 关键帧动画类
- * @class
  */
 export class KeyframeAnimation {
   private _variations: AttributeVariation[] = [];
@@ -62,6 +103,10 @@ export class KeyframeAnimation {
     }
   }
 
+  /**
+   * 向动画中添加一个属性AttributeVariation
+   * @param variation AttributeVariation类
+   */
   addVariation(variation: AttributeVariation) {
     const endTime = variation.startTime + variation.duration;
     if (this._duration < endTime) this._duration = endTime;
@@ -71,7 +116,6 @@ export class KeyframeAnimation {
 
 /**
  * 绑定节点和动画
- * @class
  */
 class KeyframeAnimationTrack<T extends object> {
   private _target: T;
@@ -83,14 +127,23 @@ class KeyframeAnimationTrack<T extends object> {
   private timeLineIndex: number = -1;
   private events: { [key in AnimationTrackEvent]?: (() => void)[] } = {};
 
+  /**
+   *动画开始时间
+   */
   get startTime() {
     return this._startTime;
   }
 
+  /**
+   *动画结束时间
+   */
   get endTime() {
     return this._startTime + this._duration;
   }
 
+  /**
+   *动画绑定的对象
+   */
   get target() {
     return this._target;
   }
@@ -116,7 +169,6 @@ class KeyframeAnimationTrack<T extends object> {
   /**
    * 停止当前track，该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。要停止该track请使用KeyframeAnimationManager.stopAnimation()
    * @param {boolean} [skip=true] 是否跳当前动画的剩余部分，直接跳到结束位置
-   * @returns
    */
   stop(skip: boolean = true) {
     if (this.timeLineIndex < 0) return;
@@ -138,6 +190,7 @@ class KeyframeAnimationTrack<T extends object> {
    * 注册一个动画事件
    * @param {number} time 触发事件的时间，从动画播放开始计算（单位：秒）
    * @param {Function} callback 回调函数
+   * @returns 当前KeyframeAnimationTrack对象自身
    */
   on(time: number, callback: () => void): KeyframeAnimationTrack<T>;
 
@@ -145,6 +198,7 @@ class KeyframeAnimationTrack<T extends object> {
    * 注册一个动画事件
    * @param {AnimationTrackEvent} eventName 事件名称
    * @param {Function} callback 回调函数
+   * @returns 当前KeyframeAnimationTrack对象自身
    */
   on(eventName: AnimationTrackEvent, callback: () => void): KeyframeAnimationTrack<T>;
   on(event: number | AnimationTrackEvent, callback: () => void) {
@@ -175,7 +229,7 @@ class KeyframeAnimationTrack<T extends object> {
 
   /**
    * 手动触发一个动画事件
-   * @param {string} eventName 要触发的事件名
+   * @param eventName 要触发的事件名
    */
   trigger(eventName: AnimationTrackEvent) {
     if (this.events[eventName] && this.events[eventName].length > 0) {
@@ -185,6 +239,10 @@ class KeyframeAnimationTrack<T extends object> {
     }
   }
 
+  /**
+   * 计算一帧的动画，该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。
+   * @param time 本帧的时间戳
+   */
   apf(time: number) {
     if (!this._target) return false;
     time -= this._startTime;
@@ -212,7 +270,8 @@ class KeyframeAnimationTrack<T extends object> {
           this.initialValues[i] = this.getAttribute(variation);
         }
       }
-      const p = t / variation.duration;
+      const p =
+        typeof variation.easing === "function" ? variation.easing(t / variation.duration) : t / variation.duration;
       //当前属性在执行时间范围内
       if (p < 1) {
         let val;
@@ -229,6 +288,11 @@ class KeyframeAnimationTrack<T extends object> {
     return true;
   }
 
+  /**
+   * 获取当前track的target对应属性的值
+   * @param variation AttributeVariation对象
+   * @returns 获取的值
+   */
   private getAttribute(variation: AttributeVariation) {
     if (!this._target) return null;
     if (this._target[variation.attribute] !== undefined) {
@@ -256,7 +320,12 @@ class KeyframeAnimationTrack<T extends object> {
     }
   }
 
-  private setAttribute(variation: AttributeVariation, val) {
+  /**
+   * 设置当前track的target对应属性的值
+   * @param variation AttributeVariation对象
+   * @param val 值
+   */
+  private setAttribute(variation: AttributeVariation, val: number | Vec2 | Vec3 | Vec4) {
     if (!this._target) throw new Error("对象不存在");
     if (this._target[variation.attribute] !== undefined) {
       this._target[variation.attribute] = val;
@@ -278,21 +347,39 @@ class KeyframeAnimationTrack<T extends object> {
 
 /**
  * 管理所有KeyframeAnimation动画
- * @class
+ * @static
  */
 export abstract class KeyframeAnimationManager {
+  /**
+   * 已经注册的动画
+   */
   private static animations: { [index: string]: KeyframeAnimation } = {};
+  /**
+   * 未播放的动画队列
+   */
   private static animationQueue = new Map<object, KeyframeAnimationTrack<object>[]>();
+  /**
+   * 正在播放的动画
+   */
   private static activeAnimationMap = new Map<object, KeyframeAnimationTrack<object>[]>();
 
-  private static enQueue(target: object, track: KeyframeAnimationTrack<object>) {
-    if (!this.animationQueue.has(target)) {
-      this.animationQueue.set(target, []);
+  /**
+   * 把一个动画加入动画队列
+   * @param track KeyframeAnimationTrack对象
+   */
+  private static enQueue(track: KeyframeAnimationTrack<object>) {
+    if (!this.animationQueue.has(track.target)) {
+      this.animationQueue.set(track.target, []);
     }
-    const queue = this.animationQueue.get(target);
+    const queue = this.animationQueue.get(track.target);
     queue.push(track);
   }
 
+  /**
+   * 取出一个target队列中的第一个动画
+   * @param target 绑定了动画的对象
+   * @returns 取出的KeyframeAnimationTrack类
+   */
   private static deQueue(target: object) {
     if (!this.animationQueue.has(target)) {
       return null;
@@ -305,21 +392,42 @@ export abstract class KeyframeAnimationManager {
     return track;
   }
 
+  /**
+   * 使用属性选项生成一个KeyframeAnimation动画并注册，如果名称已存在则会覆盖之前的动画
+   * @param name 动画名称
+   * @param variations 属性选项
+   * @returns 生成的KeyframeAnimation对象
+   */
   static createAnimation(
     name: string,
     variations: (AttributeNumberVariationOption | AttributeVertexVariationOption)[],
   ) {
     this.animations[name] = new KeyframeAnimation(variations.map((option) => new AttributeVariation(option)));
+    return this.animations[name];
   }
 
+  /**
+   * 注册一个KeyframeAnimation动画，如果名称已存在则会覆盖之前的动画
+   * @param name 动画名称
+   * @param animation 一个KeyframeAnimation对象
+   */
   static addAnimation(name: string, animation: KeyframeAnimation) {
     this.animations[name] = animation;
   }
 
+  /**
+   * 移除一个已注册的KeyframeAnimation动画
+   * @param name 动画名称
+   */
   static removeAnimation(name: string) {
     delete this.animations[name];
   }
 
+  /**
+   * 获取一个已注册的KeyframeAnimation动画
+   * @param name 动画名称
+   * @returns 获取的KeyframeAnimation动画
+   */
   static getAnimation(name: string) {
     return this.animations[name];
   }
@@ -428,7 +536,7 @@ export abstract class KeyframeAnimationManager {
       default:
         track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
         if (this.animationQueue.has(target) || this.activeAnimationMap.has(target)) {
-          this.enQueue(target, track);
+          this.enQueue(track);
         } else {
           this.activeAnimationMap.set(target, [track]);
           track.start();
@@ -506,6 +614,9 @@ export abstract class KeyframeAnimationManager {
     });
   }
 
+  /**
+   * 停止所有动画，清空动画队列，移除所有已注册的动画
+   */
   static reset() {
     this.animations = {};
     this.animationQueue = new Map<object, KeyframeAnimationTrack<object>[]>();
