@@ -88,7 +88,7 @@ export class JianDiFengXing extends TriggerSkill {
       skill: this,
     });
     if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,
@@ -138,7 +138,7 @@ export class JianDiFengXing extends TriggerSkill {
     const gameLog = gameData.gameLog;
 
     if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

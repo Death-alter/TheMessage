@@ -95,7 +95,7 @@ export class JianRen extends TriggerSkill {
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把展示的牌${gameLog.formatCard(handCard)}加入手牌`));
 
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

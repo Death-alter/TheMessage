@@ -1,8 +1,14 @@
 import { _decorator, Component, director } from "cc";
 import { GameLogList } from "../Components/GameLog/GameLogList";
 import { GameData } from "./GameData";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { GameEvent, NetworkEventToS, ProcessEvent } from "../Event/type";
+import {
+  DataEventCenter,
+  GameEventCenter,
+  NetworkEventCenter,
+  ProcessEventCenter,
+  UIEventCenter,
+} from "../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToS, ProcessEvent } from "../Event/type";
 import { SyncStatus } from "./type";
 import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
 const { ccclass, property } = _decorator;
@@ -24,14 +30,14 @@ export class DataManager extends Component {
           NetworkEventCenter.emit(NetworkEventToS.GAME_INIT_FINISH_TOS);
         });
       },
-      this
+      this,
     );
     ProcessEventCenter.on(
       ProcessEvent.START_UNLOAD_GAME_SCENE,
       () => {
         this.isRecord = false;
       },
-      this
+      this,
     );
 
     NetworkEventCenter.on(
@@ -39,19 +45,19 @@ export class DataManager extends Component {
       () => {
         this.isRecord = true;
       },
-      this
+      this,
     );
 
     GameEventCenter.on(GameEvent.GAME_OVER, this.clearData, this);
   }
 
   createData() {
-    this.gameData = new GameData();
+    // this.gameData = new GameData();
     this.gameLog = new GameLogList();
-    this.gameData.gameLog = this.gameLog;
+    // this.gameData.gameLog = this.gameLog;
     this.logHistory = new GameLogHistory();
     this.gameLog.logHistory = this.logHistory;
-    this.gameData.registerEvents();
+    // this.gameData.registerEvents();
     this.gameLog.registerEvents();
   }
 
@@ -65,7 +71,6 @@ export class DataManager extends Component {
         }
       }
 
-      this.gameData.unregisterEvents();
       this.gameData = null;
     }
 
@@ -77,7 +82,8 @@ export class DataManager extends Component {
   }
 
   resetData() {
-    this.clearData();
-    this.createData();
+    DataEventCenter.reset();
+    GameEventCenter.reset();
+    UIEventCenter.reset();
   }
 }

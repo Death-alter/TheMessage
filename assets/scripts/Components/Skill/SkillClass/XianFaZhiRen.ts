@@ -33,7 +33,7 @@ export class XianFaZhiRen extends ActiveSkill {
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_SKILL_XIAN_FA_ZHI_REN_A_TOC,
       (data) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: 0,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
@@ -181,7 +181,7 @@ export class XianFaZhiRen extends ActiveSkill {
         ),
       );
 
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

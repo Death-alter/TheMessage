@@ -1,47 +1,79 @@
-import { GameEvent, ProcessEvent } from "../Event/type";
-import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { GameLogList } from "../Components/GameLog/GameLogList";
+import { DataEvent, GameEvent } from "../Event/type";
+import { DataEventCenter, GameEventCenter } from "../Event/EventTarget";
 import { Player } from "../Components/Player/Player";
 import { GamePhase } from "./type";
-import { PlayerStatus } from "../Components/Player/type";
-import * as ProcessEventType from "../Event/ProcessEventType";
 import { Card } from "../Components/Card/Card";
-import { card } from "../../protobuf/proto.js";
-import { DataBasic } from "../DataBasic";
 import { HandCardList } from "../Components/Container/HandCardList";
-import { createCard, createUnknownCard } from "../Components/Card";
-import { CardDirection, CardType, CardStatus, CardColor } from "../Components/Card/type";
-import { createCharacterById } from "../Components/Chatacter";
-import { CharacterStatus } from "../Components/Chatacter/type";
-import { createIdentity } from "../Components/Identity";
+import { CardColor, CardDirection, CardStatus, CardType } from "../Components/Card/type";
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
+import { Skill } from "../Components/Skill/Skill";
+import { card } from "../../protobuf/proto.js";
+import { InitGame } from "../Event/ProcessEventType";
+import { createCharacterById } from "../Components/Chatacter";
+import { createIdentity } from "../Components/Identity";
+import * as DataEventType from "../Event/DataEventType";
+import { createCard, createUnknownCard } from "../Components/Card";
+import { CharacterStatus } from "../Components/Chatacter/type";
+import { PlayerStatus } from "../Components/Player/type";
+import { DataBasic } from "../DataBasic";
 import { GameManager } from "./GameManager";
+import { GameLogList } from "../Components/GameLog/GameLogList";
 
 export class GameData extends DataBasic<GameManager> {
-  public selfPlayer: Player;
-  public playerCount: number;
-  public playerList: Player[];
-  public secretTaskList: SecretTaskType[];
-  public messageInTransmit: Card | null = null;
-  public messageDirection: CardDirection;
-  public deckCardCount: number;
-  public cardOnPlay: Card;
-  public discardPile: Card[] = [];
-  public banishedCards: Card[] = [];
-  public dyingPlayer: Player = null; //等待澄清的玩家
-  public gameLog: GameLogList;
-  public handCardList: HandCardList;
+  //引用其他类
+  gameLog: GameLogList;
 
+  //对局信息
+  private _playerCount: number = 0;
+  private _deckCardCount: number = 0;
+  private _discardPile: Card[] = [];
+  private _banishedCards: Card[] = [];
+  private _secretTaskList: SecretTaskType[];
+
+  get playerCount() {
+    return this._playerCount;
+  }
+
+  set deckCardCount(count: number) {
+    this._deckCardCount = count;
+  }
+
+  get deckCardCount() {
+    return this._deckCardCount;
+  }
+
+  get secretTaskList() {
+    return this._secretTaskList;
+  }
+
+  //玩家信息
+  private _playerList: Player[] = [];
+  private _handCardList: HandCardList = new HandCardList();
+
+  get playerList() {
+    return this._playerList;
+  }
+
+  get selfPlayer() {
+    return this._playerList[0];
+  }
+
+  get identity() {
+    return this.selfPlayer.identityList[0];
+  }
+
+  get handCardList() {
+    return this._handCardList;
+  }
+
+  //回合信息
+  private _turnPlayerId: number = -1;
   private _gamePhase: GamePhase;
-  private _turnPlayerId: number;
-  private _messagePlayerId: number = -1;
-  private _lockedPlayer: Player;
-  private _senderId: number = -1;
 
   get gamePhase() {
     return this._gamePhase;
   }
-  private set gamePhase(phase: GamePhase) {
+  set gamePhase(phase: GamePhase) {
     if (phase == null || phase === this._gamePhase) return;
     switch (this._gamePhase) {
       case GamePhase.DRAW_PHASE:
@@ -74,7 +106,7 @@ export class GameData extends DataBasic<GameManager> {
         GameEventCenter.emit(GameEvent.SEND_PHASE_START);
         break;
       case GamePhase.FIGHT_PHASE:
-        this.lockedPlayer = null;
+        this.lockedPlayerId = null;
         GameEventCenter.emit(GameEvent.FIGHT_PHASE_START);
         break;
       case GamePhase.RECEIVE_PHASE:
@@ -83,23 +115,81 @@ export class GameData extends DataBasic<GameManager> {
     }
   }
 
-  get turnPlayerId() {
-    return this._turnPlayerId;
+  get turnPlayer() {
+    return this._playerList[this._turnPlayerId];
   }
-  private set turnPlayerId(playerId: number) {
+
+  set turnPlayerId(playerId: number) {
     if (playerId == null || playerId === this._turnPlayerId) return;
     this._turnPlayerId = playerId;
     GameEventCenter.emit(GameEvent.GAME_TURN_CHANGE, { turnPlayer: this.playerList[playerId] });
+  }
+  get turnPlayerId() {
+    return this._turnPlayerId;
+  }
+
+  /**正在使用的卡牌 */
+  private _cardOnPlay: Card;
+
+  /**正在使用的技能 */
+  private _skillOnUse: Skill;
+  /**已经使用完，正在生效的技能 */
+  private _skillsOnEffect: Skill[];
+
+  //正在传递的情报信息
+  private _senderId: number = -1;
+  private _messagePlayerId: number = -1;
+  private _lockedPlayerId: number = -1;
+  private _messageInTransmit: Card | null = null;
+  private _messageDirection: CardDirection;
+
+  get sender() {
+    return this._playerList[this._senderId];
+  }
+
+  get senderId() {
+    return this._senderId;
+  }
+  set senderId(playerId: number) {
+    this._senderId = playerId;
+  }
+
+  get lockedPlayer() {
+    return this._playerList[this._lockedPlayerId];
+  }
+
+  get lockedPlayerId() {
+    return this._lockedPlayerId;
+  }
+  set lockedPlayerId(playerId: number) {
+    if (playerId === this._lockedPlayerId) return;
+    if (playerId == null) {
+      this._lockedPlayerId = -1;
+    } else {
+      this._lockedPlayerId = playerId;
+    }
+  }
+
+  get messageInTransmit() {
+    return this._messageInTransmit;
+  }
+
+  get messagePlayer() {
+    return this._playerList[this._messagePlayerId];
   }
 
   get messagePlayerId() {
     return this._messagePlayerId;
   }
-
   set messagePlayerId(playerId: number) {
-    if (playerId == null || playerId === this._messagePlayerId) return;
+    if (playerId === this._messagePlayerId) return;
     const oldId = this._messagePlayerId;
-    this._messagePlayerId = playerId;
+    if (playerId == null) {
+      this._messagePlayerId = -1;
+    } else {
+      this._messagePlayerId = playerId;
+    }
+
     if (oldId !== -1 && this.messageInTransmit && playerId !== -1) {
       GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
         sender: this.playerList[this._senderId],
@@ -109,43 +199,49 @@ export class GameData extends DataBasic<GameManager> {
     }
   }
 
-  get lockedPlayer() {
-    return this._lockedPlayer;
+  set messageDirection(direction: CardDirection) {
+    this._messageDirection = direction;
+  }
+  get messageDirection() {
+    return this._messageDirection;
   }
 
-  set lockedPlayer(player: Player) {
-    if (player) {
-      this._lockedPlayer = player;
-      player.gameObject.locked = true;
+  //濒死相关信息
+  private _dyingPlayerId: number = -1; //等待澄清的玩家
+
+  get dyingPlayer() {
+    return this._dyingPlayerId === -1 ? null : this._playerList[this._dyingPlayerId];
+  }
+
+  set dyingPlayerId(playerId: number) {
+    if (playerId === this._messagePlayerId) return;
+    if (playerId == null) {
+      this._dyingPlayerId = -1;
     } else {
-      if (this._lockedPlayer) {
-        this._lockedPlayer.gameObject.locked = false;
-      }
-      this._lockedPlayer = null;
+      this._dyingPlayerId = playerId;
     }
   }
-
-  get senderId() {
-    return this._senderId;
+  get dyingPlayerId() {
+    return this._dyingPlayerId;
   }
 
-  get identity() {
-    return this.selfPlayer.identityList[0];
-  }
-
-  constructor(gameObject?: GameManager) {
+  /**
+   * 生成GameData类
+   * @param option
+   * @param option.playerCount 本局游戏的总人数
+   * @param option.identity 自己的身份
+   * @param option.secretTask 自己的神秘人任务
+   * @param option.players 玩家列表
+   */
+  constructor(option: InitGame) {
     super();
-    if (gameObject) {
-      this.gameObject = gameObject;
-    }
-  }
+    this.init(option);
 
-  registerEvents() {
-    ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.init, this);
-    ProcessEventCenter.on(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
-    ProcessEventCenter.once(
-      ProcessEvent.DRAW_CARDS,
-      (data: ProcessEventType.DrawCards) => {
+    //注册事件
+    DataEventCenter.on(DataEvent.SYNC_PHASE_DATA, this.onSyncPhaseData, this);
+    DataEventCenter.once(
+      DataEvent.DRAW_CARDS,
+      (data: DataEventType.DrawCards) => {
         //设置座位号
         let i = data.playerId;
         let j = 0;
@@ -158,49 +254,37 @@ export class GameData extends DataBasic<GameManager> {
           firstPlayerId: data.playerId,
         });
       },
-      this
+      this,
     );
-    ProcessEventCenter.on(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
-    ProcessEventCenter.on(ProcessEvent.DRAW_CARDS, this.drawCards, this);
-    ProcessEventCenter.on(ProcessEvent.DISCARD_CARDS, this.discardCards, this);
-    ProcessEventCenter.on(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
-    ProcessEventCenter.on(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
-    ProcessEventCenter.on(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_DYING, this.playerDying, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_DIE, this.playerDie, this);
-    ProcessEventCenter.on(ProcessEvent.PLAYER_WIN, this.gameOver, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
-    ProcessEventCenter.on(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
+    DataEventCenter.on(DataEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
+    DataEventCenter.on(DataEvent.DRAW_CARDS, this.drawCards, this);
+    DataEventCenter.on(DataEvent.DISCARD_CARDS, this.discardCards, this);
+    DataEventCenter.on(DataEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
+    DataEventCenter.on(DataEvent.SEND_MESSAGE, this.playerSendMessage, this);
+    DataEventCenter.on(DataEvent.CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
+    DataEventCenter.on(DataEvent.PLAYER_DYING, this.playerDying, this);
+    DataEventCenter.on(DataEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
+    DataEventCenter.on(DataEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
+    DataEventCenter.on(DataEvent.PLAYER_DIE, this.playerDie, this);
+    DataEventCenter.on(DataEvent.PLAYER_WIN, this.gameOver, this);
+    DataEventCenter.on(DataEvent.CARD_PLAYED, this.cardPlayed, this);
+    DataEventCenter.on(DataEvent.CARD_IN_PROCESS, this.cardInProcess, this);
   }
 
-  unregisterEvents() {
-    ProcessEventCenter.off(ProcessEvent.INIT_GAME, this.init, this);
-    ProcessEventCenter.off(ProcessEvent.GET_PHASE_DATA, this.onGetPhaseData, this);
-    ProcessEventCenter.off(ProcessEvent.SYNC_DECK_NUM, this.syncDeckNumber, this);
-    ProcessEventCenter.off(ProcessEvent.DRAW_CARDS, this.drawCards, this);
-    ProcessEventCenter.off(ProcessEvent.DISCARD_CARDS, this.discardCards, this);
-    ProcessEventCenter.off(ProcessEvent.UPDATE_CHARACTER_STATUS, this.updateCharacter, this);
-    ProcessEventCenter.off(ProcessEvent.SEND_MESSAGE, this.playerSendMessage, this);
-    ProcessEventCenter.off(ProcessEvent.CHOOSE_RECEIVE, this.playerChooseReceiveMessage, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DYING, this.playerDying, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_BEFORE_DEATH, this.playerBeforeDeath, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE_GIVE_CARD, this.playerDieGiveCard, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_DIE, this.playerDie, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_WIN, this.gameOver, this);
-    ProcessEventCenter.off(ProcessEvent.CARD_PLAYED, this.cardPlayed, this);
-    ProcessEventCenter.off(ProcessEvent.CARD_IN_PROCESS, this.cardInProcess, this);
-  }
-
-  //初始化游戏
-  private init(data) {
-    this.playerCount = data.playerCount;
-    this.playerList = [];
-    this.secretTaskList = data.secretTaskList;
+  /**
+   * 初始化游戏数据
+   * @param option
+   * @param option.playerCount 本局游戏的总人数
+   * @param option.identity 自己的身份
+   * @param option.secretTask 自己的神秘人任务
+   * @param option.players 玩家列表
+   */
+  private init(option: InitGame) {
+    this._playerCount = option.playerCount;
+    this._secretTaskList = option.secretTaskList;
 
     //创建所有角色
-    for (const item of data.players) {
+    for (const item of option.players) {
       const player = new Player({
         id: item.id,
         name: item.name,
@@ -214,26 +298,25 @@ export class GameData extends DataBasic<GameManager> {
       }
     }
 
-    //自己的角色设置身份
-    this.selfPlayer = this.playerList[0];
+    //设置身份
     this.selfPlayer.confirmIdentity(
-      createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
+      createIdentity((<number>option.identity) as IdentityType, (<number>option.secretTask) as SecretTaskType),
     );
-
-    //手牌
-    this.handCardList = new HandCardList();
   }
 
-  //回合改变
-  private onGetPhaseData(data: ProcessEventType.GetPhaseData) {
+  /**
+   * 同步回合、阶段信息
+   * @param data
+   */
+  private onSyncPhaseData(data: DataEventType.SyncPhaseData) {
     //修改回合信息
     this.turnPlayerId = data.currentPlayerId;
     this.gamePhase = data.currentPhase;
 
     //卡牌结算完成
-    if (this.cardOnPlay) {
-      const card = this.cardOnPlay;
-      this.cardOnPlay = null;
+    if (this._cardOnPlay) {
+      const card = this._cardOnPlay;
+      this._cardOnPlay = null;
       if (card) {
         GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card });
       }
@@ -248,8 +331,8 @@ export class GameData extends DataBasic<GameManager> {
       this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<number>data.messageDirection) as CardDirection;
       if (data.messageInTransmit) {
-        if (!this.messageInTransmit || data.messageInTransmit.cardId !== this.messageInTransmit.id) {
-          this.messageInTransmit = this.createMessage(data.messageInTransmit);
+        if (!this._messageInTransmit || data.messageInTransmit.cardId !== this._messageInTransmit.id) {
+          this._messageInTransmit = this.createMessage(data.messageInTransmit);
         }
       }
 
@@ -265,22 +348,29 @@ export class GameData extends DataBasic<GameManager> {
         } else {
           GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, this.messageInTransmit);
         }
-        this.messageInTransmit = null;
+        this._messageInTransmit = null;
       }
     }
   }
 
-  //卡组数量变化
-  private syncDeckNumber(data: ProcessEventType.SyncDeckNum) {
+  /**
+   * 同步牌堆剩余卡牌数量
+   * @param data
+   */
+  private syncDeckNumber(data: DataEventType.SyncDeckNum) {
     this.deckCardCount = data.number;
     GameEventCenter.emit(GameEvent.DECK_CARD_NUMBER_CHANGE, { number: data.number });
     if (data.shuffled) {
+      this._discardPile = [];
       GameEventCenter.emit(GameEvent.DECK_SHUFFLED);
     }
   }
 
-  //抽牌
-  private drawCards(data: ProcessEventType.DrawCards) {
+  /**
+   * 玩家抽牌
+   * @param data
+   */
+  private drawCards(data: DataEventType.DrawCards) {
     const player = this.playerList[data.playerId];
     const cardList: Card[] = [];
 
@@ -300,19 +390,25 @@ export class GameData extends DataBasic<GameManager> {
     GameEventCenter.emit(GameEvent.PLAYER_DRAW_CARD, { player, cardList });
   }
 
-  //弃牌
-  private discardCards(data: ProcessEventType.DiscardCards) {
+  /**
+   * 玩家弃牌
+   * @param data
+   */
+  private discardCards(data: DataEventType.DiscardCards) {
     const player = this.playerList[data.playerId];
     const cardList = this.playerRemoveHandCard(
       player,
-      data.cards.map((card) => card)
+      data.cards.map((card) => card),
     );
 
     GameEventCenter.emit(GameEvent.PLAYER_DISCARD_CARD, { player, cardList });
   }
 
-  //角色翻面
-  private updateCharacter(data: ProcessEventType.UpdateCharacterStatus) {
+  /**
+   * 角色翻面
+   * @param data
+   */
+  private updateCharacter(data: DataEventType.UpdateCharacterStatus) {
     if (data.characterId) {
       if (this.playerList[data.playerId].character.id === 0) {
         const character = createCharacterById(data.characterId);
@@ -332,8 +428,11 @@ export class GameData extends DataBasic<GameManager> {
     });
   }
 
-  //有人传出情报
-  private playerSendMessage(data: ProcessEventType.SendMessage) {
+  /**
+   * 玩家传出情报
+   * @param data
+   */
+  private playerSendMessage(data: DataEventType.SendMessage) {
     const player = this.playerList[data.senderId];
     const targetPlayer = this.playerList[data.targetPlayerId];
 
@@ -354,12 +453,12 @@ export class GameData extends DataBasic<GameManager> {
 
     if (!card) return;
 
-    this.messageInTransmit = card;
+    this._messageInTransmit = card;
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
-      this.lockedPlayer = this.playerList[data.lockPlayerIds[0]];
+      this._lockedPlayerId = data.lockPlayerIds[0];
     } else {
-      this.lockedPlayer = null;
+      this._lockedPlayerId = null;
     }
     if (!data.card && data.senderId === 0) {
       card.status = CardStatus.FACE_DOWN;
@@ -375,7 +474,7 @@ export class GameData extends DataBasic<GameManager> {
   }
 
   //有人选择接收情报
-  private playerChooseReceiveMessage(data: ProcessEventType.ChooseReceive) {
+  private playerChooseReceiveMessage(data: DataEventType.ChooseReceive) {
     GameEventCenter.emit(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, {
       player: this.playerList[data.playerId],
       message: this.messageInTransmit,
@@ -383,38 +482,37 @@ export class GameData extends DataBasic<GameManager> {
   }
 
   //玩家濒死
-  private playerDying(data: ProcessEventType.PlayerDying) {
-    const player = this.playerList[data.playerId];
-    if (this.dyingPlayer !== player) {
-      this.dyingPlayer = player;
+  private playerDying(data: DataEventType.PlayerDying) {
+    if (this.dyingPlayerId === -1) {
+      this._dyingPlayerId = data.playerId;
       GameEventCenter.emit(GameEvent.PLAYER_DYING, { player: this.dyingPlayer });
     }
   }
 
   //玩家死亡前
-  private playerBeforeDeath(data: ProcessEventType.PlayerBeforeDeath) {
+  private playerBeforeDeath(data: DataEventType.PlayerBeforeDeath) {
     const player = this.playerList[data.playerId];
-    this.dyingPlayer = null;
+    this._dyingPlayerId = -1;
     player.status = PlayerStatus.DEAD;
     GameEventCenter.emit(GameEvent.PLAYER_BEFORE_DEATH, { player, loseGame: data.loseGame });
   }
 
   //玩家死亡
-  private playerDie(data: ProcessEventType.PlayerDie) {
+  private playerDie(data: DataEventType.PlayerDie) {
     const player = this.playerList[data.playerId];
     const messages = player.removeAllMessage();
     GameEventCenter.emit(GameEvent.PLAYER_DIE, { player, messages });
   }
 
   //死亡给牌
-  private playerDieGiveCard(data: ProcessEventType.PlayerDieGiveCard) {
+  private playerDieGiveCard(data: DataEventType.PlayerDieGiveCard) {
     const { cards, unknownCardCount, playerId, targetPlayerId } = data;
     if (cards.length || unknownCardCount !== 0) {
       const player = this.playerList[playerId];
       const targetPlayer = this.playerList[targetPlayerId];
       const cardList = this.playerRemoveHandCard(
         player,
-        unknownCardCount > 0 ? new Array(unknownCardCount).fill(0) : cards.map((card) => card)
+        unknownCardCount > 0 ? new Array(unknownCardCount).fill(0) : cards.map((card) => card),
       );
       this.playerAddHandCard(targetPlayer, cardList);
       GameEventCenter.emit(GameEvent.PLAYER_GIVE_CARD, { player, targetPlayer, cardList });
@@ -422,7 +520,7 @@ export class GameData extends DataBasic<GameManager> {
   }
 
   //游戏结束
-  private gameOver(data: ProcessEventType.PlayerWin) {
+  private gameOver(data: DataEventType.PlayerWin) {
     GameEventCenter.emit(GameEvent.GAME_OVER, {
       players: data.players.map((item) => {
         return {
@@ -444,7 +542,7 @@ export class GameData extends DataBasic<GameManager> {
   }
 
   //使用卡牌
-  private cardPlayed(data: ProcessEventType.CardPlayed) {
+  private cardPlayed(data: DataEventType.CardPlayed) {
     let card: Card;
     const user = this.playerList[data.userId];
     if (data.isActual) {
@@ -463,9 +561,9 @@ export class GameData extends DataBasic<GameManager> {
       card = this.createCardByType(data.cardType);
     }
 
-    if (this.cardOnPlay) {
+    if (this._cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
-        this.cardOnPlay = card;
+        this._cardOnPlay = card;
         const eventData: any = { player: this.playerList[data.userId], card, cardType: data.cardType };
         if (data.targetPlayerId != null) {
           eventData.targetPlayer = this.playerList[data.targetPlayerId];
@@ -473,7 +571,7 @@ export class GameData extends DataBasic<GameManager> {
         GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, eventData);
       });
     } else {
-      this.cardOnPlay = card;
+      this._cardOnPlay = card;
       const eventData: any = { player: this.playerList[data.userId], card, cardType: data.cardType };
       if (data.targetPlayerId != null) {
         eventData.targetPlayer = this.playerList[data.targetPlayerId];
@@ -483,12 +581,12 @@ export class GameData extends DataBasic<GameManager> {
   }
 
   //卡牌效果处理
-  private cardInProcess(data: ProcessEventType.CardInProcess) {
-    if (!this.cardOnPlay) {
+  private cardInProcess(data: DataEventType.CardInProcess) {
+    if (!this._cardOnPlay) {
       return;
     }
     const handlerName = data.handler || "onEffect";
-    this.cardOnPlay[handlerName](this, data.data);
+    this._cardOnPlay[handlerName](this, data.data);
   }
 
   getPlayerNeighbors(player: Player): Player[];
@@ -519,6 +617,12 @@ export class GameData extends DataBasic<GameManager> {
     return arr;
   }
 
+  /**
+   * 根据服务端卡牌数据创建一个卡牌对象
+   * @param card 服务端card数据
+   * @param status 卡牌朝向
+   * @returns 创建的Card对象
+   */
   createCard(card?: card, status?: CardStatus): Card {
     if (card) {
       return createCard({
@@ -536,10 +640,21 @@ export class GameData extends DataBasic<GameManager> {
     }
   }
 
+  /**
+   * 根据卡牌类型创建一个卡牌对象
+   * @param type 卡牌类型
+   * @returns 创建的Card对象
+   */
   createCardByType(type: CardType) {
     return createCard({ type });
   }
 
+  /**
+   * 根据一张已有卡牌生成指定类型的卡牌，保留原卡牌类型以外的所有信息，通常用于把一张卡当做另一张卡使用
+   * @param card 一个Card对象
+   * @param type 卡牌类型
+   * @returns 新的Card对象
+   */
   createCardWithNewType(card: Card, type: CardType) {
     return createCard({
       id: card.id,
@@ -551,13 +666,39 @@ export class GameData extends DataBasic<GameManager> {
     });
   }
 
+  /**
+   * 创建一张情报，默认为面朝下
+   * @param card 服务端card数据
+   * @param status 卡牌朝向
+   * @returns
+   */
   createMessage(card?: card, status: CardStatus = CardStatus.FACE_DOWN): Card {
     return this.createCard(card, status);
   }
 
+  /**
+   * 把一张卡加入一名玩家的手牌
+   * @param playerId 玩家id
+   * @param handCard 加入的那张牌
+   */
   playerAddHandCard(playerId: number, handCard: Card);
+  /**
+   * 把一张卡加入一名玩家的手牌
+   * @param player 玩家的Player对象
+   * @param handCard 加入的那张牌
+   */
   playerAddHandCard(player: Player, handCard: Card);
+  /**
+   * 把一张卡加入一名玩家的手牌
+   * @param playerId 玩家id
+   * @param handCards 加入的牌组成的数组
+   */
   playerAddHandCard(playerId: number, handCards: Card[]);
+  /**
+   * 把一张卡加入一名玩家的手牌
+   * @param player 玩家的Player对象
+   * @param handCards 加入的牌组成的数组
+   */
   playerAddHandCard(player: Player, handCards: Card[]);
   playerAddHandCard(player: number | Player, handCard: Card | Card[]) {
     let p = <Player>player;
@@ -566,26 +707,66 @@ export class GameData extends DataBasic<GameManager> {
     }
     if (handCard instanceof Array) {
       p.addHandCard(handCard.length);
-      // if (p.id === 0) {
-      //   handCard.forEach((card) => {
-      //     this.handCardList.addData(card);
-      //   });
-      // }
     } else {
       p.addHandCard(1);
-      // if (p.id === 0) {
-      //   this.handCardList.addData(handCard);
-      // }
     }
   }
 
+  /**
+   * 从一名玩家的手牌中移除一张牌
+   * @param playerId 玩家id
+   * @param card 服务端移除的那张卡牌数据
+   * @returns 移除的那张卡的Card对象
+   */
   playerRemoveHandCard(playerId: number, card: card): Card;
+  /**
+   * 从一名玩家的手牌中移除一张牌
+   * @param player 玩家的Player对象
+   * @param card 服务端移除的那张卡牌数据
+   * @returns 移除的那张卡的Card对象
+   */
   playerRemoveHandCard(player: Player, card: card): Card;
+  /**
+   * 从一名玩家的手牌中移除多张手牌
+   * @param playerId 玩家id
+   * @param card 服务端移除的那些卡牌数据数组
+   * @returns 移除的卡牌对象的数组
+   */
   playerRemoveHandCard(playerId: number, cards: card[]): Card[];
+  /**
+   * 从一名玩家的手牌中移除多张手牌
+   * @param player 玩家的Player对象
+   * @param card 服务端移除的那些卡牌数据数组
+   * @returns 移除的卡牌对象的数组
+   */
   playerRemoveHandCard(player: Player, cards: card[]): Card[];
-  playerRemoveHandCard(playerId: number, card: number): Card;
+  /**
+   * 从一名玩家的手牌中移除一张牌
+   * @param playerId 玩家id
+   * @param cardId 要移除的卡牌id
+   * @returns 移除的那张卡的Card对象
+   */
+  playerRemoveHandCard(playerId: number, cardId: number): Card;
+  /**
+   * 从一名玩家的手牌中移除一张牌
+   * @param player 玩家的Player对象
+   * @param cardId 要移除的卡牌id
+   * @returns 移除的那张卡的Card对象
+   */
   playerRemoveHandCard(player: Player, cardId: number): Card;
+  /**
+   * 从一名玩家的手牌中移除多张手牌
+   * @param playerId 玩家id
+   * @param cardIds 要移除的卡牌id数组
+   * @returns 移除的卡牌对象的数组
+   */
   playerRemoveHandCard(playerId: number, cardIds: number[]): Card[];
+  /**
+   * 从一名玩家的手牌中移除多张手牌
+   * @param player 玩家的Player对象
+   * @param cardIds 要移除的卡牌id数组
+   * @returns 移除的卡牌对象的数组
+   */
   playerRemoveHandCard(player: Player, cardIds: number[]): Card[];
   playerRemoveHandCard(player: number | Player, card: number | number[] | card | card[]): Card | Card[] {
     let p = <Player>player;

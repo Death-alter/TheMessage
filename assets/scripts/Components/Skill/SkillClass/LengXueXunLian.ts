@@ -71,7 +71,7 @@ export class LengXueXunLian extends ActiveSkill {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}展示牌堆顶的两张牌`));
 
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,

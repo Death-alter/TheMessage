@@ -1,7 +1,7 @@
 import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node } from "cc";
 import { CardObject } from "../Card/CardObject";
-import { ProcessEventCenter } from "../../Event/EventTarget";
-import { ProcessEvent } from "../../Event/type";
+import { UIEventCenter } from "../../Event/EventTarget";
+import { UIEvent } from "../../Event/type";
 import { GameObjectContainer } from "./GameObjectContainer";
 import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
@@ -150,19 +150,19 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     if (data.selectedCards.limit <= 0 || data.selectedCards.locked) return;
     if (data.selectedCards.isSelected(card)) {
       data.selectedCards.deselect(card);
-      ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_HAND_CARD, card);
+      UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD, card);
     } else {
       const flag = data.selectedCards.select(card);
       if (flag) {
-        ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
+        UIEventCenter.emit(UIEvent.SELECT_HAND_CARD, card);
       } else {
         const firstCard = data.selectedCards.list[0];
         if (firstCard) {
           data.selectedCards.deselect(firstCard);
-          ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_HAND_CARD, firstCard);
+          UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD, firstCard);
         }
         data.selectedCards.select(card);
-        ProcessEventCenter.emit(ProcessEvent.SELECT_HAND_CARD, card);
+        UIEventCenter.emit(UIEvent.SELECT_HAND_CARD, card);
       }
     }
     // this.scheduleOnce(this.refresh, 0);

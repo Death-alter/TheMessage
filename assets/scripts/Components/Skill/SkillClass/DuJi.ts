@@ -185,7 +185,7 @@ export class DuJi extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerIds, cardIds, waitingSecond, seq }: skill_wait_for_du_ji_b_toc
   ) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,
@@ -243,7 +243,7 @@ export class DuJi extends ActiveSkill {
   ) {
     const player = gameData.playerList[playerId];
     if (enable) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: waitingPlayerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

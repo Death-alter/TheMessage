@@ -28,8 +28,4 @@ export class LogLayer extends Component {
     this.gameLog.logHistory.gameObject = this.logHistory;
     this.logHistory.init();
   }
-
-  startRender() {}
-
-  stopRender() {}
 }

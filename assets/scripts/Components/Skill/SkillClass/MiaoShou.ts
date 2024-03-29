@@ -68,7 +68,7 @@ export class MiaoShou extends ActiveSkill {
     gameData: GameData,
     { playerId, targetPlayerId, cards, waitingSecond, seq, messageCard }: skill_miao_shou_a_toc
   ) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,

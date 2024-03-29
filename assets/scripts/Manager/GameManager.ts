@@ -1,6 +1,6 @@
 import { _decorator, Node, resources, Prefab, instantiate, find, sys } from "cc";
-import { GameEventCenter, ProcessEventCenter } from "../Event/EventTarget";
-import { GameEvent, ProcessEvent } from "../Event/type";
+import { GameEventCenter, ProcessEventCenter, UIEventCenter } from "../Event/EventTarget";
+import { GameEvent, ProcessEvent, UIEvent } from "../Event/type";
 import { GameData } from "./GameData";
 import * as GameEventType from "../Event/GameEventType";
 import { GameLogList } from "../Components/GameLog/GameLogList";
@@ -23,6 +23,7 @@ import { createIdentity } from "../Components/Identity";
 import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
+import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
 
 const { ccclass, property } = _decorator;
 
@@ -140,7 +141,6 @@ export class GameManager extends GameObject<GameData> {
 
     PlayerActionStepManager.dispose();
     PlayerAction.dispose();
-    this.popupLayer.stopRender();
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);
     ProcessEventCenter.emit(ProcessEvent.START_UNLOAD_GAME_SCENE);
@@ -180,34 +180,33 @@ export class GameManager extends GameObject<GameData> {
         str += `【${createIdentity(IdentityType.GREEN, task).name}】`;
       }
       this.gameLog.addData(new GameLog(str));
-      GameEventCenter.emit(GameEvent.GAME_INIT);
     }
   }
 
-  onInit() {
+  onInit(data) {
+    this.data = new GameData(data);
+    this.gameLog = new GameLogList();
+    this.gameLog.logHistory = new GameLogHistory();
+    this.gameLog.registerEvents();
+    this.data.gameLog = this.gameLog;
     this.initialized = true;
     this.init();
   }
 
   startRender() {
-    ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
+    UIEventCenter.on(UIEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     this.gameLayer.startRender();
     this.animationLayer.startRender();
-    this.logLayer.startRender();
     this.uiLayer.startRender();
   }
 
   stopRender() {
-    ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-    this.gameLayer.stopRender();
-    this.animationLayer.stopRender();
-    this.logLayer.stopRender();
-    this.uiLayer.stopRender();
+    UIEventCenter.on(UIEvent.START_COUNT_DOWN, this.onStartCountDown, this);
   }
 
   onStartCountDown(data: StartCountDown) {
     if (!data.isMultiply) {
-      ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+      UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
     }
     if (data.seq) {
       this.seq = data.seq;
@@ -215,7 +214,7 @@ export class GameManager extends GameObject<GameData> {
   }
 
   gameOver(data: GameEventType.GameOver) {
-    ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+    UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
     this.stopRender();
     // this.gameWindow.active = false;
     this.popupLayer.showCardsWindow.node.active = false;
@@ -237,8 +236,4 @@ export class GameManager extends GameObject<GameData> {
       }
     }
   }
-
-  // update(dt: number): void {
-  //   KeyframeAnimationManager.apf();
-  // }
 }

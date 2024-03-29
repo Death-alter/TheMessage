@@ -46,7 +46,7 @@ export class CunBuBuRang extends TriggerSkill {
   ) {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.USE_SKILL,

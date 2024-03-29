@@ -32,7 +32,7 @@ export class CongRongYingDui extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_SKILL_CONG_RONG_YING_DUI_TOC,
       (data) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,

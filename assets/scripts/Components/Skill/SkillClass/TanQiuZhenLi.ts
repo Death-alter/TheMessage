@@ -125,7 +125,7 @@ export class TanQiuZhenLi extends ActiveSkill {
       )
     );
 
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: targetPlayerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,

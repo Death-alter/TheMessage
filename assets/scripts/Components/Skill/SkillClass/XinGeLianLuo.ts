@@ -33,7 +33,7 @@ export class XinGeLianLuo extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_XIN_GE_LIAN_LUO_TOC,
       (data) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,

@@ -88,7 +88,7 @@ export class HuoXin extends ActiveSkill {
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌`));
 
     if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

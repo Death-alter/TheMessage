@@ -50,7 +50,7 @@ export class GongRenYouZhiShi extends TriggerSkill {
   }
 
   waitingForUse(gameData: GameData, { playerId, waitingSecond, seq }: skill_wait_for_workers_are_knowledgable_toc) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.USE_SKILL,

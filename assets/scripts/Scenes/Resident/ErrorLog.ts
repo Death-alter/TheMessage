@@ -10,7 +10,7 @@ export class ErrorLog extends Component {
   private _label: Node | null = null;
   private _opacityTarget: UIOpacity | null = null;
 
-  start() {
+  onLoad() {
     this._label = this.node.getChildByName("Label");
     this._mask = this.node.getChildByName("Mask");
     this._opacityTarget = this.getComponent(UIOpacity);

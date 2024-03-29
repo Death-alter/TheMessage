@@ -72,7 +72,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, waitingSecond, seq }: skill_dui_zheng_xia_yao_a_toc) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,
@@ -148,7 +148,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
   onEffectB(gameData: GameData, { playerId, enable, cards, waitingSecond, seq }: skill_dui_zheng_xia_yao_b_toc) {
     const player = gameData.playerList[playerId];
     if (enable) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

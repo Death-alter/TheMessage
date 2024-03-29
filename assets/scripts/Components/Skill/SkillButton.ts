@@ -63,8 +63,8 @@ export class SkillButton extends GameObject<Skill> {
       this.useable = false;
       this.onClick(() => {
         if (!this._locked) {
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_HAND_CARD);
-          UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER);
+          UIEventCenter.emit(UIEvent.STOP_SELECT_HAND_CARD);
+          UIEventCenter.emit(UIEvent.STOP_SELECT_PLAYER);
           if (this.isOn) {
             this.isOn = false;
             PlayerAction.switchToGroup("default").clearGroup("UseSkill").start();
@@ -113,7 +113,7 @@ export class SkillButton extends GameObject<Skill> {
             callback();
           }
         },
-        this
+        this,
       );
     } else {
       this.node.off(Node.EventType.TOUCH_END);

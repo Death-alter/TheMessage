@@ -104,30 +104,7 @@ export class AnimationLayer extends Component {
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
-  stopRender() {
-    this.animationPlayer.node.active = false;
 
-    GameEventCenter.off(GameEvent.PLAYER_DRAW_CARD, this.drawCards, this);
-    GameEventCenter.off(GameEvent.CARD_ON_EFFECT, this.cardOnEffect, this);
-    GameEventCenter.off(GameEvent.PLAYER_DISCARD_CARD, this.discardCards, this);
-    GameEventCenter.off(GameEvent.PLAYER_PLAY_CARD, this.playerPlayCard, this);
-    GameEventCenter.off(GameEvent.AFTER_PLAYER_PLAY_CARD, this.afterPlayerPlayCard, this);
-    GameEventCenter.off(GameEvent.CARD_ADD_TO_HAND_CARD, this.cardAddToHandCard, this);
-    GameEventCenter.off(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_SEND_MESSAGE, this.playerSendMessage, this);
-    GameEventCenter.off(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
-    GameEventCenter.off(GameEvent.MESSAGE_REMOVED, this.removeMessage, this);
-    GameEventCenter.off(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, this.messagePlacedIntoMessageZone, this);
-    GameEventCenter.off(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_VIEW_MESSAGE, this.playerViewMessage, this);
-    GameEventCenter.off(GameEvent.MESSAGE_TURNED_OVER, this.playerTurnOverMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
-    GameEventCenter.off(GameEvent.PLAYER_DIE, this.playerDie, this);
-    GameEventCenter.off(GameEvent.PLAYER_RECOVERY, this.playerRecovery, this);
-    GameEventCenter.off(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
-    GameEventCenter.off(GameEvent.CARD_MOVED, this.moveCard, this);
-  }
 
   drawCards(data: GameEventType.PlayerDrawCard) {
     this.animationPlayer.drawCards(data);

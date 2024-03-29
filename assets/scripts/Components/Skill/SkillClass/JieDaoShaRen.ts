@@ -93,7 +93,7 @@ export class JieDaoShaRen extends ActiveSkill {
     }
 
     if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

@@ -60,7 +60,7 @@ export class PopupLayer extends Component {
   }
 
   startRender() {
-    ProcessEventCenter.on(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
+    UIEventCenter.on(UIEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
     UIEventCenter.on(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
     UIEventCenter.on(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
     UIEventCenter.on(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
@@ -70,25 +70,15 @@ export class PopupLayer extends Component {
     this.selectIdentityWindow.getComponent(SelectIdentity).init();
   }
 
-  stopRender() {
-    ProcessEventCenter.off(ProcessEvent.COUNT_DOWN_TIMEOUT, this.onCountDownTimeout, this);
-    UIEventCenter.off(UIEvent.START_CHOOSE_CHARACTER, this.startSelectCharacter, this);
-    UIEventCenter.off(UIEvent.STOP_CHOOSE_CHARACTER, this.stopSelectCharacter, this);
-    UIEventCenter.off(UIEvent.START_SHOW_CARDS, this.showCardsWindow.show, this.showCardsWindow);
-    UIEventCenter.off(UIEvent.STOP_SHOW_CARDS, this.showCardsWindow.hide, this.showCardsWindow);
-    UIEventCenter.off(UIEvent.START_SHOW_MESSAGES, this.showMessages, this);
-    UIEventCenter.off(UIEvent.STOP_SHOW_MESSAGES, this.messagesWindow.hide, this.messagesWindow);
-    this.selectIdentityWindow.getComponent(SelectIdentity).dispose();
-  }
-
   startSelectCharacter(data: StartSelectCharacter) {
     if (this.manager.syncStatus !== SyncStatus.IS_SYNCING) {
       this.selectCharacterWindow.getComponent(SelectCharacter).init(
         {
           playerCount: data.playerCount,
-          identity: data.identity!=null
-            ? createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
-            : null,
+          identity:
+            data.identity != null
+              ? createIdentity((<number>data.identity) as IdentityType, (<number>data.secretTask) as SecretTaskType)
+              : null,
           roles: data.characterIdList,
           waitingSecond: data.waitingSecond,
           secretTaskList: data.secretTaskList
@@ -98,7 +88,7 @@ export class PopupLayer extends Component {
             : [],
           position: data.position,
         },
-        data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter
+        data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter,
       );
     }
   }

@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, Label } from "cc";
-import { ProcessEventCenter } from "../../../Event/EventTarget";
-import { ProcessEvent } from "../../../Event/type";
+import { ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { ProcessEvent, UIEvent } from "../../../Event/type";
 import DynamicButtons from "../../../Components/Utils/DynamicButtons";
 import { ProgressControl } from "../../../Components/Utils/ProgressControl";
 const { ccclass, property } = _decorator;
@@ -45,12 +45,12 @@ export class Tooltip extends Component {
     this.progressBar.active = false;
     this.hide();
     ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
-    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
+    UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   onDisable() {
     ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.hide, this);
+    UIEventCenter.off(UIEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   startCountDown(second: number) {

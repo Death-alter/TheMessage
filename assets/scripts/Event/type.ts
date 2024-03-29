@@ -1,4 +1,4 @@
-//toc协议，ws接收数据
+/** toc协议，ws接收数据 */
 export enum NetworkEventToC {
   RECONNECT_TOC = "reconnect_toc",
   NOTIFY_KICKED_TOC = "notify_kicked_toc",
@@ -199,7 +199,7 @@ export enum NetworkEventToC {
   SKILL_AN_CANG_SHA_JI_TOC = "skill_an_cang_sha_ji_toc",
 }
 
-//tos协议，ws发送数据
+/** tos协议，ws发送数据 */
 export enum NetworkEventToS {
   PAUSE_RECORD_TOS = "pause_record_tos",
   GET_RECORD_LIST_TOS = "get_record_list_tos",
@@ -343,7 +343,29 @@ export enum NetworkEventToS {
   SKILL_AN_CANG_SHA_JI_TOS = "skill_an_cang_sha_ji_tos",
 }
 
-//程序事件，用于程序控制
+/** 数据事件，通知GameData对象修改数据 */
+export enum DataEvent {
+  SYNC_PHASE_DATA = "sync_phase_data",
+  SYNC_DECK_NUM = "sync_deck_num",
+  DRAW_CARDS = "draw_cards",
+  DISCARD_CARDS = "discard_cards",
+  UPDATE_CHARACTER_STATUS = "update_character_status",
+  SEND_MESSAGE = "send_message",
+  CHOOSE_RECEIVE_MESSAGE = "choose_receive_message",
+  PLAYER_DYING = "player_dying",
+  PLAYER_BEFORE_DEATH = "player_before_death",
+  PLAYER_DIE = "player_die",
+  PLAYER_WIN = "player_win",
+  CARD_PLAYED = "card_played",
+  CARD_IN_PROCESS = "card_in_process",
+  CARD_HANDLE_FINISH = "card_handle_finish",
+  SKILL_USED = "skill_used",
+  SKILL_IN_PROCESS = "skill_in_process",
+  SKILL_HANDLE_FINISH = "skill_handle_finish",
+  PLAYER_DIE_GIVE_CARD = "player_die_give_card",
+}
+
+/** 程序事件，用于程序控制 */
 export enum ProcessEvent {
   RECONNECT_SYNC_START = "reconnect_sync_start",
   RECONNECT_SYNC_END = "reconnect_sync_end",
@@ -366,35 +388,11 @@ export enum ProcessEvent {
   INIT_GAME = "init_game",
   START_SELECT_CHARACTER = "start_select_character",
   CONFIRM_SELECT_CHARACTER = "conform_select_character",
-  GET_PHASE_DATA = "get_phase_data",
-  SYNC_DECK_NUM = "sync_deck_num",
-  DRAW_CARDS = "draw_cards",
-  DISCARD_CARDS = "discard_cards",
   GET_AUTO_PLAY_STATUS = "get_auto_play_status",
-  START_COUNT_DOWN = "start_count_down",
-  STOP_COUNT_DOWN = "stop_count_down",
-  COUNT_DOWN_TIMEOUT = "count_down_timeout",
-  SELECT_HAND_CARD = "select_hand_card",
-  CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
-  SELECT_PLAYER = "select_player",
-  CANCEL_SELECT_PLAYER = "cancel_select_player",
-  UPDATE_CHARACTER_STATUS = "update_character_status",
-  SEND_MESSAGE = "send_message",
-  CHOOSE_RECEIVE = "choose_receive",
-  PLAYER_DYING = "player_dying",
-  PLAYER_BEFORE_DEATH = "player_before_death",
-  PLAYER_DIE = "player_die",
-  PLAYER_WIN = "player_win",
-  CARD_PLAYED = "card_played",
-  CARD_IN_PROCESS = "card_in_process",
-  CARD_HANDLE_FINISH = "card_handle_finish",
-  PLAYER_DIE_GIVE_CARD = "player_die_give_card",
-  UNKNOWN_WAITING = "unknown_waiting",
 }
 
-//游戏事件
+/** 游戏事件，游戏流程相关 */
 export enum GameEvent {
-  GAME_INIT = "game_init",
   GAME_START = "game_start",
   DECK_CARD_NUMBER_CHANGE = "deck_card_number_change",
   DECK_SHUFFLED = "deck_shuffled",
@@ -442,12 +440,20 @@ export enum GameEvent {
   GAME_OVER = "game_over",
 }
 
-//UI事件
+/** UI事件，UI行为相关 */
 export enum UIEvent {
+  START_COUNT_DOWN = "start_count_down",
+  STOP_COUNT_DOWN = "stop_count_down",
+  UNKNOWN_WAITING = "unknown_waiting",
+  COUNT_DOWN_TIMEOUT = "count_down_timeout",
   START_SELECT_PLAYER = "start_select_player",
+  STOP_SELECT_PLAYER = "stop_select_player",
+  SELECT_PLAYER = "select_player",
   CANCEL_SELECT_PLAYER = "cancel_select_player",
   SELECT_PLAYER_COMPLETE = "select_player_complete",
+  SELECT_HAND_CARD = "select_hand_card",
   START_SELECT_HAND_CARD = "start_select_hand_card",
+  STOP_SELECT_HAND_CARD = "stop_select_hand_card",
   CANCEL_SELECT_HAND_CARD = "cancel_select_hand_card",
   SELECT_HAND_CARD_COMPLETE = "select_hand_card_complete",
   START_CHOOSE_CHARACTER = "start_choose_character",

@@ -47,7 +47,7 @@ export class JiangHuLing extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_JIANG_HU_LING_A_TOC,
       (data) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,
@@ -150,7 +150,7 @@ export class JiangHuLing extends TriggerSkill {
 
   waitingForUseB(gameData: GameData, { playerId, color, waitingSecond, seq }: skill_wait_for_jiang_hu_ling_b_toc) {
     if (waitingSecond > 0) {
-      ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+      UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
         playerId: playerId,
         second: waitingSecond,
         type: WaitingType.HANDLE_SKILL,

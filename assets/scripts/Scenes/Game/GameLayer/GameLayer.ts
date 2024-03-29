@@ -133,35 +133,19 @@ export class GameLayer extends Component {
   }
 
   startRender() {
-    ProcessEventCenter.on(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-    ProcessEventCenter.on(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    ProcessEventCenter.on(ProcessEvent.UNKNOWN_WAITING, this.onUnknownWaiting, this);
+    UIEventCenter.on(UIEvent.START_COUNT_DOWN, this.onStartCountDown, this);
+    UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
+    UIEventCenter.on(UIEvent.UNKNOWN_WAITING, this.onUnknownWaiting, this);
     ProcessEventCenter.on(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
     GameEventCenter.on(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
     GameEventCenter.on(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
     UIEventCenter.on(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
-    UIEventCenter.on(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
+    UIEventCenter.on(UIEvent.STOP_SELECT_HAND_CARD, this.stopSelectHandCards, this);
     UIEventCenter.on(UIEvent.SELECT_HAND_CARD_COMPLETE, this.lockSelectHandCards, this);
     UIEventCenter.on(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
-    UIEventCenter.on(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
+    UIEventCenter.on(UIEvent.STOP_SELECT_PLAYER, this.stopSelectPlayers, this);
     UIEventCenter.on(UIEvent.SELECT_PLAYER_COMPLETE, this.lockSelectPlayers, this);
-  }
-
-  stopRender() {
-    ProcessEventCenter.off(ProcessEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-    ProcessEventCenter.off(ProcessEvent.STOP_COUNT_DOWN, this.onStopCountDown, this);
-    ProcessEventCenter.off(ProcessEvent.UNKNOWN_WAITING, this.onUnknownWaiting, this);
-    ProcessEventCenter.off(ProcessEvent.PLAYER_NETWORK_STATUS_CHANGE, this.onPlayerNetworkStatusChange, this);
-    GameEventCenter.off(GameEvent.GAME_PHASE_CHANGE, this.onGamePhaseChange, this);
-    GameEventCenter.off(GameEvent.GAME_TURN_CHANGE, this.onGameTurnChange, this);
-    GameEventCenter.off(GameEvent.DECK_CARD_NUMBER_CHANGE, this.onDeckCardNumberChange, this);
-    UIEventCenter.off(UIEvent.START_SELECT_HAND_CARD, this.startSelectHandCards, this);
-    UIEventCenter.off(UIEvent.CANCEL_SELECT_HAND_CARD, this.stopSelectHandCards, this);
-    UIEventCenter.off(UIEvent.SELECT_HAND_CARD_COMPLETE, this.lockSelectHandCards, this);
-    UIEventCenter.off(UIEvent.START_SELECT_PLAYER, this.startSelectPlayers, this);
-    UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER, this.stopSelectPlayers, this);
-    UIEventCenter.off(UIEvent.SELECT_PLAYER_COMPLETE, this.lockSelectPlayers, this);
   }
 
   onStartCountDown(data: StartCountDown) {
@@ -234,19 +218,19 @@ export class GameLayer extends Component {
     if (!player.gameObject.selectable || this.selectedPlayers.limit <= 0) return;
     if (this.selectedPlayers.isSelected(player)) {
       this.selectedPlayers.deselect(player);
-      ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, player);
+      UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER, player);
     } else {
       const flag = this.selectedPlayers.select(player);
       if (flag) {
-        ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
+        UIEventCenter.emit(UIEvent.SELECT_PLAYER, player);
       } else {
         const firstPlayer = this.selectedPlayers.list[0];
         if (firstPlayer) {
           this.selectedPlayers.deselect(firstPlayer);
-          ProcessEventCenter.emit(ProcessEvent.CANCEL_SELECT_PLAYER, firstPlayer);
+          UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER, firstPlayer);
         }
         this.selectedPlayers.select(player);
-        ProcessEventCenter.emit(ProcessEvent.SELECT_PLAYER, player);
+        UIEventCenter.emit(UIEvent.SELECT_PLAYER, player);
       }
     }
     this.refreshPlayerSelectedState();
@@ -285,14 +269,14 @@ export class GameLayer extends Component {
     }
 
     if (onSelect) {
-      ProcessEventCenter.on(ProcessEvent.SELECT_PLAYER, onSelect);
+      UIEventCenter.on(UIEvent.SELECT_PLAYER, onSelect);
     } else {
-      ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
+      UIEventCenter.off(UIEvent.SELECT_PLAYER);
     }
     if (onDeselect) {
-      ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_PLAYER, onDeselect);
+      UIEventCenter.on(UIEvent.CANCEL_SELECT_PLAYER, onDeselect);
     } else {
-      ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
+      UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER);
     }
   }
 
@@ -302,8 +286,8 @@ export class GameLayer extends Component {
       player.enableSelectIdentity = true;
     }
     this.selectedPlayers.lock();
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
+    UIEventCenter.off(UIEvent.SELECT_PLAYER);
+    UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
   stopSelectPlayers() {
@@ -316,8 +300,8 @@ export class GameLayer extends Component {
     this.selectedPlayers.unlock();
     this.selectedPlayers.clear();
     this.refreshPlayerSelectedState();
-    ProcessEventCenter.off(ProcessEvent.SELECT_PLAYER);
-    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_PLAYER);
+    UIEventCenter.off(UIEvent.SELECT_PLAYER);
+    UIEventCenter.off(UIEvent.CANCEL_SELECT_PLAYER);
   }
 
   //开始选择手牌
@@ -334,17 +318,17 @@ export class GameLayer extends Component {
       this.handCardContainer.setHandCardsUsable(filter);
     }
     if (onSelect) {
-      ProcessEventCenter.on(ProcessEvent.SELECT_HAND_CARD, onSelect);
+      UIEventCenter.on(UIEvent.SELECT_HAND_CARD, onSelect);
     }
     if (onDeselect) {
-      ProcessEventCenter.on(ProcessEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
+      UIEventCenter.on(UIEvent.CANCEL_SELECT_HAND_CARD, onDeselect);
     }
   }
 
   lockSelectHandCards() {
     this.selectedHandCards.lock();
-    ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+    UIEventCenter.off(UIEvent.SELECT_HAND_CARD);
+    UIEventCenter.off(UIEvent.CANCEL_SELECT_HAND_CARD);
   }
 
   stopSelectHandCards() {
@@ -352,7 +336,7 @@ export class GameLayer extends Component {
     this.selectedHandCards.unlock();
     this.handCardContainer.refreshHandCardsUseable();
     this.handCardContainer.resetSelectCard();
-    ProcessEventCenter.off(ProcessEvent.SELECT_HAND_CARD);
-    ProcessEventCenter.off(ProcessEvent.CANCEL_SELECT_HAND_CARD);
+    UIEventCenter.off(UIEvent.SELECT_HAND_CARD);
+    UIEventCenter.off(UIEvent.CANCEL_SELECT_HAND_CARD);
   }
 }

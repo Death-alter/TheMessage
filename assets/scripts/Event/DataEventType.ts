@@ -4,81 +4,24 @@ import { CardDirection, CardType, CardOnEffectParams } from "../Components/Card/
 import { IdentityType, SecretTaskType } from "../Components/Identity/type";
 import { GamePhase, WaitingType } from "../Manager/type";
 
-export interface NetworkError {
-  code?: number;
-  msg: string;
-}
-
-export interface RecordStatusChange {
-  paused: boolean;
-}
-
-export interface GetRecordList {
-  records: string[];
-}
-
-export interface GetOrders {}
-
-export interface UpdateOnlineCount {
-  onlineCount: number;
-}
-
-export interface RemoveRoomPosition {
-  position: number;
-}
-
-export interface SaveRecordSuccess {
-  recordId: string;
-}
-
-export interface CreateRoom {
-  myPosition: number;
-  onlineCount: number;
-  notice: string;
-  players: {
-    id: number;
-    name: string;
-    winCount: number;
-    gameCount: number;
-    rank: string;
-    score: number;
-  }[];
-}
-
-export interface JoinRoom {
-  name: string;
-  position: number;
-  winCount: number;
-  gameCount: number;
-}
-
-export interface LeaveRoom {
-  position: number;
-}
-
-export interface GetAutoPlayStatus {
-  enable: boolean;
-}
-
-export interface ConfirmSelectCharacter {
-  characterId: number;
-}
-
-export interface InitGame {
-  playerCount: number;
-  identity: IdentityType;
-  secretTask: SecretTaskType;
-  secretTaskList: SecretTaskType[];
-  players: {
-    id: number;
-    name: string;
-    characterId: number;
-  }[];
-}
-
 export interface UpdateCharacterStatus {
   playerId: number;
   characterId: number;
+}
+
+export interface SyncPhaseData {
+  currentPlayerId: number;
+  currentPhase: GamePhase;
+  messagePlayerId: number;
+  messageDirection: CardDirection;
+  messageInTransmit: card;
+  senderId: number;
+  needWaiting: boolean;
+}
+
+export interface SyncDeckNum {
+  number: number;
+  shuffled: boolean;
 }
 
 export interface DrawCards {
@@ -87,24 +30,9 @@ export interface DrawCards {
   unknownCardCount: number;
 }
 
-export interface SyncDeckNum {
-  number: number;
-  shuffled: boolean;
-}
-
 export interface DiscardCards {
   playerId: number;
   cards: card[];
-}
-
-export interface GetPhaseData {
-  currentPlayerId: number;
-  currentPhase: GamePhase;
-  messagePlayerId: number;
-  messageDirection: CardDirection;
-  messageInTransmit: card;
-  senderId: number;
-  needWaiting: boolean;
 }
 
 export interface StartCountDown {

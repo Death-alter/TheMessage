@@ -29,7 +29,7 @@ export class YiXin extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_YI_XIN_TOC,
       (data) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: data.playerId,
           second: data.waitingSecond,
           type: WaitingType.USE_SKILL,

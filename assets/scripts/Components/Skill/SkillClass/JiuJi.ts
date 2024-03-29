@@ -37,7 +37,7 @@ export class JiuJi extends TriggerSkill {
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_JIU_JI_TOC,
       ({ fromPlayerId, cardType, card, waitingSecond, seq }: skill_wait_for_jiu_ji_toc) => {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: 0,
           second: waitingSecond,
           type: WaitingType.USE_SKILL,

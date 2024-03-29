@@ -71,7 +71,7 @@ export class CangShenJiaoTang extends TriggerSkill {
         skill: this,
       });
       if (waitingSecond > 0) {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId: playerId,
           second: waitingSecond,
           type: WaitingType.HANDLE_SKILL,
@@ -92,7 +92,7 @@ export class CangShenJiaoTang extends TriggerSkill {
       }
     } else {
       if (waitingSecond > 0) {
-        ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+        UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
           playerId,
           second: waitingSecond,
           type: WaitingType.USE_SKILL,

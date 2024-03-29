@@ -93,7 +93,7 @@ export class RuBiZhiShi extends ActiveSkill {
       skill: this,
     });
 
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,

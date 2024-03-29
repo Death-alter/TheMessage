@@ -58,7 +58,7 @@ export class YunChouWeiWo extends ActiveSkill {
   }
 
   onEffectA(gameData: GameData, { playerId, cards, waitingSecond, seq }: skill_yun_chou_wei_wo_a_toc) {
-    ProcessEventCenter.emit(ProcessEvent.START_COUNT_DOWN, {
+    UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
       second: waitingSecond,
       type: WaitingType.HANDLE_SKILL,
