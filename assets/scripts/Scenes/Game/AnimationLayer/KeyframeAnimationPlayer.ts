@@ -143,6 +143,7 @@ export class KeyframeAnimationPlayer extends Component {
   private addCard(card: Card, loaction?: ActionLocation): Node;
   private addCard(cards: Card[], loaction?: ActionLocation): Node;
   private addCard(card: Card | Card[], loaction?: ActionLocation): Node {
+    if (!card) return null;
     let node: Node;
     const obj: any = {};
     if (card instanceof Array) {
