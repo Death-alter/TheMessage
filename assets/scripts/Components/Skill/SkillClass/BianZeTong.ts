@@ -1,6 +1,6 @@
 import { skill_bian_ze_tong_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -29,7 +29,7 @@ export class BianZeTong extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_BIAN_ZE_TONG_TOC,
@@ -49,7 +49,7 @@ export class BianZeTong extends TriggerSkill {
           skill: this,
         });
       },
-      this
+      this,
     );
   }
 
@@ -183,10 +183,10 @@ export class BianZeTong extends TriggerSkill {
       });
 
       gameLog.addData(
-        new GameLog(`${gameLog.formatPlayer(player)}宣言了${gameLog.formatCard(cardA)}${gameLog.formatCard(cardB)}`)
+        new GameLog(`${gameLog.formatPlayer(player)}宣言了${gameLog.formatCard(cardA)}${gameLog.formatCard(cardB)}`),
       );
       gameLog.addData(
-        new GameLog(`直到回合结束，所有玩家的${gameLog.formatCard(cardA)}只能当做${gameLog.formatCard(cardB)}牌使用。`)
+        new GameLog(`直到回合结束，所有玩家的${gameLog.formatCard(cardA)}只能当做${gameLog.formatCard(cardB)}牌使用。`),
       );
 
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

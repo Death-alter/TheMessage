@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_zhuan_jiao_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, ProcessEvent, NetworkEventToS, GameEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType, CardActionLocation } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";

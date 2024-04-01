@@ -6,8 +6,8 @@ import {
   skill_jiang_hu_ling_b_toc,
   skill_wait_for_jiang_hu_ling_b_toc,
 } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardColor } from "../../Card/type";

@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_xian_fa_zhi_ren_a_toc, skill_xian_fa_zhi_ren_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";

@@ -3,8 +3,8 @@ import {
   skill_jian_di_feng_xing_b_toc,
   skill_jian_di_feng_xing_c_toc,
 } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { TriggerSkill } from "../Skill";
 import { GameLog } from "../../GameLog/GameLog";
@@ -34,21 +34,21 @@ export class JianDiFengXing extends TriggerSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIAN_DI_FENG_XING_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIAN_DI_FENG_XING_C_TOC,
       (data) => {
         this.onEffectC(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -154,7 +154,7 @@ export class JianDiFengXing extends TriggerSkill {
       });
 
       gameLog.addData(
-        new GameLog(`${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入自己的情报区`)
+        new GameLog(`${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入自己的情报区`),
       );
 
       if (playerId === 0) {
@@ -245,9 +245,9 @@ export class JianDiFengXing extends TriggerSkill {
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(message)}置入${gameLog.formatPlayer(
-            messagePlayer
-          )}的情报区`
-        )
+            messagePlayer,
+          )}的情报区`,
+        ),
       );
     }
 

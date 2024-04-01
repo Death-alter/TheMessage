@@ -1,17 +1,15 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_jin_bi_a_toc, skill_jin_bi_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { getCardTypeCount } from "../../Card";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
-import { TagName } from "../../../type";
 
 export class JinBi extends ActiveSkill {
   private usageCount: number = 0;

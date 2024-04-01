@@ -3,8 +3,8 @@ import {
   skill_cang_shen_jiao_tang_b_toc,
   skill_cang_shen_jiao_tang_c_toc,
 } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -33,21 +33,21 @@ export class CangShenJiaoTang extends TriggerSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_CANG_SHEN_JIAO_TANG_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_CANG_SHEN_JIAO_TANG_C_TOC,
       (data) => {
         this.onEffectC(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -59,7 +59,7 @@ export class CangShenJiaoTang extends TriggerSkill {
 
   onEffectA(
     gameData: GameData,
-    { playerId, targetPlayerId, isHiddenRole, waitingSecond, seq }: skill_cang_shen_jiao_tang_a_toc
+    { playerId, targetPlayerId, isHiddenRole, waitingSecond, seq }: skill_cang_shen_jiao_tang_a_toc,
   ) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
@@ -251,7 +251,7 @@ export class CangShenJiaoTang extends TriggerSkill {
 
   onEffectC(
     gameData: GameData,
-    { enable, playerId, targetPlayerId, cardId, asMessageCard }: skill_cang_shen_jiao_tang_c_toc
+    { enable, playerId, targetPlayerId, cardId, asMessageCard }: skill_cang_shen_jiao_tang_c_toc,
   ) {
     const player = gameData.playerList[playerId];
     if (enable) {
@@ -273,9 +273,9 @@ export class CangShenJiaoTang extends TriggerSkill {
         gameLog.addData(
           new GameLog(
             `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
-              message
-            )}置入情报区`
-          )
+              message,
+            )}置入情报区`,
+          ),
         );
       } else {
         gameData.playerAddHandCard(player, message);
@@ -287,9 +287,9 @@ export class CangShenJiaoTang extends TriggerSkill {
         gameLog.addData(
           new GameLog(
             `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
-              message
-            )}加入手牌`
-          )
+              message,
+            )}加入手牌`,
+          ),
         );
       }
     }

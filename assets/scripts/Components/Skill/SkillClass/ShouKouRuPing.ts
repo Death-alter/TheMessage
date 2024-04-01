@@ -1,6 +1,6 @@
 import { skill_shou_kou_ru_ping_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Character } from "../../Chatacter/Character";
 import { GameLog } from "../../GameLog/GameLog";
@@ -23,7 +23,7 @@ export class ShouKouRuPing extends PassiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -33,7 +33,7 @@ export class ShouKouRuPing extends PassiveSkill {
 
   onEffect(
     gameData: GameData,
-    { playerId, cardPlayerId, cardTargetPlayerId, card, cardType, unknownCardCount }: skill_shou_kou_ru_ping_toc
+    { playerId, cardPlayerId, cardTargetPlayerId, card, cardType, unknownCardCount }: skill_shou_kou_ru_ping_toc,
   ) {
     const player = gameData.playerList[playerId];
     const gameLog = gameData.gameLog;
@@ -54,7 +54,7 @@ export class ShouKouRuPing extends PassiveSkill {
       data.card = card;
     }
 
-    ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
+    DataEventCenter.emit(DataEvent.CARD_PLAYED, data);
     const cardText = gameLog.formatCard(card ? gameData.createCard(card) : gameData.createCardByType(<number>cardType));
 
     if (cardPlayerId) {

@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_jiu_ji_a_toc, skill_jiu_ji_b_toc, skill_wait_for_jiu_ji_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
@@ -25,14 +25,14 @@ export class JiuJi extends TriggerSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIU_JI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_JIU_JI_TOC,
@@ -45,7 +45,7 @@ export class JiuJi extends TriggerSkill {
           params: { skill: this, fromPlayerId, cardType, card },
         });
       },
-      this
+      this,
     );
   }
 
@@ -67,7 +67,7 @@ export class JiuJi extends TriggerSkill {
     }
 
     tooltip.setText(
-      `${gameLog.formatPlayer(fromPlayer)}对你使用${gameLog.formatCard(cardPlayed, false)}，是否使用【就计】`
+      `${gameLog.formatPlayer(fromPlayer)}对你使用${gameLog.formatCard(cardPlayed, false)}，是否使用【就计】`,
     );
     tooltip.buttons.setButtons([
       {
@@ -89,12 +89,6 @@ export class JiuJi extends TriggerSkill {
         },
       },
     ]);
-
-    // GameEventCenter.emit(GameEvent.PLAYER_PLAY_CARD, {
-    //   player: gui.data.playerList[fromPlayerId],
-    //   cardType,
-    //   card: cardPlayed,
-    // });
   }
 
   onEffectA(gameData: GameData, { playerId }: skill_jiu_ji_a_toc) {

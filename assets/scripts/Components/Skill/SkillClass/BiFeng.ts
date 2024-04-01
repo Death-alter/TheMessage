@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_bi_feng_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -33,14 +33,14 @@ export class BiFeng extends TriggerSkill {
           },
         });
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_BI_FENG_TOC,
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -93,10 +93,10 @@ export class BiFeng extends TriggerSkill {
       data.targetPlayerId = targetPlayerId;
     }
 
-    ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
+    DataEventCenter.emit(DataEvent.CARD_PLAYED, data);
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}使用【避风】`));
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(gameData.createCard(card))}被无效`)
+      new GameLog(`${gameLog.formatPlayer(player)}使用的${gameLog.formatCard(gameData.createCard(card))}被无效`),
     );
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,

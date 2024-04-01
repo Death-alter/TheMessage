@@ -1,6 +1,6 @@
 import { skill_cheng_zhi_toc, skill_wait_for_cheng_zhi_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";

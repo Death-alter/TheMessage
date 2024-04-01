@@ -1,6 +1,6 @@
 import { skill_cun_bu_bu_rang_toc, skill_wait_for_cun_bu_bu_rang_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -24,14 +24,14 @@ export class CunBuBuRang extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_CUN_BU_BU_RANG_TOC,
       (data) => {
         this.waitingForUse(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -42,7 +42,7 @@ export class CunBuBuRang extends TriggerSkill {
 
   waitingForUse(
     gameData: GameData,
-    { playerId, targetPlayerId, waitingSecond, seq }: skill_wait_for_cun_bu_bu_rang_toc
+    { playerId, targetPlayerId, waitingSecond, seq }: skill_wait_for_cun_bu_bu_rang_toc,
   ) {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
@@ -106,7 +106,7 @@ export class CunBuBuRang extends TriggerSkill {
       });
 
       gameLog.addData(
-        new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
+        new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`),
       );
 
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

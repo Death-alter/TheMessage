@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_yi_hua_jie_mu_a_toc, skill_yi_hua_jie_mu_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
@@ -33,14 +33,14 @@ export class YiHuaJieMu extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_YI_HUA_JIE_MU_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -128,7 +128,7 @@ export class YiHuaJieMu extends ActiveSkill {
 
   onEffectB(
     gameData: GameData,
-    { playerId, fromPlayerId, toPlayerId, cardId, joinIntoHand }: skill_yi_hua_jie_mu_b_toc
+    { playerId, fromPlayerId, toPlayerId, cardId, joinIntoHand }: skill_yi_hua_jie_mu_b_toc,
   ) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
@@ -146,9 +146,9 @@ export class YiHuaJieMu extends ActiveSkill {
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(fromPlayer)}的情报${gameLog.formatCard(message)}加入${gameLog.formatPlayer(
-            player
-          )}的手牌`
-        )
+            player,
+          )}的手牌`,
+        ),
       );
     } else {
       toPlayer.addMessage(message);
@@ -161,9 +161,9 @@ export class YiHuaJieMu extends ActiveSkill {
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(fromPlayer)}的情报${gameLog.formatCard(message)}置入${gameLog.formatPlayer(
-            toPlayer
-          )}的情报区`
-        )
+            toPlayer,
+          )}的情报区`,
+        ),
       );
     }
 

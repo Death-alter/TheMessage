@@ -1,6 +1,6 @@
 import { skill_leng_xue_xun_lian_a_toc, skill_leng_xue_xun_lian_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -35,14 +35,14 @@ export class LengXueXunLian extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_LENG_XUE_XUN_LIAN_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -164,7 +164,7 @@ export class LengXueXunLian extends ActiveSkill {
 
   onEffectB(
     gameData: GameData,
-    { sendCard, senderId, targetPlayerId, lockPlayerId, handCard }: skill_leng_xue_xun_lian_b_toc
+    { sendCard, senderId, targetPlayerId, lockPlayerId, handCard }: skill_leng_xue_xun_lian_b_toc,
   ) {
     const player = gameData.playerList[senderId];
     const card = gameData.createCard(handCard);
@@ -174,7 +174,7 @@ export class LengXueXunLian extends ActiveSkill {
       UIEventCenter.emit(UIEvent.STOP_SHOW_CARDS);
     }
 
-    ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
+    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, {
       card: sendCard,
       senderId: senderId,
       targetPlayerId: targetPlayerId,

@@ -131,6 +131,14 @@ export class GameData extends DataBasic<GameManager> {
   /**正在使用的卡牌 */
   private _cardOnPlay: Card;
 
+  get cardOnPlay() {
+    return this._cardOnPlay;
+  }
+
+  set cardOnPlay(card: Card) {
+    this._cardOnPlay = card;
+  }
+
   /**正在使用的技能 */
   private _skillOnUse: Skill;
   /**已经使用完，正在生效的技能 */
@@ -172,6 +180,9 @@ export class GameData extends DataBasic<GameManager> {
 
   get messageInTransmit() {
     return this._messageInTransmit;
+  }
+  set messageInTransmit(message: Card) {
+    this._messageInTransmit = message;
   }
 
   get messagePlayer() {

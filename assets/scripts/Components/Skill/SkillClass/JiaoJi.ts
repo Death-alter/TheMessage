@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
 import { skill_jiao_ji_a_toc, skill_jiao_ji_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
@@ -10,7 +10,6 @@ import { Player } from "../../../Components/Player/Player";
 import { CardColor } from "../../Card/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
-import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
 export class JiaoJi extends ActiveSkill {

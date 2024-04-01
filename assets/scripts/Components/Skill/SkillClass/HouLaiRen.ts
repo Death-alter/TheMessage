@@ -35,14 +35,14 @@ export class HouLaiRen extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_HOU_LAI_REN_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
   }
@@ -56,7 +56,7 @@ export class HouLaiRen extends ActiveSkill {
   onPlayerDying(data: wait_for_cheng_qing_toc) {
     if (data.diePlayerId === 0 && this.gameObject) {
       this.gameObject.useable = true;
-      ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
+      UIEventCenter.once(UIEvent.STOP_COUNT_DOWN, () => {
         if (this.gameObject) {
           this.gameObject.useable = false;
         }

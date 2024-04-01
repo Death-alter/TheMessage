@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_xin_ge_lian_luo_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -28,7 +28,7 @@ export class XinGeLianLuo extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_XIN_GE_LIAN_LUO_TOC,
@@ -43,7 +43,7 @@ export class XinGeLianLuo extends TriggerSkill {
           },
         });
       },
-      this
+      this,
     );
   }
 

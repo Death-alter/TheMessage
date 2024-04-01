@@ -1,8 +1,8 @@
 import { CardType } from "../../Card/type";
 import { PassiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
-import { GameEvent, UIEvent } from "../../../Event/type";
-import { GameEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent } from "../../../Event/type";
+import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";
 
 export class JieCheYunHuo extends PassiveSkill {

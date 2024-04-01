@@ -1,6 +1,6 @@
 import { skill_bo_ai_a_toc, skill_bo_ai_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -32,14 +32,14 @@ export class BoAi extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_BO_AI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }

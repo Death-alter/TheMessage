@@ -1,6 +1,6 @@
 import { _decorator, Component, UITransform } from "cc";
-import { ProcessEventCenter, UIEventCenter } from "../../Event/EventTarget";
-import { ProcessEvent, UIEvent } from "../../Event/type";
+import { UIEventCenter } from "../../Event/EventTarget";
+import { UIEvent } from "../../Event/type";
 import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 

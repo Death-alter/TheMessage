@@ -1,6 +1,6 @@
 import { skill_tao_qu_a_toc, skill_tao_qu_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";
@@ -37,14 +37,14 @@ export class TaoQu extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_TAO_QU_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
@@ -236,9 +236,9 @@ export class TaoQu extends ActiveSkill {
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
-          card
-        )}加入手牌`
-      )
+          card,
+        )}加入手牌`,
+      ),
     );
 
     ++this.usageCount;

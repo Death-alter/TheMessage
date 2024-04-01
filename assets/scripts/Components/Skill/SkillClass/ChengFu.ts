@@ -1,6 +1,6 @@
 import { skill_cheng_fu_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardType } from "../../Card/type";
 import { Character } from "../../../Components/Chatacter/Character";
@@ -23,7 +23,7 @@ export class ChengFu extends PassiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -53,7 +53,7 @@ export class ChengFu extends PassiveSkill {
       data.card = card;
     }
 
-    ProcessEventCenter.emit(ProcessEvent.CARD_PLAYED, data);
+    DataEventCenter.emit(DataEvent.CARD_PLAYED, data);
 
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[fromPlayerId];

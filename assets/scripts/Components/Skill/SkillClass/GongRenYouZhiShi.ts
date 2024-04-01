@@ -4,8 +4,8 @@ import {
   skill_wait_for_workers_are_knowledgable_toc,
   skill_workers_are_knowledgable_toc,
 } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";

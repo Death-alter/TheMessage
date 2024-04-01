@@ -1,6 +1,11 @@
 import { skill_huo_xin_a_toc, skill_huo_xin_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import {
+  DataEventCenter,
+  GameEventCenter,
+  NetworkEventCenter,
+  UIEventCenter,
+} from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -34,14 +39,14 @@ export class HuoXin extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_HUO_XIN_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
@@ -72,7 +77,7 @@ export class HuoXin extends ActiveSkill {
 
   onEffectA(
     gameData: GameData,
-    { playerId, targetPlayerId, showCard, cards, waitingSecond, seq }: skill_huo_xin_a_toc
+    { playerId, targetPlayerId, showCard, cards, waitingSecond, seq }: skill_huo_xin_a_toc,
   ) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
@@ -181,20 +186,20 @@ export class HuoXin extends ActiveSkill {
       });
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的${gameLog.formatCard(card)}加入手牌`
-        )
+          `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的${gameLog.formatCard(card)}加入手牌`,
+        ),
       );
     } else {
-      ProcessEventCenter.emit(ProcessEvent.DISCARD_CARDS, {
+      DataEventCenter.emit(DataEvent.DISCARD_CARDS, {
         playerId: targetPlayerId,
         cards: [discardCard],
       });
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}弃置${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(
-            gameData.createCard(discardCard)
-          )}`
-        )
+            gameData.createCard(discardCard),
+          )}`,
+        ),
       );
     }
 

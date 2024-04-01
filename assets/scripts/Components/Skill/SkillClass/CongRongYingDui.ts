@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_cong_rong_ying_dui_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, ProcessEvent, NetworkEventToS, GameEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, NetworkEventToS, GameEvent, UIEvent } from "../../../Event/type";
 import { WaitingType, CardActionLocation } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -27,7 +27,7 @@ export class CongRongYingDui extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.WAIT_FOR_SKILL_CONG_RONG_YING_DUI_TOC,
@@ -42,7 +42,7 @@ export class CongRongYingDui extends TriggerSkill {
           },
         });
       },
-      this
+      this,
     );
   }
 
@@ -139,7 +139,7 @@ export class CongRongYingDui extends TriggerSkill {
         });
 
         gameLog.addData(
-          new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
+          new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`),
         );
       }
 

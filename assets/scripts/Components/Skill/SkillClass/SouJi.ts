@@ -1,13 +1,13 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
 import { Character } from "../../../Components/Chatacter/Character";
-import { card, skill_sou_ji_a_toc, skill_sou_ji_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { skill_sou_ji_a_toc, skill_sou_ji_b_toc } from "../../../../protobuf/proto";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase, WaitingType, CardActionLocation } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
-import { CardColor, CardStatus } from "../../Card/type";
+import { CardColor } from "../../Card/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Chatacter/type";
@@ -35,14 +35,14 @@ export class SouJi extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_SOU_JI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -64,7 +64,7 @@ export class SouJi extends ActiveSkill {
 
   onEffectA(
     gameData: GameData,
-    { playerId, targetPlayerId, cards, messageCard, waitingSecond, seq }: skill_sou_ji_a_toc
+    { playerId, targetPlayerId, cards, messageCard, waitingSecond, seq }: skill_sou_ji_a_toc,
   ) {
     UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -99,7 +99,7 @@ export class SouJi extends ActiveSkill {
     }
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌和待收情报`)
+      new GameLog(`${gameLog.formatPlayer(player)}查看${gameLog.formatPlayer(targetPlayer)}的手牌和待收情报`),
     );
   }
 

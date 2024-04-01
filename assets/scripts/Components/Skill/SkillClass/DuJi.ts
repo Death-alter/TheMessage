@@ -5,8 +5,8 @@ import {
   skill_du_ji_c_toc,
   skill_wait_for_du_ji_b_toc,
 } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";

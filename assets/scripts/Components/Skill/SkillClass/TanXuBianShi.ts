@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_tan_xu_bian_shi_a_toc, skill_tan_xu_bian_shi_b_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToC, GameEvent, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -39,14 +39,14 @@ export class TanXuBianShi extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_TAN_XU_BIAN_SHI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }

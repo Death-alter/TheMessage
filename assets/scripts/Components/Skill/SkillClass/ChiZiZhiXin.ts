@@ -1,6 +1,6 @@
 import { skill_chi_zi_zhi_xin_a_toc, skill_chi_zi_zhi_xin_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { TriggerSkill } from "../Skill";
 import { GameLog } from "../../GameLog/GameLog";

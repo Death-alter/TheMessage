@@ -1,11 +1,11 @@
 import { TriggerSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_du_ming_a_toc, skill_du_ming_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
-import { CardColor, CardStatus, CardUsableStatus } from "../../Card/type";
+import { CardColor, CardUsableStatus } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { getCardColorText } from "../../../Utils";
@@ -30,14 +30,14 @@ export class DuMing extends TriggerSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_DU_MING_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_DU_MING_TOC,
@@ -52,7 +52,7 @@ export class DuMing extends TriggerSkill {
           },
         });
       },
-      this
+      this,
     );
   }
 

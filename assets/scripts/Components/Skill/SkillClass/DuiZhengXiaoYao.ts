@@ -3,8 +3,8 @@ import {
   skill_dui_zheng_xia_yao_b_toc,
   skill_dui_zheng_xia_yao_c_toc,
 } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { NetworkEventCenter, GameEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -39,21 +39,21 @@ export class DuiZhengXiaoYao extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_DUI_ZHENG_XIA_YAO_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_DUI_ZHENG_XIA_YAO_C_TOC,
       (data) => {
         this.onEffectC(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -310,9 +310,9 @@ export class DuiZhengXiaoYao extends ActiveSkill {
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(targetPlayer)}}情报区弃置${gameLog.formatCard(
-          message
-        )}`
-      )
+          message,
+        )}`,
+      ),
     );
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

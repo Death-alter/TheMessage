@@ -1,8 +1,8 @@
 import { ActiveSkill } from "../Skill";
 import { Character } from "../../Chatacter/Character";
 import { skill_ru_bi_zhi_shi_a_toc, skill_ru_bi_zhi_shi_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -39,14 +39,14 @@ export class RuBiZhiShi extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_RU_BI_ZHI_SHI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
 
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
@@ -62,7 +62,7 @@ export class RuBiZhiShi extends ActiveSkill {
     this.dyingPlayerId = data.diePlayerId;
     if (this.gameObject) {
       this.gameObject.useable = true;
-      ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
+      UIEventCenter.once(UIEvent.STOP_COUNT_DOWN, () => {
         this.gameObject.useable = false;
       });
     }
@@ -236,11 +236,11 @@ export class RuBiZhiShi extends ActiveSkill {
     if (enable) {
       if (useCard) {
         gameLog.addData(
-          new GameLog(`${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌`)
+          new GameLog(`${gameLog.formatPlayer(player)}选择使用${gameLog.formatPlayer(targetPlayer)}的手牌`),
         );
       } else {
         gameLog.addData(
-          new GameLog(`${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌`)
+          new GameLog(`${gameLog.formatPlayer(player)}选择弃置${gameLog.formatPlayer(targetPlayer)}的手牌`),
         );
       }
     }

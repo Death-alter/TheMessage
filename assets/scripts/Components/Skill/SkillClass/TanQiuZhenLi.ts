@@ -1,6 +1,6 @@
 import { skill_tan_qiu_zhen_li_a_toc, skill_tan_qiu_zhen_li_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
@@ -37,14 +37,14 @@ export class TanQiuZhenLi extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_TAN_QIU_ZHEN_LI_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.MAIN_PHASE_END, this.resetUsageCount, this);
   }
@@ -120,9 +120,9 @@ export class TanQiuZhenLi extends ActiveSkill {
     gameLog.addData(
       new GameLog(
         `${gameLog.formatPlayer(player)}把${gameLog.formatPlayer(targetPlayer)}的情报${gameLog.formatCard(
-          message
-        )}置入自己的情报区`
-      )
+          message,
+        )}置入自己的情报区`,
+      ),
     );
 
     UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
