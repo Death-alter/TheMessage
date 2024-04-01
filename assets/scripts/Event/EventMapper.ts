@@ -617,11 +617,6 @@ export class EventMapper {
         isActual: data.card !== null,
         userId: data.playerId,
       });
-
-      // NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC,() =>{
-      //   DataEventCenter.emit()
-      // });
-      // //
       DataEventCenter.emit(DataEvent.CARD_IN_PROCESS, {
         data: {
           card: data.card,
@@ -640,3 +635,12 @@ export class EventMapper {
     });
   }
 }
+    //添加情报  
+    NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC,(data: ProtobufType.add_message_card_toc) =>{
+      DataEventCenter.emit(DataEvent.CARD_IN_PROCESS,{
+        data:{
+          targetPlayerId:data.targetPlayerId,
+          messageCard:data.messageCard
+        } 
+        })
+       });
