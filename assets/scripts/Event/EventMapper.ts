@@ -618,6 +618,10 @@ export class EventMapper {
         userId: data.playerId,
       });
 
+      // NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC,() =>{
+      //   DataEventCenter.emit()
+      // });
+      // //
       DataEventCenter.emit(DataEvent.CARD_IN_PROCESS, {
         data: {
           card: data.card,
