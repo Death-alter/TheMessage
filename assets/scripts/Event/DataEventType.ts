@@ -111,3 +111,7 @@ export interface PlayerNetworkStatusChange {
   isAuto: boolean;
   isOffline: boolean;
 }
+export interface GmAddMessage {
+  targetPlayerId: number;
+  messageCard: card;
+}
