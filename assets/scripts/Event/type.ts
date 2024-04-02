@@ -364,6 +364,7 @@ export enum DataEvent {
   SKILL_IN_PROCESS = "skill_in_process",
   SKILL_HANDLE_FINISH = "skill_handle_finish",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
+  GM_ADD_MESSAGE = "gm_add_message"
 }
 
 /** 程序事件，用于程序控制 */

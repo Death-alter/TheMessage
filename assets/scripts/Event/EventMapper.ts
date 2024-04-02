@@ -636,7 +636,7 @@ export class EventMapper {
 }
     //添加情报  
     NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC,(data: ProtobufType.add_message_card_toc) =>{
-      DataEventCenter.emit(DataEvent.CARD_IN_PROCESS,{
+      DataEventCenter.emit(DataEvent.GM_ADD_MESSAGE,{
         data:{
           targetPlayerId:data.targetPlayerId,
           messageCard:data.messageCard
