@@ -26,7 +26,7 @@ export class TaoQu extends ActiveSkill {
       name: "套取",
       character,
       description:
-        "出牌阶段限一次，你可以展示两张含有相同颜色的手牌，然后从一名其他角色的情报区，把一张对应颜色的情报加入手牌，该角色摸一张牌。",
+        "出牌阶段限一次，你可以展示两张含有相同颜色的手牌，然后从一名其他角色的情报区，把一张对应颜色的情报加入手牌。",
       useablePhase: [GamePhase.MAIN_PHASE],
     });
   }
