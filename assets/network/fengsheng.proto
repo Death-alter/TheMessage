@@ -68,6 +68,7 @@ message join_room_tos {
   uint32 version = 1; // 客户端版本号
   string name = 2; // 玩家的名字
   string password = 4; // 密码，建议客户端先加密一下再发过来
+  uint32 room_id = 5; // 房间ID，不填就是随机加入一个房间（满了则新建房间）；填了就是加入指定的房间，如果房间不存在则新建一个
 }
 
 // 返回房间所有人的信息
