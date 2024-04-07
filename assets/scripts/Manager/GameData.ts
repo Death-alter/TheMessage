@@ -407,10 +407,16 @@ export class GameData extends DataBasic<GameManager> {
    * @param data
    */
   private addMeassgeCards(data: DataEventType.GmAddMessage) {
-    const targer = this.playerList[data.targetPlayerId];
-    const messageCards = TouchList;
-
-    DataEventCenter.emit(DataEvent.GM_ADD_MESSAGE, { targer, messageCards });
+    const target = this.playerList[data.targetPlayerId];
+    const messageCards = [];
+    data.messageCard.forEach((card) => {
+      messageCards.push(this.createMessage(card));
+    });
+    target.addMessage(messageCards);
+    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+      player: target,
+      message: messageCards,
+    });
   }
 
   /**

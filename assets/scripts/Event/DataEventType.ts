@@ -113,5 +113,5 @@ export interface PlayerNetworkStatusChange {
 }
 export interface GmAddMessage {
   targetPlayerId: number;
-  messageCards: card[];
+  messageCard: card[];
 }
