@@ -8,6 +8,7 @@ export enum NetworkEventToC {
   NOTIFY_PLAYER_UPDATE_TOC = "notify_player_update_toc",
   GET_RECORD_LIST_TOC = "get_record_list_toc",
   ADD_ORDER_TOC = "add_order_toc",
+  ADD_MESSAGE_CARD_TOC = "add_message_card_toc", 
   GET_ORDERS_TOC = "get_orders_toc",
   HEART_TOC = "heart_toc",
   ADD_ONE_POSITION_TOC = "add_one_position_toc",
@@ -363,6 +364,7 @@ export enum DataEvent {
   SKILL_IN_PROCESS = "skill_in_process",
   SKILL_HANDLE_FINISH = "skill_handle_finish",
   PLAYER_DIE_GIVE_CARD = "player_die_give_card",
+  GM_ADD_MESSAGE = "gm_add_message"
 }
 
 /** 程序事件，用于程序控制 */

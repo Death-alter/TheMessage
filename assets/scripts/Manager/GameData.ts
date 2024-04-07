@@ -280,6 +280,7 @@ export class GameData extends DataBasic<GameManager> {
     DataEventCenter.on(DataEvent.PLAYER_WIN, this.gameOver, this);
     DataEventCenter.on(DataEvent.CARD_PLAYED, this.cardPlayed, this);
     DataEventCenter.on(DataEvent.CARD_IN_PROCESS, this.cardInProcess, this);
+    DataEventCenter.on(DataEvent.GM_ADD_MESSAGE, this.addMeassgeCards, this);
   }
 
   /**
@@ -399,6 +400,23 @@ export class GameData extends DataBasic<GameManager> {
     }
     this.playerAddHandCard(player, cardList);
     GameEventCenter.emit(GameEvent.PLAYER_DRAW_CARD, { player, cardList });
+  }
+
+  /**
+   * 玩家获得情报
+   * @param data
+   */
+  private addMeassgeCards(data: DataEventType.GmAddMessage) {
+    const target = this.playerList[data.targetPlayerId];
+    const messageCards = [];
+    data.messageCard.forEach((card) => {
+      messageCards.push(this.createMessage(card));
+    });
+    target.addMessage(messageCards);
+    GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
+      player: target,
+      message: messageCards,
+    });
   }
 
   /**
