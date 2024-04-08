@@ -87,7 +87,6 @@ export class SouJi extends ActiveSkill {
       message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
-
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
         handler: "promptChooseBlackCards",
@@ -135,7 +134,6 @@ export class SouJi extends ActiveSkill {
                 data.cardIds.push(card.id);
               }
             }
-
             NetworkEventCenter.emit(NetworkEventToS.SKILL_SOU_JI_B_TOS, data);
             showCardsWindow.hide();
           },

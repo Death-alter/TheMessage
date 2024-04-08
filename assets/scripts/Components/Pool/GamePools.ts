@@ -1,3 +1,4 @@
+import { Node } from "cc";
 import { CardObject } from "../Card/CardObject";
 import { CardUsableStatus } from "../Card/type";
 import { CardGroupObject } from "../Container/CardGroupObject";
@@ -25,6 +26,7 @@ export default class GamePools {
     GamePools.cardPool.beforePut((object: CardObject) => {
       object.usableStatus = CardUsableStatus.USABLE;
       object.getComponentInChildren(OuterGlow).closeOuterGlow();
+      object.node.off(Node.EventType.TOUCH_END);
     });
   }
 }

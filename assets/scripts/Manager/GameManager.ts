@@ -16,7 +16,7 @@ import { AnimationLayer } from "../Scenes/Game/AnimationLayer/AnimationLayer";
 import { LogLayer } from "../Scenes/Game/LogLayer/LogLayer";
 import { PopupLayer } from "../Scenes/Game/PopupLayer/PopupLayer";
 import { UILayer } from "../Scenes/Game/UILayer/UILayer";
-import { StartCountDown } from "../Event/ProcessEventType";
+import { InitGame, StartCountDown } from "../Event/ProcessEventType";
 import { PlayerActionStepManager } from "../Utils/PlayerAction/PlayerActionStepManager";
 import { GameLog } from "../Components/GameLog/GameLog";
 import { createIdentity } from "../Components/Identity";
@@ -24,6 +24,7 @@ import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
 import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
+import { init_toc } from "../../protobuf/proto";
 
 const { ccclass, property } = _decorator;
 
@@ -183,7 +184,8 @@ export class GameManager extends GameObject<GameData> {
     }
   }
 
-  onInit(data) {
+  onInit(data: InitGame) {
+    sys.localStorage.setItem("playerCount", data.playerCount.toString());
     this.data = new GameData(data);
     this.gameLog = new GameLogList();
     this.gameLog.logHistory = new GameLogHistory();

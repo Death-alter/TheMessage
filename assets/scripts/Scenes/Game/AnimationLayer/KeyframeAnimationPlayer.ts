@@ -78,8 +78,10 @@ export class KeyframeAnimationPlayer extends Component {
             duration,
           },
         ],
-        onComplete: () => {
-          resolve(track);
+        callbacks: {
+          complete: () => {
+            resolve(track);
+          },
         },
       });
       if (!track) reject(new Error("对象不存在"));
@@ -130,8 +132,10 @@ export class KeyframeAnimationPlayer extends Component {
               duration,
             },
           ],
-          onComplete: () => {
-            resolve(track);
+          callbacks: {
+            complete: () => {
+              resolve(track);
+            },
           },
         },
         "mix",

@@ -1,6 +1,6 @@
 import { _decorator, Component, UITransform } from "cc";
-import { UIEventCenter } from "../../Event/EventTarget";
-import { UIEvent } from "../../Event/type";
+import { ProcessEventCenter, UIEventCenter } from "../../Event/EventTarget";
+import { ProcessEvent, UIEvent } from "../../Event/type";
 import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 
@@ -10,10 +10,12 @@ export class ProgressControl extends Component {
 
   onEnable() {
     UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
+    ProcessEventCenter.on(ProcessEvent.RECORD_STATUS_CHANGE, this.onRecordStatusChange, this);
   }
 
   onDisable() {
     UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
+    ProcessEventCenter.off(ProcessEvent.RECORD_STATUS_CHANGE, this.onRecordStatusChange, this);
   }
 
   //倒计时
@@ -29,10 +31,26 @@ export class ProgressControl extends Component {
     });
   }
 
+  pauseCountDown() {
+    KeyframeAnimationManager.pauseAnimation(this.track);
+  }
+
+  resumeCountDown() {
+    KeyframeAnimationManager.resumeAnimation(this.track);
+  }
+
   stopCountDown() {
     if (this.track) {
       KeyframeAnimationManager.stopAnimation(this.track);
       this.track = null;
+    }
+  }
+
+  private onRecordStatusChange(data) {
+    if (data.paused) {
+      this.pauseCountDown();
+    } else {
+      this.resumeCountDown();
     }
   }
 
@@ -50,13 +68,15 @@ export class ProgressControl extends Component {
             duration: seconds,
           },
         ],
-        onComplete: () => {
-          this.node.active = false;
-          resolve(true);
-        },
-        onCancel: () => {
-          this.node.active = false;
-          resolve(false);
+        callbacks: {
+          complete: () => {
+            this.node.active = false;
+            resolve(true);
+          },
+          cancel: () => {
+            this.node.active = false;
+            resolve(false);
+          },
         },
       });
     });

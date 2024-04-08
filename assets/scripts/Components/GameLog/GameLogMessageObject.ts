@@ -42,8 +42,10 @@ export class GameLogMessageObject extends GameObject<GameLog> {
               duration: 0.5,
             },
           ],
-          onComplete: () => {
-            resolve(null);
+          callbacks: {
+            complete: () => {
+              resolve(null);
+            },
           },
         },
         "clear",

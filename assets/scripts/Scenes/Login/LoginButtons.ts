@@ -15,6 +15,9 @@ export class LoginButtons extends Component {
   @property(EditBox)
   password: EditBox | null = null;
 
+  @property(EditBox)
+  roomId: EditBox | null = null;
+
   @property(Node)
   helpTextNode: Node | null = null;
 
@@ -27,8 +30,9 @@ export class LoginButtons extends Component {
     const name = sys.localStorage.getItem("userName");
     if (name) {
       this.userName.string = name;
-      this.password.string = sys.localStorage.getItem("password");
+      this.password.string = sys.localStorage.getItem("password") || "";
     }
+    this.roomId.string = sys.localStorage.getItem("roomId") || "";
 
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
@@ -36,13 +40,18 @@ export class LoginButtons extends Component {
       if (this.userName.string) {
         const name = this.userName.string;
         const password = this.password.string;
+        const roomId = this.roomId.string;
+        const playerCount = parseInt(sys.localStorage.getItem("playerCount")) || 5;
         sys.localStorage.setItem("userName", name);
         sys.localStorage.setItem("password", password);
+        sys.localStorage.setItem("roomId", roomId);
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: config.version,
           name,
           password: password ? md5.Md5.hashStr(password) : "",
           device: md5.Md5.hashStr(this.userName.string),
+          roomId,
+          playerCount,
         });
         this.logining = true;
         this.scheduleOnce(() => {

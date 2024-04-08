@@ -54,7 +54,7 @@ type AnimationAction = "default" | "mix" | "replace" | "clear";
 /**
  * 可以使用的动画事件
  */
-type AnimationTrackEvent = "complete" | "cancel";
+type AnimationTrackEvent = "complete" | "cancel" | "pause" | "resume";
 
 /**
  * 关键帧动画属性
@@ -122,40 +122,51 @@ class KeyframeAnimationTrack<T extends object> {
   private _animation: KeyframeAnimation;
   private _duration: number;
   private _startTime: number;
+  private _pauseStartTime: number = 0;
+  private _totalPausedTime: number = 0;
   private initialValues: any[] = [];
   private timeLine: { time: number; events: (() => void)[] }[] = [];
   private timeLineIndex: number = -1;
   private events: { [key in AnimationTrackEvent]?: (() => void)[] } = {};
 
   /**
-   *动画开始时间
+   * 动画开始时间
    */
   get startTime() {
     return this._startTime;
   }
 
   /**
-   *动画结束时间
+   * 动画结束时间
    */
   get endTime() {
     return this._startTime + this._duration;
   }
 
   /**
-   *动画绑定的对象
+   * 动画绑定的对象
    */
   get target() {
     return this._target;
   }
 
-  constructor(target: T, animation: KeyframeAnimation, onComplete?: () => void, onCancel?: () => void) {
+  /**
+   * 动画是否暂停
+   */
+  get paused() {
+    return this._pauseStartTime !== 0;
+  }
+
+  constructor(target: T, animation: KeyframeAnimation, callbacks?: { [key in AnimationTrackEvent]?: () => void }) {
     this._target = target;
     this._animation = animation;
     this._duration = this._animation.duration;
     this.events.complete = [];
-    if (typeof onComplete === "function") this.events.complete.push(onComplete);
-    this.events.cancel = [];
-    if (typeof onCancel === "function") this.events.cancel.push(onCancel);
+    if (callbacks) {
+      for (const eventName in callbacks) {
+        this.on(<AnimationTrackEvent>eventName, callbacks[eventName]);
+      }
+    }
   }
 
   /**
@@ -184,6 +195,25 @@ class KeyframeAnimationTrack<T extends object> {
     }
     this._startTime = 0;
     this.timeLineIndex = -1;
+  }
+
+  /**
+   * 暂停当前track，如果track处于暂停状态，不进行任何操作。该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。要暂停该track请使用KeyframeAnimationManager.pauseAnimation()
+   */
+  pause() {
+    if (this._pauseStartTime === 0) {
+      this._pauseStartTime = new Date().getTime();
+    }
+  }
+
+  /**
+   * 继续播放当前track，如果track未处于暂停状态，不进行任何操作。该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。要暂停该track请使用KeyframeAnimationManager.resumeAnimation()
+   */
+  resume() {
+    if (this._pauseStartTime !== 0) {
+      this._totalPausedTime += new Date().getTime() - this._pauseStartTime;
+      this._pauseStartTime = 0;
+    }
   }
 
   /**
@@ -245,7 +275,7 @@ class KeyframeAnimationTrack<T extends object> {
    */
   apf(time: number) {
     if (!this._target) return false;
-    time -= this._startTime;
+    time -= this._startTime + this._totalPausedTime;
     if (this.timeLineIndex < this.timeLine.length) {
       while (this.timeLine[this.timeLineIndex] && time >= this.timeLine[this.timeLineIndex].time) {
         for (const func of this.timeLine[this.timeLineIndex].events) {
@@ -446,8 +476,7 @@ export abstract class KeyframeAnimationManager {
     option: {
       target: object;
       animation: KeyframeAnimation;
-      onComplete?: () => void;
-      onCancel?: () => void;
+      callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
     action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
@@ -466,8 +495,7 @@ export abstract class KeyframeAnimationManager {
     option: {
       target: object;
       animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
-      onComplete?: () => void;
-      onCancel?: () => void;
+      callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
     action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
@@ -486,8 +514,7 @@ export abstract class KeyframeAnimationManager {
     option: {
       target: object;
       animation: string;
-      onComplete?: () => void;
-      onCancel?: () => void;
+      callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
     action?: AnimationAction,
   ): KeyframeAnimationTrack<typeof option.target>;
@@ -495,12 +522,11 @@ export abstract class KeyframeAnimationManager {
     option: {
       target: object;
       animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
-      onComplete?: () => void;
-      onCancel?: () => void;
+      callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
     action: AnimationAction = "default",
   ): KeyframeAnimationTrack<typeof option.target> {
-    const { target, onComplete, onCancel } = option;
+    const { target, callbacks } = option;
     let { animation } = option;
     if (!(typeof target === "object")) return null;
     if (typeof animation === "string") {
@@ -512,12 +538,12 @@ export abstract class KeyframeAnimationManager {
     let track;
     switch (action) {
       case "replace":
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
         this.activeAnimationMap.set(target, [track]);
         track.start();
         break;
       case "mix":
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
         if (this.activeAnimationMap.has(target)) {
           const tracks = this.activeAnimationMap.get(target);
           tracks.push(track);
@@ -528,13 +554,13 @@ export abstract class KeyframeAnimationManager {
         break;
       case "clear":
         this.animationQueue.delete(track);
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
         this.activeAnimationMap.set(target, [track]);
         track.start();
         break;
       case "default":
       default:
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, onComplete, onCancel);
+        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
         if (this.animationQueue.has(target) || this.activeAnimationMap.has(target)) {
           this.enQueue(track);
         } else {
@@ -577,11 +603,67 @@ export abstract class KeyframeAnimationManager {
       }
     } else {
       //删除一个target对应的所有track
-      if (this.animationQueue.has(object)) {
-        this.activeAnimationMap.set(object, [this.deQueue(object)]);
-      } else {
-        this.activeAnimationMap.delete(object);
+      const tracks = this.activeAnimationMap.get(object);
+      if (tracks) {
+        tracks.forEach((track) => {
+          track.trigger("cancel");
+        });
+        if (this.animationQueue.has(object)) {
+          this.activeAnimationMap.set(object, [this.deQueue(object)]);
+        } else {
+          this.activeAnimationMap.delete(object);
+        }
       }
+    }
+  }
+
+  /**
+   * 暂停一个KeyframeAnimation动画
+   * @param {KeyframeAnimationTrack} track KeyframeAnimationTrack对象
+   */
+  static pauseAnimation(track: KeyframeAnimationTrack<object>);
+  /**
+   * 暂停一个target所有正在播放的动画
+   * @param {Object} target 正在执行动画的target
+   */
+  static pauseAnimation(target: object);
+  static pauseAnimation(object: object | KeyframeAnimationTrack<object>) {
+    if (object instanceof KeyframeAnimationTrack) {
+      //暂停一个track
+      object.pause();
+      object.trigger("pause");
+    } else if (this.animationQueue.has(object)) {
+      //暂停一个target对应的所有track
+      const tracks = this.activeAnimationMap.get(object);
+      tracks.forEach((track) => {
+        track.pause();
+        track.trigger("pause");
+      });
+    }
+  }
+
+  /**
+   * 继续一个KeyframeAnimation动画
+   * @param {KeyframeAnimationTrack} track KeyframeAnimationTrack对象
+   */
+  static resumeAnimation(track: KeyframeAnimationTrack<object>);
+  /**
+   * 继续一个target所有正在播放的动画
+   * @param {Object} target 正在执行动画的target
+   */
+  static resumeAnimation(target: object);
+  static resumeAnimation(object: object | KeyframeAnimationTrack<object>) {
+    if (object instanceof KeyframeAnimationTrack) {
+      //继续一个track
+      object.resume();
+      object.trigger("resume");
+    } else if (this.animationQueue.has(object)) {
+      //继续一个target对应的所有track
+      const tracks = this.activeAnimationMap.get(object);
+      tracks.forEach((track) => {
+        track.resume();
+        track.trigger("resume");
+      });
     }
   }
 
@@ -593,6 +675,7 @@ export abstract class KeyframeAnimationManager {
     this.activeAnimationMap.forEach((tracks, target) => {
       for (let i = 0; i < tracks.length; i++) {
         const track = tracks[i];
+        if (track.paused) continue;
         const isActive = track.apf(time);
         if (!isActive) {
           track.trigger("complete");

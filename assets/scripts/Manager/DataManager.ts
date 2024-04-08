@@ -8,7 +8,7 @@ import {
   ProcessEventCenter,
   UIEventCenter,
 } from "../Event/EventTarget";
-import { DataEvent, GameEvent, NetworkEventToS, ProcessEvent } from "../Event/type";
+import { GameEvent, NetworkEventToS, ProcessEvent } from "../Event/type";
 import { SyncStatus } from "./type";
 import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
 const { ccclass, property } = _decorator;
@@ -52,12 +52,9 @@ export class DataManager extends Component {
   }
 
   createData() {
-    // this.gameData = new GameData();
     this.gameLog = new GameLogList();
-    // this.gameData.gameLog = this.gameLog;
     this.logHistory = new GameLogHistory();
     this.gameLog.logHistory = this.logHistory;
-    // this.gameData.registerEvents();
     this.gameLog.registerEvents();
   }
 
