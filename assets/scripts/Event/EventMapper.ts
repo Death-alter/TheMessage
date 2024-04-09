@@ -630,7 +630,9 @@ export class EventMapper {
     });
     NetworkEventCenter.on(NetworkEventToC.UNKNOWN_WAITING_TOC, (data: ProtobufType.unknown_waiting_toc) => {
       UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
-      UIEventCenter.emit(UIEvent.UNKNOWN_WAITING, data.waitingSecond);
+      if (data.waitingSecond > 0) {
+        UIEventCenter.emit(UIEvent.UNKNOWN_WAITING, data.waitingSecond);
+      }
     });
   }
 }

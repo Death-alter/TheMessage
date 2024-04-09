@@ -1,3 +1,5 @@
+import { CardGroupObject } from "../Container/CardGroupObject";
+import { GameObjectContainer } from "../Container/GameObjectContainer";
 import { IdentityType } from "../Identity/type";
 import { CardObject } from "./CardObject";
 
@@ -84,3 +86,5 @@ export interface MiLingOption {
 export interface CardOnEffectParams {
   [index: string]: any;
 }
+
+export type CardEntity = CardObject | CardGroupObject;

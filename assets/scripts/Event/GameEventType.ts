@@ -36,6 +36,7 @@ export interface MessageReplaced {
   message: Card;
   oldMessage: Card;
   messagePlayer: Player;
+  turnOver: boolean;
 }
 
 export interface MessageTurnedOver {

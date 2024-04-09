@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, Node, Label, UITransform, instantiate } from "cc";
+import { _decorator, Component, Prefab, Node, Label, UITransform, instantiate, sys } from "cc";
 import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
 import { PlayerInfoTemplate } from "./PlayerInfoTemplate";
@@ -39,6 +39,7 @@ export class PlayerList extends Component {
       this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
         "当前在线人数：" + this.onlineCount.toString();
       this.noticeNode.getComponent(Label).string = data.notice;
+      sys.localStorage.setItem("playerCount", data.players.length.toString());
       for (let i = 0; i < data.players.length; i++) {
         if (data.players[i].name) {
           this.playerList[i] = {
@@ -69,6 +70,7 @@ export class PlayerList extends Component {
       this.playerListNode.addChild(player);
       this.refreshPlayerListUI();
       this.removeGameStartCountDown();
+      sys.localStorage.setItem("playerCount", this.playerList.length.toString());
     });
 
     //收到移除空位
@@ -77,6 +79,7 @@ export class PlayerList extends Component {
       this.playerListNode.removeChild(this.playerListNode.children[data.position]);
       this.refreshPlayerListUI();
       this.setGameStartCountDown();
+      sys.localStorage.setItem("playerCount", this.playerList.length.toString());
     });
 
     //有人加入房间

@@ -7,6 +7,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass("CardGroupObject")
 export class CardGroupObject extends GameObjectContainer<CardObject> {
+
   init() {}
 
   onDataAdded(card: Card): void {

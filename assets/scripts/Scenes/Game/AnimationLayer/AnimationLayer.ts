@@ -1,4 +1,4 @@
-import { _decorator, Node, Component } from "cc";
+import { _decorator, Node, Component, Vec3 } from "cc";
 import { GameEventCenter } from "../../../Event/EventTarget";
 import { GameEvent } from "../../../Event/type";
 import * as GameEventType from "../../../Event/GameEventType";
@@ -9,6 +9,12 @@ import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 import { Player } from "../../../Components/Player/Player";
 import { KeyframeAnimationPlayer } from "./KeyframeAnimationPlayer";
+import { CardObject } from "../../../Components/Card/CardObject";
+import GamePools from "../../../Components/Pool/GamePools";
+import { OuterGlow } from "../../../Components/Utils/OuterGlow";
+import { CardEntity, CardStatus } from "../../../Components/Card/type";
+import { CardGroup } from "../../../Components/Container/CardGroup";
+import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
 
 const { ccclass, property } = _decorator;
 
@@ -24,6 +30,7 @@ export class AnimationLayer extends Component {
   public manager: GameManager;
   public animationPlayer: KeyframeAnimationPlayer;
   public audioManager: AudioMgr;
+  public messageObject: CardObject = null;
 
   init(manager: GameManager) {
     this.manager = manager;
@@ -36,11 +43,11 @@ export class AnimationLayer extends Component {
 
     //如果有传递中的情报
     if (this.manager.data.messageInTransmit) {
-      this.animationPlayer.setCard(this.manager.data.messageInTransmit, {
+      this.animationPlayer.setCard(this.getCardEntity(this.manager.data.messageInTransmit), {
         location: CardActionLocation.PLAYER,
         player: this.manager.data.playerList[this.manager.data.messagePlayerId],
       });
-      this.animationPlayer.transmissionMessageObject = this.manager.data.messageInTransmit.gameObject;
+      this.messageObject = this.manager.data.messageInTransmit.gameObject;
     }
   }
 
@@ -72,7 +79,7 @@ export class AnimationLayer extends Component {
     //情报传递
     GameEventCenter.on(GameEvent.MESSAGE_TRANSMISSION, this.transmitMessage, this);
 
-    //情报传递
+    //情报替换
     GameEventCenter.on(GameEvent.MESSAGE_REPLACED, this.replaceMessage, this);
 
     //情报置入情报区
@@ -104,71 +111,111 @@ export class AnimationLayer extends Component {
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
   }
 
-
-
-  drawCards(data: GameEventType.PlayerDrawCard) {
-    this.animationPlayer.drawCards(data);
+  /**
+   * 创建并返回卡牌列表对应的实体
+   * @param cardList 卡牌列表
+   */
+  getCardEntity(cardList: Card[]): CardGroupObject;
+  /**
+   * 获取卡牌对应的实体
+   * @param card 卡牌对象
+   */
+  getCardEntity(card: Card): CardObject;
+  getCardEntity(card: Card | Card[]): CardEntity {
+    if (!card) return null;
+    if (card instanceof Array) {
+      const cardGroup = new CardGroup(GamePools.cardGroupPool.get());
+      for (const c of card) {
+        if (!c?.gameObject?.node) {
+          c.gameObject = GamePools.cardPool.get();
+        } else {
+          c.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+        }
+        c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        cardGroup.addData(c);
+      }
+      return <CardGroupObject>cardGroup.gameObject;
+    } else {
+      if (!card?.gameObject?.node) {
+        card.gameObject = GamePools.cardPool.get();
+      } else {
+        card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+      }
+      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+      return card.gameObject;
+    }
   }
 
-  discardCards(data: GameEventType.PlayerDiscardCard) {
-    this.animationPlayer.discardCards(data);
+  drawCards({ player, cardList }: GameEventType.PlayerDrawCard) {
+    this.animationPlayer.drawCards(player, this.getCardEntity(cardList));
   }
 
-  cardAddToHandCard(data: GameEventType.CardAddToHandCard) {
-    const { player, card, from } = data;
+  discardCards({ player, cardList }: GameEventType.PlayerDiscardCard) {
+    this.animationPlayer.discardCards(player, this.getCardEntity(cardList));
+  }
+
+  cardAddToHandCard({ player, card, from }: GameEventType.CardAddToHandCard) {
     this.animationPlayer.addCardToHandCard({
       player: player,
-      card: <Card>card,
+      entity: this.getCardEntity(<Card>card),
       from: from || { location: CardActionLocation.DECK },
     });
   }
 
-  playerSendMessage(data: GameEventType.PlayerSendMessage) {
-    this.animationPlayer.playerSendMessage(data);
-    if (data.player.id !== this.manager.data.turnPlayerId) {
-      data.player.gameObject.showInnerGlow("FF00FF80");
+  playerSendMessage({ player, targetPlayer, message }: GameEventType.PlayerSendMessage) {
+    const entity = this.getCardEntity(message);
+    this.messageObject = entity;
+    this.animationPlayer.playerSendMessage(player, targetPlayer, this.getCardEntity(message));
+    if (player.id !== this.manager.data.turnPlayerId) {
+      player.gameObject.showInnerGlow("FF00FF80");
     }
   }
 
-  moveCard(data: GameEventType.CardMoved) {
-    this.animationPlayer.moveCard(data);
+  moveCard({ card, from, to }: GameEventType.CardMoved) {
+    this.animationPlayer.moveCard({
+      entity: this.getCardEntity(card),
+      from,
+      to,
+    });
   }
 
-  removeMessage(message) {
-    this.animationPlayer.discardMessage(message);
+  removeMessage(message: Card) {
+    this.animationPlayer.discardMessage(message, this.messageObject);
   }
 
-  transmitMessage(data: GameEventType.MessageTransmission) {
-    this.animationPlayer.transmitMessage(data);
+  transmitMessage({ messagePlayer, message }: GameEventType.MessageTransmission) {
+    console.log(this.messageObject.data);
+    this.animationPlayer.transmitMessage(messagePlayer, this.messageObject);
   }
 
-  replaceMessage(data: GameEventType.MessageReplaced) {
-    this.animationPlayer.replaceMessage(data);
+  replaceMessage({ messagePlayer, message, oldMessage, turnOver }: GameEventType.MessageReplaced) {
+    const oldEntity = this.messageObject;
+    this.messageObject = this.getCardEntity(message);
+    this.animationPlayer.replaceMessage(messagePlayer, message, this.messageObject, oldMessage, oldEntity, turnOver);
   }
 
   playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
-    this.animationPlayer.chooseReceiveMessage(data);
+    this.animationPlayer.chooseReceiveMessage(this.messageObject);
   }
 
-  playerReceiveMessage(data: GameEventType.PlayerReceiveMessage) {
-    this.animationPlayer.receiveMessage(data);
+  playerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
+    this.animationPlayer.receiveMessage(player, message, this.messageObject);
     if (this.manager.data.senderId !== this.manager.data.turnPlayerId) {
       const player = this.manager.data.playerList[this.manager.data.senderId];
       player?.gameObject.hideInnerGlow();
     }
   }
 
-  playerViewMessage(data: GameEventType.PlayerViewMessage) {
-    this.animationPlayer.viewMessage(data);
+  playerViewMessage({ player, message }: GameEventType.PlayerViewMessage) {
+    this.animationPlayer.viewMessage(player, message, this.messageObject);
   }
 
   playerTurnOverMessage({ message }: GameEventType.MessageTurnedOver) {
-    this.animationPlayer.turnOverMessage(message);
+    this.animationPlayer.turnOverMessage(message, this.messageObject);
   }
 
-  playerRemoveMessage(data: GameEventType.PlayerRemoveMessage) {
-    this.animationPlayer.removeMessage(data);
-    const player = data.player;
+  playerRemoveMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
+    this.animationPlayer.removeMessage(player, this.getCardEntity(messageList));
     if (player === this.manager.data.dyingPlayer) {
       if (player.id === this.manager.data.turnPlayerId) {
         player.gameObject.showInnerGlow("#00FF0080");
@@ -178,19 +225,17 @@ export class AnimationLayer extends Component {
     }
   }
 
-  messagePlacedIntoMessageZone(data: GameEventType.MessagePlacedIntoMessageZone) {
-    const { player, message, from } = data;
+  messagePlacedIntoMessageZone({ player, message, from }: GameEventType.MessagePlacedIntoMessageZone) {
     this.animationPlayer.addCardToMessageZone({
       player,
-      card: <Card>message,
+      entity: this.getCardEntity(<Card>message),
       from: from || { location: CardActionLocation.DECK },
     });
   }
 
-  playerDie(data: GameEventType.PlayerDie) {
-    const { player, messages } = data;
-    this.animationPlayer.removeMessage({ player, messageList: messages });
-    data.player.gameObject.hideInnerGlow();
+  playerDie({ player, messages }: GameEventType.PlayerDie) {
+    this.animationPlayer.removeMessage(player, this.getCardEntity(messages));
+    player.gameObject.hideInnerGlow();
   }
 
   playerRecovery(player: Player) {
@@ -205,21 +250,21 @@ export class AnimationLayer extends Component {
     }
   }
 
-  playerGiveCard(data: GameEventType.PlayerGiveCard) {
-    this.animationPlayer.giveCards(data);
+  playerGiveCard({ player, targetPlayer, cardList }: GameEventType.PlayerGiveCard) {
+    this.animationPlayer.giveCards(player, targetPlayer, this.getCardEntity(cardList));
   }
 
-  playerPlayCard(data: GameEventType.PlayerPlayCard) {
-    this.audioManager.playOneShot(getCardAudioSrc(data.cardType || data.card, data.player.character.sex));
+  playerPlayCard({ card, cardType, player, targetPlayer }: GameEventType.PlayerPlayCard) {
+    this.audioManager.playOneShot(getCardAudioSrc(cardType || card, player.character.sex));
 
-    if (data.targetPlayer) {
+    if (targetPlayer) {
       this.animationPlayer.showIndicantLine({
-        from: { location: CardActionLocation.PLAYER, player: data.player },
-        to: { location: CardActionLocation.PLAYER, player: data.targetPlayer },
+        from: { location: CardActionLocation.PLAYER, player },
+        to: { location: CardActionLocation.PLAYER, player: targetPlayer },
       });
     }
 
-    this.animationPlayer.playerPlayCard(data);
+    this.animationPlayer.playerPlayCard(player, this.getCardEntity(card));
   }
 
   cardOnEffect(data: GameEventType.CardOnEffect) {
@@ -229,10 +274,8 @@ export class AnimationLayer extends Component {
     }
   }
 
-  afterPlayerPlayCard(data: GameEventType.AfterPlayerPlayCard) {
-    const flag = data.card.onFinish(this.manager) && data.flag !== false;
-    if (flag !== false) {
-      this.animationPlayer.afterPlayerPlayCard(data);
-    }
+  afterPlayerPlayCard({ card, flag }: GameEventType.AfterPlayerPlayCard) {
+    const f = card.onFinish(this.manager) && flag !== false;
+    this.animationPlayer.afterPlayerPlayCard(this.getCardEntity(card), f);
   }
 }

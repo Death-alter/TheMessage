@@ -7,7 +7,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { WaitingType } from "../../../Manager/type";
+import { CardActionLocation, WaitingType } from "../../../Manager/type";
 
 export class JiuJi extends TriggerSkill {
   constructor(character: Character) {
@@ -110,12 +110,12 @@ export class JiuJi extends TriggerSkill {
     gameData.cardOnPlay = null;
     gameData.playerAddHandCard(player, cardOnPlay);
 
+    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card: cardOnPlay, flag: false });
     GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
       player,
       card: cardOnPlay,
+      from: { location: CardActionLocation.DISCARD_PILE },
     });
-
-    GameEventCenter.emit(GameEvent.AFTER_PLAYER_PLAY_CARD, { card: cardOnPlay, flag: false });
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${gameLog.formatCard(cardOnPlay)}加入手牌`));
 

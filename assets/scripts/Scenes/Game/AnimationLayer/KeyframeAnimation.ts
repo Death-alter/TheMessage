@@ -161,7 +161,6 @@ class KeyframeAnimationTrack<T extends object> {
     this._target = target;
     this._animation = animation;
     this._duration = this._animation.duration;
-    this.events.complete = [];
     if (callbacks) {
       for (const eventName in callbacks) {
         this.on(<AnimationTrackEvent>eventName, callbacks[eventName]);
@@ -467,14 +466,14 @@ export abstract class KeyframeAnimationManager {
    * @param {Object} option 动画选项
    * @param {object} option.target 执行动画的对象，必须是js的object类型
    * @param {KeyframeAnimation} option.animation KeyframeAnimation动画对象
-   * @param {Function} [option.onComplete] 动画执行完成的回调
-   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {Function} [option.callbacks] 事件回调
    * @param {string} action 动画添加方式
    * @returns {KeyframeAnimationTrack} 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: {
       target: object;
+      targetModify?: (target: object) => object;
       animation: KeyframeAnimation;
       callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
@@ -486,14 +485,14 @@ export abstract class KeyframeAnimationManager {
    * @param {Object} option 动画选项
    * @param {object} option.target 执行动画的对象，必须是js的object类型
    * @param {(AttributeNumberVariationOption | AttributeVertexVariationOption)[]} option.animation 动画关键帧数组
-   * @param {Function} [option.onComplete] 动画执行完成的回调
-   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {Function} [option.callbacks] 事件回调
    * @param {string} action 动画添加方式
    * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: {
       target: object;
+      targetModify?: (target: object) => object;
       animation: (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
       callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
@@ -505,14 +504,14 @@ export abstract class KeyframeAnimationManager {
    * @param {Object} option 动画选项
    * @param {Object} option.target 执行动画的对象，必须是js的object类型
    * @param {string} option.animation 已经注册过的动画名称
-   * @param {Function} [option.onComplete] 动画执行完成的回调
-   * @param {Function} [option.onCancel] 动画中途停止的回调
+   * @param {Function} [option.callbacks] 事件回调
    * @param {string} action 动画添加方式
    * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: {
       target: object;
+      targetModify?: (target: object) => object;
       animation: string;
       callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
@@ -521,12 +520,13 @@ export abstract class KeyframeAnimationManager {
   static playAnimation(
     option: {
       target: object;
+      targetModify?: (target: object) => object;
       animation: KeyframeAnimation | string | (AttributeNumberVariationOption | AttributeVertexVariationOption)[];
       callbacks?: { [key in AnimationTrackEvent]?: () => void };
     },
     action: AnimationAction = "default",
   ): KeyframeAnimationTrack<typeof option.target> {
-    const { target, callbacks } = option;
+    const { target, callbacks, targetModify } = option;
     let { animation } = option;
     if (!(typeof target === "object")) return null;
     if (typeof animation === "string") {
@@ -536,14 +536,15 @@ export abstract class KeyframeAnimationManager {
       animation = new KeyframeAnimation(animation.map((option) => new AttributeVariation(option)));
     }
     let track;
+    const t = targetModify ? targetModify(target) : target;
     switch (action) {
       case "replace":
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
+        track = new KeyframeAnimationTrack<typeof target>(t, animation, callbacks);
         this.activeAnimationMap.set(target, [track]);
         track.start();
         break;
       case "mix":
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
+        track = new KeyframeAnimationTrack<typeof target>(t, animation, callbacks);
         if (this.activeAnimationMap.has(target)) {
           const tracks = this.activeAnimationMap.get(target);
           tracks.push(track);
@@ -554,13 +555,16 @@ export abstract class KeyframeAnimationManager {
         break;
       case "clear":
         this.animationQueue.delete(track);
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
+        track = new KeyframeAnimationTrack<typeof target>(t, animation, callbacks);
         this.activeAnimationMap.set(target, [track]);
         track.start();
         break;
       case "default":
       default:
-        track = new KeyframeAnimationTrack<typeof target>(target, animation, callbacks);
+        const list = this.activeAnimationMap.get(target);
+        list && console.log([...list]);
+        track = new KeyframeAnimationTrack<typeof target>(t, animation, callbacks);
+        console.log(track);
         if (this.animationQueue.has(target) || this.activeAnimationMap.has(target)) {
           this.enQueue(track);
         } else {

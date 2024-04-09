@@ -185,7 +185,6 @@ export class GameManager extends GameObject<GameData> {
   }
 
   onInit(data: InitGame) {
-    sys.localStorage.setItem("playerCount", data.playerCount.toString());
     this.data = new GameData(data);
     this.gameLog = new GameLogList();
     this.gameLog.logHistory = new GameLogHistory();

@@ -155,6 +155,7 @@ export class JinKouYiKai extends ActiveSkill {
         message: card,
         oldMessage,
         messagePlayer: gameData.playerList[gameData.messagePlayerId],
+        turnOver: false,
       });
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择将牌堆顶的牌和待收情报互换`));

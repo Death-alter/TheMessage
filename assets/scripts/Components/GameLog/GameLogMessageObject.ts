@@ -27,7 +27,8 @@ export class GameLogMessageObject extends GameObject<GameLog> {
     return new Promise((resolve, reject) => {
       KeyframeAnimationManager.playAnimation(
         {
-          target: this._opacityTarget,
+          target: this.node,
+          targetModify: (target) => (<Node>target).getComponent(UIOpacity),
           animation: [
             {
               attribute: "opacity",
