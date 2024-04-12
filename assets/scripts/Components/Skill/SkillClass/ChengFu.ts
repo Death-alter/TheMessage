@@ -1,9 +1,9 @@
 import { skill_cheng_fu_toc } from "../../../../protobuf/proto";
-import { DataEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { DataEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardType } from "../../Card/type";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { PassiveSkill } from "../../../Components/Skill/Skill";

@@ -1,7 +1,7 @@
 import { Card } from "../Card";
 import { CardColor, CardDefaultOption, CardOnEffectParams, CardType } from "../type";
-import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, NetworkEventToS } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
@@ -26,7 +26,7 @@ export class YuQinGuZong extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
+      entity: option.entity,
     });
   }
 
@@ -90,7 +90,7 @@ export class YuQinGuZong extends Card {
 
   onEffect(
     gameData: GameData,
-    { messageCardId, playerId, targetPlayerId, lockPlayerIds, cardDir }: CardOnEffectParams
+    { messageCardId, playerId, targetPlayerId, lockPlayerIds, cardDir }: CardOnEffectParams,
   ) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
@@ -99,7 +99,7 @@ export class YuQinGuZong extends Card {
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择了${gameLog.formatCard(message)}`));
 
-    ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
+    DataEventCenter.emit(DataEvent.SEND_MESSAGE, {
       card: message,
       senderId: playerId,
       targetPlayerId,

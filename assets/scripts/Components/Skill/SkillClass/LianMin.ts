@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_lian_min_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";

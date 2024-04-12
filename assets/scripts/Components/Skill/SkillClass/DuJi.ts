@@ -12,11 +12,11 @@ import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../../Components/Card/Card";
 import { CardColor } from "../../Card/type";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 

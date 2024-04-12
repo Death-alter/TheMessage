@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { GamePhase } from "../../../Manager/type";
 import { skill_ji_song_toc } from "../../../../protobuf/proto";
 import { NetworkEventCenter, GameEventCenter } from "../../../Event/EventTarget";

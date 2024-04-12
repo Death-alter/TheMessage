@@ -1,14 +1,13 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_tou_tian_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
-import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 
 export class JiZhi extends ActiveSkill {
@@ -31,7 +30,7 @@ export class JiZhi extends ActiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(NetworkEventToC.WAIT_FOR_CHENG_QING_TOC, this.onPlayerDying, this);
   }
@@ -42,10 +41,10 @@ export class JiZhi extends ActiveSkill {
   }
 
   onPlayerDying(data) {
-    if (this.gameObject) {
-      this.gameObject.useable = true;
-      ProcessEventCenter.once(ProcessEvent.STOP_COUNT_DOWN, () => {
-        this.gameObject.useable = false;
+    if (this.entity) {
+      this.entity.useable = true;
+      UIEventCenter.once(UIEvent.STOP_COUNT_DOWN, () => {
+        this.entity.useable = false;
       });
     }
   }

@@ -28,8 +28,7 @@ export class NetworkManager extends Component {
             .then(() => {
               ws.send(NetworkEventToS[eventName], data);
             })
-            .catch(() => {
-            });
+            .catch(() => {});
         }
       });
     }

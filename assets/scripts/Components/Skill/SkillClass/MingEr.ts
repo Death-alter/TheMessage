@@ -4,7 +4,7 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../../Components/Player/Player";
 import { PassiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 
 export class MingEr extends PassiveSkill {
   constructor(character: Character) {

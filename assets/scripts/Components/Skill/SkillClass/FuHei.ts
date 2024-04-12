@@ -2,7 +2,7 @@ import { skill_fu_hei_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
 

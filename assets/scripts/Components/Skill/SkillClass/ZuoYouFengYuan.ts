@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_zuo_you_feng_yuan_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
@@ -8,7 +8,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
@@ -61,7 +61,7 @@ export class ZuoYouFengYuan extends ActiveSkill {
             {
               text: "取消",
               onclick: () => {
-                this.gameObject.isOn = false;
+                this.entity.isOn = false;
                 prev();
               },
             },

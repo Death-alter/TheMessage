@@ -1,9 +1,9 @@
 import { _decorator, Component, Node, instantiate, Prefab, NodeEventType, EventTouch } from "cc";
 import { Identity } from "../../../Components/Identity/Identity";
-import { IdentityObject } from "../../../Components/Identity/IdentityObject";
+import { IdentityEntity } from "../../../Components/Identity/IdentityEntity";
 import { ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { ProcessEvent, UIEvent } from "../../../Event/type";
-import { PlayerObject } from "../../../Components/Player/PlayerObject";
+import { PlayerEntity } from "../../../Components/Player/PlayerEntity";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { NotAgent } from "../../../Components/Identity/IdentityClass/NotAgent";
 import { NotLurker } from "../../../Components/Identity/IdentityClass/NotLurker";
@@ -36,7 +36,7 @@ export class SelectIdentity extends Component {
     this.secretTaskList = data.secretTaskList;
   }
 
-  show({ identityList, playerObject }: { identityList: Identity[]; playerObject: PlayerObject }) {
+  show({ identityList, playerEntity }: { identityList: Identity[]; playerEntity: PlayerEntity }) {
     let hasMysteriousPerson = false;
     for (const identity of identityList) {
       if (identity instanceof MysteriousPerson) {
@@ -58,9 +58,9 @@ export class SelectIdentity extends Component {
     this.listNode.removeAllChildren();
     for (const identity of identityList) {
       const node = instantiate(this.identityPrefab);
-      node.getComponent(IdentityObject).data = identity;
+      node.getComponent(IdentityEntity).data = identity;
       node.on(NodeEventType.TOUCH_END, (event: EventTouch) => {
-        playerObject.changeSelectedIdentity(identity);
+        playerEntity.changeSelectedIdentity(identity);
       });
       this.listNode.addChild(node);
     }

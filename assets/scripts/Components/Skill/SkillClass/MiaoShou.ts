@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_miao_shou_a_toc, skill_miao_shou_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -8,7 +8,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -34,14 +34,14 @@ export class MiaoShou extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_MIAO_SHOU_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -66,7 +66,7 @@ export class MiaoShou extends ActiveSkill {
 
   onEffectA(
     gameData: GameData,
-    { playerId, targetPlayerId, cards, waitingSecond, seq, messageCard }: skill_miao_shou_a_toc
+    { playerId, targetPlayerId, cards, waitingSecond, seq, messageCard }: skill_miao_shou_a_toc,
   ) {
     UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {
       playerId: playerId,
@@ -85,12 +85,12 @@ export class MiaoShou extends ActiveSkill {
     });
 
     const message = gameData.createMessage(messageCard);
-    gameData.messageInTransmit = message;
-    message.gameObject = gameData.messageInTransmit.gameObject;
+    message.status = gameData.messageInTransmit.status;
+    gameData.messageInTransmit = null;
     GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, message);
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}查看了${gameLog.formatPlayer(targetPlayer)}的手牌情报区情报区`)
+      new GameLog(`${gameLog.formatPlayer(player)}查看了${gameLog.formatPlayer(targetPlayer)}的手牌情报区情报区`),
     );
 
     if (playerId === 0) {
@@ -158,14 +158,14 @@ export class MiaoShou extends ActiveSkill {
 
   onEffectB(
     gameData: GameData,
-    { playerId, fromPlayerId, targetPlayerId, card, messageCardId }: skill_miao_shou_b_toc
+    { playerId, fromPlayerId, targetPlayerId, card, messageCardId }: skill_miao_shou_b_toc,
   ) {
     const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const fromPlayer = gameData.playerList[fromPlayerId];
-    if (gameData.gameObject) {
-      gameData.gameObject.showCardsWindow.hide();
+    if (gameData.entity) {
+      gameData.entity.showCardsWindow.hide();
     }
 
     let message;
@@ -191,8 +191,8 @@ export class MiaoShou extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}把${gameLog.formatCard(message)}移至${gameLog.formatPlayer(targetPlayer)}面前`
-      )
+        `${gameLog.formatPlayer(player)}把${gameLog.formatCard(message)}移至${gameLog.formatPlayer(targetPlayer)}面前`,
+      ),
     );
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {

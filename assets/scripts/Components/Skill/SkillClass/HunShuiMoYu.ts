@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../Manager/type";
 import { CardType, CardUsableStatus } from "../../Card/type";
 import { GameManager } from "../../../Manager/GameManager";
@@ -12,7 +12,7 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { Player } from "../../Player/Player";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { TagName } from "../../../type";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 
 export class HunShuiMoYu extends ActiveSkill {
   private usageCount: number = 0;
@@ -66,7 +66,7 @@ export class HunShuiMoYu extends ActiveSkill {
             passOnPrev(() => {
               const card = gui.data.createCardWithNewType(gui.selectedHandCards.list[0], CardType.DIAO_HU_LI_SHAN);
               card.onPlay(gui);
-              this.gameObject.isOn = false;
+              this.entity.isOn = false;
               next();
             });
           },
@@ -92,7 +92,7 @@ export class HunShuiMoYu extends ActiveSkill {
             passOnPrev(() => {
               const card = gui.data.createCardWithNewType(gui.selectedHandCards.list[0], CardType.YU_QIN_GU_ZONG);
               card.onPlay(gui);
-              this.gameObject.isOn = false;
+              this.entity.isOn = false;
               next();
             });
           },

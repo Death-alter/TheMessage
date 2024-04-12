@@ -4,11 +4,11 @@ import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type
 import { CardActionLocation, GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { UnknownCard } from "../../Card/CardClass/UnknownCard";
 import { CardStatus } from "../../Card/type";
@@ -67,7 +67,6 @@ export class DingLun extends ActiveSkill {
       let message = gameData.messageInTransmit;
       if (message instanceof UnknownCard || message.status === CardStatus.FACE_DOWN) {
         message = gameData.createMessage(card);
-        message.gameObject = gameData.messageInTransmit.gameObject;
         gameData.messageInTransmit = message;
         message.status = CardStatus.FACE_UP;
         GameEventCenter.emit(GameEvent.MESSAGE_TURNED_OVER, { message });

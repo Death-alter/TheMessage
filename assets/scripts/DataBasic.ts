@@ -1,26 +1,26 @@
-import { GameObject } from "./GameObject";
+import { Entity } from "./Entity";
 import { TagName } from "./type";
 
-export class DataBasic<T extends GameObject<any>> {
-  protected _gameObject: T;
+export class DataBasic<T extends Entity<any>> {
+  protected _entity: T;
   protected _tagList: { [index: string]: any } = {};
 
-  get gameObject(): T {
-    return this._gameObject;
+  get entity(): T {
+    return this._entity;
   }
 
-  set gameObject(object: T | null) {
-    if (object == this._gameObject) return;
+  set entity(object: T | null) {
+    if (object == this._entity) return;
     if (object) {
-      if (this._gameObject) {
-        this._gameObject.data = null;
+      if (this._entity) {
+        this._entity.data = null;
       }
-      this._gameObject = object;
+      this._entity = object;
       object.data = this;
     } else {
-      const oldObject = this._gameObject;
-      this._gameObject = null;
-      oldObject.data = null;
+      const oldEntity = this._entity;
+      this._entity = null;
+      oldEntity.data = null;
     }
   }
 

@@ -1,16 +1,16 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_hou_lai_ren_a_toc, skill_hou_lai_ren_b_toc, wait_for_cheng_qing_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { CardColor } from "../../Card/type";
 import { WaitingType } from "../../../Manager/type";
-import { createCharacterById } from "../../Chatacter";
+import { createCharacterById } from "../../Character";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 
@@ -54,11 +54,11 @@ export class HouLaiRen extends ActiveSkill {
   }
 
   onPlayerDying(data: wait_for_cheng_qing_toc) {
-    if (data.diePlayerId === 0 && this.gameObject) {
-      this.gameObject.useable = true;
+    if (data.diePlayerId === 0 && this.entity) {
+      this.entity.useable = true;
       UIEventCenter.once(UIEvent.STOP_COUNT_DOWN, () => {
-        if (this.gameObject) {
-          this.gameObject.useable = false;
+        if (this.entity) {
+          this.entity.useable = false;
         }
       });
     }

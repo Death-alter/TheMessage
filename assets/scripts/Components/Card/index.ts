@@ -14,8 +14,8 @@ import { UnknownCard } from "./CardClass/UnknownCard";
 import { Card } from "./Card";
 import { MiLing } from "./CardClass/MiLing";
 import { IdentityType } from "../Identity/type";
-import { CardObject } from "./CardObject";
-import { Sex } from "../Chatacter/type";
+import { CardEntity } from "./CardEntity";
+import { Sex } from "../Character/type";
 import { DiaoHuLiShan } from "./CardClass/DiaoHuLiShan";
 import { YuQinGuZong } from "./CardClass/YuQinGuZong";
 
@@ -28,7 +28,7 @@ interface createCardOption {
   secretColor?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  gameObject?: CardObject;
+  entity?: CardEntity;
 }
 
 const cardsMap: { [index: number]: { new (option?: CardDefaultOption | ShiTanOption | MiLingOption): Card } } = {};
@@ -71,8 +71,8 @@ export function createCard(option: createCardOption): Card {
   }
 }
 
-export function createUnknownCard(gameObject?): UnknownCard {
-  return new UnknownCard({ gameObject });
+export function createUnknownCard(entity?): UnknownCard {
+  return new UnknownCard({ entity });
 }
 
 export function copyCard(card: Card) {

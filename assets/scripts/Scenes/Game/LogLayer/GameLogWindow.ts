@@ -1,12 +1,12 @@
 import { _decorator, Node, Prefab, instantiate, ScrollView, UITransform } from "cc";
-import { GameObjectContainer } from "../../../Components/Container/GameObjectContainer";
+import { EntityContainer } from "../../../Components/Container/EntityContainer";
 import { GameLog } from "../../../Components/GameLog/GameLog";
-import { GameLogMessageObject } from "../../../Components/GameLog/GameLogMessageObject";
-import { GameLogTextObject } from "../../../Components/GameLog/GameLogTextObject";
+import { GameLogMessageEntity } from "../../../Components/GameLog/GameLogMessageEntity";
+import { GameLogTextEntity } from "../../../Components/GameLog/GameLogTextEntity";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogWindow")
-export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
+export class GameLogWindow extends EntityContainer<GameLogTextEntity> {
   @property(Prefab)
   logPrefab: Prefab | null = null;
 
@@ -34,8 +34,8 @@ export class GameLogWindow extends GameObjectContainer<GameLogTextObject> {
 
   onDataAdded(data: GameLog): void {
     const object = instantiate(this.logPrefab);
-    data.gameObject = <GameLogTextObject & GameLogMessageObject>object.getComponent(GameLogTextObject);
-    data.gameObject.setText(data.text);
+    data.entity = <GameLogTextEntity & GameLogMessageEntity>object.getComponent(GameLogTextEntity);
+    data.entity.setText(data.text);
     this.viewContent.addChild(object);
   }
   onDataRemoved(data: GameLog): void {}

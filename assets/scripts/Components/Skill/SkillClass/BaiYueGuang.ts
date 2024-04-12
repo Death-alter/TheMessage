@@ -1,7 +1,7 @@
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 
 export class BaiYueGuang extends PassiveSkill {
   constructor(character: Character) {

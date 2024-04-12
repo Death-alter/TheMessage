@@ -36,7 +36,7 @@ export class ErrorLog extends Component {
     });
   }
 
-  show(seconds = 2) {
+  show(seconds = 1) {
     KeyframeAnimationManager.playAnimation(
       {
         target: this._opacityTarget,
@@ -57,10 +57,16 @@ export class ErrorLog extends Component {
           },
         ],
       },
+      null,
       "clear",
-    ).on(0, () => {
-      this.node.setSiblingIndex(-1);
-    });
+    )
+      .on(0, () => {
+        this.node.active = true;
+        this.node.setSiblingIndex(-1);
+      })
+      .on(seconds + 1, () => {
+        this.node.active = false;
+      });
   }
 
   drawMask(width, height, radius) {

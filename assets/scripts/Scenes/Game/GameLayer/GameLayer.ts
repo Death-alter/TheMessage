@@ -3,7 +3,7 @@ import { GameEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Eve
 import { GameEvent, ProcessEvent, UIEvent } from "../../../Event/type";
 import { HandCardContianer } from "../../../Components/Container/HandCardContianer";
 import * as GameEventType from "../../../Event/GameEventType";
-import { PlayerObject } from "../../../Components/Player/PlayerObject";
+import { PlayerEntity } from "../../../Components/Player/PlayerEntity";
 import { GamePhase } from "../../../Manager/type";
 import { Player } from "../../../Components/Player/Player";
 import { SelectedList } from "../../../Utils/SelectedList";
@@ -31,7 +31,7 @@ export class GameLayer extends Component {
   handCardNode: Node | null = null;
 
   public manager: GameManager;
-  public playerObjectList: PlayerObject[] = [];
+  public playerEntityList: PlayerEntity[] = [];
   public selectedPlayers: SelectedList<Player> = new SelectedList<Player>();
   public handCardContainer: HandCardContianer;
 
@@ -43,17 +43,17 @@ export class GameLayer extends Component {
     this.manager = manager;
 
     //创建自己的UI
-    this.playerObjectList = [];
+    this.playerEntityList = [];
     const selfNode = this.node.getChildByPath("Self/SelfPlayer");
     const self = instantiate(this.playerPrefab);
     selfNode.addChild(self);
-    this.manager.data.playerList[0].gameObject = self.getComponent(PlayerObject);
-    this.manager.data.playerList[0].gameObject.setSeat();
-    this.playerObjectList.push(this.manager.data.playerList[0].gameObject);
+    this.manager.data.playerList[0].entity = self.getComponent(PlayerEntity);
+    this.manager.data.playerList[0].entity.setSeat();
+    this.playerEntityList.push(this.manager.data.playerList[0].entity);
 
     //初始化手牌UI
     this.handCardContainer = this.handCardNode.getComponent(HandCardContianer);
-    this.manager.data.handCardList.gameObject = this.handCardContainer;
+    this.manager.data.handCardList.entity = this.handCardContainer;
     this.handCardContainer.init();
 
     //创建其他人UI
@@ -66,25 +66,25 @@ export class GameLayer extends Component {
     for (let i = 0; i < sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.rightPlayerNodeList.addChild(player);
-      this.manager.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.manager.data.playerList[i + 1].gameObject.setSeat();
-      this.playerObjectList.push(this.manager.data.playerList[i + 1].gameObject);
+      this.manager.data.playerList[i + 1].entity = player.getComponent(PlayerEntity);
+      this.manager.data.playerList[i + 1].entity.setSeat();
+      this.playerEntityList.push(this.manager.data.playerList[i + 1].entity);
     }
 
     for (let i = sideLength; i < othersCount - sideLength; i++) {
       const player = instantiate(this.playerPrefab);
       this.topPlayerNodeList.addChild(player);
-      this.manager.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.manager.data.playerList[i + 1].gameObject.setSeat();
-      this.playerObjectList.push(this.manager.data.playerList[i + 1].gameObject);
+      this.manager.data.playerList[i + 1].entity = player.getComponent(PlayerEntity);
+      this.manager.data.playerList[i + 1].entity.setSeat();
+      this.playerEntityList.push(this.manager.data.playerList[i + 1].entity);
     }
 
     for (let i = othersCount - sideLength; i < othersCount; i++) {
       const player = instantiate(this.playerPrefab);
       this.leftPlayerNodeList.addChild(player);
-      this.manager.data.playerList[i + 1].gameObject = player.getComponent(PlayerObject);
-      this.manager.data.playerList[i + 1].gameObject.setSeat();
-      this.playerObjectList.push(this.manager.data.playerList[i + 1].gameObject);
+      this.manager.data.playerList[i + 1].entity = player.getComponent(PlayerEntity);
+      this.manager.data.playerList[i + 1].entity.setSeat();
+      this.playerEntityList.push(this.manager.data.playerList[i + 1].entity);
     }
 
     this.rightPlayerNodeList.getComponent(Layout).updateLayout();
@@ -95,7 +95,7 @@ export class GameLayer extends Component {
       const player = this.manager.data.playerList[i];
 
       //绑定点击事件
-      player.gameObject.node.on(
+      player.entity.node.on(
         Node.EventType.TOUCH_END,
         (event) => {
           this.selectPlayer(player);
@@ -104,7 +104,7 @@ export class GameLayer extends Component {
       );
 
       //角色信息展示
-      const charcaterNode = player.gameObject.node.getChildByPath("Border/CharacterPanting");
+      const charcaterNode = player.entity.node.getChildByPath("Border/CharacterPanting");
       if (sys.isMobile) {
         charcaterNode.on("longtap", (event) => {
           this.manager.popupLayer.showCharacterInfo(event);
@@ -125,7 +125,7 @@ export class GameLayer extends Component {
           this.manager.popupLayer.hideCharacterInfo();
         });
       }
-      const messageZone = this.playerObjectList[i].node.getChildByPath("Border/Message");
+      const messageZone = this.playerEntityList[i].node.getChildByPath("Border/Message");
       messageZone.on(Node.EventType.TOUCH_END, () => {
         UIEventCenter.emit(UIEvent.START_SHOW_MESSAGES, player);
       });
@@ -150,7 +150,7 @@ export class GameLayer extends Component {
 
   onStartCountDown(data: StartCountDown) {
     if (data.playerId !== 0) {
-      this.playerObjectList[data.playerId].startCountDown(data.second);
+      this.playerEntityList[data.playerId].startCountDown(data.second);
     }
   }
 
@@ -160,23 +160,23 @@ export class GameLayer extends Component {
   }
 
   onUnknownWaiting(second) {
-    for (const playerObject of this.playerObjectList)
-      if (playerObject.data.id !== 0) {
-        playerObject.startCountDown(second);
+    for (const playerEntity of this.playerEntityList)
+      if (playerEntity.data.id !== 0) {
+        playerEntity.startCountDown(second);
       }
   }
 
   onGameTurnChange(data: GameEventType.GameTurnChange) {
     for (const player of this.manager.data.playerList) {
       if (player === data.turnPlayer) {
-        player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
-        player.gameObject.showInnerGlow("#00FF0080");
+        player.entity.node.getChildByName("SeatNumber").getComponent(Label).color = color("#4FC3F7");
+        player.entity.showInnerGlow("#00FF0080");
       } else {
-        player.gameObject.hidePhaseText();
-        player.gameObject.node.getChildByName("SeatNumber").getComponent(Label).color = color("#FFFFFF");
-        player.gameObject.hideInnerGlow();
+        player.entity.hidePhaseText();
+        player.entity.node.getChildByName("SeatNumber").getComponent(Label).color = color("#FFFFFF");
+        player.entity.hideInnerGlow();
       }
-      player.gameObject.setSkillOnUse(null);
+      player.entity.setSkillOnUse(null);
     }
   }
 
@@ -200,22 +200,22 @@ export class GameLayer extends Component {
         text = "接 收 阶 段";
         break;
     }
-    data.turnPlayer.gameObject.showPhaseText(text);
+    data.turnPlayer.entity.showPhaseText(text);
   }
 
   onPlayerNetworkStatusChange(data: PlayerNetworkStatusChange) {
     const player = this.manager.data.playerList[data.playerId];
     if (data.isOffline) {
-      player.gameObject.setNetWorkStatusText("离线");
+      player.entity.setNetWorkStatusText("离线");
     } else if (data.isAuto) {
-      player.gameObject.setNetWorkStatusText("托管");
+      player.entity.setNetWorkStatusText("托管");
     } else {
-      player.gameObject.setNetWorkStatusText("");
+      player.entity.setNetWorkStatusText("");
     }
   }
 
   selectPlayer(player: Player) {
-    if (!player.gameObject.selectable || this.selectedPlayers.limit <= 0) return;
+    if (!player.entity.selectable || this.selectedPlayers.limit <= 0) return;
     if (this.selectedPlayers.isSelected(player)) {
       this.selectedPlayers.deselect(player);
       UIEventCenter.emit(UIEvent.CANCEL_SELECT_PLAYER, player);
@@ -239,9 +239,9 @@ export class GameLayer extends Component {
   refreshPlayerSelectedState() {
     for (const player of this.manager.data.playerList) {
       if (this.selectedPlayers.isSelected(player)) {
-        player.gameObject.node.getComponentInChildren(OuterGlow).openOuterGlow();
+        player.entity.node.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        player.gameObject.node.getComponentInChildren(OuterGlow).closeOuterGlow();
+        player.entity.node.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }
@@ -261,7 +261,7 @@ export class GameLayer extends Component {
     this.stopSelectPlayers();
     this.selectedPlayers.limit = num || 1;
 
-    for (const player of this.playerObjectList) {
+    for (const player of this.playerEntityList) {
       if (filter) {
         player.selectable = filter(player.data);
       }
@@ -281,7 +281,7 @@ export class GameLayer extends Component {
   }
 
   lockSelectPlayers() {
-    for (const player of this.playerObjectList) {
+    for (const player of this.playerEntityList) {
       player.selectable = true;
       player.enableSelectIdentity = true;
     }
@@ -291,7 +291,7 @@ export class GameLayer extends Component {
   }
 
   stopSelectPlayers() {
-    for (const player of this.playerObjectList) {
+    for (const player of this.playerEntityList) {
       player.selectable = true;
       player.enableSelectIdentity = true;
     }

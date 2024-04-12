@@ -1,8 +1,8 @@
 import { DataBasic } from "../../DataBasic";
-import { GameLogMessageObject } from "./GameLogMessageObject";
-import { GameLogTextObject } from "./GameLogTextObject";
+import { GameLogMessageEntity } from "./GameLogMessageEntity";
+import { GameLogTextEntity } from "./GameLogTextEntity";
 
-export class GameLog extends DataBasic<GameLogTextObject & GameLogMessageObject> {
+export class GameLog extends DataBasic<GameLogTextEntity & GameLogMessageEntity> {
   // public player: Player;
   // public card: Card;
   // public message: Card;

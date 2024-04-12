@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GamePhase } from "../../../Manager/type";
 import { CardType, CardUsableStatus } from "../../Card/type";
 import { GameManager } from "../../../Manager/GameManager";
@@ -69,7 +69,7 @@ export class YiWenAnHao extends ActiveSkill {
           passOnPrev(() => {
             const card = gui.data.createCardWithNewType(gui.selectedHandCards.list[0], CardType.DIAO_BAO);
             card.onPlay(gui);
-            this.gameObject.isOn = false;
+            this.entity.isOn = false;
             next();
           });
         },

@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_du_ming_a_toc, skill_du_ming_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -155,7 +155,6 @@ export class DuMing extends TriggerSkill {
 
     const message = gameData.createMessage(card);
     if (playerId === 0) {
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
 

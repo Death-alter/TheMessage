@@ -1,6 +1,6 @@
 import { _decorator, Node, Component, Vec3 } from "cc";
-import { GameEventCenter } from "../../../Event/EventTarget";
-import { GameEvent } from "../../../Event/type";
+import { GameEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, ProcessEvent } from "../../../Event/type";
 import * as GameEventType from "../../../Event/GameEventType";
 import { Card } from "../../../Components/Card/Card";
 import { CardActionLocation, GamePhase } from "../../../Manager/type";
@@ -9,12 +9,13 @@ import { GameManager } from "../../../Manager/GameManager";
 import { getCardAudioSrc } from "../../../Components/Card";
 import { Player } from "../../../Components/Player/Player";
 import { KeyframeAnimationPlayer } from "./KeyframeAnimationPlayer";
-import { CardObject } from "../../../Components/Card/CardObject";
+import { CardEntity } from "../../../Components/Card/CardEntity";
 import GamePools from "../../../Components/Pool/GamePools";
 import { OuterGlow } from "../../../Components/Utils/OuterGlow";
-import { CardEntity, CardStatus } from "../../../Components/Card/type";
+import { CardsEntity } from "../../../Components/Card/type";
 import { CardGroup } from "../../../Components/Container/CardGroup";
-import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
+import { CardGroupEntity } from "../../../Components/Container/CardGroupEntity";
+import { KeyframeAnimationManager } from "./KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -30,7 +31,7 @@ export class AnimationLayer extends Component {
   public manager: GameManager;
   public animationPlayer: KeyframeAnimationPlayer;
   public audioManager: AudioMgr;
-  public messageObject: CardObject = null;
+  public messageEntity: CardEntity = null;
 
   init(manager: GameManager) {
     this.manager = manager;
@@ -47,7 +48,7 @@ export class AnimationLayer extends Component {
         location: CardActionLocation.PLAYER,
         player: this.manager.data.playerList[this.manager.data.messagePlayerId],
       });
-      this.messageObject = this.manager.data.messageInTransmit.gameObject;
+      this.messageEntity = this.manager.data.messageInTransmit.entity;
     }
   }
 
@@ -109,40 +110,52 @@ export class AnimationLayer extends Component {
     //玩家给牌
     GameEventCenter.on(GameEvent.PLAYER_GIVE_CARD, this.playerGiveCard, this);
     GameEventCenter.on(GameEvent.CARD_MOVED, this.moveCard, this);
+
+    ProcessEventCenter.on(
+      ProcessEvent.RECORD_STATUS_CHANGE,
+      (data) => {
+        if (data.paused) {
+          KeyframeAnimationManager.pauseAll();
+        } else {
+          KeyframeAnimationManager.resumeAll();
+        }
+      },
+      this,
+    );
   }
 
   /**
    * 创建并返回卡牌列表对应的实体
    * @param cardList 卡牌列表
    */
-  getCardEntity(cardList: Card[]): CardGroupObject;
+  getCardEntity(cardList: Card[]): CardGroupEntity;
   /**
    * 获取卡牌对应的实体
    * @param card 卡牌对象
    */
-  getCardEntity(card: Card): CardObject;
-  getCardEntity(card: Card | Card[]): CardEntity {
+  getCardEntity(card: Card): CardEntity;
+  getCardEntity(card: Card | Card[]): CardsEntity {
     if (!card) return null;
     if (card instanceof Array) {
       const cardGroup = new CardGroup(GamePools.cardGroupPool.get());
       for (const c of card) {
-        if (!c?.gameObject?.node) {
-          c.gameObject = GamePools.cardPool.get();
+        if (!c?.entity?.node) {
+          c.entity = GamePools.cardPool.get();
         } else {
-          c.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+          c.entity.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
-        c.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
+        c.entity.node.scale = new Vec3(0.6, 0.6, 1);
         cardGroup.addData(c);
       }
-      return <CardGroupObject>cardGroup.gameObject;
+      return <CardGroupEntity>cardGroup.entity;
     } else {
-      if (!card?.gameObject?.node) {
-        card.gameObject = GamePools.cardPool.get();
+      if (!card?.entity?.node) {
+        card.entity = GamePools.cardPool.get();
       } else {
-        card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+        card.entity.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
-      card.gameObject.node.scale = new Vec3(0.6, 0.6, 1);
-      return card.gameObject;
+      card.entity.node.scale = new Vec3(0.6, 0.6, 1);
+      return card.entity;
     }
   }
 
@@ -164,10 +177,10 @@ export class AnimationLayer extends Component {
 
   playerSendMessage({ player, targetPlayer, message }: GameEventType.PlayerSendMessage) {
     const entity = this.getCardEntity(message);
-    this.messageObject = entity;
+    this.messageEntity = entity;
     this.animationPlayer.playerSendMessage(player, targetPlayer, this.getCardEntity(message));
     if (player.id !== this.manager.data.turnPlayerId) {
-      player.gameObject.showInnerGlow("FF00FF80");
+      player.entity.showInnerGlow("FF00FF80");
     }
   }
 
@@ -180,47 +193,46 @@ export class AnimationLayer extends Component {
   }
 
   removeMessage(message: Card) {
-    this.animationPlayer.discardMessage(message, this.messageObject);
+    this.animationPlayer.discardMessage(message, this.messageEntity);
   }
 
   transmitMessage({ messagePlayer, message }: GameEventType.MessageTransmission) {
-    console.log(this.messageObject.data);
-    this.animationPlayer.transmitMessage(messagePlayer, this.messageObject);
+    this.animationPlayer.transmitMessage(messagePlayer, this.messageEntity);
   }
 
-  replaceMessage({ messagePlayer, message, oldMessage, turnOver }: GameEventType.MessageReplaced) {
-    const oldEntity = this.messageObject;
-    this.messageObject = this.getCardEntity(message);
-    this.animationPlayer.replaceMessage(messagePlayer, message, this.messageObject, oldMessage, oldEntity, turnOver);
+  replaceMessage({ messagePlayer, message, oldMessage, status }: GameEventType.MessageReplaced) {
+    const oldEntity = this.messageEntity;
+    this.messageEntity = this.getCardEntity(message);
+    this.animationPlayer.replaceMessage(messagePlayer, message, this.messageEntity, oldMessage, oldEntity, status);
   }
 
   playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
-    this.animationPlayer.chooseReceiveMessage(this.messageObject);
+    this.animationPlayer.chooseReceiveMessage(this.messageEntity);
   }
 
   playerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {
-    this.animationPlayer.receiveMessage(player, message, this.messageObject);
     if (this.manager.data.senderId !== this.manager.data.turnPlayerId) {
       const player = this.manager.data.playerList[this.manager.data.senderId];
-      player?.gameObject.hideInnerGlow();
+      player?.entity.hideInnerGlow();
     }
+    this.animationPlayer.receiveMessage(player, message, this.messageEntity);
   }
 
   playerViewMessage({ player, message }: GameEventType.PlayerViewMessage) {
-    this.animationPlayer.viewMessage(player, message, this.messageObject);
+    this.animationPlayer.viewMessage(player, message, this.messageEntity);
   }
 
   playerTurnOverMessage({ message }: GameEventType.MessageTurnedOver) {
-    this.animationPlayer.turnOverMessage(message, this.messageObject);
+    this.animationPlayer.turnOverMessage(message, this.messageEntity);
   }
 
   playerRemoveMessage({ player, messageList }: GameEventType.PlayerRemoveMessage) {
     this.animationPlayer.removeMessage(player, this.getCardEntity(messageList));
     if (player === this.manager.data.dyingPlayer) {
       if (player.id === this.manager.data.turnPlayerId) {
-        player.gameObject.showInnerGlow("#00FF0080");
+        player.entity.showInnerGlow("#00FF0080");
       } else {
-        player.gameObject.hideInnerGlow();
+        player.entity.hideInnerGlow();
       }
     }
   }
@@ -235,18 +247,18 @@ export class AnimationLayer extends Component {
 
   playerDie({ player, messages }: GameEventType.PlayerDie) {
     this.animationPlayer.removeMessage(player, this.getCardEntity(messages));
-    player.gameObject.hideInnerGlow();
+    player.entity.hideInnerGlow();
   }
 
   playerRecovery(player: Player) {
     if (this.manager.data.gamePhase === GamePhase.SEND_PHASE || this.manager.data.gamePhase === GamePhase.FIGHT_PHASE) {
       if (player.id === this.manager.data.turnPlayerId) {
-        player.gameObject.showInnerGlow("#00FF0080");
+        player.entity.showInnerGlow("#00FF0080");
       } else if (player.id === this.manager.data.senderId) {
-        player.gameObject.showInnerGlow("FF00FF80");
+        player.entity.showInnerGlow("FF00FF80");
       }
     } else {
-      player.gameObject.hideInnerGlow();
+      player.entity.hideInnerGlow();
     }
   }
 

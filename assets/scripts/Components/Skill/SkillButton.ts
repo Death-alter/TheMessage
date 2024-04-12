@@ -1,6 +1,6 @@
 import { _decorator, Node, Label, Sprite, color, Vec2, UITransform } from "cc";
 import { ActiveSkill, PassiveSkill, Skill } from "./Skill";
-import { GameObject } from "../../GameObject";
+import { Entity } from "../../Entity";
 import { GameManager } from "../../Manager/GameManager";
 import { UIEventCenter } from "../../Event/EventTarget";
 import { UIEvent } from "../../Event/type";
@@ -10,7 +10,7 @@ import { PlayerActionStepName } from "../../Utils/PlayerAction/type";
 const { ccclass } = _decorator;
 
 @ccclass("SkillButton")
-export class SkillButton extends GameObject<Skill> {
+export class SkillButton extends Entity<Skill> {
   private _useable: boolean = false;
   private _isOn: boolean = false;
   private _locked: boolean = false;

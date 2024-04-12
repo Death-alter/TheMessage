@@ -1,5 +1,5 @@
 import { PassiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";

@@ -1,8 +1,8 @@
 import { skill_shou_kou_ru_ping_toc } from "../../../../protobuf/proto";
-import { DataEventCenter, GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { DataEvent, GameEvent, NetworkEventToC, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";

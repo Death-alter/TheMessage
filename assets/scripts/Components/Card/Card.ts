@@ -1,11 +1,11 @@
 import { CardStatus, CardOption, CardDirection, CardType, CardColor, CardOnEffectParams } from "./type";
 import { DataBasic } from "../../DataBasic";
-import { CardObject } from "./CardObject";
+import { CardEntity } from "./CardEntity";
 import { GameData } from "../../Manager/GameData";
 import { GamePhase } from "../../Manager/type";
 import { GameManager } from "../../Manager/GameManager";
 
-export abstract class Card extends DataBasic<CardObject> {
+export abstract class Card extends DataBasic<CardEntity> {
   public static readonly colors = ["#222222", "#e10602", "#2932e1"];
 
   protected _id: number;
@@ -37,8 +37,8 @@ export abstract class Card extends DataBasic<CardObject> {
   set status(status) {
     if (status == null || status === this._status) return;
     this._status = status;
-    if (this._gameObject) {
-      this._gameObject.refresh(this);
+    if (this._entity) {
+      this._entity.refresh(this);
     }
   }
 
@@ -67,8 +67,8 @@ export abstract class Card extends DataBasic<CardObject> {
     this._direction = option.direction;
     this._color = option.color;
     this._lockable = option.lockable;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
+    if (option.entity) {
+      this.entity = option.entity;
     }
   }
 

@@ -1,7 +1,6 @@
-import { CardGroupObject } from "../Container/CardGroupObject";
-import { GameObjectContainer } from "../Container/GameObjectContainer";
+import { CardGroupEntity } from "../Container/CardGroupEntity";
 import { IdentityType } from "../Identity/type";
-import { CardObject } from "./CardObject";
+import { CardEntity } from "./CardEntity";
 
 export const enum CardStatus {
   FACE_DOWN = 0,
@@ -51,7 +50,7 @@ export interface CardOption {
   color?: CardColor[];
   direction?: CardDirection;
   lockable?: boolean;
-  gameObject?: CardObject;
+  entity?: CardEntity;
 }
 
 export interface CardDefaultOption {
@@ -60,7 +59,7 @@ export interface CardDefaultOption {
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  gameObject?: CardObject;
+  entity?: CardEntity;
 }
 
 export interface ShiTanOption {
@@ -70,7 +69,7 @@ export interface ShiTanOption {
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  gameObject?: CardObject;
+  entity?: CardEntity;
 }
 
 export interface MiLingOption {
@@ -80,11 +79,11 @@ export interface MiLingOption {
   color?: CardColor[];
   lockable?: boolean;
   status?: CardStatus;
-  gameObject?: CardObject;
+  entity?: CardEntity;
 }
 
 export interface CardOnEffectParams {
   [index: string]: any;
 }
 
-export type CardEntity = CardObject | CardGroupObject;
+export type CardsEntity = CardEntity | CardGroupEntity;

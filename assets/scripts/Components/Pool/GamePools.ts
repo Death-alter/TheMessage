@@ -1,29 +1,29 @@
 import { Node } from "cc";
-import { CardObject } from "../Card/CardObject";
+import { CardEntity } from "../Card/CardEntity";
 import { CardUsableStatus } from "../Card/type";
-import { CardGroupObject } from "../Container/CardGroupObject";
-import { GameLogMessageObject } from "../GameLog/GameLogMessageObject";
+import { CardGroupEntity } from "../Container/CardGroupEntity";
+import { GameLogMessageEntity } from "../GameLog/GameLogMessageEntity";
 import { OuterGlow } from "../Utils/OuterGlow";
-import { ObjectPool } from "./ObjectPool";
+import { EntityPool } from "./EntityPool";
 
 interface PoolTemplates {
-  card: CardObject;
-  cardGroup: CardGroupObject;
-  logMessage: GameLogMessageObject;
+  card: CardEntity;
+  cardGroup: CardGroupEntity;
+  logMessage: GameLogMessageEntity;
 }
 
 export default class GamePools {
   public static initialized: boolean = false;
-  public static cardPool: ObjectPool<CardObject>;
-  public static cardGroupPool: ObjectPool<CardGroupObject>;
-  public static logMessagePool: ObjectPool<GameLogMessageObject>;
+  public static cardPool: EntityPool<CardEntity>;
+  public static cardGroupPool: EntityPool<CardGroupEntity>;
+  public static logMessagePool: EntityPool<GameLogMessageEntity>;
 
   public static init(templates: PoolTemplates) {
     const { card, cardGroup, logMessage } = templates;
-    GamePools.cardPool = new ObjectPool<CardObject>(card);
-    GamePools.cardGroupPool = new ObjectPool<CardGroupObject>(cardGroup);
-    GamePools.logMessagePool = new ObjectPool<GameLogMessageObject>(logMessage);
-    GamePools.cardPool.beforePut((object: CardObject) => {
+    GamePools.cardPool = new EntityPool<CardEntity>(card);
+    GamePools.cardGroupPool = new EntityPool<CardGroupEntity>(cardGroup);
+    GamePools.logMessagePool = new EntityPool<GameLogMessageEntity>(logMessage);
+    GamePools.cardPool.beforePut((object: CardEntity) => {
       object.usableStatus = CardUsableStatus.USABLE;
       object.getComponentInChildren(OuterGlow).closeOuterGlow();
       object.node.off(Node.EventType.TOUCH_END);

@@ -4,10 +4,10 @@ import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../E
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { GameLog } from "../../GameLog/GameLog";
@@ -72,7 +72,6 @@ export class YingBianZiRu extends ActiveSkill {
     });
 
     const message = gameData.createMessage(card);
-    message.gameObject = gameData.messageInTransmit.gameObject;
     gameData.messageInTransmit = message;
     message.status = CardStatus.FACE_UP;
     GameEventCenter.emit(GameEvent.MESSAGE_TURNED_OVER, { message });

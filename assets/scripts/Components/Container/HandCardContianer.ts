@@ -1,8 +1,8 @@
 import { _decorator, CCInteger, instantiate, Prefab, UITransform, Vec3, Node } from "cc";
-import { CardObject } from "../Card/CardObject";
+import { CardEntity } from "../Card/CardEntity";
 import { UIEventCenter } from "../../Event/EventTarget";
 import { UIEvent } from "../../Event/type";
-import { GameObjectContainer } from "./GameObjectContainer";
+import { EntityContainer } from "./EntityContainer";
 import { Card } from "../Card/Card";
 import { HandCardList } from "./HandCardList";
 import GamePools from "../Pool/GamePools";
@@ -13,7 +13,7 @@ import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/Keyfr
 const { ccclass, property } = _decorator;
 
 @ccclass("HandCardContianer")
-export class HandCardContianer extends GameObjectContainer<CardObject> {
+export class HandCardContianer extends EntityContainer<CardEntity> {
   @property(Prefab)
   cardPrefab: Prefab | null;
   @property({ type: CCInteger })
@@ -45,7 +45,7 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     this.node.removeAllChildren();
     for (const card of this.data.list) {
       this.addCardNode(<Card>card);
-      card.gameObject.node.on(
+      card.entity.node.on(
         Node.EventType.TOUCH_END,
         (event) => {
           this.selectCard(<Card>card);
@@ -58,30 +58,30 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
 
   onDataAdded(card: Card) {
     this.addCardNode(card);
-    card.gameObject.node.on(
+    card.entity.node.on(
       Node.EventType.TOUCH_END,
       (event) => {
-        if (card.gameObject.usableStatus !== CardUsableStatus.USABLE) return;
+        if (card.entity.usableStatus !== CardUsableStatus.USABLE) return;
         this.selectCard(card);
       },
       this,
     );
-    if (this.filter) card.gameObject.usableStatus = this.filter(card);
+    if (this.filter) card.entity.usableStatus = this.filter(card);
     this.scheduleOnce(this.refresh, 0);
   }
 
   addCardNode(card: Card) {
-    if (!card.gameObject) {
-      card.gameObject = GamePools.cardPool.get();
+    if (!card.entity) {
+      card.entity = GamePools.cardPool.get();
     }
-    card.gameObject.node.scale = new Vec3(1, 1, 1);
-    this.node.addChild(card.gameObject.node);
-    card.gameObject.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
+    card.entity.node.scale = new Vec3(1, 1, 1);
+    this.node.addChild(card.entity.node);
+    card.entity.node.position = new Vec3(this._width / 2 + this._childWith / 2, 0, 0);
   }
 
   onDataRemoved(card: Card) {
-    card.gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
-    card.gameObject.node.off(Node.EventType.TOUCH_END);
+    card.entity.getComponentInChildren(OuterGlow).closeOuterGlow();
+    card.entity.node.off(Node.EventType.TOUCH_END);
     this.scheduleOnce(this.refresh, 0);
   }
 
@@ -94,15 +94,15 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
     //超出宽度后开始堆叠
     if (data.list.length > this._maxLength) {
       for (let i = 0; i < data.list.length; i++) {
-        const node = data.list[i].gameObject && data.list[i].gameObject.node;
+        const node = data.list[i].entity && data.list[i].entity.node;
         if (!node) continue;
         const x = offset - (2 * i * offset) / (data.list.length - 1);
         if (data.selectedCards.isSelected(data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
-          data.list[i].gameObject.getComponentInChildren(OuterGlow).openOuterGlow();
+          data.list[i].entity.getComponentInChildren(OuterGlow).openOuterGlow();
         } else {
           node.setPosition(new Vec3(node.position.x, 0, 0));
-          data.list[i].gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+          data.list[i].entity.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
           KeyframeAnimationManager.playAnimation({
@@ -119,15 +119,15 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
       }
     } else {
       for (let i = 0; i < data.list.length; i++) {
-        const node = data.list[i].gameObject && data.list[i].gameObject.node;
+        const node = data.list[i].entity && data.list[i].entity.node;
         if (!node) continue;
         const x = offset + i * (this.spacingX + this._childWith);
         if (data.selectedCards.isSelected(data.list[i])) {
           node.setPosition(new Vec3(node.position.x, 20, 0));
-          data.list[i].gameObject.getComponentInChildren(OuterGlow).openOuterGlow();
+          data.list[i].entity.getComponentInChildren(OuterGlow).openOuterGlow();
         } else {
           node.setPosition(new Vec3(node.position.x, 0, 0));
-          data.list[i].gameObject.getComponentInChildren(OuterGlow).closeOuterGlow();
+          data.list[i].entity.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
           KeyframeAnimationManager.playAnimation({
@@ -172,14 +172,14 @@ export class HandCardContianer extends GameObjectContainer<CardObject> {
   setHandCardsUsable(filter: (card: Card) => CardUsableStatus) {
     this.filter = filter;
     for (const handCard of this.data.list) {
-      handCard.gameObject.usableStatus = filter(<Card>handCard);
+      handCard.entity.usableStatus = filter(<Card>handCard);
     }
   }
 
   refreshHandCardsUseable() {
     this.filter = null;
     for (const handCard of this.data.list) {
-      handCard.gameObject && (handCard.gameObject.usableStatus = CardUsableStatus.USABLE);
+      handCard.entity && (handCard.entity.usableStatus = CardUsableStatus.USABLE);
     }
   }
 

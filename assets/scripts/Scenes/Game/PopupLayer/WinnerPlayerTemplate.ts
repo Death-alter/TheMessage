@@ -1,11 +1,11 @@
 import { _decorator, Component, Label, Node, color, UITransform, Sprite } from "cc";
 import { Player } from "../../../Components/Player/Player";
 import { Identity } from "../../../Components/Identity/Identity";
-import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
-import { CharacterStatus } from "../../../Components/Chatacter/type";
-import { PlayerObject } from "../../../Components/Player/PlayerObject";
+import { CharacterEntity } from "../../../Components/Character/CharacterEntity";
+import { CharacterStatus } from "../../../Components/Character/type";
+import { PlayerEntity } from "../../../Components/Player/PlayerEntity";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
-import { createCharacterById } from "../../../Components/Chatacter";
+import { createCharacterById } from "../../../Components/Character";
 import { Lurker } from "../../../Components/Identity/IdentityClass/Lurker";
 import { Agent } from "../../../Components/Identity/IdentityClass/Agent";
 const { ccclass, property } = _decorator;
@@ -30,7 +30,7 @@ export class WinnerPlayer extends Component {
   init(data: WinnerTemplate) {
     const character = createCharacterById(data.player.character.id);
     character.status = CharacterStatus.FACE_UP;
-    this.characterPanting.getComponent(CharacterObject).data = character;
+    this.characterPanting.getComponent(CharacterEntity).data = character;
 
     const winFlag = this.node.getChildByName("WinFlag").getComponent(Label);
     if (data.isWinner) {
@@ -75,7 +75,7 @@ export class WinnerPlayer extends Component {
 
     this.node.getChildByName("Score").getComponent(Label).string = data.score.toString();
     this.node.getChildByName("SeatNumber").getComponent(Label).string =
-      PlayerObject.seatNumberText[data.player.seatNumber];
+      PlayerEntity.seatNumberText[data.player.seatNumber];
     this.node.getChildByName("Rank").getComponent(Label).string = data.rank;
   }
 }

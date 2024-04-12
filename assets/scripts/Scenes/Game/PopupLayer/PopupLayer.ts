@@ -12,8 +12,8 @@ import { Winner } from "./Winner";
 import { Player } from "../../../Components/Player/Player";
 import { copyCard } from "../../../Components/Card";
 import { Card } from "../../../Components/Card/Card";
-import { CardObject } from "../../../Components/Card/CardObject";
-import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
+import { CardEntity } from "../../../Components/Card/CardEntity";
+import { CharacterEntity } from "../../../Components/Character/CharacterEntity";
 import { CardInfoWindow } from "./CardInfoWindow";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { SelectIdentity } from "./SelectIdentity";
@@ -130,7 +130,7 @@ export class PopupLayer extends Component {
 
   showCharacterInfo(event) {
     this.characterInfoWindow.active = true;
-    const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+    const character = (<Node>(<unknown>event.target)).getComponent(CharacterEntity).data;
     this.characterInfo.setCharacterInfo(character);
   }
 
@@ -144,7 +144,7 @@ export class PopupLayer extends Component {
 
   showCardInfo(card: Card) {
     this.cardInfo.card = copyCard(card);
-    this.cardInfo.card.gameObject = this.cardInfo.node.getComponentInChildren(CardObject);
+    this.cardInfo.card.entity = this.cardInfo.node.getComponentInChildren(CardEntity);
     this.cardInfo.show();
   }
 

@@ -4,26 +4,26 @@ import { DataContainer } from "../Container/DataContainer";
 import { GameLog } from "./GameLog";
 import { GameLogContainer } from "../../Scenes/Game/LogLayer/GameLogContainer";
 import * as GameEventType from "../../Event/GameEventType";
-import { GameLogMessageObject } from "./GameLogMessageObject";
+import { GameLogMessageEntity } from "./GameLogMessageEntity";
 import { Card } from "../Card/Card";
 import { CardColor, CardDirection } from "../Card/type";
 import { GameLogHistory } from "./GameLogHistory";
 import { Player } from "../Player/Player";
 import { ActionLocation, CardActionLocation } from "../../Manager/type";
-import { ObjectPool } from "../Pool/ObjectPool";
+import { EntityPool } from "../Pool/EntityPool";
 
 export class GameLogList extends DataContainer<GameLog> {
-  logMessagePool: ObjectPool<GameLogMessageObject>;
+  logMessagePool: EntityPool<GameLogMessageEntity>;
   logHistory: GameLogHistory;
 
-  constructor(gameObject?: GameLogContainer) {
-    super(gameObject);
+  constructor(entity?: GameLogContainer) {
+    super(entity);
   }
 
   addData(data: GameLog) {
-    if (this.gameObject) {
+    if (this.entity) {
       this._list.push(data);
-      this.gameObject.onDataAdded(data);
+      this.entity.onDataAdded(data);
     }
     this.logHistory.addData(new GameLog(data.text));
   }

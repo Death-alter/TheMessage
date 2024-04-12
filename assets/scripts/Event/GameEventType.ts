@@ -1,6 +1,6 @@
 import { Card } from "../Components/Card/Card";
-import { CardDirection, CardType } from "../Components/Card/type";
-import { CharacterStatus } from "../Components/Chatacter/type";
+import { CardDirection, CardStatus, CardType } from "../Components/Card/type";
+import { CharacterStatus } from "../Components/Character/type";
 import { Identity } from "../Components/Identity/Identity";
 import { Player } from "../Components/Player/Player";
 import { Skill } from "../Components/Skill/Skill";
@@ -36,7 +36,7 @@ export interface MessageReplaced {
   message: Card;
   oldMessage: Card;
   messagePlayer: Player;
-  turnOver: boolean;
+  status?: CardStatus;
 }
 
 export interface MessageTurnedOver {

@@ -1,8 +1,8 @@
 import { DataBasic } from "../../DataBasic";
-import { IdentityObject } from "./IdentityObject";
+import { IdentityEntity } from "./IdentityEntity";
 import { IdentityType, IdentityOption } from "./type";
 
-export class Identity extends DataBasic<IdentityObject> {
+export class Identity extends DataBasic<IdentityEntity> {
   public static readonly colors = ["#07C160", "#e10602", "#2932e1", "#ffffff"];
 
   protected _type: IdentityType;
@@ -32,8 +32,8 @@ export class Identity extends DataBasic<IdentityObject> {
     if (option.inverted) {
       this._inverted = option.inverted;
     }
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
+    if (option.entity) {
+      this.entity = option.entity;
     }
   }
 }

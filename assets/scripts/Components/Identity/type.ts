@@ -1,4 +1,4 @@
-import { IdentityObject } from "./IdentityObject";
+import { IdentityEntity } from "./IdentityEntity";
 
 export const enum IdentityType {
   GREEN = 0, // 神秘人
@@ -21,7 +21,7 @@ export interface IdentityOption {
   type: IdentityType;
   name: string;
   inverted?: boolean;
-  gameObject?: IdentityObject;
+  entity?: IdentityEntity;
 }
 
 export interface MysteriousPersonOption {

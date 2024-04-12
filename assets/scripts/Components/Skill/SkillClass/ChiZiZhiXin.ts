@@ -5,7 +5,7 @@ import { GameData } from "../../../Manager/GameData";
 import { TriggerSkill } from "../Skill";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../Card/Card";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";

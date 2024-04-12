@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_jing_meng_a_toc, skill_jing_meng_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";

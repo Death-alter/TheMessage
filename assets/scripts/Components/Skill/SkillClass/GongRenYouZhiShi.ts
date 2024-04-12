@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import {
   skill_wait_for_workers_are_knowledgable_toc,
   skill_workers_are_knowledgable_toc,

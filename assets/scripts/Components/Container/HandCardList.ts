@@ -6,8 +6,8 @@ import { SelectedList } from "../../Utils/SelectedList";
 export class HandCardList extends DataContainer<Card> {
   selectedCards: SelectedList<Card> = new SelectedList<Card>();
 
-  constructor(gameObject?: HandCardContianer) {
-    super(gameObject);
+  constructor(entity?: HandCardContianer) {
+    super(entity);
   }
 
   removeData(card: Card): Card;
@@ -29,9 +29,9 @@ export class HandCardList extends DataContainer<Card> {
     const card = this._list.splice(index, 1)[0];
     this.selectedCards.deselect(card);
 
-    if (this.gameObject && card.gameObject) {
-      this.gameObject.node.removeChild(card.gameObject.node);
-      this.gameObject.onDataRemoved(card);
+    if (this.entity && card.entity) {
+      this.entity.node.removeChild(card.entity.node);
+      this.entity.onDataRemoved(card);
     }
     return card;
   }

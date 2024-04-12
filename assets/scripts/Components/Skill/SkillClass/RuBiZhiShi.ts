@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_ru_bi_zhi_shi_a_toc, skill_ru_bi_zhi_shi_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -8,7 +8,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { CardColor, CardType } from "../../Card/type";
 import { Card } from "../../Card/Card";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
@@ -60,10 +60,10 @@ export class RuBiZhiShi extends ActiveSkill {
 
   onPlayerDying(data) {
     this.dyingPlayerId = data.diePlayerId;
-    if (this.gameObject) {
-      this.gameObject.useable = true;
+    if (this.entity) {
+      this.entity.useable = true;
       UIEventCenter.once(UIEvent.STOP_COUNT_DOWN, () => {
-        this.gameObject.useable = false;
+        this.entity.useable = false;
       });
     }
   }

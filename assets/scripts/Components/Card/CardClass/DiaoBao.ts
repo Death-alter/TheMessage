@@ -6,7 +6,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GamePhase } from "../../../Manager/type";
 import { GameManager } from "../../../Manager/GameManager";
 import { GameLog } from "../../GameLog/GameLog";
-import { CardObject } from "../CardObject";
+import { CardEntity } from "../CardEntity";
 
 export class DiaoBao extends Card {
   public readonly availablePhases = [GamePhase.FIGHT_PHASE];
@@ -25,7 +25,7 @@ export class DiaoBao extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
+      entity: option.entity,
     });
   }
 
@@ -46,10 +46,8 @@ export class DiaoBao extends Card {
       oldMessage = gameData.messageInTransmit;
     } else {
       oldMessage = gameData.createMessage(oldMessageCard);
-      oldMessage.gameObject = gameData.messageInTransmit.gameObject;
     }
 
-    gameData.messageInTransmit = gameData.cardOnPlay;
     this.messageToReplaced = oldMessage;
 
     const gameLog = gameData.gameLog;
@@ -59,15 +57,15 @@ export class DiaoBao extends Card {
   onFinish(gui: GameManager) {
     UIEventCenter.on(
       UIEvent.PLAY_CARD_ANIMATION_FINISH,
-      (entity: CardObject) => {
+      (entity: CardEntity) => {
         if (entity.data === this) {
-          this.status = CardStatus.FACE_DOWN;
           GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {
-            message: gui.data.messageInTransmit,
+            message: this,
             oldMessage: this.messageToReplaced,
             messagePlayer: gui.data.playerList[gui.data.messagePlayerId],
-            turnOver: true,
+            status: CardStatus.FACE_DOWN,
           });
+          gui.data.messageInTransmit = this;
           this.messageToReplaced = null;
           UIEventCenter.targetOff(this);
         }

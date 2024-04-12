@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_xian_fa_zhi_ren_a_toc, skill_xian_fa_zhi_ren_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -8,7 +8,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -256,10 +256,10 @@ export class XianFaZhiRen extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     targetPlayer.addTag(TagName.SKILL_BANNED);
-    targetPlayer.gameObject.showBannedIcon();
+    targetPlayer.entity.showBannedIcon();
     GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
       targetPlayer.removeTag(TagName.SKILL_BANNED);
-      targetPlayer.gameObject.hideBannedIcon();
+      targetPlayer.entity.hideBannedIcon();
     });
 
     let str = `${gameLog.formatPlayer(player)}令${gameLog.formatPlayer(targetPlayer)}的技能无效`;

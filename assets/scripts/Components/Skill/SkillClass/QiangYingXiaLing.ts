@@ -1,5 +1,5 @@
 import { PassiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";
 import { TagName } from "../../../type";

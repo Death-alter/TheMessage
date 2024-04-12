@@ -1,14 +1,14 @@
 import { skill_gong_fen_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { Card } from "../../Card/Card";
 import { CardColor } from "../../Card/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
@@ -37,7 +37,7 @@ export class GongFen extends ActiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -59,13 +59,13 @@ export class GongFen extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     if (this.count === 0) {
-      ProcessEventCenter.emit(ProcessEvent.STOP_COUNT_DOWN);
+      UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
 
       GameEventCenter.emit(GameEvent.PLAYER_USE_SKILL, {
         player,
         skill: this,
       });
-  
+
       for (const player of gameData.playerList) {
         if (player.isAlive) {
           ++this.total;

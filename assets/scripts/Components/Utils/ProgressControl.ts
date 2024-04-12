@@ -1,6 +1,6 @@
 import { _decorator, Component, UITransform } from "cc";
-import { ProcessEventCenter, UIEventCenter } from "../../Event/EventTarget";
-import { ProcessEvent, UIEvent } from "../../Event/type";
+import { UIEventCenter } from "../../Event/EventTarget";
+import { UIEvent } from "../../Event/type";
 import { KeyframeAnimationManager } from "../../Scenes/Game/AnimationLayer/KeyframeAnimation";
 const { ccclass, property } = _decorator;
 
@@ -10,12 +10,10 @@ export class ProgressControl extends Component {
 
   onEnable() {
     UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
-    ProcessEventCenter.on(ProcessEvent.RECORD_STATUS_CHANGE, this.onRecordStatusChange, this);
   }
 
   onDisable() {
     UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
-    ProcessEventCenter.off(ProcessEvent.RECORD_STATUS_CHANGE, this.onRecordStatusChange, this);
   }
 
   //倒计时
@@ -43,14 +41,6 @@ export class ProgressControl extends Component {
     if (this.track) {
       KeyframeAnimationManager.stopAnimation(this.track);
       this.track = null;
-    }
-  }
-
-  private onRecordStatusChange(data) {
-    if (data.paused) {
-      this.pauseCountDown();
-    } else {
-      this.resumeCountDown();
     }
   }
 

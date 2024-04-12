@@ -3,7 +3,7 @@ import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget"
 import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { CardStatus } from "../../Card/type";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { Player } from "../../Player/Player";
 import { PassiveSkill } from "../Skill";
 
@@ -40,7 +40,6 @@ export class GuanHai extends PassiveSkill {
 
     if (playerId === 0) {
       const message = gameData.createMessage(card);
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
     }

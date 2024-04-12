@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import {
   color,
   skill_jiang_hu_ling_a_toc,

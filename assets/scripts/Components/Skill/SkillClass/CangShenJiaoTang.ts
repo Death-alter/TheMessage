@@ -10,7 +10,7 @@ import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Card } from "../../../Components/Card/Card";
 import { CardColor } from "../../Card/type";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
 import { TriggerSkill } from "../../../Components/Skill/Skill";

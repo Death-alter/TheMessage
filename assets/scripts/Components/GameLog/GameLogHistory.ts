@@ -1,10 +1,10 @@
 import { DataContainer } from "../Container/DataContainer";
-import { GameObjectContainer } from "../Container/GameObjectContainer";
+import { EntityContainer } from "../Container/EntityContainer";
 import { GameLog } from "./GameLog";
-import { GameLogTextObject } from "./GameLogTextObject";
+import { GameLogTextEntity } from "./GameLogTextEntity";
 
 export class GameLogHistory extends DataContainer<GameLog> {
-  constructor(gameObject?: GameObjectContainer<GameLogTextObject>) {
-    super(gameObject);
+  constructor(entity?: EntityContainer<GameLogTextEntity>) {
+    super(entity);
   }
 }

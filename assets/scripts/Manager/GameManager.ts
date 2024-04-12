@@ -5,12 +5,12 @@ import { GameData } from "./GameData";
 import * as GameEventType from "../Event/GameEventType";
 import { GameLogList } from "../Components/GameLog/GameLogList";
 import GamePools from "../Components/Pool/GamePools";
-import { CardGroupObject } from "../Components/Container/CardGroupObject";
-import { GameLogMessageObject } from "../Components/GameLog/GameLogMessageObject";
+import { CardGroupEntity } from "../Components/Container/CardGroupEntity";
+import { GameLogMessageEntity } from "../Components/GameLog/GameLogMessageEntity";
 import { DataManager } from "./DataManager";
 import { SyncStatus } from "./type";
-import { CardObject } from "../Components/Card/CardObject";
-import { GameObject } from "../GameObject";
+import { CardEntity } from "../Components/Card/CardEntity";
+import { Entity } from "../Entity";
 import { GameLayer } from "../Scenes/Game/GameLayer/GameLayer";
 import { AnimationLayer } from "../Scenes/Game/AnimationLayer/AnimationLayer";
 import { LogLayer } from "../Scenes/Game/LogLayer/LogLayer";
@@ -24,12 +24,11 @@ import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
 import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
-import { init_toc } from "../../protobuf/proto";
 
 const { ccclass, property } = _decorator;
 
 @ccclass("GameManager")
-export class GameManager extends GameObject<GameData> {
+export class GameManager extends Entity<GameData> {
   @property(Node)
   gameLayerNode: Node | null = null;
   @property(Node)
@@ -81,9 +80,9 @@ export class GameManager extends GameObject<GameData> {
   onLoad() {
     //初始化GamePools
     GamePools.init({
-      card: instantiate(this.cardPrefab).getComponent(CardObject),
-      cardGroup: this.cardGroupNode.getComponent(CardGroupObject),
-      logMessage: instantiate(this.logPrefab).getComponent(GameLogMessageObject),
+      card: instantiate(this.cardPrefab).getComponent(CardEntity),
+      cardGroup: this.cardGroupNode.getComponent(CardGroupEntity),
+      logMessage: instantiate(this.logPrefab).getComponent(GameLogMessageEntity),
     });
 
     this.gameLayer = this.gameLayerNode.getComponent(GameLayer);
@@ -100,8 +99,6 @@ export class GameManager extends GameObject<GameData> {
 
     this.gameLayer.node.active = false;
 
-    KeyframeAnimationManager.reset();
-
     //预加载卡图
     resources.preloadDir("images/cards");
     //预加载材质
@@ -109,6 +106,8 @@ export class GameManager extends GameObject<GameData> {
   }
 
   onEnable() {
+    KeyframeAnimationManager.reset();
+
     //游戏初始化
     ProcessEventCenter.on(ProcessEvent.INIT_GAME, this.onInit, this);
 
@@ -152,6 +151,7 @@ export class GameManager extends GameObject<GameData> {
     // GameEventCenter.targetOff(this);
     // GameEventCenter.targetOff(this.data);
     ProcessEventCenter.off(ProcessEvent.CONFIRM_SELECT_CHARACTER);
+    KeyframeAnimationManager.reset();
   }
 
   init() {

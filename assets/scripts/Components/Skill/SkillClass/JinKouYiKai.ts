@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_jin_kou_yi_kai_a_toc, skill_jin_kou_yi_kai_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -155,7 +155,7 @@ export class JinKouYiKai extends ActiveSkill {
         message: card,
         oldMessage,
         messagePlayer: gameData.playerList[gameData.messagePlayerId],
-        turnOver: false,
+        status: CardStatus.FACE_DOWN,
       });
 
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择将牌堆顶的牌和待收情报互换`));

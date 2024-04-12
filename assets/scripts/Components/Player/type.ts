@@ -1,5 +1,5 @@
-import { PlayerObject } from "./PlayerObject";
-import { Character } from "../Chatacter/Character";
+import { PlayerEntity } from "./PlayerEntity";
+import { Character } from "../Character/Character";
 import { Identity } from "../Identity/Identity";
 
 export interface PlayerOption {
@@ -7,7 +7,7 @@ export interface PlayerOption {
   name: string;
   character: Character;
   identity?: Identity;
-  gameObject?: PlayerObject;
+  entity?: PlayerEntity;
 }
 
 export enum PlayerStatus {

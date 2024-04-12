@@ -24,7 +24,7 @@ export class PoYi extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
+      entity: option.entity,
     });
   }
 
@@ -44,7 +44,6 @@ export class PoYi extends Card {
     const gamelog = gameData.gameLog;
     if (userId === 0) {
       const message = gameData.createMessage(targetCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
 
       GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
@@ -94,7 +93,6 @@ export class PoYi extends Card {
       const player = gameData.playerList[userId];
       if (userId !== 0) {
         const message = gameData.createMessage(targetCard);
-        message.gameObject = gameData.messageInTransmit.gameObject;
         gameData.messageInTransmit = message;
       }
       gameData.messageInTransmit.status = CardStatus.FACE_UP;

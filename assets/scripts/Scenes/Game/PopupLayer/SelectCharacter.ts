@@ -1,11 +1,11 @@
 import { _decorator, Component, Node, RichText, Button, instantiate, Sprite, color, sys } from "cc";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { Identity } from "../../../Components/Identity/Identity";
 import { ProcessEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
-import { createCharacterById } from "../../../Components/Chatacter";
-import { CharacterObject } from "../../../Components/Chatacter/CharacterObject";
-import { CharacterStatus } from "../../../Components/Chatacter/type";
+import { createCharacterById } from "../../../Components/Character";
+import { CharacterEntity } from "../../../Components/Character/CharacterEntity";
+import { CharacterStatus } from "../../../Components/Character/type";
 import { MysteriousPerson } from "../../../Components/Identity/IdentityClass/MysteriousPerson";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { ProgressControl } from "../../../Components/Utils/ProgressControl";
@@ -75,14 +75,14 @@ export class SelectCharacter extends Component {
       this.characterList.push(character);
 
       const node = instantiate(this.charcaterNode);
-      character.gameObject = node.getChildByName("CharacterPanting").getComponent(CharacterObject);
+      character.entity = node.getChildByName("CharacterPanting").getComponent(CharacterEntity);
       this.charcaterNodeList.addChild(node);
 
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       if (sys.isMobile) {
-        character.gameObject.node.on("longtap", (event) => {
+        character.entity.node.on("longtap", (event) => {
           this.characterInfoWindow.active = true;
-          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterEntity).data;
           characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
           characterInfoWindowComponent.setPosition(event);
 
@@ -91,17 +91,17 @@ export class SelectCharacter extends Component {
           });
         });
       } else {
-        character.gameObject.node.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
+        character.entity.node.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
           this.characterInfoWindow.active = true;
-          const character = (<Node>(<unknown>event.target)).getComponent(CharacterObject).data;
+          const character = (<Node>(<unknown>event.target)).getComponent(CharacterEntity).data;
           characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
         });
-        character.gameObject.node.on(
+        character.entity.node.on(
           Node.EventType.MOUSE_MOVE,
           characterInfoWindowComponent.setPosition,
           characterInfoWindowComponent
         );
-        character.gameObject.node.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
+        character.entity.node.on(Node.EventType.MOUSE_LEAVE, (event: MouseEvent) => {
           this.characterInfoWindow.active = false;
         });
       }

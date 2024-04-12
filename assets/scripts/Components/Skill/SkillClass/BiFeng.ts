@@ -1,8 +1,8 @@
 import { TriggerSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { skill_bi_feng_toc } from "../../../../protobuf/proto";
-import { DataEventCenter, GameEventCenter, NetworkEventCenter, ProcessEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent, UIEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../GameLog/GameLog";

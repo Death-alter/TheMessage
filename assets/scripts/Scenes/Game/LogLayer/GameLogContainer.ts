@@ -1,12 +1,12 @@
 import { Game, _decorator, game } from "cc";
 import { GameLog } from "../../../Components/GameLog/GameLog";
-import { GameObjectContainer } from "../../../Components/Container/GameObjectContainer";
-import { GameLogMessageObject } from "../../../Components/GameLog/GameLogMessageObject";
+import { EntityContainer } from "../../../Components/Container/EntityContainer";
+import { GameLogMessageEntity } from "../../../Components/GameLog/GameLogMessageEntity";
 import GamePools from "../../../Components/Pool/GamePools";
 const { ccclass, property } = _decorator;
 
 @ccclass("GameLogContainer")
-export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> {
+export class GameLogContainer extends EntityContainer<GameLogMessageEntity> {
   public showLog: boolean = true;
 
   onLoad() {
@@ -31,12 +31,12 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
 
   onDataAdded(data: GameLog): void {
     if (this.showLog) {
-      if (!data.gameObject) {
-        data.gameObject = GamePools.logMessagePool.get();
+      if (!data.entity) {
+        data.entity = GamePools.logMessagePool.get();
       }
-      this.node.addChild(data.gameObject.node);
-      data.gameObject.setText(data.text);
-      data.gameObject.show(3).then(() => {
+      this.node.addChild(data.entity.node);
+      data.entity.setText(data.text);
+      data.entity.show(3).then(() => {
         this.data.removeData(data);
       });
     } else {
@@ -44,9 +44,9 @@ export class GameLogContainer extends GameObjectContainer<GameLogMessageObject> 
     }
   }
   onDataRemoved(data: GameLog): void {
-    if (data.gameObject) {
-      GamePools.logMessagePool.put(data.gameObject);
-      data.gameObject = null;
+    if (data.entity) {
+      GamePools.logMessagePool.put(data.entity);
+      data.entity = null;
     }
   }
   onAllDataRemoved(): void {}

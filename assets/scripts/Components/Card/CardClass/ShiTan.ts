@@ -56,7 +56,7 @@ export class ShiTan extends Card {
       color: option.color,
       lockable: option.lockable,
       status: option.status,
-      gameObject: option.gameObject,
+      entity: option.entity,
     });
     this._drawCardColor = option.drawCardColor;
   }
@@ -116,7 +116,7 @@ export class ShiTan extends Card {
       const shiTanCard = <ShiTan>gameData.createCard(card);
       const gameLog = gameData.gameLog;
 
-      shiTanCard.gameObject = gameData.cardOnPlay.gameObject;
+      shiTanCard.entity = gameData.cardOnPlay.entity;
       gameData.cardOnPlay = shiTanCard;
 
       const array = ["神秘人", "潜伏战线", "特工机关"];

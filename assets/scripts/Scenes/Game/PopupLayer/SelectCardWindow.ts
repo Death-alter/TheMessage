@@ -11,7 +11,7 @@ import {
   UITransform,
 } from "cc";
 import { Card } from "../../../Components/Card/Card";
-import { CardGroupObject } from "../../../Components/Container/CardGroupObject";
+import { CardGroupEntity } from "../../../Components/Container/CardGroupEntity";
 import { DataContainer } from "../../../Components/Container/DataContainer";
 import GamePools from "../../../Components/Pool/GamePools";
 import { SelectedList } from "../../../Utils/SelectedList";
@@ -37,8 +37,8 @@ export class SelectCardsWindow extends Component {
   public isActive = true;
 
   onLoad() {
-    this.cardContainer.addComponent(CardGroupObject);
-    this.cardList.gameObject = this.cardContainer.getComponent(CardGroupObject);
+    this.cardContainer.addComponent(CardGroupEntity);
+    this.cardList.entity = this.cardContainer.getComponent(CardGroupEntity);
   }
 
   show(options?: SelectCardsOptions) {
@@ -80,9 +80,9 @@ export class SelectCardsWindow extends Component {
   }
 
   addCard(card: Card) {
-    card.gameObject = GamePools.cardPool.get();
-    card.gameObject.node.scale = new Vec3(1, 1, 1);
-    card.gameObject.node.on(
+    card.entity = GamePools.cardPool.get();
+    card.entity.node.scale = new Vec3(1, 1, 1);
+    card.entity.node.on(
       Node.EventType.TOUCH_END,
       (event) => {
         this.selectCard(card);
@@ -104,7 +104,7 @@ export class SelectCardsWindow extends Component {
     labelComponent.horizontalAlign = HorizontalTextAlignment.CENTER;
     labelComponent.overflow = Overflow.RESIZE_HEIGHT;
     label.getComponent(UITransform).width = 100;
-    card.gameObject.node.addChild(label);
+    card.entity.node.addChild(label);
     label.position = new Vec3(0, -50, 0);
     const outerline = label.getComponent(LabelOutline);
     outerline.color = color("#FFFFFF");
@@ -113,18 +113,18 @@ export class SelectCardsWindow extends Component {
 
   removeCard(card: Card) {
     this.cardList.removeData(card);
-    const gameObject = card.gameObject;
-    gameObject.node.off(Node.EventType.TOUCH_END);
-    card.gameObject = null;
-    GamePools.cardPool.put(gameObject);
+    const entity = card.entity;
+    entity.node.off(Node.EventType.TOUCH_END);
+    card.entity = null;
+    GamePools.cardPool.put(entity);
   }
 
   refresh() {
     for (const card of this.cardList.list) {
       if (this.selectedCards.isSelected(card)) {
-        card.gameObject?.getComponentInChildren(OuterGlow).openOuterGlow();
+        card.entity?.getComponentInChildren(OuterGlow).openOuterGlow();
       } else {
-        card.gameObject?.getComponentInChildren(OuterGlow).closeOuterGlow();
+        card.entity?.getComponentInChildren(OuterGlow).closeOuterGlow();
       }
     }
   }

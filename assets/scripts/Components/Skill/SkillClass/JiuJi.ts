@@ -1,5 +1,5 @@
 import { TriggerSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_jiu_ji_a_toc, skill_jiu_ji_b_toc, skill_wait_for_jiu_ji_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -106,7 +106,7 @@ export class JiuJi extends TriggerSkill {
     if (!card && unknownCardCount === 0) return;
 
     const cardOnPlay = gameData.createCard(card);
-    gameData.cardOnPlay.gameObject.data = cardOnPlay;
+    gameData.cardOnPlay.entity.data = cardOnPlay;
     gameData.cardOnPlay = null;
     gameData.playerAddHandCard(player, cardOnPlay);
 

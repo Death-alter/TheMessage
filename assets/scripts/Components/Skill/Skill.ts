@@ -2,7 +2,7 @@ import { DataBasic } from "../../DataBasic";
 import { GamePhase } from "../../Manager/type";
 import { GameData } from "../../Manager/GameData";
 import { GameManager } from "../../Manager/GameManager";
-import { Character } from "../Chatacter/Character";
+import { Character } from "../Character/Character";
 import { Player } from "../Player/Player";
 import { SkillButton } from "./SkillButton";
 import { ActiveSkillOption, SkillOption } from "./type";
@@ -29,8 +29,8 @@ export abstract class Skill extends DataBasic<SkillButton> {
     this._name = option.name;
     this._description = option.description;
     this._character = option.character;
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
+    if (option.entity) {
+      this.entity = option.entity;
     }
   }
 

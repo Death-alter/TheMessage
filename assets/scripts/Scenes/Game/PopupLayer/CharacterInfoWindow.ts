@@ -1,5 +1,5 @@
 import { _decorator, Component, Label, view, EventMouse, Vec3, Size, UITransform, EventTouch } from "cc";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 const { ccclass, property } = _decorator;
 
 @ccclass("CharacterInfoWindow")

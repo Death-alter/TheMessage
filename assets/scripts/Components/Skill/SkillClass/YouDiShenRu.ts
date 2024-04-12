@@ -1,11 +1,11 @@
 import { skill_you_di_shen_ru_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter} from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
 import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
@@ -39,7 +39,7 @@ export class YouDiShenRu extends ActiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     GameEventCenter.on(GameEvent.GAME_PHASE_CHANGE, this.onTurnChange, this);
   }
@@ -107,7 +107,7 @@ export class YouDiShenRu extends ActiveSkill {
       skill: this,
     });
 
-    ProcessEventCenter.emit(ProcessEvent.SEND_MESSAGE, {
+    DataEventCenter.emit(DataEvent.SEND_MESSAGE, {
       card,
       senderId: playerId,
       targetPlayerId,

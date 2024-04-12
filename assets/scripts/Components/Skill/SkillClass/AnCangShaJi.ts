@@ -6,7 +6,7 @@ import { CardColor, CardUsableStatus } from "../../Card/type";
 import { GameLog } from "../../GameLog/GameLog";
 import { Player } from "../../Player/Player";
 import { TriggerSkill } from "../Skill";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { GameManager } from "../../../Manager/GameManager";
 import { CardActionLocation } from "../../../Manager/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";

@@ -1,5 +1,6 @@
 import { Node, Vec3 } from "cc";
 import { Player } from "../Components/Player/Player";
+import { AnimationAction } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
 
 export const enum GamePhase {
   DRAW_PHASE = 0, // 摸牌阶段
@@ -30,6 +31,8 @@ export interface MoveNodeParams {
   from?: ActionLocation;
   to: ActionLocation;
   duration?: number;
+  action?: AnimationAction;
+  queueName?: string;
 }
 
 export const enum WaitingType {

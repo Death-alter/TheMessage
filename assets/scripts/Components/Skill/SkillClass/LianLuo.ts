@@ -1,6 +1,6 @@
 import { CardDirection } from "../../Card/type";
 import { PassiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { UIEvent } from "../../../Event/type";
 import { UIEventCenter } from "../../../Event/EventTarget";
 import { GameData } from "../../../Manager/GameData";

@@ -1,13 +1,13 @@
-import { Character } from "../Chatacter/Character";
+import { Character } from "../Character/Character";
 import { Identity } from "../Identity/Identity";
-import { PlayerObject } from "./PlayerObject";
+import { PlayerEntity } from "./PlayerEntity";
 import { PlayerOption, PlayerStatus } from "./type";
 import { DataBasic } from "../../DataBasic";
 import { CardStatus, CardColor, CardType } from "../Card/type";
 import { Card } from "../Card/Card";
 import { Agent } from "../Identity/IdentityClass/Agent";
 import { copyCard } from "../Card";
-import { CharacterObject } from "../Chatacter/CharacterObject";
+import { CharacterEntity } from "../Character/CharacterEntity";
 import { Lurker } from "../Identity/IdentityClass/Lurker";
 import { MysteriousPerson } from "../Identity/IdentityClass/MysteriousPerson";
 import { IdentityType } from "../Identity/type";
@@ -15,7 +15,7 @@ import { GameEventCenter } from "../../Event/EventTarget";
 import { GameEvent } from "../../Event/type";
 import { TagName } from "../../type";
 
-export class Player extends DataBasic<PlayerObject> {
+export class Player extends DataBasic<PlayerEntity> {
   private _id: number;
   private _name: string;
   private _character: Character;
@@ -39,10 +39,8 @@ export class Player extends DataBasic<PlayerObject> {
   set character(character: Character) {
     if (!character || character === this._character) return;
     this._character = character;
-    if (this.gameObject) {
-      this.character.gameObject = this.gameObject.node
-        .getChildByPath("Border/CharacterPanting")
-        .getComponent(CharacterObject);
+    if (this.entity) {
+      this.character.entity = this.entity.node.getChildByPath("Border/CharacterPanting").getComponent(CharacterEntity);
     }
   }
 
@@ -56,7 +54,7 @@ export class Player extends DataBasic<PlayerObject> {
   set seatNumber(number) {
     if (number == null || number === this._seatNumber) return;
     this._seatNumber = number;
-    this.gameObject?.setSeat();
+    this.entity?.setSeat();
   }
 
   get handCardCount() {
@@ -85,7 +83,7 @@ export class Player extends DataBasic<PlayerObject> {
   set status(status: PlayerStatus) {
     if (status == null || status === this._status || this._status === PlayerStatus.DEAD) return;
     this._status = status;
-    this.gameObject?.refreshStatus();
+    this.entity?.refreshStatus();
   }
 
   get isAlive() {
@@ -99,21 +97,21 @@ export class Player extends DataBasic<PlayerObject> {
     this.character = option.character;
     if (option.identity != null) {
     }
-    if (option.gameObject) {
-      this.gameObject = option.gameObject;
+    if (option.entity) {
+      this.entity = option.entity;
     }
   }
 
   //抽牌
   addHandCard(num: number) {
     this._handCardCount += num;
-    this.gameObject?.refreshHandCardCount();
+    this.entity?.refreshHandCardCount();
   }
 
   //弃牌
   removeHandCard(num: number) {
     this._handCardCount -= num;
-    this.gameObject?.refreshHandCardCount();
+    this.entity?.refreshHandCardCount();
   }
 
   banCardByType(type: CardType);
@@ -140,10 +138,10 @@ export class Player extends DataBasic<PlayerObject> {
 
   banSkills() {
     this.addTag(TagName.SKILL_BANNED);
-    this.gameObject?.showBannedIcon();
+    this.entity?.showBannedIcon();
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
       this.removeTag(TagName.SKILL_BANNED);
-      this.gameObject?.hideBannedIcon();
+      this.entity?.hideBannedIcon();
     });
   }
 
@@ -167,7 +165,7 @@ export class Player extends DataBasic<PlayerObject> {
     if (this.messageCounts[CardColor.BLACK] >= 3) {
       this.status = PlayerStatus.DYING;
     }
-    this.gameObject?.refreshMessageCount();
+    this.entity?.refreshMessageCount();
   }
 
   //从情报区移除情报
@@ -182,7 +180,7 @@ export class Player extends DataBasic<PlayerObject> {
           break;
         }
       }
-      this.gameObject?.refreshMessageCount();
+      this.entity?.refreshMessageCount();
       if (this.messageCounts[CardColor.BLACK] < 3 && this.status === PlayerStatus.DYING) {
         this.status = PlayerStatus.ALIVE;
         GameEventCenter.emit(GameEvent.PLAYER_RECOVERY, this);
@@ -198,7 +196,7 @@ export class Player extends DataBasic<PlayerObject> {
           }
         }
       }
-      this.gameObject?.refreshMessageCount();
+      this.entity?.refreshMessageCount();
       if (this.messageCounts[CardColor.BLACK] < 3 && this.status === PlayerStatus.DYING) {
         this.status = PlayerStatus.ALIVE;
         GameEventCenter.emit(GameEvent.PLAYER_RECOVERY, this);
@@ -211,7 +209,7 @@ export class Player extends DataBasic<PlayerObject> {
   removeAllMessage() {
     const arr = this._messages;
     this._messages = [];
-    this.gameObject?.refreshMessageCount();
+    this.entity?.refreshMessageCount();
     return arr;
   }
 
@@ -229,7 +227,7 @@ export class Player extends DataBasic<PlayerObject> {
       }
     }
 
-    this.gameObject?.refreshIdentityList();
+    this.entity?.refreshIdentityList();
   }
 
   //排除玩家是某个身份
@@ -246,12 +244,12 @@ export class Player extends DataBasic<PlayerObject> {
         break;
       }
     }
-    this.gameObject?.refreshIdentityList();
+    this.entity?.refreshIdentityList();
   }
 
   setIdentityList(list: Identity[]) {
     this._identityList = list;
-    this.gameObject?.refreshIdentityList();
+    this.entity?.refreshIdentityList();
   }
 
   getMessagesCopy(): Card[] {

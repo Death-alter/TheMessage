@@ -1,5 +1,5 @@
 import { ActiveSkill } from "../../../Components/Skill/Skill";
-import { Character } from "../../../Components/Chatacter/Character";
+import { Character } from "../../../Components/Character/Character";
 import { skill_sou_ji_a_toc, skill_sou_ji_b_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
@@ -10,7 +10,7 @@ import { Player } from "../../../Components/Player/Player";
 import { CardColor } from "../../Card/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
-import { CharacterStatus } from "../../Chatacter/type";
+import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 
@@ -84,7 +84,6 @@ export class SouJi extends ActiveSkill {
 
     if (playerId === 0) {
       const message = gameData.createMessage(messageCard);
-      message.gameObject = gameData.messageInTransmit.gameObject;
       gameData.messageInTransmit = message;
       GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {

@@ -24,8 +24,8 @@ export class LogLayer extends Component {
     this.manager = manager;
     this.logContainer = this.logContainerNode.getComponent(GameLogContainer);
     this.logHistory = this.logHistoryNode.getComponent(GameLogWindow);
-    this.gameLog.gameObject = this.logContainer;
-    this.gameLog.logHistory.gameObject = this.logHistory;
+    this.gameLog.entity = this.logContainer;
+    this.gameLog.logHistory.entity = this.logHistory;
     this.logHistory.init();
   }
 }

@@ -4,7 +4,7 @@ import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../E
 import { GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
-import { Character } from "../../Chatacter/Character";
+import { Character } from "../../Character/Character";
 import { Player } from "../../Player/Player";
 import { ActiveSkill } from "../Skill";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
