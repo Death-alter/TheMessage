@@ -19,7 +19,7 @@ export class AnCangShaJi extends TriggerSkill {
       name: "暗藏杀机",
       character,
       description:
-        "你接收蓝色情报或你传出的蓝色情报被接收后，可以选择一项：\n♦将一张纯黑色手牌置入传出者/接收者的情报区。\n♦你抽取传出者/接收者的一张手牌。",
+        "你接收蓝色情报或你传出的蓝色情报被接收后，可以选择一项：\n♦把你的情报区中一张纯黑色情报置入传出者/接收者的情报区。\n♦你抽取传出者/接收者的一张手牌。",
     });
   }
 
@@ -29,7 +29,7 @@ export class AnCangShaJi extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -39,6 +39,8 @@ export class AnCangShaJi extends TriggerSkill {
 
   onTrigger(gui: GameManager, params): void {
     const tooltip = gui.tooltip;
+    const showCardsWindow = gui.showCardsWindow;
+
     PlayerAction.addStep({
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
@@ -99,34 +101,32 @@ export class AnCangShaJi extends TriggerSkill {
                 next();
               });
             } else {
-              tooltip.setText(`请选择一张纯黑色手牌`);
-              gui.gameLayer.startSelectHandCards({
-                num: 1,
-                filter: (card) => {
-                  if (card.color.length === 1 && card.color[0] === CardColor.BLACK) {
-                    return CardUsableStatus.USABLE;
-                  } else {
-                    return CardUsableStatus.UNUSABLE;
-                  }
-                },
+              showCardsWindow.show();
+              showCardsWindow.show({
+                title: "请选择一张纯黑色情报",
+                limit: 1,
+                cardList: gui.data.selfPlayer.getMessagesCopy(),
+                buttons: [
+                  {
+                    text: "确定",
+                    onclick: () => {
+                      const cardId = showCardsWindow.selectedCards.list[0].id;
+                      showCardsWindow.hide();
+                      next({ cardId });
+                    },
+                    enabled: () =>
+                      showCardsWindow.selectedCards.list.length > 0 &&
+                      showCardsWindow.selectedCards.list[0].color.length === 1 &&
+                      showCardsWindow.selectedCards.list[0].color[0] === CardColor.BLACK,
+                  },
+                  {
+                    text: "取消",
+                    onclick: () => {
+                      prev();
+                    },
+                  },
+                ],
               });
-              tooltip.buttons.setButtons([
-                {
-                  text: "确定",
-                  onclick: () => {
-                    next({
-                      cardId: gui.selectedHandCards.list[0].id,
-                    });
-                  },
-                  enabled: () => gui.selectedHandCards.list.length === 1,
-                },
-                {
-                  text: "取消",
-                  onclick: () => {
-                    prev();
-                  },
-                },
-              ]);
             }
           },
         }),
@@ -145,7 +145,7 @@ export class AnCangShaJi extends TriggerSkill {
       .start();
   }
 
-  onEffect(gameData: GameData, { playerId, card, targetPlayerId, handCard }: skill_an_cang_sha_ji_toc) {
+  onEffect(gameData: GameData, { playerId, cardId, targetPlayerId, handCard }: skill_an_cang_sha_ji_toc) {
     const player = gameData.playerList[playerId];
     const targetPlayer = gameData.playerList[targetPlayerId];
     const gameLog = gameData.gameLog;
@@ -155,20 +155,20 @@ export class AnCangShaJi extends TriggerSkill {
       skill: this,
     });
 
-    if (card) {
-      const handCard = gameData.playerRemoveHandCard(player, card);
-      targetPlayer.addMessage(handCard);
+    if (cardId) {
+      const message = player.removeMessage(cardId);
+      targetPlayer.addMessage(message);
       GameEventCenter.emit(GameEvent.MESSAGE_PLACED_INTO_MESSAGE_ZONE, {
         player: targetPlayer,
-        message: handCard,
+        message,
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player },
       });
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(
-            targetPlayer
-          )}的情报区`
-        )
+          `${gameLog.formatPlayer(player)}将情报区的${gameLog.formatCard(message)}置入${gameLog.formatPlayer(
+            targetPlayer,
+          )}的情报区`,
+        ),
       );
     } else {
       const card = gameData.playerRemoveHandCard(targetPlayer, handCard);
@@ -180,7 +180,7 @@ export class AnCangShaJi extends TriggerSkill {
       });
 
       gameLog.addData(
-        new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`)
+        new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`),
       );
     }
 
