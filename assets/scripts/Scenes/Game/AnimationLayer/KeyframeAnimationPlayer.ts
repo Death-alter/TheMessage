@@ -294,11 +294,16 @@ export class KeyframeAnimationPlayer extends Component {
   }
 
   playerSendMessage(player: Player, targetPlayer: Player, entity: CardEntity) {
-    const node = this.addCard(entity, { location: CardActionLocation.PLAYER, player });
+    const node = this.addCard(entity);
     return KeyframeAnimationManager.playAnimation(
       {
         target: node,
-        animation: [this.createMoveAnimation({ location: CardActionLocation.PLAYER, player: targetPlayer })],
+        animation: [
+          this.createMoveAnimation(
+            { location: CardActionLocation.PLAYER, player: targetPlayer },
+            { location: CardActionLocation.PLAYER, player },
+          ),
+        ],
       },
       "global",
     );
@@ -423,7 +428,6 @@ export class KeyframeAnimationPlayer extends Component {
       })
       .on(0.9, () => {
         entity.data = message;
-        console.log(message.status === CardStatus.FACE_UP);
       });
     return track;
   }

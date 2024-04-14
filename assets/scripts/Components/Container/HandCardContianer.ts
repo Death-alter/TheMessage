@@ -53,7 +53,7 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
         this,
       );
     }
-    this.refresh();
+    this.scheduleOnce(this.refresh, 0);
   }
 
   onDataAdded(card: Card) {
@@ -105,16 +105,21 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
           data.list[i].entity.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
-          KeyframeAnimationManager.playAnimation({
-            target: node,
-            animation: [
-              {
-                attribute: "position",
-                to: new Vec3(x, node.position.y, 0),
-                duration: 0.5,
-              },
-            ],
-          });
+          KeyframeAnimationManager.playAnimation(
+            {
+              target: node,
+              animation: [
+                {
+                  attribute: "position",
+                  to: new Vec3(x, node.position.y, 0),
+                  duration: 0.5,
+                },
+              ],
+            },
+            null,
+            "mix",
+            0,
+          );
         }
       }
     } else {
@@ -130,16 +135,21 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
           data.list[i].entity.getComponentInChildren(OuterGlow).closeOuterGlow();
         }
         if (x !== node.position.x) {
-          KeyframeAnimationManager.playAnimation({
-            target: node,
-            animation: [
-              {
-                attribute: "position",
-                to: new Vec3(x, node.position.y, 0),
-                duration: 0.5,
-              },
-            ],
-          });
+          KeyframeAnimationManager.playAnimation(
+            {
+              target: node,
+              animation: [
+                {
+                  attribute: "position",
+                  to: new Vec3(x, node.position.y, 0),
+                  duration: 0.5,
+                },
+              ],
+            },
+            null,
+            "mix",
+            0,
+          );
         }
       }
     }
@@ -165,8 +175,7 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
         UIEventCenter.emit(UIEvent.SELECT_HAND_CARD, card);
       }
     }
-    // this.scheduleOnce(this.refresh, 0);
-    this.refresh();
+    this.scheduleOnce(this.refresh, 0);
   }
 
   setHandCardsUsable(filter: (card: Card) => CardUsableStatus) {
@@ -185,6 +194,6 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
 
   resetSelectCard() {
     (<HandCardList>this.data).selectedCards.clear();
-    this.refresh();
+    this.scheduleOnce(this.refresh, 0);
   }
 }

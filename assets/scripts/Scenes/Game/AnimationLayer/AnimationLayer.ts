@@ -178,7 +178,7 @@ export class AnimationLayer extends Component {
   playerSendMessage({ player, targetPlayer, message }: GameEventType.PlayerSendMessage) {
     const entity = this.getCardEntity(message);
     this.messageEntity = entity;
-    this.animationPlayer.playerSendMessage(player, targetPlayer, this.getCardEntity(message));
+    this.animationPlayer.playerSendMessage(player, targetPlayer, entity);
     if (player.id !== this.manager.data.turnPlayerId) {
       player.entity.showInnerGlow("FF00FF80");
     }

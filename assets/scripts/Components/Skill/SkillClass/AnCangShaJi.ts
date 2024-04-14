@@ -122,6 +122,7 @@ export class AnCangShaJi extends TriggerSkill {
                   {
                     text: "取消",
                     onclick: () => {
+                      showCardsWindow.hide();
                       prev();
                     },
                   },

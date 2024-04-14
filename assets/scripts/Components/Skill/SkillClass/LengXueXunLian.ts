@@ -1,6 +1,6 @@
 import { skill_leng_xue_xun_lian_a_toc, skill_leng_xue_xun_lian_b_toc } from "../../../../protobuf/proto";
-import { GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
-import { GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
+import { DataEventCenter, GameEventCenter, NetworkEventCenter, UIEventCenter } from "../../../Event/EventTarget";
+import { DataEvent, GameEvent, NetworkEventToC, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, GamePhase, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
@@ -174,10 +174,10 @@ export class LengXueXunLian extends ActiveSkill {
       UIEventCenter.emit(UIEvent.STOP_SHOW_CARDS);
     }
 
-    GameEventCenter.emit(GameEvent.PLAYER_SEND_MESSAGE, {
+    DataEventCenter.emit(DataEvent.SEND_MESSAGE, {
       card: sendCard,
       senderId: senderId,
-      targetPlayerId: targetPlayerId,
+      targetPlayerId,
       lockPlayerIds: [lockPlayerId],
       direction: sendCard.cardDir,
       fromHand: false,

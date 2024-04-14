@@ -251,16 +251,18 @@ class KeyframeAnimationTrackGroup extends AnimationTrack {
     if (this._startTime === 0 && track.startTime) this._startTime = track.startTime;
   }
 
-  mix(trackGroup: KeyframeAnimationTrackGroup) {
+  mix(trackGroup: KeyframeAnimationTrackGroup, mixTime?: number) {
     trackGroup._tracks.forEach((track, index) => {
-      this.addTrack(track, trackGroup._trackStartTime[index]);
+      this.addTrack(track, mixTime == null ? trackGroup._trackStartTime[index] : mixTime);
     });
     if (this._startTime === 0 && trackGroup.startTime) this._startTime = trackGroup.startTime;
   }
 
   start() {
-    this._startTime = new Date().getTime();
-    this._isComplete.fill(false);
+    if (this._startTime === 0) {
+      this._startTime = new Date().getTime();
+      this._isComplete.fill(false);
+    }
   }
 
   stop(skip: boolean = true) {
@@ -366,8 +368,10 @@ class KeyframeAnimationTrack<T extends object> extends AnimationTrack {
    * 开始当前track，该方法由KeyframeAnimationManager类自动调用，请勿手动调用该方法。
    */
   start() {
-    this._startTime = new Date().getTime();
-    this.timeLineIndex = 0;
+    if (this._startTime === 0) {
+      this._startTime = new Date().getTime();
+      this.timeLineIndex = 0;
+    }
   }
 
   /**
@@ -436,7 +440,7 @@ class KeyframeAnimationTrack<T extends object> extends AnimationTrack {
       const t = time - variation.startTime;
       if (t < 0) return;
       if (this.initialValues[i] === undefined) {
-        if (variation.from) {
+        if (variation.from != null) {
           this.initialValues[i] = variation.from;
         } else {
           this.initialValues[i] = this.getAttribute(variation);
@@ -635,14 +639,15 @@ export abstract class KeyframeAnimationManager {
 
   /**
    * 播放一个KeyframeAnimation动画
-   * @param {Object} option 动画选项
-   * @param {object} option.target 执行动画的对象，必须是js的object类型
-   * @param {Function} [option.targetModify] 对动画对象进行修改
-   * @param {KeyframeAnimation} option.animation KeyframeAnimation动画对象
-   * @param {Function} [option.callbacks] 事件回调
+   * @param option 动画选项
+   * @param option.target 执行动画的对象，必须是js的object类型
+   * @param option.targetModify 对动画对象进行修改
+   * @param option.animation KeyframeAnimation动画对象
+   * @param option.callbacks 事件回调
    * @param queueName 动画队列
-   * @param {string} action 动画添加方式
-   * @returns {KeyframeAnimationTrack} 返回根据传入参数生成的KeyframeAnimationTrack
+   * @param action 动画添加方式
+   * @param mixTime 动画混合的开始时间，action为mix时生效
+   * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: {
@@ -653,6 +658,7 @@ export abstract class KeyframeAnimationManager {
     },
     queueName?: string,
     action?: AnimationAction,
+    mixTime?: number,
   ): KeyframeAnimationTrack<typeof option.target>;
 
   /**
@@ -664,12 +670,14 @@ export abstract class KeyframeAnimationManager {
    * @param option.callbacks 事件回调
    * @param queueName 动画队列
    * @param action 动画添加方式
+   * @param mixTime 动画混合的开始时间，action为mix时生效
    * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: PlayAnimationOpiton[],
     queueName?: string,
     action?: AnimationAction,
+    mixTime?: number,
   ): KeyframeAnimationTrackGroup;
 
   /**
@@ -681,12 +689,14 @@ export abstract class KeyframeAnimationManager {
    * @param option.callbacks 事件回调
    * @param queueName 动画队列
    * @param action 动画添加方式
+   * @param mixTime 动画混合的开始时间，action为mix时生效
    * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: PlayAnimationOpiton,
     queueName?: string,
     action?: AnimationAction,
+    mixTime?: number,
   ): KeyframeAnimationTrack<object> | KeyframeAnimationTrackGroup;
 
   /**
@@ -697,17 +707,20 @@ export abstract class KeyframeAnimationManager {
    * @param option.animation 已经注册过的动画名称
    * @param queueName 动画队列
    * @param action 动画添加方式
+   * @param mixTime 动画混合的开始时间，action为mix时生效
    * @returns 返回根据传入参数生成的KeyframeAnimationTrack
    */
   static playAnimation(
     option: PlayAnimationOpiton,
     queueName?: string,
     action?: AnimationAction,
+    mixTime?: number,
   ): KeyframeAnimationTrack<object> | KeyframeAnimationTrackGroup;
   static playAnimation(
     option: PlayAnimationOpiton | PlayAnimationOpiton[],
     queueName?: string,
     action: AnimationAction = "default",
+    mixTime?: number,
   ): KeyframeAnimationTrack<object> | KeyframeAnimationTrackGroup {
     if (option instanceof Array) {
       if (!queueName) {
@@ -743,12 +756,16 @@ export abstract class KeyframeAnimationManager {
             return;
           }
           if (currentTrack instanceof KeyframeAnimationTrackGroup) {
-            currentTrack.mix(trackGroup);
+            currentTrack.mix(trackGroup, mixTime);
             return currentTrack;
+          } else if (currentTrack) {
+            const newGroup = new KeyframeAnimationTrackGroup();
+            newGroup.addTrack(<KeyframeAnimationTrack<object>>currentTrack);
+            newGroup.mix(trackGroup, mixTime);
+            this.activeAnimationMap.set(queueName, newGroup);
+            newGroup.start();
+            return newGroup;
           } else {
-            const trackGroup = new KeyframeAnimationTrackGroup();
-            trackGroup.addTrack(<KeyframeAnimationTrack<object>>currentTrack);
-            trackGroup.mix(trackGroup);
             this.activeAnimationMap.set(queueName, trackGroup);
             trackGroup.start();
             return trackGroup;
@@ -787,15 +804,19 @@ export abstract class KeyframeAnimationManager {
         case "mix":
           const currentTrack = this.activeAnimationMap.get(queueName || target);
           if (currentTrack instanceof KeyframeAnimationTrackGroup) {
-            currentTrack.addTrack(track);
+            currentTrack.addTrack(track, mixTime);
             return currentTrack;
-          } else {
+          } else if (currentTrack) {
             const trackGroup = new KeyframeAnimationTrackGroup();
             trackGroup.addTrack(<KeyframeAnimationTrack<object>>currentTrack);
-            trackGroup.addTrack(track);
+            trackGroup.addTrack(track, mixTime);
             this.activeAnimationMap.set(queueName || target, trackGroup);
             trackGroup.start();
             return trackGroup;
+          } else {
+            this.activeAnimationMap.set(queueName || target, track);
+            track.start();
+            return track;
           }
         case "clear":
           this.animationQueue.delete(track);
@@ -837,18 +858,23 @@ export abstract class KeyframeAnimationManager {
     let track;
     if (object instanceof KeyframeAnimationTrack) {
       track = this.activeAnimationMap.get(object.target);
+      if (this.animationQueue.has(object.target)) {
+        this.activeAnimationMap.set(object.target, this.deQueue(<object>object));
+      } else {
+        this.activeAnimationMap.delete(object.target);
+      }
     } else {
       //删除一个target对应的所有track
       track = this.activeAnimationMap.get(object);
+      if (this.animationQueue.has(object)) {
+        this.activeAnimationMap.set(object, this.deQueue(<object>object));
+      } else {
+        this.activeAnimationMap.delete(object);
+      }
     }
     if (track) {
       track.trigger("cancel");
       track.stop(skip);
-    }
-    if (this.animationQueue.has(object)) {
-      this.activeAnimationMap.set(object, this.deQueue(<object>object));
-    } else {
-      this.activeAnimationMap.delete(object);
     }
   }
 
