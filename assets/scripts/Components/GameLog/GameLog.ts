@@ -3,11 +3,6 @@ import { GameLogMessageEntity } from "./GameLogMessageEntity";
 import { GameLogTextEntity } from "./GameLogTextEntity";
 
 export class GameLog extends DataBasic<GameLogTextEntity & GameLogMessageEntity> {
-  // public player: Player;
-  // public card: Card;
-  // public message: Card;
-  // public skill: Skill;
-
   public text: string;
 
   constructor(text: string) {

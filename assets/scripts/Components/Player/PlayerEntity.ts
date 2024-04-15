@@ -103,14 +103,14 @@ export class PlayerEntity extends Entity<Player> {
         () => {
           this.changeSelectedIdentity();
         },
-        this
+        this,
       );
       this.node.getChildByPath("Border/Identity").on(
         "longtap",
         () => {
           this.selectIdentity();
         },
-        this
+        this,
       );
     } else {
       this.node.getChildByPath("Border/Identity").on(
@@ -124,7 +124,7 @@ export class PlayerEntity extends Entity<Player> {
             }
           }
         },
-        this
+        this,
       );
     }
   }
@@ -205,6 +205,7 @@ export class PlayerEntity extends Entity<Player> {
   }
 
   refreshLockState() {
+    console.log(this._locked);
     if (this._locked) {
       this.node.getChildByName("PlayerLock").active = true;
     } else {

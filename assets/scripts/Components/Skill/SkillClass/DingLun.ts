@@ -34,7 +34,7 @@ export class DingLun extends ActiveSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -67,6 +67,7 @@ export class DingLun extends ActiveSkill {
       let message = gameData.messageInTransmit;
       if (message instanceof UnknownCard || message.status === CardStatus.FACE_DOWN) {
         message = gameData.createMessage(card);
+        message.entity = gameData.messageInTransmit.entity;
         gameData.messageInTransmit = message;
         message.status = CardStatus.FACE_UP;
         GameEventCenter.emit(GameEvent.MESSAGE_TURNED_OVER, { message });

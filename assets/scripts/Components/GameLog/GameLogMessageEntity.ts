@@ -23,34 +23,30 @@ export class GameLogMessageEntity extends Entity<GameLog> {
     this.background.getComponent(UITransform).width = this.label.getComponent(UITransform).width + 20;
   }
 
-  show(seconds = 1) {
+  show(seconds = 1.5) {
     return new Promise((resolve, reject) => {
-      KeyframeAnimationManager.playAnimation(
-        {
-          target: this._opacityTarget,
-          animation: [
-            {
-              attribute: "opacity",
-              from: 0,
-              to: 255,
-              duration: 0.5,
-            },
-            {
-              attribute: "opacity",
-              to: 0,
-              startTime: seconds + 0.5,
-              duration: 0.5,
-            },
-          ],
-          callbacks: {
-            complete: () => {
-              resolve(null);
-            },
+      KeyframeAnimationManager.playAnimation({
+        target: this._opacityTarget,
+        animation: [
+          {
+            attribute: "opacity",
+            from: 0,
+            to: 255,
+            duration: 0.5,
+          },
+          {
+            attribute: "opacity",
+            to: 0,
+            startTime: seconds + 0.5,
+            duration: 0.5,
+          },
+        ],
+        callbacks: {
+          complete: () => {
+            resolve(null);
           },
         },
-        null,
-        "clear",
-      );
+      });
     });
   }
 }

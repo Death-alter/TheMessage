@@ -172,9 +172,11 @@ export class GameData extends DataBasic<GameManager> {
   set lockedPlayerId(playerId: number) {
     if (playerId === this._lockedPlayerId) return;
     if (playerId == null) {
+      this.lockedPlayer && (this.lockedPlayer.entity.locked = false);
       this._lockedPlayerId = -1;
     } else {
       this._lockedPlayerId = playerId;
+      this.lockedPlayer && (this.lockedPlayer.entity.locked = true);
     }
   }
 
@@ -482,9 +484,9 @@ export class GameData extends DataBasic<GameManager> {
     this._messageInTransmit = card;
     this._senderId = data.senderId;
     if (data.lockPlayerIds.length) {
-      this._lockedPlayerId = data.lockPlayerIds[0];
+      this.lockedPlayerId = data.lockPlayerIds[0];
     } else {
-      this._lockedPlayerId = null;
+      this.lockedPlayerId = null;
     }
     if (!data.card && data.senderId === 0) {
       card.status = CardStatus.FACE_DOWN;
