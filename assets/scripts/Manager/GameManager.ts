@@ -198,14 +198,8 @@ export class GameManager extends Entity<GameData> {
     this.uiLayer.startRender();
   }
 
-  stopRender() {
-    UIEventCenter.on(UIEvent.START_COUNT_DOWN, this.onStartCountDown, this);
-  }
-
   onStartCountDown(data: StartCountDown) {
-    if (!data.isMultiply) {
-      UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
-    }
+    UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
     if (data.seq) {
       this.seq = data.seq;
     }
@@ -213,7 +207,7 @@ export class GameManager extends Entity<GameData> {
 
   gameOver(data: GameEventType.GameOver) {
     UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
-    this.stopRender();
+    UIEventCenter.on(UIEvent.START_COUNT_DOWN, this.onStartCountDown, this);
     // this.gameWindow.active = false;
     this.popupLayer.showCardsWindow.node.active = false;
     this.popupLayer.messagesWindow.node.active = false;

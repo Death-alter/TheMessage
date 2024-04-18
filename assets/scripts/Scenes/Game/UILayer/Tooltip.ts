@@ -58,6 +58,11 @@ export class Tooltip extends Component {
     this.show();
   }
 
+  stopCountDown() {
+    this.progressBar.getComponent(ProgressControl).stopCountDown();
+    this.hide();
+  }
+
   setText(text?: string) {
     this.textNode.getComponent(Label).string = text;
   }

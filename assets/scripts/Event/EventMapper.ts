@@ -634,12 +634,12 @@ export class EventMapper {
         UIEventCenter.emit(UIEvent.UNKNOWN_WAITING, data.waitingSecond);
       }
     });
+    //添加情报
+    NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC, (data: ProtobufType.add_message_card_toc) => {
+      DataEventCenter.emit(DataEvent.GM_ADD_MESSAGE, {
+        targetPlayerId: data.targetPlayerId,
+        messageCard: data.messageCard,
+      });
+    });
   }
 }
-//添加情报
-NetworkEventCenter.on(NetworkEventToC.ADD_MESSAGE_CARD_TOC, (data: ProtobufType.add_message_card_toc) => {
-  DataEventCenter.emit(DataEvent.GM_ADD_MESSAGE, {
-    targetPlayerId: data.targetPlayerId,
-    messageCard: data.messageCard,
-  });
-});

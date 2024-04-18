@@ -428,6 +428,7 @@ export class UILayer extends Component {
 
   onStopCountDown() {
     this.clearUIState();
+    this.tooltip.stopCountDown();
     this.tooltip.hideNextPhaseButton();
   }
 

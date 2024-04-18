@@ -149,6 +149,7 @@ export class JinKouYiKai extends ActiveSkill {
     if (exchange) {
       const card = this.topCard || gameData.createCard();
       const oldMessage = gameData.messageInTransmit;
+      card.entity = gameData.messageInTransmit.entity;
       gameData.messageInTransmit = card;
       card.status = CardStatus.FACE_DOWN;
       GameEventCenter.emit(GameEvent.MESSAGE_REPLACED, {

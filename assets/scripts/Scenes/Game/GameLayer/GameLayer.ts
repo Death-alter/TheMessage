@@ -148,13 +148,16 @@ export class GameLayer extends Component {
     UIEventCenter.on(UIEvent.SELECT_PLAYER_COMPLETE, this.lockSelectPlayers, this);
   }
 
-  onStartCountDown(data: StartCountDown) {
-    if (data.playerId !== 0) {
-      this.playerEntityList[data.playerId].startCountDown(data.second);
+  onStartCountDown({ playerId, second }: StartCountDown) {
+    if (playerId !== 0) {
+      this.playerEntityList[playerId].startCountDown(second);
     }
   }
 
   onStopCountDown() {
+    this.playerEntityList.forEach((entity, id) => {
+      entity.stopCountDown();
+    });
     this.stopSelectHandCards();
     this.stopSelectPlayers();
   }

@@ -8,17 +8,10 @@ const { ccclass, property } = _decorator;
 export class ProgressControl extends Component {
   private track: any = null;
 
-  onEnable() {
-    UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
-  }
-
-  onDisable() {
-    UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.stopCountDown, this);
-  }
-
   //倒计时
   startCountDown(seconds, callback?: () => void) {
     if (seconds <= 0) return;
+    console.log("count-down-start", seconds);
     this.node.active = true;
     this.playProgressAnimation(seconds).then((isComplete: boolean) => {
       if (callback) callback();
@@ -37,7 +30,8 @@ export class ProgressControl extends Component {
   }
 
   stopCountDown() {
-    if (this.track) {
+    if (this.node.active && this.track) {
+      this.node.active = false;
       KeyframeAnimationManager.stopAnimation(this.track);
       this.track = null;
     }
@@ -48,26 +42,32 @@ export class ProgressControl extends Component {
       const bar = this.node.getChildByName("Bar");
       const barTransform = bar.getComponent(UITransform);
       barTransform.width = this.node.getComponent(UITransform).width;
-      this.track = KeyframeAnimationManager.playAnimation({
-        target: barTransform,
-        animation: [
-          {
-            attribute: "width",
-            to: 0,
-            duration: seconds,
-          },
-        ],
-        callbacks: {
-          complete: () => {
-            this.node.active = false;
-            resolve(true);
-          },
-          cancel: () => {
-            this.node.active = false;
-            resolve(false);
+      this.track = KeyframeAnimationManager.playAnimation(
+        {
+          target: barTransform,
+          animation: [
+            {
+              attribute: "width",
+              to: 0,
+              duration: seconds,
+            },
+          ],
+          callbacks: {
+            complete: () => {
+              this.stopCountDown();
+              console.log("count-down-complete");
+              resolve(true);
+            },
+            cancel: () => {
+              this.stopCountDown();
+              console.log("count-down-cancel");
+              resolve(false);
+            },
           },
         },
-      });
+        null,
+        "clear",
+      );
     });
   }
 }
