@@ -11,8 +11,6 @@ export class ProgressControl extends Component {
   //倒计时
   startCountDown(seconds, callback?: () => void) {
     if (seconds <= 0) return;
-    console.log("count-down-start", seconds);
-    this.node.active = true;
     this.playProgressAnimation(seconds).then((isComplete: boolean) => {
       if (callback) callback();
       if (isComplete) {
@@ -30,6 +28,7 @@ export class ProgressControl extends Component {
   }
 
   stopCountDown() {
+    console.log(this.node.active, this.track);
     if (this.node.active && this.track) {
       this.node.active = false;
       KeyframeAnimationManager.stopAnimation(this.track);
@@ -39,35 +38,32 @@ export class ProgressControl extends Component {
 
   private playProgressAnimation(seconds) {
     return new Promise((resolve, reject) => {
-      const bar = this.node.getChildByName("Bar");
-      const barTransform = bar.getComponent(UITransform);
-      barTransform.width = this.node.getComponent(UITransform).width;
+      const barTransform = this.node.getChildByName("Bar").getComponent(UITransform);
       this.track = KeyframeAnimationManager.playAnimation(
         {
           target: barTransform,
           animation: [
             {
               attribute: "width",
+              from: this.node.getComponent(UITransform).width,
               to: 0,
               duration: seconds,
             },
           ],
           callbacks: {
             complete: () => {
-              this.stopCountDown();
-              console.log("count-down-complete");
               resolve(true);
             },
             cancel: () => {
-              this.stopCountDown();
-              console.log("count-down-cancel");
               resolve(false);
             },
           },
         },
         null,
         "clear",
-      );
+      ).on(0, () => {
+        this.node.active = true;
+      });
     });
   }
 }

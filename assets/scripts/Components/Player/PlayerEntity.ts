@@ -205,7 +205,6 @@ export class PlayerEntity extends Entity<Player> {
   }
 
   refreshLockState() {
-    console.log(this._locked);
     if (this._locked) {
       this.node.getChildByName("PlayerLock").active = true;
     } else {

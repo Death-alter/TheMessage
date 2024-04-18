@@ -855,8 +855,6 @@ export abstract class KeyframeAnimationManager {
    */
   static stopAnimation(target: object, skip?: boolean): void;
   static stopAnimation(object: object | KeyframeAnimationTrack<object> | string, skip: boolean = true): void {
-    console.log(this.activeAnimationMap);
-    console.log(this.animationQueue);
     let track;
     if (object instanceof KeyframeAnimationTrack) {
       track = object;
