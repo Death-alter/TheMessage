@@ -357,6 +357,7 @@ export class GameData extends DataBasic<GameManager> {
             player,
             message: this.messageInTransmit,
           });
+          this._messagePlayerId = -1;
           player.addMessage(this.messageInTransmit);
         } else {
           GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, this.messageInTransmit);
@@ -482,6 +483,8 @@ export class GameData extends DataBasic<GameManager> {
 
     this._messageInTransmit = card;
     this._senderId = data.senderId;
+    this.messagePlayerId = data.targetPlayerId;
+
     if (data.lockPlayerIds.length) {
       this.lockedPlayerId = data.lockPlayerIds[0];
     } else {
@@ -587,7 +590,6 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.createCardByType(data.cardType);
     }
-    console.log(this._cardOnPlay);
     if (this._cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this._cardOnPlay = card;

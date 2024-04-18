@@ -9,10 +9,13 @@ export class ProgressControl extends Component {
   private track: any = null;
 
   //倒计时
-  startCountDown(seconds, callback?: () => void) {
+  startCountDown(seconds) {
     if (seconds <= 0) return;
+    console.log("start-count-down", seconds);
+    console.log(new Date().getTime());
     this.playProgressAnimation(seconds).then((isComplete: boolean) => {
-      if (callback) callback();
+      console.log("count-down-finish", isComplete);
+      console.log(new Date().getTime());
       if (isComplete) {
         UIEventCenter.emit(UIEvent.COUNT_DOWN_TIMEOUT, this);
       }
@@ -38,13 +41,14 @@ export class ProgressControl extends Component {
   private playProgressAnimation(seconds) {
     return new Promise((resolve, reject) => {
       const barTransform = this.node.getChildByName("Bar").getComponent(UITransform);
+      const width = this.node.getComponent(UITransform).width;
       this.track = KeyframeAnimationManager.playAnimation(
         {
           target: barTransform,
           animation: [
             {
               attribute: "width",
-              from: this.node.getComponent(UITransform).width,
+              from: width,
               to: 0,
               duration: seconds,
             },
@@ -63,6 +67,7 @@ export class ProgressControl extends Component {
       ).on(0, () => {
         this.node.active = true;
       });
+      console.log(this.track);
     });
   }
 }

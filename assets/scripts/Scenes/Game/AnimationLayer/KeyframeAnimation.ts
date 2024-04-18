@@ -419,7 +419,7 @@ class KeyframeAnimationTrack<T extends object> extends AnimationTrack {
    */
   apf(time: number) {
     if (!this._target) return false;
-    if (time > this._startTime) {
+    if (time >= this._startTime) {
       time -= this._startTime + this._totalPausedTime;
     }
     if (this.timeLineIndex < this.timeLine.length) {
