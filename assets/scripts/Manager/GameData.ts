@@ -202,7 +202,6 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       this._messagePlayerId = playerId;
     }
-
     if (oldId !== -1 && this.messageInTransmit && playerId !== -1) {
       GameEventCenter.emit(GameEvent.MESSAGE_TRANSMISSION, {
         sender: this.playerList[this._senderId],
@@ -588,7 +587,7 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.createCardByType(data.cardType);
     }
-
+    console.log(this._cardOnPlay);
     if (this._cardOnPlay) {
       GameEventCenter.once(GameEvent.AFTER_PLAYER_PLAY_CARD, () => {
         this._cardOnPlay = card;

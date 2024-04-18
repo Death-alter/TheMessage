@@ -33,9 +33,7 @@ export class JieHuo extends Card {
     });
   }
 
-  onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {
-    gameData.messagePlayerId = targetPlayerId;
-  }
+  onEffect(gameData: GameData) {}
 
   copy() {
     return new JieHuo({

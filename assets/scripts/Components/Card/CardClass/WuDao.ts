@@ -51,9 +51,7 @@ export class WuDao extends Card {
       });
   }
 
-  onEffect(gameData: GameData, { targetPlayerId }: CardOnEffectParams) {
-    gameData.messagePlayerId = targetPlayerId;
-  }
+  onEffect(gameData: GameData) {}
 
   copy() {
     return new WuDao({

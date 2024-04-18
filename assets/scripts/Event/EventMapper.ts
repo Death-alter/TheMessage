@@ -422,11 +422,6 @@ export class EventMapper {
         userId: data.playerId,
         targetPlayerId: data.targetPlayerId,
       });
-      DataEventCenter.emit(DataEvent.CARD_IN_PROCESS, {
-        data: {
-          targetPlayerId: data.targetPlayerId,
-        },
-      });
     });
 
     //威逼
