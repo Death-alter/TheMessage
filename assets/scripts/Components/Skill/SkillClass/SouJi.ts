@@ -7,7 +7,7 @@ import { GamePhase, WaitingType, CardActionLocation } from "../../../Manager/typ
 import { GameData } from "../../../Manager/GameData";
 import { GameLog } from "../../../Components/GameLog/GameLog";
 import { Player } from "../../../Components/Player/Player";
-import { CardColor } from "../../Card/type";
+import { CardColor, CardStatus } from "../../Card/type";
 import { Card } from "../../../Components/Card/Card";
 import { GameManager } from "../../../Manager/GameManager";
 import { CharacterStatus } from "../../Character/type";
@@ -83,9 +83,11 @@ export class SouJi extends ActiveSkill {
     });
 
     if (playerId === 0) {
-      const message = gameData.createMessage(messageCard);
-      gameData.messageInTransmit = message;
-      GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
+      if (gameData.messageInTransmit.status === CardStatus.FACE_DOWN) {
+        const message = gameData.createMessage(messageCard);
+        gameData.messageInTransmit = message;
+        GameEventCenter.emit(GameEvent.PLAYER_VIEW_MESSAGE, { player, message });
+      }
       GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
         skill: this,
         handler: "promptChooseBlackCards",
