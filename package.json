@@ -16,6 +16,7 @@
     "prepare": "husky",
     "build:electron": "electron-builder",
     "build:proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/protobuf/proto.js ./assets/network/*.proto && pbts --main --out ./assets/protobuf/proto.d.ts ./assets/protobuf/*.js",
+    "build:manifest": "node version_generator.js -s build/android/assets -d assets",
     "lint": "eslint --ext .ts assets/scripts",
     "lint:fix": "eslint --ext .ts --fix assets/scripts"
   },

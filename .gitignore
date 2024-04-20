@@ -30,3 +30,4 @@ assets/protobuf/*
 .idea/
 
 config.json
+assets/*.manifest

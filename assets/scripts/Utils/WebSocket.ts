@@ -186,4 +186,4 @@ export class WS {
   }
 }
 
-export default new WS({ url: config.webSocketUrl });
+export default new WS({ url: `ws://${config.serverIP}:${config.webSocketPort}/${config.webSocketPath}` });

@@ -11,11 +11,7 @@ export class ProgressControl extends Component {
   //倒计时
   startCountDown(seconds) {
     if (seconds <= 0) return;
-    console.log("start-count-down", seconds);
-    console.log(new Date().getTime());
     this.playProgressAnimation(seconds).then((isComplete: boolean) => {
-      console.log("count-down-finish", isComplete);
-      console.log(new Date().getTime());
       if (isComplete) {
         UIEventCenter.emit(UIEvent.COUNT_DOWN_TIMEOUT, this);
       }
@@ -67,7 +63,6 @@ export class ProgressControl extends Component {
       ).on(0, () => {
         this.node.active = true;
       });
-      console.log(this.track);
     });
   }
 }
