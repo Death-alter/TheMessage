@@ -1,9 +1,9 @@
 {
-  "serverIP": "192.168.0.107",
+  "serverIP": "localhost",
   "webSocketPort": 12222,
   "fileServerPort": 9091,
   "webSocketPath": "ws",
-  "version": 144,
+  "version": 0,
   "heartBeatInterval": 20,
   "maxRetryTimes": 3,
   "animationDuration": 0.6
