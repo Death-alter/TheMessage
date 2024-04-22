@@ -20,10 +20,11 @@ export class Winner extends Component {
   onLoad() {
     this.buttons.getChildByName("Play").on(NodeEventType.TOUCH_END, () => {
       const name = sys.localStorage.getItem("userName");
+      const password = sys.localStorage.getItem("password");
       NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
         version: config.version,
         name,
-        password: md5.Md5.hashStr(sys.localStorage.getItem("password")),
+        password: password ? md5.Md5.hashStr(password) : "",
         device: md5.Md5.hashStr(name),
       });
     });
