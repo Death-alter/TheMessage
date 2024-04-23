@@ -92,7 +92,6 @@ export class GameManager extends Entity<GameData> {
     this.popupLayer = this.popupLayerNode.getComponent(PopupLayer);
 
     const dataManager = find("Resident").getComponent(DataManager);
-    this.data = dataManager.gameData;
     this.isRecord = dataManager.isRecord;
 
     this.gameLog = dataManager.gameLog;
@@ -137,10 +136,21 @@ export class GameManager extends Entity<GameData> {
   }
 
   onDisable() {
-    //移除事件监听
+    if (this.data) {
+      if (this.data.playerList) {
+        for (const player of this.data.playerList) {
+          for (const skill of player.character.skills) {
+            skill.dispose();
+          }
+        }
+      }
+      this.data = null;
+    }
 
     PlayerActionStepManager.dispose();
     PlayerAction.dispose();
+
+    //移除事件监听
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_START);
     ProcessEventCenter.off(ProcessEvent.RECONNECT_SYNC_END);
     ProcessEventCenter.emit(ProcessEvent.START_UNLOAD_GAME_SCENE);

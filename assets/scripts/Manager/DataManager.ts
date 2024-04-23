@@ -59,18 +59,6 @@ export class DataManager extends Component {
   }
 
   clearData() {
-    if (this.gameData) {
-      if (this.gameData.playerList) {
-        for (const player of this.gameData.playerList) {
-          for (const skill of player.character.skills) {
-            skill.dispose();
-          }
-        }
-      }
-
-      this.gameData = null;
-    }
-
     if (this.gameLog) {
       this.gameLog.unregisterEvents();
       this.gameLog = null;

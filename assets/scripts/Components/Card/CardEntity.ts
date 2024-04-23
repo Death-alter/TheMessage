@@ -1,16 +1,4 @@
-import {
-  _decorator,
-  resources,
-  Node,
-  Animation,
-  Sprite,
-  SpriteFrame,
-  Label,
-  color,
-  UIOpacity,
-  find,
-  sys,
-} from "cc";
+import { _decorator, resources, Node, Animation, Sprite, SpriteFrame, Label, color, UIOpacity, find, sys } from "cc";
 import { CardDirection, CardStatus, CardType, CardUsableStatus } from "./type";
 import { Entity } from "../../Entity";
 import { Card } from "./Card";

@@ -81,6 +81,8 @@ export class KeyframeAnimationPlayer extends Component {
     this.node.addChild(card.node);
     if (loaction) {
       card.node.worldPosition = this.getLocation(loaction.location, loaction.player);
+    } else {
+      card.node.worldPosition = this.getLocation(CardActionLocation.DECK);
     }
     return card.node;
   }
@@ -102,7 +104,7 @@ export class KeyframeAnimationPlayer extends Component {
     }
   }
 
-  setCard(card: CardEntity, loaction: ActionLocation) {
+  setCard(card: CardEntity, loaction?: ActionLocation) {
     this.addCard(card, loaction);
   }
 
@@ -456,6 +458,7 @@ export class KeyframeAnimationPlayer extends Component {
     oldEntity: CardEntity,
     status: CardStatus = CardStatus.FACE_DOWN,
   ) {
+    this.addCard(entity);
     this.discardMessage(oldMessage, oldEntity);
     if (status !== message.status) {
       const c = message.copy();
