@@ -89,9 +89,11 @@ export class KeyframeAnimationPlayer extends Component {
 
   private removeCardNode(node: Node) {
     this.node.removeChild(node);
-    if (node.getComponent(CardEntity)) {
+    const entity = node.getComponent(CardEntity);
+    if (entity) {
       node.scale = new Vec3(0.6, 0.6, 1);
-      GamePools.cardPool.put(node.getComponent(CardEntity));
+      entity.data = null;
+      GamePools.cardPool.put(entity);
     } else {
       const data = node.getComponent(CardGroupEntity).data;
       for (const card of data.list) {
@@ -161,7 +163,8 @@ export class KeyframeAnimationPlayer extends Component {
     queueName?: string;
   }) {
     const node = this.addCard(entity, from);
-    console.log(entity.data);
+    const message = entity.data;
+    console.log(message);
     return KeyframeAnimationManager.playAnimation(
       {
         target: node,
@@ -169,7 +172,7 @@ export class KeyframeAnimationPlayer extends Component {
       },
       queueName,
     ).on("complete", () => {
-      console.log(entity.data);
+      console.log(message, entity.data);
       if (player.id === 0) {
         if (entity instanceof CardGroupEntity) {
           for (const c of entity.data.list) {

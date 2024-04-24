@@ -172,7 +172,6 @@ export class AnimationLayer extends Component {
       player: player,
       entity: this.getCardEntity(<Card>card),
       from: from || { location: CardActionLocation.DECK },
-      queueName: "global",
     });
   }
 
