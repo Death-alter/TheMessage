@@ -325,7 +325,6 @@ export class GameData extends DataBasic<GameManager> {
     //修改回合信息
     this.turnPlayerId = data.currentPlayerId;
     this.gamePhase = data.currentPhase;
-    console.log(this.messagePlayerId, data.messagePlayerId);
     //卡牌结算完成
     if (this._cardOnPlay) {
       const card = this._cardOnPlay;
