@@ -29,6 +29,7 @@ message heart_tos {
 // 心跳：服务器回复客户端
 message heart_toc {
   uint32 online_count = 1; // 当前在线人数
+  uint32 in_game_count = 2; // 正在进行游戏的桌数
 }
 
 // 请求房间加一个位置
@@ -83,6 +84,7 @@ message get_room_info_toc {
   repeated int32  scores = 7; // 所有人的段位分数
   string          notice = 8; // 房间公告
   uint32          room_id = 9; // 房间号
+  uint32          in_game_count = 10; // 正在进行游戏的桌数
 }
 
 // 请求加一个机器人
