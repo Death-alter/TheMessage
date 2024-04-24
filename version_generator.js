@@ -5,9 +5,9 @@ const crypto = require('crypto');
 const config = JSON.parse(fs.readFileSync("./config.json", 'utf-8'))
 
 const manifest = {
-  packageUrl: `http://${config.serverIP}:${config.fileServerPort}/remote-assets/`,
-  remoteManifestUrl: `http://${config.serverIP}:${config.fileServerPort}/remote-assets/project.manifest`,
-  remoteVersionUrl: `http://${config.serverIP}:${config.fileServerPort}/remote-assets/version.manifest`,
+  packageUrl: `http://${config.serverIP}:${config.fileServerPort}/android/`,
+  remoteManifestUrl: `http://${config.serverIP}:${config.fileServerPort}/android/project.manifest`,
+  remoteVersionUrl: `http://${config.serverIP}:${config.fileServerPort}/android/version.manifest`,
   version: `${config.version}`,
   assets: {},
   searchPaths: []

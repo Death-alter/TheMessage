@@ -1,8 +1,10 @@
 const jsb = (<any>window).jsb;
+const electronAPI = (<any>window).electronAPI;
 
 import { _decorator, Component, Node, Label, ProgressBar, Asset, game, sys, NodeEventType } from "cc";
 import { ProcessEventCenter } from "../../Event/EventTarget";
 import { ProcessEvent } from "../../Event/type";
+import config from "../../config";
 const { ccclass, property } = _decorator;
 
 @ccclass("HotUpdate")
@@ -121,34 +123,52 @@ export class HotUpdate extends Component {
     if (this._updating) {
       return;
     }
-    if (this._am.getState() === jsb.AssetsManager.State.UNINITED) {
-      const url = this.manifestUrl.nativeUrl;
-      this._am.loadLocalManifest(url);
-    }
-    if (!this._am.getLocalManifest() || !this._am.getLocalManifest().isLoaded()) {
-      return;
-    }
-    if (event) {
-      this._am.setEventCallback(this.checkCbManual.bind(this));
-    } else {
-      this._am.setEventCallback(this.checkCb.bind(this));
-    }
-
-    this._am.checkUpdate();
-  }
-
-  hotUpdate() {
-    if (this._am && !this._updating) {
-      this.progressBar.progress = 0;
-      this.progress.active = true;
-
-      this._am.setEventCallback(this.updateCb.bind(this));
-
+    if (jsb) {
       if (this._am.getState() === jsb.AssetsManager.State.UNINITED) {
         const url = this.manifestUrl.nativeUrl;
         this._am.loadLocalManifest(url);
       }
-      this._am.update();
+      if (!this._am.getLocalManifest() || !this._am.getLocalManifest().isLoaded()) {
+        return;
+      }
+      if (event) {
+        this._am.setEventCallback(this.checkCbManual.bind(this));
+      } else {
+        this._am.setEventCallback(this.checkCb.bind(this));
+      }
+      this._am.checkUpdate();
+    }
+
+    if (electronAPI) {
+      electronAPI.checkUpdate(config.version).then((data) => {
+        if (data.canUpdate) {
+          this.alert.active = true;
+        } else if (event) {
+          this.noUpdate.active = true;
+        }
+      });
+    }
+  }
+
+  hotUpdate() {
+    if (!this._updating) {
+      this.progressBar.progress = 0;
+      this.progress.active = true;
+      if (this._am) {
+        this._am.setEventCallback(this.updateCb.bind(this));
+        if (this._am.getState() === jsb.AssetsManager.State.UNINITED) {
+          const url = this.manifestUrl.nativeUrl;
+          this._am.loadLocalManifest(url);
+        }
+        this._am.update();
+      }
+      if (electronAPI) {
+        electronAPI.update().then(() => {
+          this.progress.active = false;
+          this.finish.active = true;
+          this.cancelBlockClick();
+        });
+      }
       this.updateBtn.active = false;
       this._updating = true;
       this.blockClick();
@@ -187,20 +207,32 @@ export class HotUpdate extends Component {
     this.finish.getChildByName("Confirm").on(
       NodeEventType.TOUCH_END,
       () => {
-        game.restart();
+        if (jsb) {
+          game.restart();
+        }
       },
       this,
     );
 
     // Hot update is only available in Native build
-    if (!jsb) {
+    if (!jsb && !electronAPI) {
+      this.node.getChildByPath("Buttons/Update").active = false;
       return;
     }
-    this._storagePath = (jsb.fileUtils ? jsb.fileUtils.getWritablePath() : "/") + "blackjack-remote-asset";
-    this.versionCompareHandle = function (versionA: string, versionB: string) {
-      return parseInt(versionA) - parseInt(versionB);
-    };
-    this._am = new jsb.AssetsManager("", this._storagePath, this.versionCompareHandle);
+
+    if (jsb) {
+      this._storagePath = (jsb.fileUtils ? jsb.fileUtils.getWritablePath() : "/") + "blackjack-remote-asset";
+      this.versionCompareHandle = function (versionA: string, versionB: string) {
+        return parseInt(versionA) - parseInt(versionB);
+      };
+      this._am = new jsb.AssetsManager("", this._storagePath, this.versionCompareHandle);
+    }
+    if (electronAPI) {
+      electronAPI.onGetDownloadProgress((percent) => {
+        this.progressBar.progress = percent;
+      });
+    }
+
     this.checkUpdate();
   }
 
