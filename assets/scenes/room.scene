@@ -178,7 +178,7 @@
     "_priority": 1,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 360,
+    "_orthoHeight": 460.914798206278,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -486,7 +486,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 200,
-      "height": 50
+      "height": 80
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -595,7 +595,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 140,
-      "height": 50.4
+      "height": 90.39999999999999
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -624,8 +624,8 @@
       "b": 0,
       "a": 255
     },
-    "_string": "当前在线人数：",
-    "_horizontalAlign": 1,
+    "_string": "当前在线人数：\n游戏中房间数：",
+    "_horizontalAlign": 0,
     "_verticalAlign": 1,
     "_actualFontSize": 20,
     "_fontSize": 20,
@@ -656,7 +656,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 200,
-      "height": 50
+      "height": 80
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

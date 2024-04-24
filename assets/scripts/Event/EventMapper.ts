@@ -22,7 +22,10 @@ export class EventMapper {
       ProcessEventCenter.emit(ProcessEvent.GET_RECORD_LIST, { records: data.records });
     });
     NetworkEventCenter.on(NetworkEventToC.HEART_TOC, (data: ProtobufType.heart_toc) => {
-      ProcessEventCenter.emit(ProcessEvent.UPDATE_ONLINE_COUNT, { onlineCount: data.onlineCount });
+      ProcessEventCenter.emit(ProcessEvent.UPDATE_ONLINE_COUNT, {
+        onlineCount: data.onlineCount,
+        inGameCount: data.inGameCount,
+      });
     });
     NetworkEventCenter.on(NetworkEventToC.ADD_ONE_POSITION_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ROOM_POSITION);
@@ -49,6 +52,7 @@ export class EventMapper {
         ProcessEventCenter.emit(ProcessEvent.CREATE_ROOM, {
           myPosition: data.myPosition,
           onlineCount: data.onlineCount,
+          inGameCount: data.inGameCount,
           notice: data.notice,
           players,
         });

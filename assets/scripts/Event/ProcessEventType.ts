@@ -34,6 +34,7 @@ export interface SaveRecordSuccess {
 export interface CreateRoom {
   myPosition: number;
   onlineCount: number;
+  inGameCount:number;
   notice: string;
   players: {
     id: number;

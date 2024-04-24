@@ -28,6 +28,7 @@ export class PlayerList extends Component {
 
   private playerList: PlayerInfo[] = [];
   private onlineCount: number = 0;
+  private inGameCount: number = 0;
   private timer: number = 0;
 
   protected onEnable(): void {
@@ -36,8 +37,9 @@ export class PlayerList extends Component {
       let isFull = true;
       this.playerList = new Array(data.players.length);
       this.onlineCount = data.onlineCount;
+      this.inGameCount = data.inGameCount;
       this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
-        "当前在线人数：" + this.onlineCount.toString();
+        "当前在线人数：" + this.onlineCount.toString() + "\n" + "游戏中房间数：" + this.inGameCount.toString();
       this.noticeNode.getComponent(Label).string = data.notice;
       sys.localStorage.setItem("playerCount", data.players.length.toString());
       for (let i = 0; i < data.players.length; i++) {
@@ -107,7 +109,7 @@ export class PlayerList extends Component {
       if (data.onlineCount !== this.onlineCount) {
         this.onlineCount = data.onlineCount;
         this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
-          "当前在线人数：" + this.onlineCount.toString();
+          "当前在线人数：" + this.onlineCount.toString() + "\n" + "游戏中房间数：" + this.inGameCount.toString();
       }
     });
   }
