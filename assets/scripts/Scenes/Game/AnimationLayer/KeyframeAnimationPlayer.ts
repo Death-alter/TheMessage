@@ -6,7 +6,7 @@ import {
   KeyframeAnimationManager,
 } from "./KeyframeAnimation";
 import { Player } from "../../../Components/Player/Player";
-import { ActionLocation, CardActionLocation, MoveNodeParams } from "../../../Manager/type";
+import { ActionLocation, CardActionLocation } from "../../../Manager/type";
 import { CardEntity } from "../../../Components/Card/CardEntity";
 import { HandCardList } from "../../../Components/Container/HandCardList";
 import config from "../../../config";
@@ -300,6 +300,7 @@ export class KeyframeAnimationPlayer extends Component {
 
   playerSendMessage(player: Player, targetPlayer: Player, entity: CardEntity) {
     const node = this.addCard(entity);
+    entity.refresh(entity.data);
     return KeyframeAnimationManager.playAnimation(
       {
         target: node,
@@ -470,6 +471,8 @@ export class KeyframeAnimationPlayer extends Component {
         message.status = status;
         entity.data = message;
       });
+    } else {
+      entity.refresh(message);
     }
     return this.moveCard({
       entity,
