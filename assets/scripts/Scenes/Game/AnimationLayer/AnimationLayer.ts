@@ -172,6 +172,7 @@ export class AnimationLayer extends Component {
       player: player,
       entity: this.getCardEntity(<Card>card),
       from: from || { location: CardActionLocation.DECK },
+      queueName: "global",
     });
   }
 
@@ -215,7 +216,9 @@ export class AnimationLayer extends Component {
       const player = this.manager.data.playerList[this.manager.data.senderId];
       player?.entity.hideInnerGlow();
     }
-    this.animationPlayer.receiveMessage(player, message, this.messageEntity);
+    const entity = this.messageEntity;
+    this.messageEntity = null;
+    this.animationPlayer.receiveMessage(player, message, entity);
   }
 
   playerViewMessage({ player, message }: GameEventType.PlayerViewMessage) {

@@ -161,6 +161,7 @@ export class KeyframeAnimationPlayer extends Component {
     queueName?: string;
   }) {
     const node = this.addCard(entity, from);
+    console.log(entity.data);
     return KeyframeAnimationManager.playAnimation(
       {
         target: node,
@@ -168,6 +169,7 @@ export class KeyframeAnimationPlayer extends Component {
       },
       queueName,
     ).on("complete", () => {
+      console.log(entity.data);
       if (player.id === 0) {
         if (entity instanceof CardGroupEntity) {
           for (const c of entity.data.list) {
@@ -176,6 +178,7 @@ export class KeyframeAnimationPlayer extends Component {
           this.node.removeChild(node);
           GamePools.cardGroupPool.put(entity);
         } else {
+          console.log(entity.data);
           this.handCardList.addData(entity.data);
         }
       } else {

@@ -45,12 +45,10 @@ export class Tooltip extends Component {
     this.progressBar.active = false;
     this.hide();
     ProcessEventCenter.on(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
-    UIEventCenter.on(UIEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   onDisable() {
     ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS, this.toogleShowButton, this);
-    UIEventCenter.off(UIEvent.STOP_COUNT_DOWN, this.hide, this);
   }
 
   startCountDown(second: number) {

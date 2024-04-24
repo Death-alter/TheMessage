@@ -372,6 +372,8 @@ export class UILayer extends Component {
 
           break;
       }
+    } else {
+      this.tooltip.stopCountDown();
     }
 
     if (data.type === WaitingType.PLAYER_DYING) {

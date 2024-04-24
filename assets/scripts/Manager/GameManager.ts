@@ -209,7 +209,6 @@ export class GameManager extends Entity<GameData> {
   }
 
   onStartCountDown(data: StartCountDown) {
-    UIEventCenter.emit(UIEvent.STOP_COUNT_DOWN);
     if (data.seq) {
       this.seq = data.seq;
     }

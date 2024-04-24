@@ -27,8 +27,8 @@ export class ProgressControl extends Component {
   }
 
   stopCountDown() {
-    if (this.node.active && this.track) {
-      this.node.active = false;
+    this.node.active = false;
+    if (this.track) {
       KeyframeAnimationManager.stopAnimation(this.track);
       this.track = null;
     }
