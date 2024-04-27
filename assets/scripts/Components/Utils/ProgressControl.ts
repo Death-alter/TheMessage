@@ -10,9 +10,14 @@ export class ProgressControl extends Component {
 
   //倒计时
   startCountDown(seconds) {
-    if (seconds <= 0) return;
+    if (seconds <= 0) {
+      this.stopCountDown();
+      return;
+    }
     this.playProgressAnimation(seconds).then((isComplete: boolean) => {
+      this.node.active = false;
       if (isComplete) {
+        this.track = null;
         UIEventCenter.emit(UIEvent.COUNT_DOWN_TIMEOUT, this);
       }
     });
@@ -27,7 +32,6 @@ export class ProgressControl extends Component {
   }
 
   stopCountDown() {
-    this.node.active = false;
     if (this.track) {
       KeyframeAnimationManager.stopAnimation(this.track);
       this.track = null;
