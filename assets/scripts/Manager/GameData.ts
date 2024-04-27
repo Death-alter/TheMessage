@@ -90,6 +90,7 @@ export class GameData extends DataBasic<GameManager> {
         break;
       case GamePhase.RECEIVE_PHASE:
         this._senderId = -1;
+        this.messagePlayerId = -1;
         GameEventCenter.emit(GameEvent.RECEIVE_PHASE_END);
         break;
     }
@@ -194,7 +195,7 @@ export class GameData extends DataBasic<GameManager> {
   get messagePlayerId() {
     return this._messagePlayerId;
   }
-  set messagePlayerId(playerId: number) {
+  private set messagePlayerId(playerId: number) {
     if (playerId === this._messagePlayerId) return;
     const oldId = this._messagePlayerId;
     if (playerId == null) {
@@ -335,7 +336,11 @@ export class GameData extends DataBasic<GameManager> {
     }
 
     //如果有传递的情报
-    if (data.currentPhase === GamePhase.RECEIVE_PHASE || data.currentPhase === GamePhase.FIGHT_PHASE) {
+    if (
+      data.currentPhase === GamePhase.RECEIVE_PHASE ||
+      data.currentPhase === GamePhase.FIGHT_PHASE ||
+      data.currentPhase === GamePhase.SEND_PHASE
+    ) {
       this.messagePlayerId = data.messagePlayerId;
       this.messageDirection = (<number>data.messageDirection) as CardDirection;
       if (data.messageInTransmit) {
@@ -344,22 +349,19 @@ export class GameData extends DataBasic<GameManager> {
         }
       }
 
-      if (this.gamePhase === GamePhase.RECEIVE_PHASE) {
-        if (!data.needWaiting && this.messageInTransmit) {
-          //接收阶段
-          const player = this.playerList[data.messagePlayerId];
-          if (player.isAlive) {
-            GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
-              player,
-              message: this.messageInTransmit,
-            });
-            player.addMessage(this.messageInTransmit);
-          } else {
-            GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, this.messageInTransmit);
-          }
-          this._messageInTransmit = null;
+      if (this.gamePhase === GamePhase.RECEIVE_PHASE && !data.needWaiting && this.messageInTransmit) {
+        //接收阶段
+        const player = this.playerList[data.messagePlayerId];
+        if (player.isAlive) {
+          GameEventCenter.emit(GameEvent.PLAYER_RECEIVE_MESSAGE, {
+            player,
+            message: this.messageInTransmit,
+          });
+          player.addMessage(this.messageInTransmit);
+        } else {
+          GameEventCenter.emit(GameEvent.MESSAGE_REMOVED, this.messageInTransmit);
         }
-        this.messagePlayerId = -1;
+        this._messageInTransmit = null;
       }
     }
   }
