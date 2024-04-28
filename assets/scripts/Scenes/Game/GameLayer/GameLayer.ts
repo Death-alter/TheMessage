@@ -149,9 +149,7 @@ export class GameLayer extends Component {
   }
 
   onStartCountDown({ playerId, second }: StartCountDown) {
-    this.playerEntityList.forEach((entity, id) => {
-      entity.stopCountDown();
-    });
+    this.onStopCountDown();
     if (playerId !== 0) {
       this.playerEntityList[playerId].startCountDown(second);
     }
