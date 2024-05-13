@@ -134,6 +134,7 @@ export class UILayer extends Component {
   }
 
   onStartCountDown(data: ProcessEventType.StartCountDown) {
+    this.onStopCountDown();
     if (data.playerId === 0) {
       this.tooltip.startCountDown(data.second);
       PlayerAction.clear();
@@ -372,8 +373,6 @@ export class UILayer extends Component {
 
           break;
       }
-    } else {
-      this.onStopCountDown();
     }
 
     if (data.type === WaitingType.PLAYER_DYING) {
@@ -431,7 +430,6 @@ export class UILayer extends Component {
   onStopCountDown() {
     this.clearUIState();
     this.tooltip.stopCountDown();
-    this.tooltip.hideNextPhaseButton();
   }
 
   playerUseSkill({ player, skill }: GameEventType.PlayerUseSkill) {
