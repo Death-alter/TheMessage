@@ -48,6 +48,12 @@ app.whenReady().then(() => {
         }
       }, (err, res, body) => {
         if (err || !body) {
+          if (!res) {
+            resolve({
+              canUpdate: false,
+              message: "未能连接到服务器"
+            })
+          }
           switch (res.statusCode) {
             case 404:
               resolve({
