@@ -1,5 +1,5 @@
 import { Card } from "../../Components/Card/Card";
-import { CardColor, CardDirection, CardUsableStatus } from "../../Components/Card/type";
+import {CardDirection, CardUsableStatus } from "../../Components/Card/type";
 import { GameManager } from "../../Manager/GameManager";
 import { TagName } from "../../type";
 import { PlayerActionStepHandler } from "./PlayerActionStep";

@@ -74,11 +74,8 @@ export class DingLun extends ActiveSkill {
       }
 
       gameData.playerAddHandCard(player, message);
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        player,
-        card: message,
-        from: { location: CardActionLocation.PLAYER, player },
-      });
+      GameEventCenter.emit(GameEvent.PLAYER_TAKE_MESSAGE, player);
+      
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把待收情报${gameLog.formatCard(message)}加入手牌`));
     }
 

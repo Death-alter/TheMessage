@@ -175,10 +175,7 @@ export class SouJi extends ActiveSkill {
       cardList.push(gameData.createCard(messageCard));
       tags.push("情报");
 
-      GameEventCenter.emit(GameEvent.CARD_ADD_TO_HAND_CARD, {
-        card: gameData.messageInTransmit,
-        player,
-      });
+      GameEventCenter.emit(GameEvent.PLAYER_TAKE_MESSAGE, player);
       gameData.messageInTransmit = null;
     }
 

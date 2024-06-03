@@ -12,7 +12,7 @@ import { KeyframeAnimationPlayer } from "./KeyframeAnimationPlayer";
 import { CardEntity } from "../../../Components/Card/CardEntity";
 import GamePools from "../../../Components/Pool/GamePools";
 import { OuterGlow } from "../../../Components/Utils/OuterGlow";
-import { CardsEntity } from "../../../Components/Card/type";
+import { CardsEntity, CardStatus } from "../../../Components/Card/type";
 import { CardGroup } from "../../../Components/Container/CardGroup";
 import { CardGroupEntity } from "../../../Components/Container/CardGroupEntity";
 import { KeyframeAnimationManager } from "./KeyframeAnimation";
@@ -88,6 +88,9 @@ export class AnimationLayer extends Component {
 
     //有人选择接收情报
     GameEventCenter.on(GameEvent.PLAYER_CHOOSE_RECEIVE_MESSAGE, this.playerChooseReceiveMessage, this);
+
+    //拿取场上的情报
+    GameEventCenter.on(GameEvent.PLAYER_TAKE_MESSAGE, this.playerTakeMessage, this);
 
     //接收情报
     GameEventCenter.on(GameEvent.PLAYER_RECEIVE_MESSAGE, this.playerReceiveMessage, this);
@@ -176,7 +179,9 @@ export class AnimationLayer extends Component {
   }
 
   playerSendMessage({ player, targetPlayer, message }: GameEventType.PlayerSendMessage) {
+    console.log(message);
     const entity = this.getCardEntity(message);
+    console.log(entity);
     this.messageEntity = entity;
     this.animationPlayer.playerSendMessage(player, targetPlayer, entity);
     if (player.id !== this.manager.data.turnPlayerId) {
@@ -208,6 +213,17 @@ export class AnimationLayer extends Component {
 
   playerChooseReceiveMessage(data: GameEventType.PlayerChooseReceiveMessage) {
     this.animationPlayer.chooseReceiveMessage(this.messageEntity);
+  }
+
+  playerTakeMessage(player: Player) {
+    if (player.id === 0) {
+      this.messageEntity.data.status = CardStatus.FACE_UP;
+    }
+    this.animationPlayer.addCardToHandCard({
+      player: player,
+      entity: this.messageEntity,
+    });
+    this.messageEntity = null;
   }
 
   playerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {

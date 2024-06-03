@@ -32,7 +32,18 @@ export class LoginButtons extends Component {
       this.userName.string = name;
       this.password.string = sys.localStorage.getItem("password") || "";
     }
-    this.roomId.string = sys.localStorage.getItem("roomId") || "";
+    let roomId;
+    try {
+      roomId = JSON.parse(sys.localStorage.getItem("roomId"));
+    } catch (e) {
+      roomId = { id: sys.localStorage.getItem("roomId") };
+    }
+    const time = new Date().getTime();
+    if (!roomId.validity || time > roomId.validity) {
+      this.roomId.string = "";
+    } else {
+      this.roomId.string = roomId.id || "";
+    }
 
     //login按钮
     this.node.getChildByName("Login").on(Node.EventType.TOUCH_END, (event) => {
@@ -44,7 +55,10 @@ export class LoginButtons extends Component {
         const playerCount = parseInt(sys.localStorage.getItem("playerCount")) || 5;
         sys.localStorage.setItem("userName", name);
         sys.localStorage.setItem("password", password);
-        sys.localStorage.setItem("roomId", roomId);
+        sys.localStorage.setItem(
+          "roomId",
+          JSON.stringify({ id: roomId, validity: new Date().getTime() + 18 * 60 * 60 * 1000 }),
+        );
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: config.version,
           name,

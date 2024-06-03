@@ -477,12 +477,13 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.playerRemoveHandCard(player, data.cardId);
     }
+    console.log(card);
 
     if (!card) return;
 
     this._messageInTransmit = card;
     this._senderId = data.senderId;
-    this.messagePlayerId = data.targetPlayerId;
+    this._messagePlayerId = data.targetPlayerId;
 
     if (data.lockPlayerIds.length) {
       this.lockedPlayerId = data.lockPlayerIds[0];

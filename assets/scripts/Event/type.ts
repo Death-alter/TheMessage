@@ -422,6 +422,7 @@ export enum GameEvent {
   PLAYER_RECEIVE_MESSAGE = "player_receive_message",
   PLAYER_VIEW_MESSAGE = "player_view_message",
   PLAYER_REMOVE_MESSAGE = "player_remove_message",
+  PLAYER_TAKE_MESSAGE = "player_take_message",
   PLAYER_DYING = "player_dying",
   PLAYER_RECOVERY = "player_recovery",
   PLAYER_BEFORE_DEATH = "player_before_death",
