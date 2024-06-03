@@ -179,9 +179,7 @@ export class AnimationLayer extends Component {
   }
 
   playerSendMessage({ player, targetPlayer, message }: GameEventType.PlayerSendMessage) {
-    console.log(message);
     const entity = this.getCardEntity(message);
-    console.log(entity);
     this.messageEntity = entity;
     this.animationPlayer.playerSendMessage(player, targetPlayer, entity);
     if (player.id !== this.manager.data.turnPlayerId) {

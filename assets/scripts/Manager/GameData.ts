@@ -477,7 +477,6 @@ export class GameData extends DataBasic<GameManager> {
     } else {
       card = this.playerRemoveHandCard(player, data.cardId);
     }
-    console.log(card);
 
     if (!card) return;
 
