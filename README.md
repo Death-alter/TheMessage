@@ -50,23 +50,17 @@
 
 服务器包的目录如下
 
+```
 files
-
 ├─android
-
 │  ├─assets
-
 │  ├─src
-
 │  ├─project.manifest
-
 │  └─version.manifest
-
 └─pc
-
-    ├─app.zip
-
-    └─version.manifest
+   ├─app.zip
+   └─version.manifest
+```
 
 具体文件位置为
 - assets和src文件夹位于/build/android/assets目录下
