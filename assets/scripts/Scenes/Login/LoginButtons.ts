@@ -32,14 +32,14 @@ export class LoginButtons extends Component {
       this.userName.string = name;
       this.password.string = sys.localStorage.getItem("password") || "";
     }
-    let roomId;
+    let roomId = sys.localStorage.getItem("roomId");
     try {
-      roomId = JSON.parse(sys.localStorage.getItem("roomId"));
+      roomId = JSON.parse(roomId);
     } catch (e) {
-      roomId = { id: sys.localStorage.getItem("roomId") };
+      roomId = { id: roomId };
     }
     const time = new Date().getTime();
-    if (!roomId.validity || time > roomId.validity) {
+    if (!roomId || !roomId.validity || time > roomId.validity) {
       this.roomId.string = "";
     } else {
       this.roomId.string = roomId.id || "";
