@@ -64,9 +64,9 @@ files
 
 └─pc
 
-   ├─app.zip
+    ├─app.zip
 
-   └─version.manifest
+    └─version.manifest
 
 具体文件位置为
 - assets和src文件夹位于/build/android/assets目录下
