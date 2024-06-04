@@ -39,7 +39,7 @@ export class LoginButtons extends Component {
       roomId = { id: sys.localStorage.getItem("roomId") };
     }
     const time = new Date().getTime();
-    if (!roomId.validity || time > roomId.validity) {
+    if (!roomId || !roomId.validity || time > roomId.validity) {
       this.roomId.string = "";
     } else {
       this.roomId.string = roomId.id || "";
