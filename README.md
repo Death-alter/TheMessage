@@ -72,4 +72,5 @@ files
 - assets和src文件夹位于/build/android/assets目录下
 - version.manifest和project.manifest位于/assets目录下
 - app.zip由/dist/win-unpacked/resources中的app.asar压缩生成
+
 按目录结构把对应文件放入files文件夹然后压缩为zip格式即可生成服务器包
