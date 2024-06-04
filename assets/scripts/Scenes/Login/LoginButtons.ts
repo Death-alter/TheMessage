@@ -34,7 +34,7 @@ export class LoginButtons extends Component {
     }
     let roomId;
     try {
-      roomId = JSON.parse(sys.localStorage.getItem("roomId"));
+      roomId = JSON.parse(sys.localStorage.getItem("roomId")) || {};
     } catch (e) {
       roomId = { id: sys.localStorage.getItem("roomId") };
     }
