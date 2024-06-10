@@ -414,7 +414,7 @@ export class KeyframeAnimationPlayer extends Component {
     }
     const node = entity.node.getChildByName("Inner");
     //翻面动画
-    const track = KeyframeAnimationManager.playAnimation(
+    return KeyframeAnimationManager.playAnimation(
       {
         target: node,
         animation: [
@@ -435,22 +435,29 @@ export class KeyframeAnimationPlayer extends Component {
       .on(0.9, () => {
         entity.data = message;
       });
-    return track;
   }
 
   discardMessage(message: Card, entity: CardEntity) {
-    if (entity.data.status === CardStatus.FACE_DOWN) {
-      message.status = CardStatus.FACE_UP;
-      this.turnOverMessage(message, entity);
-    }
     return KeyframeAnimationManager.playAnimation(
       {
         target: entity.node,
-        animation: [this.createMoveAnimation({ location: CardActionLocation.DISCARD_PILE })],
+        animation: [],
       },
       "global",
     ).on("complete", () => {
-      this.removeCardNode(entity.node);
+      if (entity.data.status === CardStatus.FACE_DOWN) {
+        message.status = CardStatus.FACE_UP;
+        this.turnOverMessage(message, entity);
+      }
+      KeyframeAnimationManager.playAnimation(
+        {
+          target: entity.node,
+          animation: [this.createMoveAnimation({ location: CardActionLocation.DISCARD_PILE })],
+        },
+        "global",
+      ).on("complete", () => {
+        this.removeCardNode(entity.node);
+      });
     });
   }
 

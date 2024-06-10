@@ -3,6 +3,7 @@ import { NetworkEventCenter, ProcessEventCenter } from "../../../Event/EventTarg
 import { NetworkEventToS, ProcessEvent } from "../../../Event/type";
 import { DataManager } from "../../../Manager/DataManager";
 import { NetworkManager } from "../../../Network/NetworkManager";
+import { KeyframeAnimationManager } from "../AnimationLayer/KeyframeAnimation";
 
 const { ccclass, property } = _decorator;
 
@@ -23,6 +24,7 @@ export class GameButtons extends Component {
     });
 
     exitButton.on(Node.EventType.TOUCH_END, () => {
+      KeyframeAnimationManager.stopAll();
       find("Resident").getComponent(DataManager).clearData();
       director.loadScene("login", () => {
         find("Resident").getComponent(NetworkManager).reconnect();

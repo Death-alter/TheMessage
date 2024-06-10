@@ -17,6 +17,7 @@ import { CharacterEntity } from "../../../Components/Character/CharacterEntity";
 import { CardInfoWindow } from "./CardInfoWindow";
 import { CharacterInfoWindow } from "./CharacterInfoWindow";
 import { SelectIdentity } from "./SelectIdentity";
+import { CardStatus } from "../../../Components/Card/type";
 
 const { ccclass, property } = _decorator;
 
@@ -113,10 +114,13 @@ export class PopupLayer extends Component {
       player = this.manager.data.playerList[player];
     }
 
+    const cardList = player.getMessagesCopy();
+    cardList.forEach((item) => (item.status = CardStatus.FACE_UP));
+
     this.messagesWindow.show({
       title: `${this.manager.data.gameLog.formatPlayer(player)}的情报区`,
       limit: 0,
-      cardList: player.getMessagesCopy(),
+      cardList,
       buttons: [
         {
           text: "关闭",
