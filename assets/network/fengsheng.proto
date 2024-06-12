@@ -85,6 +85,7 @@ message get_room_info_toc {
   string          notice = 8; // 房间公告
   uint32          room_id = 9; // 房间号
   uint32          in_game_count = 10; // 正在进行游戏的桌数
+  bool            is_double_role = 11; // 是否为双将模式
 }
 
 // 请求加一个机器人
@@ -103,6 +104,16 @@ message join_room_toc {
   uint32 game_count = 4;
   string rank = 5;
   int32  score = 6;
+}
+
+// 请求修改房间信息
+message update_room_config_tos {
+  bool is_double_role = 1; // 是否为双将模式
+}
+
+// 广播修改了房间信息
+message update_room_config_toc {
+  bool is_double_role = 1; // 是否为双将模式
 }
 
 // 通知谁离开的房间
@@ -131,6 +142,7 @@ message wait_for_select_role_toc {
   uint32        waiting_second = 5; // 读多少秒
   repeated secret_task possible_secret_task = 6; // 可能的神秘人任务
   uint32        position = 7; // 你的位置，最先出牌的是一号位
+  bool          is_double_role = 8; // 是否为双将模式
 }
 
 // 托管
@@ -153,6 +165,18 @@ message select_role_toc {
   role role = 1;
 }
 
+// 双将模式选角色（至少选一个公开角色）
+message select_double_role_tos {
+  role role1 = 1; // 主将
+  role role2 = 2; // 副将
+}
+
+// 双将模式通知客户端选角色成功了
+message select_double_role_toc {
+  role role1 = 1; // 主将
+  role role2 = 2; // 副将
+}
+
 // 通知客户端：初始化游戏
 message init_toc {
   uint32          player_count = 1; // 玩家总人数（包括你）
@@ -161,12 +185,15 @@ message init_toc {
   repeated role   roles = 4; // 从自己开始，依次每个人的角色
   repeated string names = 5; // 从自己开始，依次每个人的名字
   repeated secret_task possible_secret_task = 6; // 可能的神秘人任务
+  bool            is_double_role = 7; // 是否为双将模式
+  repeated role   second_roles = 8; // 从自己开始，依次每个人的副将角色
 }
 
 // 通知客户端角色变化
 message notify_role_update_toc {
   uint32 player_id = 1;
   role   role = 2; // 值为unknown=0时表示盖上角色
+  bool   is_second_role = 3; // true表示双将模式修改副将
 }
 
 // 通知客户端玩家变化
@@ -240,6 +267,7 @@ message notify_phase_toc {
   uint32    waiting_second = 7; // 读多少秒
   uint32    seq = 8; // 只有当自己需要读秒时，这个字段才有值
   uint32    sender_id = 9; // 传递阶段会有这个字段，传出情报的玩家id。有可能不是当前回合玩家传出的情报。
+  bool      is_second_role = 10; // 接收阶段等待发动技能时才用到这个字段，为true表示是双将模式的副将
 }
 
 // 请求结束出牌阶段，进入情报传递阶段
