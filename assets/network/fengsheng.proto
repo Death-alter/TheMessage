@@ -53,6 +53,7 @@ message remove_one_position_toc {
 message display_record_tos {
   uint32 version = 1; // 客户端版本号
   string record_id = 2; // 录像ID
+  int32 skip_count = 3; // 跳过多少条协议
 }
 
 // 通知客户端录像播放完了
