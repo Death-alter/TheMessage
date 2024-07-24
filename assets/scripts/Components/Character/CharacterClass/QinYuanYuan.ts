@@ -9,9 +9,10 @@ export class QinYuanYuan extends Character {
     super({
       id: 34,
       name: "秦圆圆",
+      codeName: "风尘侠女",
       sprite: "images/characters/QinYuanYuan",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new ZuoYouFengYuan(this), new BiYiShuangFei(this)]);

@@ -7,10 +7,11 @@ export class HanMeiSP extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 1014,
-      name: "SP韩梅",
+      name: "韩梅",
+      codeName: "特务学员",
       sprite: "images/characters/HanMeiSP",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new LengXueXunLian(this)]);

@@ -8,8 +8,9 @@ export class AdultXiaoJiu extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 2027,
-      name: "成年小九",
-      sprite: "images/characters/NoPanting",
+      name: "小九",
+      codeName: "反特砥柱",
+      sprite: "images/characters/AdultXiaoJiu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,
       entity: entity,

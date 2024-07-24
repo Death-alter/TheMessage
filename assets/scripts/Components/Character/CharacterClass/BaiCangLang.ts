@@ -8,6 +8,7 @@ export class BaiCangLang extends Character {
     super({
       id: 6,
       name: "白沧浪",
+      codeName: "情场浪子",
       sprite: "images/characters/BaiCangLang",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

@@ -8,9 +8,10 @@ export class GaoQiaoZhiZi extends Character {
     super({
       id: 36,
       name: "高桥智子",
+      codeName: "艺伎",
       sprite: "images/characters/GaoQiaoZhiZi",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new HuoXin(this)]);

@@ -8,9 +8,10 @@ export class MaLiYa extends Character {
     super({
       id: 31,
       name: "玛利亚",
+      codeName: "修女",
       sprite: "images/characters/MaLiYa",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new CangShenJiaoTang(this)]);

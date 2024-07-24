@@ -8,9 +8,10 @@ export class ShangYu extends Character {
     super({
       id: 30,
       name: "商玉",
+      codeName: "酒楼掌柜",
       sprite: "images/characters/ShangYu",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new JieDaoShaRen(this)]);

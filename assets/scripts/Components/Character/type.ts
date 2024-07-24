@@ -7,13 +7,14 @@ export const enum CharacterStatus {
 
 export const enum Sex {
   MALE = 0,
-  FAMALE = 1,
+  FEMALE = 1,
   UNKNOWN = 2,
 }
 
 export interface CharacterOptions {
   id: number;
   name: string;
+  codeName: string;
   sprite: string;
   status?: CharacterStatus;
   sex: Sex;

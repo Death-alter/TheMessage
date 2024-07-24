@@ -1,7 +1,7 @@
 import { _decorator, Sprite, Label, resources, SpriteFrame } from "cc";
 import { Entity } from "../../Entity";
 import { Character } from "./Character";
-import { CharacterStatus } from "./type";
+import { CharacterStatus, Sex } from "./type";
 const { ccclass } = _decorator;
 
 @ccclass("CharacterEntity")
@@ -38,7 +38,21 @@ export class CharacterEntity extends Entity<Character> {
         this.node.getChildByPath("Mask/Image").getComponent(Sprite).spriteFrame = spriteFrame;
       }
     });
+    let sexIcon = "";
+    if (this._data.sex === Sex.FEMALE) {
+      sexIcon = "female";
+    } else {
+      sexIcon = "male";
+    }
+    resources.load(`images/${sexIcon}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+      console.log(err, spriteFrame);
+      if (!err && spriteFrame && this.node) {
+        spriteFrame.addRef(); // 计数加1
+        this.node.getChildByPath("Sex/Icon").getComponent(Sprite).spriteFrame = spriteFrame;
+      }
+    });
     this.node.getChildByName("Name").getComponent(Label).string = this._data.name;
+    this.node.getChildByName("CodeName").getComponent(Label).string = this._data.codeName;
   }
 
   releaseSprite() {
@@ -46,6 +60,11 @@ export class CharacterEntity extends Entity<Character> {
     if (sprite && sprite.spriteFrame) {
       sprite.spriteFrame.decRef();
       sprite.spriteFrame = null;
+    }
+    const sexSprite = this.node.getChildByPath("Sex/Icon").getComponent(Sprite);
+    if (sexSprite && sexSprite.spriteFrame) {
+      sexSprite.spriteFrame.decRef();
+      sexSprite.spriteFrame = null;
     }
   }
 }

@@ -10,9 +10,10 @@ export class GuXiaoMeng extends Character {
     super({
       id: 20,
       name: "顾小梦",
+      codeName: "译电科科员",
       sprite: "images/characters/GuXiaoMeng",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new JiZhi(this), new ChengZhi(this), new WeiSheng(this)]);

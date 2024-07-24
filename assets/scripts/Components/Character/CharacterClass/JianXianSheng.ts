@@ -8,6 +8,7 @@ export class JianXianSheng extends Character {
     super({
       id: 37,
       name: "简先生",
+      codeName: "话剧演员",
       sprite: "images/characters/JianXianSheng",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

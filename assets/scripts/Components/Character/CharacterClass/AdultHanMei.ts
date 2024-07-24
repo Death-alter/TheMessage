@@ -8,10 +8,11 @@ export class AdultHanMei extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 2014,
-      name: "成年韩梅",
-      sprite: "images/characters/NoPanting_Famale",
+      name: "韩梅",
+      codeName: "特务处长",
+      sprite: "images/characters/AdultHanMei",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new LianXin(this), new JiangJiJiuJi(this)]);

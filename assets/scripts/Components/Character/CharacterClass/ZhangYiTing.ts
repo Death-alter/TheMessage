@@ -8,6 +8,7 @@ export class ZhangYiTing extends Character {
     super({
       id: 5,
       name: "张一挺",
+      codeName: "司令",
       sprite: "images/characters/ZhangYiTing",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

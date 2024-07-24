@@ -9,7 +9,8 @@ export class QinWuMing extends Character {
     super({
       id: 42,
       name: "秦无命",
-      sprite: "images/characters/NoPanting",
+      codeName: "死士",
+      sprite: "images/characters/QinWuMing",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       entity: entity,

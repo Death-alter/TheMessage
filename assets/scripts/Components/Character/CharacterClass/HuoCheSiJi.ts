@@ -9,6 +9,7 @@ export class HuoCheSiJi extends Character {
     super({
       id: 49,
       name: "火车司机",
+      codeName: "",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

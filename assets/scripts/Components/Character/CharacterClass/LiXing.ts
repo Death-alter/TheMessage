@@ -8,6 +8,7 @@ export class LiXing extends Character {
     super({
       id: 11,
       name: "李醒",
+      codeName: "租借巡捕",
       sprite: "images/characters/LiXing",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

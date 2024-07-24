@@ -8,6 +8,7 @@ export class LaoHu extends Character {
     super({
       id: 38,
       name: "老虎",
+      codeName: "地下领袖",
       sprite: "images/characters/LaoHu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

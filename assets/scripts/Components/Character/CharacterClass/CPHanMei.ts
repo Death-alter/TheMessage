@@ -8,10 +8,11 @@ export class CPHanMei extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 3014,
-      name: "CP韩梅",
-      sprite: "images/characters/NoPanting_Famale",
+      name: "韩梅",
+      codeName: "军统特务",
+      sprite: "images/characters/CPHanMei",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new AnCangShaJi(this), new BaiYueGuang(this)]);

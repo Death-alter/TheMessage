@@ -106,7 +106,7 @@ export function getCardTypeText(type: CardType) {
 }
 
 export function getCardAudioSrc(param: Card | CardType, sex: Sex) {
-  const sexText = sex === Sex.FAMALE ? "woman" : "man";
+  const sexText = sex === Sex.FEMALE ? "woman" : "man";
 
   if (param instanceof Card) {
     return `audio/cards/${cardsAudioMap[param.type]}_${sexText}`;

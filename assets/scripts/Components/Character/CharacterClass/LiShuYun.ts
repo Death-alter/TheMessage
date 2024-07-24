@@ -9,9 +9,10 @@ export class LiShuYun extends Character {
     super({
       id: 43,
       name: "李书云",
-      sprite: "images/characters/NoPanting_Famale",
+      codeName: "教授",
+      sprite: "images/characters/LiShuYun",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new DingLun(this), new ZhenLi(this)]);

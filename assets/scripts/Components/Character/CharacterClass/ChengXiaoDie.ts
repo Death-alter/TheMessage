@@ -9,6 +9,7 @@ export class ChengXiaoDie extends Character {
     super({
       id: 2,
       name: "程小蝶",
+      codeName:"花旦",
       sprite: "images/characters/ChengXiaoDie",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

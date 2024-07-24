@@ -9,6 +9,7 @@ export class ShengLaoBan extends Character {
     super({
       id: 35,
       name: "盛老板",
+      codeName: "富商",
       sprite: "images/characters/ShengLaoBan",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

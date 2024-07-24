@@ -8,9 +8,10 @@ export class GuXiaoMengSP extends Character {
     super({
       id: 1020,
       name: "SP顾小梦",
+      codeName: "译电科科员",
       sprite: "images/characters/GuXiaoMengSP",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new JiBan(this)]);

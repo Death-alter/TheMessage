@@ -8,7 +8,8 @@ export class ChenDaEr extends Character {
     super({
       id: 46,
       name: "陈大耳",
-      sprite: "images/characters/NoPanting",
+      codeName: "包打听",
+      sprite: "images/characters/ChenDaEr",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       entity: entity,

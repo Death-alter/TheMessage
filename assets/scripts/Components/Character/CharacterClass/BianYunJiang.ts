@@ -9,7 +9,8 @@ export class BianYunJiang extends Character {
     super({
       id: 47,
       name: "边云疆",
-      sprite: "images/characters/NoPanting",
+      codeName: "军人",
+      sprite: "images/characters/BianYunJiang",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       entity: entity,

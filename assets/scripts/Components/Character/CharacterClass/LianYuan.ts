@@ -8,9 +8,10 @@ export class LianYuan extends Character {
     super({
       id: 3,
       name: "连鸢",
+      codeName: "作家",
       sprite: "images/characters/LianYuan",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new MiaoBiQiaoBian(this)]);

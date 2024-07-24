@@ -8,9 +8,10 @@ export class ShaoXiu extends Character {
     super({
       id: 18,
       name: "邵秀",
+      codeName: "大家闺秀",
       sprite: "images/characters/ShaoXiu",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new MianLiCangZhen(this)]);

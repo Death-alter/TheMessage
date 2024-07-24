@@ -9,9 +9,10 @@ export class BaiFeiFei extends Character {
     super({
       id: 21,
       name: "白菲菲",
+      codeName:"护士",
       sprite: "images/characters/BaiFeiFei",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new LianMin(this), new FuHei(this)]);

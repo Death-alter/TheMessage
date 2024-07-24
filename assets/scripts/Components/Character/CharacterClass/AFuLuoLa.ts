@@ -8,9 +8,10 @@ export class AFuLuoLa extends Character {
     super({
       id: 13,
       name: "阿芙罗拉",
+      codeName: "赌场荷官",
       sprite: "images/characters/AFuLuoLa",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new MiaoShou(this)]);

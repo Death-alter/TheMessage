@@ -8,6 +8,7 @@ export class MaoBuBa extends Character {
     super({
       id: 4,
       name: "毛不拔",
+      codeName: "古董商人",
       sprite: "images/characters/MaoBuBa",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

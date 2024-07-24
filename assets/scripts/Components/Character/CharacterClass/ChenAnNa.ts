@@ -9,9 +9,10 @@ export class ChenAnNa extends Character {
     super({
       id: 39,
       name: "陈安娜",
+      codeName: "速记员",
       sprite: "images/characters/ChenAnNa",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new ZiZhengQingBai(this), new YiWenAnHao(this)]);

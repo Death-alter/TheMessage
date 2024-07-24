@@ -8,6 +8,7 @@ export class WuZhiGuo extends Character {
     super({
       id: 1,
       name: "吴志国",
+      codeName: "剿匪大队长",
       sprite: "images/characters/WuZhiGuo",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

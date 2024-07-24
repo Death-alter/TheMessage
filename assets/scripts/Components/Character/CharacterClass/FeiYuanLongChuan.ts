@@ -8,6 +8,7 @@ export class FeiYuanLongChuan extends Character {
     super({
       id: 7,
       name: "肥原龙川",
+      codeName: "特务机关长",
       sprite: "images/characters/FeiYuanLongChuan",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

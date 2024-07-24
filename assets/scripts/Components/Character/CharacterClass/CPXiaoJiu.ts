@@ -8,8 +8,9 @@ export class CPXiaoJiu extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 3027,
-      name: "CP小九",
-      sprite: "images/characters/NoPanting",
+      name: "小九",
+      codeName: "情报站长",
+      sprite: "images/characters/CPXiaoJiu",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
       entity: entity,

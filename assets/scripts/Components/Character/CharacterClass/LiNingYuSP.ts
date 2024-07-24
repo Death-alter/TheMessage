@@ -9,9 +9,10 @@ export class LiNingYuSP extends Character {
     super({
       id: 1028,
       name: "SP李宁玉",
+      codeName: "译电科科长",
       sprite: "images/characters/LiNingYuSP",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new YingBian(this), new YouDao(this)]);

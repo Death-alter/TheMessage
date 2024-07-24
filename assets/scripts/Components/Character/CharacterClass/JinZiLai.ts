@@ -8,6 +8,7 @@ export class JinZiLai extends Character {
     super({
       id: 41,
       name: "金自来",
+      codeName: "老千",
       sprite: "images/characters/JinZiLai",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

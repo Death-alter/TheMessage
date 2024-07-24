@@ -8,6 +8,7 @@ export class XiaoJiu extends Character {
     super({
       id: 27,
       name: "小九",
+      codeName: "报童",
       sprite: "images/characters/XiaoJiu",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

@@ -8,9 +8,10 @@ export class HanMei extends Character {
     super({
       id: 14,
       name: "韩梅",
+      codeName: "卖花女",
       sprite: "images/characters/HanMei",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new YiHuaJieMu(this)]);

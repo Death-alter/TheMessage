@@ -8,6 +8,7 @@ export class JinShengHuo extends Character {
     super({
       id: 19,
       name: "金生火",
+      codeName: "军机处处长",
       sprite: "images/characters/JinShengHuo",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

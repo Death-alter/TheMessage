@@ -9,6 +9,7 @@ export class SunShouMo extends Character {
     super({
       id: 48,
       name: "孙守谟",
+      codeName: "",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

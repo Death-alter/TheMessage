@@ -8,9 +8,10 @@ export class PeiLing extends Character {
     super({
       id: 8,
       name: "裴玲",
+      codeName: "电影明星",
       sprite: "images/characters/PeiLing",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills( [new JiaoJi(this)]);

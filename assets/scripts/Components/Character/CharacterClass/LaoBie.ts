@@ -9,6 +9,7 @@ export class LaoBie extends Character {
     super({
       id: 26,
       name: "老鳖",
+      codeName: "香烟贩子",
       sprite: "images/characters/LaoBie",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

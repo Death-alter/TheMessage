@@ -9,6 +9,7 @@ export class YaPao extends Character {
     super({
       id: 40,
       name: "哑炮",
+      codeName: "乞丐",
       sprite: "images/characters/YaPao",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

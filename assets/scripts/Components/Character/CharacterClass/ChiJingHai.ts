@@ -9,6 +9,7 @@ export class ChiJingHai extends Character {
     super({
       id: 33,
       name: "池镜海",
+      codeName: "破译专家",
       sprite: "images/characters/ChiJingHai",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

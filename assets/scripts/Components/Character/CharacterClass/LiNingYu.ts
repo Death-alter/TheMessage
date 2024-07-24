@@ -10,9 +10,10 @@ export class LiNingYu extends Character {
     super({
       id: 28,
       name: "李宁玉",
+      codeName: "译电科科长",
       sprite: "images/characters/LiNingYu",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new JiuJi(this), new ChengFu(this), new YiXin(this)]);

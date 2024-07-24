@@ -8,6 +8,7 @@ export class BaiXiaoNian extends Character {
     super({
       id: 25,
       name: "白小年",
+      codeName:"秘书",
       sprite: "images/characters/BaiXiaoNian",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

@@ -9,9 +9,10 @@ export class LaoHan extends Character {
     super({
       id: 24,
       name: "老汉",
+      codeName: "裘家二太太",
       sprite: "images/characters/LaoHan",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new ShiSi(this), new RuGui(this)]);

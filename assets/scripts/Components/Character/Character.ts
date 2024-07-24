@@ -6,6 +6,7 @@ import { DataBasic } from "../../DataBasic";
 export class Character extends DataBasic<CharacterEntity> {
   protected _id: number;
   protected _name: string;
+  protected _codeName: string;
   protected _sprite: string;
   protected _status: CharacterStatus;
   protected _sex: Sex;
@@ -38,6 +39,10 @@ export class Character extends DataBasic<CharacterEntity> {
     return this._name;
   }
 
+  get codeName() {
+    return this._codeName;
+  }
+
   get sprite() {
     return this._sprite;
   }
@@ -58,6 +63,7 @@ export class Character extends DataBasic<CharacterEntity> {
     super();
     this._id = option.id;
     this._name = option.name;
+    this._codeName = option.codeName;
     this._sprite = option.sprite;
     this._status = option.status == null ? CharacterStatus.FACE_UP : option.status;
     this._isHidden = this._status === CharacterStatus.FACE_DOWN;

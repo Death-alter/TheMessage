@@ -7,9 +7,10 @@ export class UnknownCharacter extends Character {
     super({
       id: 0,
       name: "未知角色",
+      codeName: "",
       sprite: "images/characters/Unknown",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.UNKNOWN,
+      sex: Sex.MALE,
       entity: entity,
     });
   }

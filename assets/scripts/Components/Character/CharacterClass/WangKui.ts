@@ -8,6 +8,7 @@ export class WangKui extends Character {
     super({
       id: 12,
       name: "王魁",
+      codeName: "黑帮打手",
       sprite: "images/characters/WangKui",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

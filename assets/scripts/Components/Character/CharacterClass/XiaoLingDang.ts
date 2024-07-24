@@ -9,9 +9,10 @@ export class XiaoLingDang extends Character {
     super({
       id: 45,
       name: "小铃铛",
-      sprite: "images/characters/NoPanting_Famale",
+      codeName: "杂耍艺人",
+      sprite: "images/characters/XiaoLingDang",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new XinGeLianLuo(this), new HouZiQieXin(this)]);

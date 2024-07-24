@@ -9,9 +9,10 @@ export class LingSuQiu extends Character {
     super({
       id: 44,
       name: "凌素秋",
-      sprite: "images/characters/NoPanting_Famale",
+      codeName: "棋手",
+      sprite: "images/characters/LingSuQiu",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new TanXuBianShi(this), new CunBuBuRang(this)]);

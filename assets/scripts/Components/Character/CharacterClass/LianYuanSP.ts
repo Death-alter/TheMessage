@@ -7,10 +7,11 @@ export class LianYuanSP extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 1003,
-      name: "SP连鸢",
+      name: "连鸢",
+      codeName: "爱国作家",
       sprite: "images/characters/LianYuanSP",
       status: CharacterStatus.FACE_UP,
-      sex: Sex.FAMALE,
+      sex: Sex.FEMALE,
       entity: entity,
     });
     this.setSkills([new TanQiuZhenLi(this)]);

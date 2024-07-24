@@ -8,6 +8,7 @@ export class HuangJiRen extends Character {
     super({
       id: 9,
       name: "黄济仁",
+      codeName: "药铺大夫",
       sprite: "images/characters/HuangJiRen",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

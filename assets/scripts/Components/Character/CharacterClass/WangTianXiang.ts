@@ -8,6 +8,7 @@ export class WangTianXiang extends Character {
     super({
       id: 10,
       name: "王田香",
+      codeName: "特务处长",
       sprite: "images/characters/WangTianXiang",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

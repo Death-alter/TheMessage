@@ -8,6 +8,7 @@ export class GuiJiao extends Character {
     super({
       id: 17,
       name: "鬼脚",
+      codeName: "黄包车夫",
       sprite: "images/characters/GuiJiao",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

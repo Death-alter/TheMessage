@@ -8,6 +8,7 @@ export class XuanQingZi extends Character {
     super({
       id: 16,
       name: "玄青子",
+      codeName: "算命先生",
       sprite: "images/characters/XuanQingZi",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
