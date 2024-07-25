@@ -9,7 +9,7 @@ export class ZhengWenXian extends Character {
     super({
       id: 15,
       name: "鄭文先",
-      codeName: "日为报社主编",
+      codeName: "日伪报社主编",
       sprite: "images/characters/ZhengWenXian",
       status: CharacterStatus.FACE_DOWN,
       sex: Sex.MALE,

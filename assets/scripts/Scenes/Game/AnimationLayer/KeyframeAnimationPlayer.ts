@@ -470,22 +470,23 @@ export class KeyframeAnimationPlayer extends Component {
     status: CardStatus = CardStatus.FACE_DOWN,
   ) {
     this.addCard(entity);
-    this.discardMessage(oldMessage, oldEntity);
-    if (status !== message.status) {
-      const c = message.copy();
-      c.toogleStatus();
-      this.turnOverMessage(c, entity).on("complete", () => {
-        message.status = status;
-        entity.data = message;
+    return this.discardMessage(oldMessage, oldEntity).on("complete", () => {
+      if (status !== message.status) {
+        const c = message.copy();
+        c.toogleStatus();
+        this.turnOverMessage(c, entity).on("complete", () => {
+          message.status = status;
+          entity.data = message;
+        });
+      } else {
+        entity.refresh(message);
+      }
+      this.moveCard({
+        entity,
+        to: { location: CardActionLocation.PLAYER, player: messagePlayer },
+        duration: config.animationDuration,
+        queueName: "global",
       });
-    } else {
-      entity.refresh(message);
-    }
-    return this.moveCard({
-      entity,
-      to: { location: CardActionLocation.PLAYER, player: messagePlayer },
-      duration: config.animationDuration,
-      queueName: "global",
     });
   }
 

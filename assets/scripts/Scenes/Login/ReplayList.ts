@@ -26,6 +26,7 @@ export class ReplayList extends Component {
         NetworkEventCenter.emit(NetworkEventToS.DISPLAY_RECORD_TOS, {
           version: config.version,
           recordId,
+          // skipCount: 500,
         });
       });
       viewContent.addChild(replay);

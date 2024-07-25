@@ -1,5 +1,5 @@
 import { skill_cheng_zhi_toc, skill_wait_for_cheng_zhi_toc } from "../../../../protobuf/proto";
-import { NetworkEventCenter, GameEventCenter,  UIEventCenter } from "../../../Event/EventTarget";
+import { NetworkEventCenter, GameEventCenter, UIEventCenter } from "../../../Event/EventTarget";
 import { NetworkEventToC, GameEvent, NetworkEventToS, UIEvent } from "../../../Event/type";
 import { CardActionLocation, WaitingType } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
@@ -30,14 +30,14 @@ export class ChengZhi extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_CHENG_ZHI_TOC,
       (data) => {
         this.waitingForUse(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -48,7 +48,7 @@ export class ChengZhi extends TriggerSkill {
 
   waitingForUse(
     gameData: GameData,
-    { playerId, diePlayerId, cards, identity, secretTask, waitingSecond, seq }: skill_wait_for_cheng_zhi_toc
+    { playerId, diePlayerId, cards, identity, secretTask, waitingSecond, seq }: skill_wait_for_cheng_zhi_toc,
   ) {
     const player = gameData.playerList[playerId];
     const diePlayer = gameData.playerList[diePlayerId];
@@ -59,7 +59,7 @@ export class ChengZhi extends TriggerSkill {
       handCards = gameData.playerRemoveHandCard(diePlayer, cards);
       this.identity = createIdentity(identity as number, secretTask as number);
     } else {
-      handCards = gameData.playerRemoveHandCard(diePlayer, new Array(diePlayer.handCardCount));
+      handCards = gameData.playerRemoveHandCard(diePlayer, new Array(diePlayer.handCardCount).fill(0));
     }
     if (diePlayerId === 0) {
       gameData.handCardList.removeAllData();
@@ -74,7 +74,7 @@ export class ChengZhi extends TriggerSkill {
     });
 
     gameLog.addData(
-      new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的手牌并查看其身份`)
+      new GameLog(`${gameLog.formatPlayer(player)}获得${gameLog.formatPlayer(diePlayer)}的手牌并查看其身份`),
     );
 
     UIEventCenter.emit(UIEvent.START_COUNT_DOWN, {

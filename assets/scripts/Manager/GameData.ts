@@ -173,11 +173,15 @@ export class GameData extends DataBasic<GameManager> {
   set lockedPlayerId(playerId: number) {
     if (playerId === this._lockedPlayerId) return;
     if (playerId == null) {
-      this.lockedPlayer && (this.lockedPlayer.entity.locked = false);
+      if (this.lockedPlayer?.entity) {
+        this.lockedPlayer.entity.locked = false;
+      }
       this._lockedPlayerId = -1;
     } else {
       this._lockedPlayerId = playerId;
-      this.lockedPlayer && (this.lockedPlayer.entity.locked = true);
+      if (this.lockedPlayer?.entity) {
+        this.lockedPlayer.entity.locked = true;
+      }
     }
   }
 
