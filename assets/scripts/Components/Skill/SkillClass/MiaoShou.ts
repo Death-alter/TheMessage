@@ -179,6 +179,7 @@ export class MiaoShou extends ActiveSkill {
     }
 
     gameData.messageInTransmit = message;
+    GameEventCenter.emit(GameEvent.PLAYER_SET_MESSAGE, message);
 
     GameEventCenter.emit(GameEvent.CARD_MOVED, {
       card: message,

@@ -104,6 +104,9 @@ export class AnimationLayer extends Component {
     //移除情报
     GameEventCenter.on(GameEvent.PLAYER_REMOVE_MESSAGE, this.playerRemoveMessage, this);
 
+    //把卡牌作为情报
+    GameEventCenter.on(GameEvent.PLAYER_SET_MESSAGE, this.playerSetMessage, this);
+
     //玩家死亡
     GameEventCenter.on(GameEvent.PLAYER_DIE, this.playerDie, this);
 
@@ -222,6 +225,10 @@ export class AnimationLayer extends Component {
       entity: this.messageEntity,
     });
     this.messageEntity = null;
+  }
+
+  playerSetMessage(message: Card) {
+    this.messageEntity = this.getCardEntity(message);
   }
 
   playerReceiveMessage({ player, message }: GameEventType.PlayerReceiveMessage) {

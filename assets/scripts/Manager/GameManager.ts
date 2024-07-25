@@ -24,6 +24,7 @@ import { IdentityType } from "../Components/Identity/type";
 import { PlayerAction } from "../Utils/PlayerAction/PlayerAction";
 import { KeyframeAnimationManager } from "../Scenes/Game/AnimationLayer/KeyframeAnimation";
 import { GameLogHistory } from "../Components/GameLog/GameLogHistory";
+import { AudioMgr } from "../Scenes/Resident/AudioMgr";
 
 const { ccclass, property } = _decorator;
 
@@ -102,6 +103,10 @@ export class GameManager extends Entity<GameData> {
     resources.preloadDir("images/cards");
     //预加载材质
     resources.preloadDir("material");
+
+    if (sys.localStorage.getItem("sound") === "0") {
+      AudioMgr.inst.mute();
+    }
   }
 
   onEnable() {
