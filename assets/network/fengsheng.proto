@@ -87,6 +87,7 @@ message get_room_info_toc {
   uint32          room_id = 9; // 房间号
   uint32          in_game_count = 10; // 正在进行游戏的桌数
   bool            is_double_role = 11; // 是否为双将模式
+  repeated string title = 12; // 称号
 }
 
 // 请求加一个机器人
@@ -105,6 +106,7 @@ message join_room_toc {
   uint32 game_count = 4;
   string rank = 5;
   int32  score = 6;
+  string title = 7; // 称号
 }
 
 // 请求修改房间信息
