@@ -11,6 +11,7 @@ export interface PlayerInfo {
   gameCount: number;
   rank: string;
   score: number;
+  title: string;
 }
 
 @ccclass("Room")
@@ -50,6 +51,7 @@ export class PlayerList extends Component {
             gameCount: data.players[i].gameCount,
             rank: data.players[i].rank,
             score: data.players[i].score,
+            title: data.players[i].title,
           };
         } else {
           isFull = false;
@@ -92,6 +94,7 @@ export class PlayerList extends Component {
         gameCount: data.gameCount || 0,
         rank: data.rank || "",
         score: data.score || 0,
+        title: data.title || "",
       };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
       this.setGameStartCountDown();

@@ -47,6 +47,7 @@ export class EventMapper {
             gameCount: data.gameCounts[i],
             rank: data.ranks[i],
             score: data.scores[i],
+            title: data.title[i],
           });
         }
         ProcessEventCenter.emit(ProcessEvent.CREATE_ROOM, {
@@ -73,6 +74,7 @@ export class EventMapper {
         gameCount: data.gameCount,
         rank: data.rank,
         score: data.score,
+        title: data.title,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.LEAVE_ROOM_TOC, (data: ProtobufType.leave_room_toc) => {

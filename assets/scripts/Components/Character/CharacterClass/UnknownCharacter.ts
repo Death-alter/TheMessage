@@ -10,7 +10,7 @@ export class UnknownCharacter extends Character {
       codeName: "",
       sprite: "images/characters/Unknown",
       status: CharacterStatus.FACE_DOWN,
-      sex: Sex.MALE,
+      sex: Sex.UNKNOWN,
       entity: entity,
     });
   }
