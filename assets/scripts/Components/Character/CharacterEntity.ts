@@ -13,22 +13,25 @@ export class CharacterEntity extends Entity<Character> {
   set data(data: Character) {
     super.setData(data);
     if (data) {
+      this.releaseSprite();
+      this.loadSprite();
+
       if (data.status === CharacterStatus.FACE_DOWN) {
         this.showCover();
       } else {
         this.hideCover();
       }
-      this.releaseSprite();
-      this.loadSprite();
     }
   }
 
   showCover() {
     this.node.getChildByPath("Mask/Cover").active = true;
+    this.node.getChildByName("Sex").active = false;
   }
 
   hideCover() {
     this.node.getChildByPath("Mask/Cover").active = false;
+    this.node.getChildByName("Sex").active = true;
   }
 
   loadSprite() {
@@ -38,24 +41,20 @@ export class CharacterEntity extends Entity<Character> {
         this.node.getChildByPath("Mask/Image").getComponent(Sprite).spriteFrame = spriteFrame;
       }
     });
-    const sexNode = this.node.getChildByName("Sex");
-    if (this._data.status === CharacterStatus.FACE_UP) {
-      sexNode.active = true;
-      let sexIcon = "";
-      if (this._data.sex === Sex.FEMALE) {
-        sexIcon = "female";
-      } else if (this._data.sex === Sex.MALE) {
-        sexIcon = "male";
-      }
-      resources.load(`images/${sexIcon}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
-        if (!err && spriteFrame && this.node) {
-          spriteFrame.addRef(); // 计数加1
-          this.node.getChildByPath("Sex/Icon").getComponent(Sprite).spriteFrame = spriteFrame;
-        }
-      });
-    } else {
-      sexNode.active = false;
+
+    let sexIcon = "";
+    if (this._data.sex === Sex.FEMALE) {
+      sexIcon = "female";
+    } else if (this._data.sex === Sex.MALE) {
+      sexIcon = "male";
     }
+    resources.load(`images/${sexIcon}/spriteFrame`, SpriteFrame, (err, spriteFrame) => {
+      if (!err && spriteFrame && this.node) {
+        spriteFrame.addRef(); // 计数加1
+        this.node.getChildByPath("Sex/Icon").getComponent(Sprite).spriteFrame = spriteFrame;
+      }
+    });
+
     this.node.getChildByName("Name").getComponent(Label).string = this._data.name;
     this.node.getChildByName("CodeName").getComponent(Label).string = this._data.codeName;
   }
