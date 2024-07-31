@@ -5,7 +5,6 @@ import { GameEvent, NetworkEventToC } from "../../../Event/type";
 import { GameData } from "../../../Manager/GameData";
 import { Player } from "../../Player/Player";
 import { skill_shen_cang_toc } from "../../../../protobuf/proto";
-import { GameLog } from "../../GameLog/GameLog";
 
 export class ShenCang extends PassiveSkill {
   constructor(character: Character) {

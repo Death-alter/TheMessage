@@ -91,7 +91,6 @@ export class EventMapper {
         secretTaskList: data.possibleSecretTask,
         characterIdList: data.roles,
         waitingSecond: data.waitingSecond,
-        position: data.position,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.AUTO_PLAY_TOC, (data: ProtobufType.auto_play_toc) => {

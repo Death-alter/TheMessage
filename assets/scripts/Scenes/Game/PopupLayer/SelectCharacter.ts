@@ -18,7 +18,6 @@ interface InitOption {
   roles: number[];
   waitingSecond: number;
   secretTaskList: Identity[];
-  position: number;
 }
 
 @ccclass("SelectCharacter")
@@ -44,7 +43,7 @@ export class SelectCharacter extends Component {
 
   init(data: InitOption, confirm) {
     //生成提示文字
-    const { playerCount, identity, roles, waitingSecond, secretTaskList, position } = data;
+    const { playerCount, identity, roles, waitingSecond, secretTaskList } = data;
     if (identity) {
       let text;
       if (secretTaskList.length < 7) {
@@ -56,7 +55,7 @@ export class SelectCharacter extends Component {
         text = "本局游戏中可能出现所有神秘人身份";
       }
 
-      text += `\n本局游戏共${playerCount}名玩家，你是${position}号玩家，你的身份是：<color=${identity.color}>${identity.name}</color>`;
+      text += `\n本局游戏共${playerCount}名玩家，你的身份是：<color=${identity.color}>${identity.name}</color>`;
       if (identity instanceof MysteriousPerson) {
         text += `\n机密任务：${identity.secretTaskText}`;
       }

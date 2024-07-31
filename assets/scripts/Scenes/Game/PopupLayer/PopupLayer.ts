@@ -87,7 +87,6 @@ export class PopupLayer extends Component {
                 return createIdentity(IdentityType.GREEN, (<number>task) as SecretTaskType);
               })
             : [],
-          position: data.position,
         },
         data.confirm || this.selectCharacterWindow.getComponent(SelectCharacter).confirmCharacter,
       );
