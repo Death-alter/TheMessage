@@ -417,6 +417,7 @@ message notify_winner_toc {
   repeated int32       add_score = 5; // 增加的分数，负数就是减分，下标同上一一对应
   repeated int32       new_score = 6; // 增加后的分数，下标同上一一对应
   repeated string      new_rank = 7; // 增加后的段位，下标同上一一对应
+  repeated bool        alive = 8; // 是否活着，下标同上一一对应
 }
 
 // 濒死求澄清
