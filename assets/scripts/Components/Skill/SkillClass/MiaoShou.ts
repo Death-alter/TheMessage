@@ -12,6 +12,7 @@ import { CharacterStatus } from "../../Character/type";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
+import { Card } from "../../Card/Card";
 
 export class MiaoShou extends ActiveSkill {
   constructor(character: Character) {
@@ -168,7 +169,7 @@ export class MiaoShou extends ActiveSkill {
       gameData.entity.showCardsWindow.hide();
     }
 
-    let message;
+    let message: Card;
     if (card) {
       message = gameData.playerRemoveHandCard(fromPlayer, card);
       if (fromPlayerId !== 0) {
@@ -180,7 +181,7 @@ export class MiaoShou extends ActiveSkill {
 
     gameData.messageInTransmit = message;
     GameEventCenter.emit(GameEvent.PLAYER_SET_MESSAGE, message);
-
+    message.entity.node.angle = -90;
     GameEventCenter.emit(GameEvent.CARD_MOVED, {
       card: message,
       from: {

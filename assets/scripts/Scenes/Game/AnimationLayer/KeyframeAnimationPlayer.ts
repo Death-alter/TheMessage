@@ -1,6 +1,5 @@
 import { _decorator, Component, instantiate, Node, Prefab, UITransform, Vec2, Vec3 } from "cc";
 import {
-  AnimationAction,
   AttributeNumberVariationOption,
   AttributeVertexVariationOption,
   KeyframeAnimationManager,
@@ -235,6 +234,22 @@ export class KeyframeAnimationPlayer extends Component {
     );
   }
 
+  transverseCard(entity: CardsEntity, queueName?: string) {
+    return KeyframeAnimationManager.playAnimation(
+      {
+        target: entity.node,
+        animation: [
+          {
+            attribute: "angle",
+            to: -90,
+            duration: config.animationDuration,
+          },
+        ],
+      },
+      queueName,
+    );
+  }
+
   //抽牌动画
   drawCards(player: Player, entity: CardsEntity) {
     return this.addCardToHandCard({
@@ -328,20 +343,7 @@ export class KeyframeAnimationPlayer extends Component {
 
   //选择接收情报
   chooseReceiveMessage(entity: CardEntity) {
-    return KeyframeAnimationManager.playAnimation(
-      {
-        target: entity.node,
-        animation: [
-          this.createScaleAnimation(new Vec3(1, 1, 1), 0, config.animationDuration * 0.55),
-          this.createScaleAnimation(
-            new Vec3(0.6, 0.6, 1),
-            config.animationDuration * 0.55,
-            config.animationDuration * 0.55,
-          ),
-        ],
-      },
-      "global",
-    );
+    return this.transverseCard(entity, "global");
   }
 
   //接收情报动画
@@ -481,6 +483,7 @@ export class KeyframeAnimationPlayer extends Component {
       } else {
         entity.refresh(message);
       }
+      this.transverseCard(entity, "global");
       this.moveCard({
         entity,
         to: { location: CardActionLocation.PLAYER, player: messagePlayer },

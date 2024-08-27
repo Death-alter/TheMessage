@@ -176,7 +176,7 @@ export class JianDiFengXing extends TriggerSkill {
       step: new PlayerActionStep({
         handler: (data, { next, prev }) => {
           const tooltip = gui.tooltip;
-          tooltip.setText(`是否弃置待收情报，并用一张黑色手牌代替之？`);
+          tooltip.setText(`是否弃置情报，并用一张黑色手牌代替之？`);
           tooltip.buttons.setButtons([
             {
               text: "是",

@@ -25,6 +25,7 @@ export default class GamePools {
     GamePools.logMessagePool = new EntityPool<GameLogMessageEntity>(logMessage);
     GamePools.cardPool.beforePut((object: CardEntity) => {
       object.usableStatus = CardUsableStatus.USABLE;
+      object.node.angle = 0;
       object.getComponentInChildren(OuterGlow).closeOuterGlow();
       object.node.off(Node.EventType.TOUCH_END);
     });
