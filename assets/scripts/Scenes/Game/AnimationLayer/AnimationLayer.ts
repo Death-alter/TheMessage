@@ -274,12 +274,13 @@ export class AnimationLayer extends Component {
   }
 
   playerRecovery(player: Player) {
-    if (this.manager.data.gamePhase === GamePhase.SEND_PHASE || this.manager.data.gamePhase === GamePhase.FIGHT_PHASE) {
-      if (player.id === this.manager.data.turnPlayerId) {
-        player.entity.showInnerGlow("#00FF0080");
-      } else if (player.id === this.manager.data.senderId) {
-        player.entity.showInnerGlow("FF00FF80");
-      }
+    if (player.id === this.manager.data.turnPlayerId) {
+      player.entity.showInnerGlow("#00FF0080");
+    } else if (
+      player.id === this.manager.data.senderId &&
+      (this.manager.data.gamePhase === GamePhase.SEND_PHASE || this.manager.data.gamePhase === GamePhase.FIGHT_PHASE)
+    ) {
+      player.entity.showInnerGlow("FF00FF80");
     } else {
       player.entity.hideInnerGlow();
     }
