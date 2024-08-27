@@ -241,6 +241,7 @@ export class EventMapper {
           addScore: data.addScore[i],
           score: data.newScore[i],
           rank: data.newRank[i],
+          alive: data.alive[i],
         });
       }
       DataEventCenter.emit(DataEvent.PLAYER_WIN, { players });

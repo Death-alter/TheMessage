@@ -18,6 +18,7 @@ export interface WinnerTemplate {
   rank: string;
   isWinner: boolean;
   isDeclarer: boolean;
+  alive: boolean;
 }
 
 @ccclass("WinnerPlayer")
@@ -39,6 +40,11 @@ export class WinnerPlayer extends Component {
     } else {
       winFlag.string = "失败";
       winFlag.color = color("#e10602");
+    }
+
+    if (!data.alive) {
+      this.characterPanting.getChildByPath("Mask/Image").getComponent(Sprite).grayscale = true;
+      this.characterPanting.getChildByName("Dead").active = true;
     }
 
     const identityNode = this.node.getChildByName("Identity");

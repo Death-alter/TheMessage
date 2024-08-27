@@ -81,6 +81,7 @@ export interface PlayerWin {
     addScore: number;
     score: number;
     rank: string;
+    alive: boolean;
   }[];
 }
 

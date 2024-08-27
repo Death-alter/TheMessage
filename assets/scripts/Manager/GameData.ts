@@ -564,6 +564,7 @@ export class GameData extends DataBasic<GameManager> {
           addScore: item.addScore,
           score: item.score,
           rank: item.rank,
+          alive: item.alive,
         };
       }),
     });
