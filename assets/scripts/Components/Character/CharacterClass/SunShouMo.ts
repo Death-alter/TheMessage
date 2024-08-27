@@ -8,8 +8,8 @@ export class SunShouMo extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 48,
-      name: "孙守谟",
-      codeName: "",
+      name: "孙守謨",
+      codeName: "参谋",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,

@@ -8,8 +8,8 @@ export class HuoCheSiJi extends Character {
   constructor(entity?: CharacterEntity) {
     super({
       id: 49,
-      name: "火车司机",
-      codeName: "",
+      name: "王响",
+      codeName: "火车司机",
       sprite: "images/characters/NoPanting",
       status: CharacterStatus.FACE_UP,
       sex: Sex.MALE,
