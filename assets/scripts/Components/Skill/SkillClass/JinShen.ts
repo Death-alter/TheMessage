@@ -26,7 +26,7 @@ export class JinShen extends TriggerSkill {
       (data) => {
         this.onEffect(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -90,13 +90,15 @@ export class JinShen extends TriggerSkill {
     });
 
     gameData.playerAddHandCard(player, message);
-    gameData.handCardList.addData(message);
+    if (playerId === 0) {
+      gameData.handCardList.addData(message);
+    }
     player.addMessage(handCard);
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}和情报${gameLog.formatCard(message)}互换`
-      )
+        `${gameLog.formatPlayer(player)}将手牌${gameLog.formatCard(handCard)}和情报${gameLog.formatCard(message)}互换`,
+      ),
     );
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
