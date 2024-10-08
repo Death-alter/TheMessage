@@ -86,9 +86,7 @@ export class DiaoHuLiShan extends Card {
       targetPlayer.banSkills();
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合技能无效。`));
     } else {
-      if (targetPlayerId === 0) {
-        targetPlayer.banAllCards();
-      }
+      targetPlayer.banAllCards();
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(targetPlayer)}本回合不能使用卡牌。`));
     }
   }
