@@ -53,6 +53,7 @@ export interface CardAddToHandCard {
   player: Player;
   card?: Card | Card[];
   from?: ActionLocation;
+  callback?: () => void;
 }
 
 export interface PlayerDrawCard {

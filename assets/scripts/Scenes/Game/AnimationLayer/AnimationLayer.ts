@@ -173,11 +173,12 @@ export class AnimationLayer extends Component {
     this.animationPlayer.discardCards(player, this.getCardEntity(cardList));
   }
 
-  cardAddToHandCard({ player, card, from }: GameEventType.CardAddToHandCard) {
+  cardAddToHandCard({ player, card, from, callback }: GameEventType.CardAddToHandCard) {
     this.animationPlayer.addCardToHandCard({
       player: player,
       entity: this.getCardEntity(<Card>card),
       from: from || { location: CardActionLocation.DECK },
+      callback,
     });
   }
 

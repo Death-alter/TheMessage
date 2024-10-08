@@ -107,17 +107,18 @@ export class TanXuBianShi extends ActiveSkill {
       player: targetPlayer,
       card: handCard,
       from: { location: CardActionLocation.PLAYER_HAND_CARD, player: player },
+      callback: () => {
+        if (targetPlayerId === 0) {
+          GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
+            skill: this,
+            handler: "promptChooseHandCard",
+            params: {
+              player,
+            },
+          });
+        }
+      },
     });
-
-    if (targetPlayerId === 0) {
-      GameEventCenter.emit(GameEvent.SKILL_ON_EFFECT, {
-        skill: this,
-        handler: "promptChooseHandCard",
-        params: {
-          player,
-        },
-      });
-    }
 
     gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}交给${gameLog.formatPlayer(targetPlayer)}一张手牌`));
   }

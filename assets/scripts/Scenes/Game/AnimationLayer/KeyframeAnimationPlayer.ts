@@ -155,14 +155,15 @@ export class KeyframeAnimationPlayer extends Component {
     entity,
     from,
     queueName,
+    callback,
   }: {
     player: Player;
     entity: CardsEntity;
     from?: ActionLocation;
     queueName?: string;
+    callback?: () => void;
   }) {
     const node = this.addCard(entity, from);
-    const message = entity.data;
     return KeyframeAnimationManager.playAnimation(
       {
         target: node,
@@ -183,6 +184,7 @@ export class KeyframeAnimationPlayer extends Component {
       } else {
         this.removeCardNode(node);
       }
+      callback?.();
     });
   }
 
