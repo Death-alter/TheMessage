@@ -309,7 +309,7 @@ export class DuiZhengXiaoYao extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(targetPlayer)}}情报区弃置${gameLog.formatCard(
+        `${gameLog.formatPlayer(player)}从${gameLog.formatPlayer(targetPlayer)}情报区弃置${gameLog.formatCard(
           message,
         )}`,
       ),
