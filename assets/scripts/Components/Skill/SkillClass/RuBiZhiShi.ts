@@ -163,7 +163,7 @@ export class RuBiZhiShi extends ActiveSkill {
                     targetPlayer.hasTag(TagName.ALL_CARD_BANNED) ||
                     (bannedCardTypes && bannedCardTypes.indexOf(card.type) !== -1);
                   if (card.availablePhases.indexOf(gui.data.gamePhase) === -1 || banned) return false;
-                  return gui.uiLayer.cardCanPlayed(card).canPlay;
+                  return true;
                 },
               },
               {
