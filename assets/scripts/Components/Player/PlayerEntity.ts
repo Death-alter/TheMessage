@@ -177,12 +177,31 @@ export class PlayerEntity extends Entity<Player> {
     this.messageCounts.getChildByPath("HandCard/Label").getComponent(Label).string = this.data.handCardCount.toString();
   }
 
-  showBannedIcon() {
-    this.node.getChildByPath("Border/Banned").active = true;
+  showSkillBannedIcon() {
+    this.node.getChildByPath("Border/Banned/SkillBanned").active = true;
   }
 
-  hideBannedIcon() {
-    this.node.getChildByPath("Border/Banned").active = false;
+  hideSkillBannedIcon() {
+    this.node.getChildByPath("Border/Banned/SkillBanned").active = false;
+  }
+
+  showCardBannedIcon() {
+    if (!this.node.getChildByPath("Border/Banned/AllCardBanned").active) {
+      this.node.getChildByPath("Border/Banned/CardBanned").active = true;
+    }
+  }
+
+  hideCardBannedIcon() {
+    this.node.getChildByPath("Border/Banned/CardBanned").active = false;
+  }
+
+  showAllCardBannedIcon() {
+    this.hideCardBannedIcon();
+    this.node.getChildByPath("Border/Banned/AllCardBanned").active = true;
+  }
+
+  hideAllCardBannedIcon() {
+    this.node.getChildByPath("Border/Banned/AllCardBanned").active = false;
   }
 
   refreshMessageCount() {

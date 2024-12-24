@@ -122,26 +122,30 @@ export class Player extends DataBasic<PlayerEntity> {
     }
     const typeList = this.getTagData(TagName.CARD_BANNED) || [];
     this.addTag(TagName.CARD_BANNED, [...typeList, ...type]);
+    this.entity?.showCardBannedIcon();
     if (typeList.length === 0) {
       GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
         this.removeTag(TagName.CARD_BANNED);
+        this.entity?.hideCardBannedIcon();
       });
     }
   }
 
   banAllCards() {
     this.addTag(TagName.ALL_CARD_BANNED);
+    this.entity?.showAllCardBannedIcon();
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
       this.removeTag(TagName.ALL_CARD_BANNED);
+      this.entity?.hideAllCardBannedIcon();
     });
   }
 
   banSkills() {
     this.addTag(TagName.SKILL_BANNED);
-    this.entity?.showBannedIcon();
+    this.entity?.showSkillBannedIcon();
     GameEventCenter.once(GameEvent.GAME_TURN_CHANGE, () => {
       this.removeTag(TagName.SKILL_BANNED);
-      this.entity?.hideBannedIcon();
+      this.entity?.hideSkillBannedIcon();
     });
   }
 
