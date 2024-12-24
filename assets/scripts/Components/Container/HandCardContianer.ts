@@ -71,9 +71,11 @@ export class HandCardContianer extends EntityContainer<CardEntity> {
   }
 
   addCardNode(card: Card) {
-    if (!card.entity) {
-      card.entity = GamePools.cardPool.get();
+    if (card.entity) {
+      card.entity.data = null;
+      GamePools.cardPool.put(card.entity);
     }
+    card.entity = GamePools.cardPool.get();
     card.entity.node.scale = new Vec3(1, 1, 1);
     card.entity.node.angle = 0;
     this.node.addChild(card.entity.node);

@@ -174,12 +174,16 @@ export class KeyframeAnimationPlayer extends Component {
       if (player.id === 0) {
         if (entity instanceof CardGroupEntity) {
           for (const c of entity.data.list) {
+            GamePools.cardPool.put(c.entity);
+            c.entity = null;
             this.handCardList.addData(<Card>c);
           }
+          entity.data.removeAllData();
           this.node.removeChild(node);
           GamePools.cardGroupPool.put(entity);
         } else {
           this.handCardList.addData(entity.data);
+          this.removeCardNode(node);
         }
       } else {
         this.removeCardNode(node);

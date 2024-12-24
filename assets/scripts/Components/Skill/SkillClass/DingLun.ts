@@ -1,7 +1,7 @@
 import { skill_ding_lun_toc } from "../../../../protobuf/proto";
 import { GameEventCenter, NetworkEventCenter } from "../../../Event/EventTarget";
 import { GameEvent, NetworkEventToC, NetworkEventToS } from "../../../Event/type";
-import { CardActionLocation, GamePhase } from "../../../Manager/type";
+import { GamePhase } from "../../../Manager/type";
 import { GameData } from "../../../Manager/GameData";
 import { GameManager } from "../../../Manager/GameManager";
 import { Character } from "../../Character/Character";

@@ -96,7 +96,7 @@ export class PlayerEntity extends Entity<Player> {
   }
 
   onEnable() {
-    if (this.data.id === 0) return;
+    if (!this.data || this.data.id === 0) return;
     if (sys.isMobile) {
       this.node.getChildByPath("Border/Identity").on(
         "tap",
@@ -130,7 +130,7 @@ export class PlayerEntity extends Entity<Player> {
   }
 
   onDisable() {
-    if (this.data.id === 0) return;
+    if (!this.data ||this.data.id === 0) return;
     this.node.getChildByPath("Border/Identity").off(Node.EventType.TOUCH_END);
   }
 
