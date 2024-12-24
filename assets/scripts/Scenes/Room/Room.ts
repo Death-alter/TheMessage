@@ -109,11 +109,10 @@ export class PlayerList extends Component {
 
     //更新在线人数
     ProcessEventCenter.on(ProcessEvent.UPDATE_ONLINE_COUNT, (data) => {
-      if (data.onlineCount !== this.onlineCount) {
-        this.onlineCount = data.onlineCount;
-        this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
-          "当前在线人数：" + this.onlineCount.toString() + "\n" + "游戏中房间数：" + this.inGameCount.toString();
-      }
+      this.onlineCount = data.onlineCount;
+      this.inGameCount = data.inGameCount;
+      this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
+        "当前在线人数：" + this.onlineCount.toString() + "\n" + "游戏中房间数：" + this.inGameCount.toString();
     });
   }
 
