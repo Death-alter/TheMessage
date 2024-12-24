@@ -12,16 +12,17 @@ export class JieCheYunHuo extends PassiveSkill {
     super({
       name: "借车运货",
       character,
-      description: "你传出的情报不能被误导。",
+      description: "你传出的情报不能被其他角色误导。",
     });
   }
 
   init(gameData: GameData, player) {
     this.banWuDao = (data) => {
+      const id = player.id;
       const sender = data.player;
-      if (sender.id === player.id) {
+      if (sender.id === id) {
         for (const player of gameData.playerList) {
-          player.banCardByType(CardType.WU_DAO);
+          if (player.id !== id) player.banCardByType(CardType.WU_DAO);
         }
       }
     };

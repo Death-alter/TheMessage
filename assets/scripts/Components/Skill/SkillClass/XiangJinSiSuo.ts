@@ -11,13 +11,15 @@ import { GameManager } from "../../../Manager/GameManager";
 import { PlayerAction } from "../../../Utils/PlayerAction/PlayerAction";
 import { PlayerActionStep } from "../../../Utils/PlayerAction/PlayerActionStep";
 import { PlayerActionStepName } from "../../../Utils/PlayerAction/type";
+import { CardType } from "../../Card/type";
 
 export class XiangJinSiSuo extends TriggerSkill {
   constructor(character: Character) {
     super({
       name: "详尽思索",
       character,
-      description: "一名角色传出情报后，你可以指定一名角色。若本回合该角色接收了情报，你摸一张牌。",
+      description:
+        "一名角色传出情报后，你可以指定一名角色。你本回合不能使用【截获】【误导】，若本回合该角色接收了情报，你摸一张牌。",
     });
   }
 
@@ -27,14 +29,14 @@ export class XiangJinSiSuo extends TriggerSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_XIANG_JIN_SI_SUO_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_WAIT_FOR_XIANG_JIN_SI_SUO_TOC,
@@ -49,7 +51,7 @@ export class XiangJinSiSuo extends TriggerSkill {
           },
         });
       },
-      this
+      this,
     );
   }
 
@@ -111,8 +113,8 @@ export class XiangJinSiSuo extends TriggerSkill {
         player,
         skill: this,
       });
-
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定了${gameLog.formatPlayer(targetPlayer)}`));
+      player.banCardByType([CardType.JIE_HUO, CardType.WU_DAO]);
     }
   }
 
