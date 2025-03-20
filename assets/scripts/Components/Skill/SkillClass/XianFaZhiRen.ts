@@ -256,10 +256,10 @@ export class XianFaZhiRen extends ActiveSkill {
     const targetPlayer = gameData.playerList[targetPlayerId];
 
     targetPlayer.addTag(TagName.SKILL_BANNED);
-    targetPlayer.entity.showBannedIcon();
+    targetPlayer.entity.showSkillBannedIcon();
     GameEventCenter.once(GameEvent.RECEIVE_PHASE_END, () => {
       targetPlayer.removeTag(TagName.SKILL_BANNED);
-      targetPlayer.entity.hideBannedIcon();
+      targetPlayer.entity.hideSkillBannedIcon();
     });
 
     let str = `${gameLog.formatPlayer(player)}令${gameLog.formatPlayer(targetPlayer)}的技能无效`;
