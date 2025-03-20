@@ -95,6 +95,7 @@ export class YiHuaJieMu extends ActiveSkill {
         filter: (player) => {
           return player.messageCounts.total > 0;
         },
+        canCancel: false,
       },
       resolver: (data) => {
         return { playerId: data.players[0].id };
