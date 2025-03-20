@@ -254,6 +254,7 @@ export class TanQiuZhenLi extends ActiveSkill {
   }
 
   onEffectB(gameData: GameData, { enable, playerId, targetPlayerId, card, fromHand }: skill_tan_qiu_zhen_li_b_toc) {
+    const gameLog = gameData.gameLog;
     const player = gameData.playerList[playerId];
     if (enable) {
       const targetPlayer = gameData.playerList[targetPlayerId];
@@ -272,6 +273,14 @@ export class TanQiuZhenLi extends ActiveSkill {
           player: targetPlayer,
         },
       });
+
+      gameLog.addData(
+        new GameLog(
+          `${gameLog.formatPlayer(targetPlayer)}把${fromHand ? "手牌" : "情报区的"}${gameLog.formatCard(
+            message,
+          )}置入${gameLog.formatPlayer(player)}的情报区`,
+        ),
+      );
     }
 
     ++this.usageCount;
