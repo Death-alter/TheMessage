@@ -19,7 +19,7 @@ export class XiangJinSiSuo extends TriggerSkill {
       name: "详尽思索",
       character,
       description:
-        "一名角色传出情报后，你可以指定一名角色。你本回合不能使用【截获】【误导】，若本回合该角色接收了情报，你摸一张牌。",
+        "一名角色传出情报后，你可以指定一名角色。若本回合该角色接收了情报，你本回合未使用【截获】【误导】【调包】，你摸一张牌。",
     });
   }
 
@@ -114,7 +114,6 @@ export class XiangJinSiSuo extends TriggerSkill {
         skill: this,
       });
       gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}指定了${gameLog.formatPlayer(targetPlayer)}`));
-      player.banCardByType([CardType.JIE_HUO, CardType.WU_DAO]);
     }
   }
 
