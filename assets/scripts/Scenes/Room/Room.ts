@@ -31,6 +31,7 @@ export class PlayerList extends Component {
   private onlineCount: number = 0;
   private inGameCount: number = 0;
   private timer: number = 0;
+  private startTime: number = 5;
 
   protected onEnable(): void {
     //收到房间信息
@@ -60,10 +61,6 @@ export class PlayerList extends Component {
         this.playerListNode.addChild(player);
         player.getComponent(PlayerInfoTemplate).init(this.playerList[i]);
       }
-
-      if (isFull) {
-        this.setGameStartCountDown();
-      }
       this.refreshPlayerListUI();
     });
 
@@ -82,7 +79,6 @@ export class PlayerList extends Component {
       this.playerList.splice(data.position, 1);
       this.playerListNode.removeChild(this.playerListNode.children[data.position]);
       this.refreshPlayerListUI();
-      this.setGameStartCountDown();
       sys.localStorage.setItem("playerCount", this.playerList.length.toString());
     });
 
@@ -97,7 +93,6 @@ export class PlayerList extends Component {
         title: data.title || "",
       };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
-      this.setGameStartCountDown();
     });
 
     //有人离开房间
@@ -113,6 +108,11 @@ export class PlayerList extends Component {
       this.inGameCount = data.inGameCount;
       this.onlineCountNode.getChildByName("Label").getComponent(Label).string =
         "当前在线人数：" + this.onlineCount.toString() + "\n" + "游戏中房间数：" + this.inGameCount.toString();
+    });
+
+    ProcessEventCenter.on(ProcessEvent.GET_ROOM_START_TIME, ({ seconds }) => {
+      this.startTime = seconds;
+      this.setGameStartCountDown();
     });
   }
 
@@ -136,7 +136,11 @@ export class PlayerList extends Component {
       if (!item || !item.userName) return;
     }
     const countDownText = this.countDownNode.getComponent(Label);
-    let s = 5;
+    if (this.startTime <= 1) {
+      countDownText.string = `游戏即将开始`;
+      return;
+    }
+    let s = this.startTime;
     countDownText.string = `游戏将在${s}秒后开始`;
     this.countDownNode.active = true;
     this.timer = setInterval(() => {

@@ -27,6 +27,12 @@ export class EventMapper {
         inGameCount: data.inGameCount,
       });
     });
+    NetworkEventCenter.on(
+      NetworkEventToC.NOTIFY_ROOM_START_TIMER_TOC,
+      (data: ProtobufType.notify_room_start_timer_toc) => {
+        ProcessEventCenter.emit(ProcessEvent.GET_ROOM_START_TIME, { seconds: data.seconds });
+      },
+    );
     NetworkEventCenter.on(NetworkEventToC.ADD_ONE_POSITION_TOC, () => {
       ProcessEventCenter.emit(ProcessEvent.ADD_ROOM_POSITION);
     });
