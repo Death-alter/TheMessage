@@ -127,12 +127,12 @@ export class ShiTan extends Card {
           if (disCardStr.length) {
             disCardStr += "或";
           }
-          disCardStr += array[i];
+          disCardStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
         } else {
           if (drawStr.length) {
             drawStr += "或";
           }
-          drawStr += array[i];
+          drawStr += `<color=${Identity.colors[i]}>${array[i]}</color>`;
         }
       }
 
