@@ -47,12 +47,13 @@ app.whenReady().then(() => {
           'Content-Type': 'application/json'
         }
       }, (err, res, body) => {
-        if (err || !body) {
+        if (err || !res || !body) {
           if (!res) {
             resolve({
               canUpdate: false,
               message: "未能连接到服务器"
             })
+            return
           }
           switch (res.statusCode) {
             case 404:
@@ -60,6 +61,7 @@ app.whenReady().then(() => {
                 canUpdate: false,
                 message: "未找到服务器资源"
               })
+              return
           }
         } else {
           const data = JSON.parse(body)
@@ -68,11 +70,13 @@ app.whenReady().then(() => {
               canUpdate: true,
               data: data
             })
+            return
           } else {
             resolve({
               canUpdate: false,
               message: "已是最新版本，无需更新"
             })
+            return
           }
         }
       })
