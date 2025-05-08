@@ -4,7 +4,7 @@
 
 **你可以[加入交流群](https://qm.qq.com/q/X7bBZ5qGiq)**
 
-**如果想要了解游戏规则，可以跳转到[fengsheng-doc](https://fengsheng.cutereimu.cn)**
+**如果想要了解游戏规则，可以跳转到[fengsheng-doc](https://cutereimu.github.io/fengsheng-doc/)**
 
 
 # 安装依赖包
