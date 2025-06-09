@@ -124,6 +124,7 @@ export class PlayerList extends Component {
     ProcessEventCenter.off(ProcessEvent.JOIN_ROOM);
     ProcessEventCenter.off(ProcessEvent.LEAVE_ROOM);
     ProcessEventCenter.off(ProcessEvent.UPDATE_ONLINE_COUNT);
+    ProcessEventCenter.off(ProcessEvent.GET_ROOM_START_TIME);
   }
 
   private refreshPlayerListUI() {
