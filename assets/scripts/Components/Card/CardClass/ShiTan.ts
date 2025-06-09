@@ -84,8 +84,9 @@ export class ShiTan extends Card {
   }
 
   onEffect(gameData: GameData, { targetPlayerId, flag }: CardOnEffectParams) {
+    const gameLog = gameData.gameLog;
+    const player = gameData.playerList[targetPlayerId];
     if (this._drawCardColor && this._drawCardColor.length > 0) {
-      const player = gameData.playerList[targetPlayerId];
       if (this._drawCardColor.length === 1) {
         if (flag) {
           player.confirmIdentity(<number>this._drawCardColor[0]);
@@ -106,6 +107,11 @@ export class ShiTan extends Card {
           player.confirmIdentity(<number>arr[0]);
         }
       }
+    }
+    if (flag) {
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择摸一张牌`));
+    } else {
+      gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}选择弃置一张手牌`));
     }
   }
 

@@ -105,9 +105,17 @@ export class CunBuBuRang extends TriggerSkill {
         from: { location: CardActionLocation.PLAYER_HAND_CARD, player: targetPlayer },
       });
 
-      gameLog.addData(
-        new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`),
-      );
+      if (playerId == 0 || targetPlayerId == 0) {
+        gameLog.addData(
+          new GameLog(
+            `${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的手牌${gameLog.formatCard(handCard)}`,
+          ),
+        );
+      } else {
+        gameLog.addData(
+          new GameLog(`${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌`),
+        );
+      }
 
       GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
         player,

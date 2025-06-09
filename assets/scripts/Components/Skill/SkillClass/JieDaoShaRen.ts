@@ -33,14 +33,14 @@ export class JieDaoShaRen extends ActiveSkill {
       (data) => {
         this.onEffectA(gameData, data);
       },
-      this
+      this,
     );
     NetworkEventCenter.on(
       NetworkEventToC.SKILL_JIE_DAO_SHA_REN_B_TOC,
       (data) => {
         this.onEffectB(gameData, data);
       },
-      this
+      this,
     );
   }
 
@@ -116,8 +116,8 @@ export class JieDaoShaRen extends ActiveSkill {
 
     gameLog.addData(
       new GameLog(
-        `${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的一张手牌并展示`
-      )
+        `${gameLog.formatPlayer(player)}抽取${gameLog.formatPlayer(targetPlayer)}的${gameLog.formatCard(handCard)}`,
+      ),
     );
   }
 
@@ -196,9 +196,9 @@ export class JieDaoShaRen extends ActiveSkill {
       gameLog.addData(
         new GameLog(
           `${gameLog.formatPlayer(player)}将${gameLog.formatCard(handCard)}置入${gameLog.formatPlayer(
-            targetPlayer
-          )}的情报区`
-        )
+            targetPlayer,
+          )}的情报区`,
+        ),
       );
     }
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
