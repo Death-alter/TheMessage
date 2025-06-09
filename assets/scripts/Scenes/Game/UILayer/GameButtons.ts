@@ -68,6 +68,7 @@ export class GameButtons extends Component {
   }
 
   onDisable() {
+    ProcessEventCenter.off(ProcessEvent.RECORD_STATUS_CHANGE);
     ProcessEventCenter.off(ProcessEvent.GET_AUTO_PLAY_STATUS);
   }
 }
