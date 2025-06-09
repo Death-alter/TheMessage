@@ -156,8 +156,8 @@ export class MiLing extends Card {
     } else {
       gameLog.addData(
         new GameLog(
-          `${gameLog.formatPlayer(targetPlayer)}没有对应颜色的卡牌，由${gameLog.formatPlayer(player)}选择一张牌传出`
-        )
+          `${gameLog.formatPlayer(targetPlayer)}没有对应颜色的卡牌，由${gameLog.formatPlayer(player)}选择一张牌传出`,
+        ),
       );
       if (playerId === 0) {
         const handCardList = handCards.map((card) => {
@@ -199,7 +199,7 @@ export class MiLing extends Card {
             {
               text: "传递情报",
               onclick: () => {
-                gui.uiLayer.doSendMessage({ message: gui.selectedHandCards.list[0], canCancel: false });
+                gui.uiLayer.doSendMessage({ message: gui.selectedHandCards.list[0] });
                 next();
               },
               enabled: () => {
