@@ -20,7 +20,7 @@ export class CharacterInfoWindow extends Component {
       bgTransform.width = textTransform.width + 20;
       transform.height = textTransform.height;
       bgTransform.height = textTransform.height + 20;
-    }, 0);
+    }, 0.1);
   }
 
   setCharacterInfo(character: Character) {

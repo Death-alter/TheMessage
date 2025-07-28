@@ -87,6 +87,13 @@ export class CardInfoWindow extends Component {
 
     this.node.getChildByName("RichText").getComponent(RichText).string = str;
     detail.string = this.card.description;
+    
+    // Ensure proper layout refresh for RichText components on Android devices
+    this.scheduleOnce(() => {
+      const richTextComponent = this.node.getChildByName("RichText").getComponent(RichText);
+      richTextComponent.updateRenderData(true);
+      detail.updateRenderData(true);
+    }, 0.1);
 
     //其他
     if (this.card instanceof MiLing && this.card.secretColor) {
