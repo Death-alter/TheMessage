@@ -79,6 +79,7 @@ export class SelectCharacter extends Component {
 
       const characterInfoWindowComponent = this.characterInfoWindow.getComponent(CharacterInfoWindow);
       if (sys.isMobile) {
+        // Primary method: long tap
         character.entity.node.on("longtap", (event) => {
           this.characterInfoWindow.active = true;
           const character = (<Node>(<unknown>event.target)).getComponent(CharacterEntity).data;
@@ -88,6 +89,33 @@ export class SelectCharacter extends Component {
           this.node.once(Node.EventType.TOUCH_START, () => {
             this.characterInfoWindow.active = false;
           });
+        });
+
+        // Fallback method: double tap for iOS/UC browser compatibility
+        let lastTapTime = 0;
+        character.entity.node.on("tap", (event) => {
+          const currentTime = new Date().getTime();
+          const timeDiff = currentTime - lastTapTime;
+          
+          if (timeDiff < 300) { // Double tap detected
+            // Debug logging
+            if (typeof console !== 'undefined') {
+              console.log('Double tap fallback triggered for character selection info');
+            }
+            
+            this.characterInfoWindow.active = true;
+            const character = (<Node>(<unknown>event.target)).getComponent(CharacterEntity).data;
+            characterInfoWindowComponent.getComponent(CharacterInfoWindow).setCharacterInfo(character);
+            characterInfoWindowComponent.setPosition(event);
+
+            this.node.once(Node.EventType.TOUCH_START, () => {
+              this.characterInfoWindow.active = false;
+            });
+            
+            lastTapTime = 0; // Reset to prevent triple tap
+          } else {
+            lastTapTime = currentTime;
+          }
         });
       } else {
         character.entity.node.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {
