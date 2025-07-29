@@ -91,7 +91,7 @@ export class YiHuaJieMu extends ActiveSkill {
     PlayerAction.addStep({
       step: PlayerActionStepName.SELECT_PLAYERS,
       data: {
-        tooltipText: "请选择要获取情报的角色",
+        tooltipText: "请选择要移走情报的角色",
         filter: (player) => {
           return player.messageCounts.total > 0;
         },
