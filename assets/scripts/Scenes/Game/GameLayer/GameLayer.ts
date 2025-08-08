@@ -106,6 +106,7 @@ export class GameLayer extends Component {
       //角色信息展示
       const charcaterNode = player.entity.node.getChildByPath("Border/CharacterPanting");
       if (sys.isMobile) {
+        // Primary method: long tap
         charcaterNode.on("longtap", (event) => {
           this.manager.popupLayer.showCharacterInfo(event);
           this.manager.popupLayer.setCharacterInfoPosition(event);
@@ -113,6 +114,31 @@ export class GameLayer extends Component {
           this.node.once(Node.EventType.TOUCH_START, () => {
             this.manager.popupLayer.hideCharacterInfo();
           });
+        });
+
+        // Fallback method: double tap for iOS/UC browser compatibility
+        let lastTapTime = 0;
+        charcaterNode.on("tap", (event) => {
+          const currentTime = new Date().getTime();
+          const timeDiff = currentTime - lastTapTime;
+          
+          if (timeDiff < 300) { // Double tap detected
+            // Debug logging
+            if (typeof console !== 'undefined') {
+              console.log('Double tap fallback triggered for character info');
+            }
+            
+            this.manager.popupLayer.showCharacterInfo(event);
+            this.manager.popupLayer.setCharacterInfoPosition(event);
+
+            this.node.once(Node.EventType.TOUCH_START, () => {
+              this.manager.popupLayer.hideCharacterInfo();
+            });
+            
+            lastTapTime = 0; // Reset to prevent triple tap
+          } else {
+            lastTapTime = currentTime;
+          }
         });
       } else {
         charcaterNode.on(Node.EventType.MOUSE_ENTER, (event: MouseEvent) => {

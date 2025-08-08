@@ -1,6 +1,8 @@
 import { Card } from "../Components/Card/Card";
 import { CardColor } from "../Components/Card/type";
 
+export { BrowserDetection } from "./BrowserDetection";
+
 export function getCardColorText(card: Card);
 export function getCardColorText(color: CardColor);
 export function getCardColorText(c: Card | CardColor) {
