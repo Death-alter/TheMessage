@@ -39,6 +39,9 @@ export class EventMapper {
     NetworkEventCenter.on(NetworkEventToC.REMOVE_ONE_POSITION_TOC, (data: ProtobufType.remove_one_position_toc) => {
       ProcessEventCenter.emit(ProcessEvent.REMOVE_ROOM_POSITION, { position: data.position });
     });
+    NetworkEventCenter.on(NetworkEventToC.SET_ROOM_EXTENSION_TOC, (data: ProtobufType.set_room_extension_toc) => {
+      ProcessEventCenter.emit(ProcessEvent.SET_ROOM_EXTENSION, { extension: data.extension });
+    });
     NetworkEventCenter.on(NetworkEventToC.SAVE_RECORD_SUCCESS_TOC, (data: ProtobufType.save_record_success_toc) => {
       ProcessEventCenter.emit(ProcessEvent.SAVE_RECORD_SUCCESS, { recordId: data.recordId });
     });
@@ -53,7 +56,7 @@ export class EventMapper {
             gameCount: data.gameCounts[i],
             rank: data.ranks[i],
             score: data.scores[i],
-            title: data.title[i],
+            extension: data.extension[i],
           });
         }
         ProcessEventCenter.emit(ProcessEvent.CREATE_ROOM, {
@@ -80,7 +83,6 @@ export class EventMapper {
         gameCount: data.gameCount,
         rank: data.rank,
         score: data.score,
-        title: data.title,
       });
     });
     NetworkEventCenter.on(NetworkEventToC.LEAVE_ROOM_TOC, (data: ProtobufType.leave_room_toc) => {

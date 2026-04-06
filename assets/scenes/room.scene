@@ -23,7 +23,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 93
+      "__id__": 106
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -54,7 +54,7 @@
     },
     "autoReleaseAssets": true,
     "_globals": {
-      "__id__": 94
+      "__id__": 107
     },
     "_id": "d0bc4644-13ed-4407-a1e0-f572e11bcdec"
   },
@@ -74,19 +74,19 @@
         "__id__": 5
       },
       {
-        "__id__": 86
+        "__id__": 99
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 90
+        "__id__": 103
       },
       {
-        "__id__": 91
+        "__id__": 104
       },
       {
-        "__id__": 92
+        "__id__": 105
       }
     ],
     "_prefab": null,
@@ -178,7 +178,7 @@
     "_priority": 1,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 460.914798206278,
+    "_orthoHeight": 360,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -230,15 +230,18 @@
       },
       {
         "__id__": 55
+      },
+      {
+        "__id__": 84
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 84
+        "__id__": 97
       },
       {
-        "__id__": 85
+        "__id__": 98
       }
     ],
     "_prefab": null,
@@ -594,7 +597,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 140,
+      "width": 139.9578214946546,
       "height": 90.39999999999999
     },
     "_anchorPoint": {
@@ -627,7 +630,7 @@
     "_string": "当前在线人数：\n游戏中房间数：",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -877,7 +880,7 @@
     "_string": "添加机器人",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -1166,7 +1169,7 @@
     "_string": "移除机器人",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -1455,7 +1458,7 @@
     "_string": "添加空位",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -1744,7 +1747,7 @@
     "_string": "移除空位",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -2033,7 +2036,7 @@
     "_string": "退出房间",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -2627,7 +2630,7 @@
     "_string": "公告",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 24,
+    "_actualFontSize": 26.6,
     "_fontSize": 24,
     "_fontFamily": "Arial",
     "_lineHeight": 24,
@@ -2736,7 +2739,7 @@
     "_string": "",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 16,
+    "_actualFontSize": 17.733333333333334,
     "_fontSize": 16,
     "_fontFamily": "Arial",
     "_lineHeight": 18,
@@ -3235,6 +3238,159 @@
     "_id": "a1bINNrDBFmpiitNaGvy4c"
   },
   {
+    "__type__": "cc.Node",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 5
+    },
+    "_prefab": {
+      "__id__": 85
+    },
+    "__editorExtras__": {}
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 84
+    },
+    "asset": {
+      "__uuid__": "93d7e96b-e593-4318-99ff-72d52d6c9384",
+      "__expectedType__": "cc.Prefab"
+    },
+    "fileId": "96QWwiqQFCGZi9HBRlPqBz",
+    "instance": {
+      "__id__": 86
+    },
+    "targetOverrides": null,
+    "nestedPrefabInstanceRoots": null
+  },
+  {
+    "__type__": "cc.PrefabInstance",
+    "fileId": "19/xjEBIpLaJmxrW84fwln",
+    "prefabRootNode": null,
+    "mountedChildren": [],
+    "mountedComponents": [],
+    "propertyOverrides": [
+      {
+        "__id__": 87
+      },
+      {
+        "__id__": 89
+      },
+      {
+        "__id__": 91
+      },
+      {
+        "__id__": 93
+      },
+      {
+        "__id__": 95
+      }
+    ],
+    "removedComponents": []
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 88
+    },
+    "propertyPath": [
+      "_name"
+    ],
+    "value": "SelectBox"
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "96QWwiqQFCGZi9HBRlPqBz"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 90
+    },
+    "propertyPath": [
+      "_lpos"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 460,
+      "y": -60,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "96QWwiqQFCGZi9HBRlPqBz"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 92
+    },
+    "propertyPath": [
+      "_lrot"
+    ],
+    "value": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "96QWwiqQFCGZi9HBRlPqBz"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 94
+    },
+    "propertyPath": [
+      "_euler"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "96QWwiqQFCGZi9HBRlPqBz"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 96
+    },
+    "propertyPath": [
+      "_lpos"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 60,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "a86UWHL/RGUI0i26pYoJ/g"
+    ]
+  },
+  {
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
@@ -3280,7 +3436,10 @@
       "__id__": 65
     },
     "countDownNode": {
-      "__id__": 86
+      "__id__": 99
+    },
+    "selectBox": {
+      "__id__": 84
     },
     "_id": "c1i9Mcp+xO9LjaoXYj6IqY"
   },
@@ -3293,23 +3452,23 @@
       "__id__": 2
     },
     "_children": [],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
-        "__id__": 87
+        "__id__": 100
       },
       {
-        "__id__": 88
+        "__id__": 101
       },
       {
-        "__id__": 89
+        "__id__": 102
       }
     ],
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 480,
-      "y": 0,
+      "x": 460,
+      "y": 90,
       "z": 0
     },
     "_lrot": {
@@ -3341,13 +3500,13 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 86
+      "__id__": 99
     },
     "_enabled": true,
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 165.12,
+      "width": 165.07449409656954,
       "height": 54.4
     },
     "_anchorPoint": {
@@ -3363,7 +3522,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 86
+      "__id__": 99
     },
     "_enabled": true,
     "__prefab": null,
@@ -3380,7 +3539,7 @@
     "_string": "游戏将在5s后开始",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
+    "_actualFontSize": 22.166666666666668,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
@@ -3402,7 +3561,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 86
+      "__id__": 99
     },
     "_enabled": true,
     "__prefab": null,
@@ -3490,30 +3649,35 @@
     "asset": null,
     "fileId": "3e416b36-b6cc-464d-8215-64d0c9581bc0",
     "instance": null,
-    "targetOverrides": []
+    "targetOverrides": [],
+    "nestedPrefabInstanceRoots": [
+      {
+        "__id__": 84
+      }
+    ]
   },
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 95
+      "__id__": 108
     },
     "shadows": {
-      "__id__": 96
+      "__id__": 109
     },
     "_skybox": {
-      "__id__": 97
+      "__id__": 110
     },
     "fog": {
-      "__id__": 98
+      "__id__": 111
     },
     "octree": {
-      "__id__": 99
+      "__id__": 112
     },
     "skin": {
-      "__id__": 100
+      "__id__": 113
     },
     "lightProbeInfo": {
-      "__id__": 101
+      "__id__": 114
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

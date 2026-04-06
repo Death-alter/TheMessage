@@ -40,13 +40,7 @@ export class PlayerEntity extends Entity<Player> {
     super.setData(data);
     if (data) {
       this.characterPanting.getComponent(CharacterEntity).data = data.character;
-      if (data.name === "惑星" || data.name === "狗卡风声") {
-        const arr = ["傲视群雄", "设计大师", "复读机"];
-        const n = Math.floor(Math.random() * arr.length);
-        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name + "·" + arr[n];
-      } else {
-        this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
-      }
+      this.node.getChildByPath("Border/UserName/Label").getComponent(Label).string = data.name;
       this.refreshIdentityList();
       this.refreshHandCardCount();
       this.refreshLockState();

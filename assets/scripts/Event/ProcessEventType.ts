@@ -43,7 +43,7 @@ export interface CreateRoom {
     gameCount: number;
     rank: string;
     score: number;
-    title: string;
+    extension: number;
   }[];
 }
 

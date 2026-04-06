@@ -11,7 +11,7 @@ export interface PlayerInfo {
   gameCount: number;
   rank: string;
   score: number;
-  title: string;
+  extension: number;
 }
 
 @ccclass("Room")
@@ -26,6 +26,8 @@ export class PlayerList extends Component {
   noticeNode: Node | null = null;
   @property(Node)
   countDownNode: Node | null = null;
+  @property(Node)
+  selectBox: Node | null = null;
 
   private playerList: PlayerInfo[] = [];
   private onlineCount: number = 0;
@@ -34,6 +36,7 @@ export class PlayerList extends Component {
   private startTime: number = 5;
 
   protected onEnable(): void {
+    this.countDownNode.active = false;
     //收到房间信息
     ProcessEventCenter.on(ProcessEvent.CREATE_ROOM, (data: CreateRoom) => {
       let isFull = true;
@@ -52,7 +55,7 @@ export class PlayerList extends Component {
             gameCount: data.players[i].gameCount,
             rank: data.players[i].rank,
             score: data.players[i].score,
-            title: data.players[i].title,
+            extension: data.players[i].extension,
           };
         } else {
           isFull = false;
@@ -90,7 +93,7 @@ export class PlayerList extends Component {
         gameCount: data.gameCount || 0,
         rank: data.rank || "",
         score: data.score || 0,
-        title: data.title || "",
+        extension: data.extension || "",
       };
       this.playerListNode.children[data.position].getComponent(PlayerInfoTemplate).init(this.playerList[data.position]);
     });

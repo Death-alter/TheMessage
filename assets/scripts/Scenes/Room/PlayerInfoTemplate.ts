@@ -16,7 +16,17 @@ export class PlayerInfoTemplate extends Component {
       data.userName && (this.userName.string = data.userName);
       if (data.rank) {
         this.winCount.string = `段位：${data.rank}（${data.score}）`;
-        this.title.string = `历史勋章：${data.title || "无"}`;
+        switch (data.extension) {
+          case 1:
+            this.title.string = "基础";
+            break;
+          case 2:
+            this.title.string = "基础+一扩";
+            break;
+          case 3:
+            this.title.string = "基础+一扩+二扩";
+            break;
+        }
       } else {
         this.winCount.string = `机器人`;
       }
