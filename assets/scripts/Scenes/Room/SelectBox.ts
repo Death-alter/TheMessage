@@ -1,4 +1,4 @@
-import { _decorator, color, Component, Label, Node, Sprite } from "cc";
+import { _decorator, color, Component, Label, Node, Sprite, sys } from "cc";
 import { NetworkEventCenter, ProcessEventCenter } from "../../Event/EventTarget";
 import { NetworkEventToC, NetworkEventToS, ProcessEvent } from "../../Event/type";
 const { ccclass, property } = _decorator;
@@ -11,6 +11,9 @@ export class SelectBox extends Component {
   buttonLabel: Label | null = null;
 
   protected onLoad(): void {
+    const extension = parseInt(sys.localStorage.getItem("extension") || "4");
+    const text = this.layout.children[extension - 1].getChildByName("Label").getComponent(Label).string;
+    this.buttonLabel.getComponent(Label).string = text;
     const options = this.node.getChildByName("Options");
     options.active = false;
     this.node.getChildByName("Button").on(Node.EventType.TOUCH_END, (event) => {
@@ -35,6 +38,7 @@ export class SelectBox extends Component {
       child.on(Node.EventType.TOUCH_END, (event) => {
         child.getComponent(Sprite).color = color("#cccccc");
         NetworkEventCenter.emit(NetworkEventToS.SET_ROOM_EXTENSION_TOS, { extension: i + 1 });
+        sys.localStorage.setItem("extension", (i + 1).toString());
         options.active = false;
       });
     }

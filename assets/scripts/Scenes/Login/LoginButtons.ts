@@ -39,12 +39,14 @@ export class LoginButtons extends Component {
         const playerCount = parseInt(sys.localStorage.getItem("playerCount")) || 5;
         sys.localStorage.setItem("userName", name);
         sys.localStorage.setItem("password", password);
+        const extension = parseInt(sys.localStorage.getItem("extension") || "0");
         NetworkEventCenter.emit(NetworkEventToS.JOIN_ROOM_TOS, {
           version: config.version,
           name,
           password: password ? md5.Md5.hashStr(password) : "",
           device: md5.Md5.hashStr(this.userName.string),
           playerCount,
+          extension,
         });
         this.logining = true;
         this.scheduleOnce(() => {
