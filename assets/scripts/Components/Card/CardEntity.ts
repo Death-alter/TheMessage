@@ -36,8 +36,28 @@ export class CardEntity extends Entity<Card> {
 
   onEnable() {
     if (sys.isMobile) {
+      // Primary method: long tap
       this.node.on("longtap", () => {
         find("Canvas").getComponent(GameManager).popupLayer.showCardInfo(this.data);
+      });
+
+      // Fallback method: double tap for iOS/UC browser compatibility
+      let lastTapTime = 0;
+      this.node.on("tap", () => {
+        const currentTime = new Date().getTime();
+        const timeDiff = currentTime - lastTapTime;
+        
+        if (timeDiff < 300) { // Double tap detected
+          // Debug logging
+          if (typeof console !== 'undefined') {
+            console.log('Double tap fallback triggered for card info');
+          }
+          
+          find("Canvas").getComponent(GameManager).popupLayer.showCardInfo(this.data);
+          lastTapTime = 0; // Reset to prevent triple tap
+        } else {
+          lastTapTime = currentTime;
+        }
       });
     } else {
       this.node.on(Node.EventType.MOUSE_ENTER, () => {
@@ -52,6 +72,7 @@ export class CardEntity extends Entity<Card> {
   onDisable() {
     if (sys.isMobile) {
       this.node.off("longtap");
+      this.node.off("tap");
     } else {
       this.node.off(Node.EventType.MOUSE_ENTER);
       this.node.off(Node.EventType.MOUSE_LEAVE);
