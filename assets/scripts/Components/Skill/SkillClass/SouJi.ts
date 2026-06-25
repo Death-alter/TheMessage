@@ -190,7 +190,7 @@ export class SouJi extends ActiveSkill {
       });
     }
 
-    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${cardList.length}张牌加入手牌`));
+    gameLog.addData(new GameLog(`${gameLog.formatPlayer(player)}把${cardList.length+(messageCard?1:0)}张牌加入手牌`));
 
     GameEventCenter.emit(GameEvent.SKILL_HANDLE_FINISH, {
       player,
