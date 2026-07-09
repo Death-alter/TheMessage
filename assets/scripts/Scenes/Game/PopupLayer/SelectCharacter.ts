@@ -60,8 +60,16 @@ export class SelectCharacter extends Component {
         text += `\n机密任务：${identity.secretTaskText}`;
       }
       this.infoText.getComponent(RichText).string = text;
+      // Ensure proper layout refresh for RichText components on Android devices
+      this.scheduleOnce(() => {
+        this.infoText.getComponent(RichText).updateRenderData(true);
+      }, 0.1);
     } else {
       this.infoText.getComponent(RichText).string = "请选择一名角色";
+      // Ensure proper layout refresh for RichText components on Android devices
+      this.scheduleOnce(() => {
+        this.infoText.getComponent(RichText).updateRenderData(true);
+      }, 0.1);
     }
 
     //生成角色
